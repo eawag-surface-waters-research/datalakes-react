@@ -1,0 +1,9 @@
+.notfound {
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+.url {
+    display: inline-block;
+    font-weight: 700;
+}

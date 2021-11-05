@@ -1,0 +1,123 @@
+.ddselector .videocontrols {
+  display: inline-block;
+  width: 100px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.ddselector .datetime {
+  display: inline-block;
+  width: calc(100vw - 160px);
+  text-align: right;
+}
+
+.ddselector .datetime .maintimeslider {
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+}
+
+.ddselector .datetime .horizontalslider {
+  width: calc(100% - 230px);
+  display: inline-block;
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+  margin-top: -10px;
+  margin-right: 10px;
+  -webkit-transition: background-color 0.3s ease-out;
+  -moz-transition: background-color 0.3s ease-out;
+  -o-transition: background-color 0.3s ease-out;
+  transition: background-color 0.3s ease-out;
+}
+
+.ddselector .datetime .horizontalslider:hover {
+  background-color: rgb(255, 255, 255);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0px 4px 5px 0px rgba(0, 0, 0, 0.35);
+}
+
+.ddselector .datetime .maintime {
+  background-color: rgba(255, 255, 255, 1);
+  text-align: center;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  border: 0;
+  margin-right: 20px;
+  display: inline-block;
+  vertical-align: top;
+  padding: 0 5px;
+  min-width: 170px;
+}
+
+.ddselector .datetime .maintime .react-datetime-picker {
+  font-size: 15px;
+}
+
+.ddselector .datetime .maintime input {
+  height: 20px;
+}
+
+.ddselector .depth {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.ddselector .depth .verticalslider {
+  padding: 10px 0 20px 0;
+  -webkit-transition: background-color 0.3s ease-out;
+  -moz-transition: background-color 0.3s ease-out;
+  -o-transition: background-color 0.3s ease-out;
+  transition: background-color 0.3s ease-out;
+}
+
+.ddselector .depth .verticalslider:hover {
+  background-color: rgb(255, 255, 255);
+  border-radius: 8px;
+  box-shadow: 0px 4px 5px 0px rgba(0, 0, 0, 0.35);
+}
+
+.ddselector .depth .maindepth {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+}
+
+.ddselector .depth .maindepth input {
+  text-align: center;
+  border: 0;
+  width: 100px;
+  height: 20px;
+  background: none;
+  font-size: 15px;
+}
+
+.ddselector .depth .maindepth span {
+  position: absolute;
+  right: 30px;
+  top: 19px;
+  font-size: 15px;
+}
+
+.ddselector .depth .verticalslider {
+  height: calc(100vh - 520px);
+  margin-top: 10px;
+}
+
+.react-datetime-picker__wrapper {
+  border: 0 !important;
+}
+
+@media screen and (max-width: 500px) {
+  .ddselector .datetime .horizontalslider {
+    display: none;
+  }
+  .ddselector .depth .verticalslider {
+    display: none;
+  }
+  .ddselector .depth {
+    top: 0;
+  }
+}

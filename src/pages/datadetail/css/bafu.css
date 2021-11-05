@@ -1,0 +1,19 @@
+.bafu {
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  position: fixed;
+}
+
+.bafu .graph {
+  height: calc(100% - 100px);
+  width: 100%;
+}
+
+.bafu .selector {
+  height: 100px;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}

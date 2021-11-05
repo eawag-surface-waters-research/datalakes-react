@@ -1,0 +1,200 @@
+/* -------------- Header -------------------------  */
+
+header {
+  position: relative;
+  margin-top: 40px;
+  width: 100%;
+  padding: 5px 0;
+  z-index: 9999;
+  background-color: rgba(255,255,255,0.7);
+}
+
+.headerscroll {
+  position: fixed;
+  background-color: white;
+  margin-top: 0;
+  padding-top: 10px;
+  top: 0;
+  width: 100%;
+}
+
+@media screen and (max-width: 500px) {
+  header {
+    margin-top: 10px;
+  }
+}
+
+header .header-inner {
+  padding: 0 10px;
+  width: 960px;
+  margin: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+/* Logo */
+
+header .logo {
+  display: inline-block;
+  height: 35px;
+}
+
+header .logo img {
+  height: 100%;
+}
+
+@media screen and (max-width: 500px) {
+  header .logo {
+    height: 20px;
+  }
+}
+
+/* Mobile Navigation */
+
+header .mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 9999999;
+  text-align: center;
+  border-top: 1px solid #d8d6d3;
+}
+
+header .mobile-nav .mobile-navbar {
+  width: 100%;
+}
+
+header .mobile-nav a {
+  color: black;
+  padding: 0 10px;
+  text-decoration: none;
+}
+
+header .mobile-nav img {
+  width: 60px;
+  margin: 5px 2px;
+}
+
+header .mobile-nav .imgactive img {
+  border-bottom: 1px black solid;
+}
+
+header .mobile-nav .more {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 10px;
+}
+
+header .mobile-nav .mobile-flex {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+header .mobile-nav .mobile-menu {
+  display: none;
+  width: 100%;
+}
+
+header .mobile-nav .mobile-menu.show {
+  display: block;
+}
+
+@media screen and (max-width: 500px) {
+  header .mobile-nav {
+    display: block;
+  }
+}
+
+/* Navigation Menu */
+
+header .desktop-nav {
+  float: right;
+}
+
+header .desktop-nav .desktop-navbar .menu-icon {
+  display: inline-block;
+  cursor: pointer;
+  padding-left: 40px;
+  font-size: 16px;
+  font-family: The Serif Bold, serif;
+}
+
+header .desktop-nav .desktop-navbar .menu-icon .symbol {
+  display: inline-block;
+  transform: rotate(90deg);
+}
+
+header .desktop-nav .desktop-navbar .links {
+  display: inline-block;
+}
+
+header .desktop-nav a {
+  padding: 10px 0 10px 40px;
+  color: #000;
+  text-decoration: none;
+  font-size: 16px;
+  font-family: The Serif Bold, serif;
+  display: inline-block;
+}
+
+header .active {
+  font-weight: 700;
+}
+
+header .header-item:hover {
+  font-weight: 700;
+}
+
+header .desktop-nav .desktop-menu {
+  display: none;
+  max-width: 500px;
+  position: absolute;
+  background-color: white;
+}
+
+header .desktop-nav .desktop-navbar {
+  text-align: right;
+}
+
+header .desktop-nav .desktop-menu.show {
+  display: block;
+}
+
+header .desktop-nav .midscreen {
+  display: none;
+}
+
+@media screen and (max-width: 500px) {
+  header .desktop-nav {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  header .desktop-nav .desktop-navbar .links {
+    display: none;
+  }
+  header .desktop-nav .midscreen {
+    display: block;
+  }
+
+  header .desktop-nav a {
+    padding: 10px 25px 10px 0;
+    display: block;
+    text-align: right;
+  }
+
+  header .desktop-nav .desktop-menu.show {
+    background-color: white;
+    padding: 0 0 0 25px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    position: absolute;
+    width: 200px;
+    right: 0;
+  }
+}

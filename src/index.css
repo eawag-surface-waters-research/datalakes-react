@@ -1,0 +1,226 @@
+/* Datalakes Stylesheet
+  ____  _____   __  _  _______      ______
+_/ __ \ \__  \  \ \/ \/ /\__  \    /  ___/
+\  ___/  / __ \_ \     /  / __ \_ /  /____
+ \___  >(____  /  \/\_/  (____  / \___  /
+	 \/      \/               \/      \/
+      Developed By James Runnalls      */
+
+/* ------------------- General --------------------------- */
+
+@font-face {
+  font-family: "The Serif Bold";
+  src: url("./font/theserifbold.woff") format("woff");
+}
+
+iframe {
+  display: none;
+}
+
+body {
+  color: rgb(0, 0, 0);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 30px;
+  margin: 15px 0;
+  padding: 0 10px;
+  text-size-adjust: 100%;
+}
+
+h3 {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+h4 {
+  margin: 5px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@media screen and (max-width: 500px) {
+  h1 {
+    display: none;
+  }
+}
+
+main {
+  width: 960px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  min-height: calc(100vh - 240px);
+}
+
+@media screen and (max-width: 500px) {
+  main {
+    margin-bottom: 70px;
+    min-height: calc(100vh - 120px);
+  }
+}
+
+#root {
+  overflow: hidden;
+}
+
+
+.inline {
+  display: inline-block;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Text Area */
+
+textarea {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+/* Hyperlink */
+
+a:link {
+  color: black;
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: black;
+}
+
+/* mouse over link */
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  border: solid 1px black;
+  background-color: transparent;
+  margin-right: 15px;
+  margin-top: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* Shapes */
+
+.circle {
+  height: 9px;
+  width: 9px;
+  border-radius: 50%;
+  background-color: black;
+}
+
+.square {
+  height: 8px;
+  width: 8px;
+  background-color: black;
+}
+
+.triangle {
+  height: 12px;
+  width: 12px;
+  -webkit-clip-path: polygon(0% 87%, 50% 0%, 50% 0%, 100% 87%);
+  clip-path: polygon(0% 87%, 50% 0%, 50% 0%, 100% 87%);
+  background-color: black;
+}
+
+.arrow {
+  height: 12px;
+  width: 12px;
+  -webkit-clip-path: polygon(50% 0, 100% 100%, 50% 75%, 0 100%);
+  clip-path: polygon(50% 0, 100% 100%, 50% 75%, 0 100%);
+  background-color: black;
+}
+
+.trapezoid {
+  height: 12px;
+  width: 12px;
+  -webkit-clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+  clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+  background-color: black;
+}
+
+.diamond {
+  height: 12px;
+  width: 12px;
+  -webkit-clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background-color: black;
+}
+
+.pin {
+  margin-left: -5px;
+  margin-top: -23px;
+  border-radius: 50% 50% 50% 0;
+  border: 4px solid transparent;
+  width: 15px;
+  height: 15px;
+  transform: rotate(-45deg);
+}
+
+.pin::after {
+  position: absolute;
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  margin-left: -6px;
+  margin-top: -6.5px;
+  background-color: #fff;
+}
+
+.pin2 {
+  position: absolute;
+  top: -80%;
+  left: 32%;
+  border-radius: 50%;
+  border: 8px solid red;
+  width: 8px;
+  height: 8px;
+}
+
+.pin2::after {
+  position: absolute;
+  content: "";
+  width: 0px;
+  height: 0px;
+  bottom: -30px;
+  left: -6px;
+  border: 10px solid transparent;
+  border-top: 17px solid red;
+}

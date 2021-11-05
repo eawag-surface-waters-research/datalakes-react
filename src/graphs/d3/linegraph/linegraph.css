@@ -1,0 +1,34 @@
+.linegraph-main {
+  height: 100%;
+  width: 100%;
+  display: table;
+}
+
+.linegraph-main .linegraph-header {
+  display: table-row;
+  width: 100%;
+}
+
+.linegraph-main .linegraph-graph {
+  display: table-row;
+}
+
+.linegraph-graph {
+  width: 100%;
+  height: 100%;
+}
+
+.linegraph-main table.vis-data {
+  text-align: center;
+  margin-left: 10px;
+  margin-top: 15px;
+  background-color: white;
+  pointer-events: none;
+  font-size: 12px;
+  position: absolute;
+  right: 25px;
+}
+
+.linegraph-main table.vis-data td {
+  max-width: 100px;
+}

@@ -1,0 +1,173 @@
+/* -------------- Side Bar -------------------------  */
+
+/* Right Side */
+
+.sidebarlayout .rightcontainer {
+  width: 318px;
+  padding-left: 10px;
+  padding-right: 10px;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  background-color: white;
+  min-height: 500px;
+}
+
+.sidebarlayout .rightcontainer.hide {
+  width: 40px;
+}
+
+.sidebarlayout .rightcontainer .righthead {
+  cursor: pointer;
+  border-bottom: 1px solid #c8c6bf;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  font-family: "The Serif Bold", Arial, sans-serif;
+}
+
+.sidebarlayout .rightcontainer .righthead .sidebartitle {
+  display: inline-block;
+}
+
+.sidebarlayout .rightcontainer .righthead span {
+  float: right;
+  font-size: 18px;
+}
+
+.sidebarlayout .rightcontainer .rightcontent {
+  max-width: 300px;
+  margin: auto;
+  height: inherit;
+}
+
+.sidebarlayout .rightcontainer .rightcontent .scroll {
+  overflow: hidden;
+  height: 458px;
+}
+
+.sidebarlayout .rightcontainer .rightcontent .scroll:hover {
+  overflow-y: auto;
+}
+
+.sidebarlayout .rightcontainer.hide .righthead {
+  writing-mode: vertical-rl;
+}
+
+.sidebarlayout .rightcontainer.hide .rightcontent {
+  display: none;
+}
+
+.sidebarlayout .rightcontainer.hide .sidebartitle {
+  padding-bottom: 10px;
+}
+
+.sidebarlayout .rightcontainer.hide span {
+  transform: rotate(90deg);
+  margin-bottom: 10px;
+}
+
+/* Left Side */
+
+.sidebarlayout .leftcontainer {
+  width: 638px;
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 30px;
+  vertical-align: top;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-block;
+}
+
+.sidebarlayout .leftcontainer.full {
+  width: -webkit-calc(100% - 50px);
+  width: -moz-calc(100% - 50px);
+  width: calc(100% - 50px);
+  padding-right: 15px;
+}
+
+/* Media Queries */
+
+@media screen and (max-width: 960px) {
+  .sidebarlayout .rightcontainer.hide {
+    right: 10px;
+    height: auto;
+  }
+
+  .sidebarlayout .leftcontainer {
+    width: calc(100vw - 323px);
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .sidebarlayout .rightcontainer.hide {
+    right: 0;
+    width: 100%;
+    min-height: 0;
+    padding: 2px 5px;
+  }
+
+  .sidebarlayout .rightcontainer {
+    right: 0;
+    width: 100%;
+    min-height: 0;
+    padding: 2px 5px;
+    order: 1;
+  }
+
+  .sidebarlayout .rightcontainer.hide .righthead {
+    -ms-writing-mode: unset;
+    writing-mode: unset;
+  }
+
+  .sidebarlayout .rightcontainer .righthead {
+    width: 100%;
+    border: 1px solid rgb(169, 169, 169);
+    padding: 4px 5px;
+    box-sizing: border-box;
+  }
+
+  .sidebarlayout .rightcontainer .righthead .sidebartitle {
+    padding: 0;
+    color: rgb(50, 50, 50);
+  }
+
+  .sidebarlayout .rightcontainer .righthead span {
+    transform: rotate(-90deg);
+  }
+
+  .sidebarlayout .rightcontainer.hide .righthead span {
+    transform: rotate(90deg);
+  }
+
+  .sidebarlayout .rightcontainer .rightcontent .scroll {
+    height: auto;
+  }
+
+  .sidebarlayout .rightcontainer .rightcontent {
+    padding: 0 5px;
+    margin-bottom: 60px;
+    max-width: 500px;
+  }
+
+  .sidebarlayout .leftcontainer {
+    width: 100%;
+    padding: 0;
+    order: 2;
+  }
+
+  .sidebarlayout .leftcontainer.full {
+    width: 100%;
+    padding: 0;
+  }
+
+  .sidebarlayout {
+    display: flex;
+    flex-direction: column;
+  }
+}

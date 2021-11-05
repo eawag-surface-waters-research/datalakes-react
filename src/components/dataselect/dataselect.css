@@ -1,0 +1,47 @@
+.dataselect__value-container {
+  position: static !important;
+}
+
+.dataselect__indicator-separator {
+  display: none !important;
+}
+
+.dataselect__single-value {
+  color: black !important;  
+}
+
+.dataselect__dropdown-indicator {
+  padding: 0 !important;
+  padding-right: 8px !important;
+}
+
+.css-26l3qy-menu {
+  width: auto!important;
+  min-width: 100%!important;
+}
+
+.dataselect__single-value {
+  max-width: calc(100% - 30px)!important;
+}
+
+.dataselect__control {
+  border-color: rgb(169,169,169) !important;
+  border-radius: 0 !important;
+  cursor: text !important;
+}
+
+.dataselect__control:hover {
+  box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+}
+
+.dataselect__indicator.dataselect__dropdown-indicator {
+  color: rgb(169,169,169) !important;
+}
+
+.dataselect__indicator.dataselect__clear-indicator {
+  cursor: pointer;
+}
+
+.multi-select {
+  color: black;
+}

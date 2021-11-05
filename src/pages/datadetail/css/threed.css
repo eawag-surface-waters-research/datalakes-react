@@ -1,0 +1,215 @@
+.threed {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.threed.full {
+  height: 100vh;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 999999999;
+}
+
+.threed .sidebar-gis {
+  top: 10px;
+  height: calc(100% - 130px);
+}
+
+.threed .threedlegend {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+}
+
+.threed .close {
+  color: #aaa;
+  font-size: 34px;
+  font-weight: bold;
+  position: absolute;
+  right: 10px;
+  top: 0px;
+}
+
+.threed.full .close {
+  top: 0;
+}
+
+.threed .parameter-select {
+  float: right;
+  z-index: 99999;
+  position: relative;
+  margin-right: 10px;
+}
+
+.threed .basemapwrapper {
+  height: calc(100vh - 230px);
+  width: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  z-index: 999;
+}
+
+.threed.full .basemapwrapper {
+  height: 100%;
+  max-height: none;
+}
+
+.threed .basemapwrapper .controls {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 998;
+}
+
+.threed .graphwrapper {
+  height: 500px;
+  width: 50%;
+  box-sizing: border-box;
+  max-width: 960px;
+  position: absolute;
+  right: 120px;
+  max-height: calc(100vh - 100px);
+  min-height: 340px;
+  display: inline-block;
+  z-index: 999;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 30px 0;
+  top: 70px;
+  box-shadow: 0 0 4px black;
+}
+
+.threed .graphwrapper.hide {
+  display: none;
+}
+
+.threed .graphwrapper table {
+  
+  margin: auto;
+}
+
+.printlegend {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: white;
+  z-index: 9999999999999;
+}
+
+.printheader {
+  display: none;
+  font-size: 18px;
+  text-align: right;
+  position: fixed;
+  top: 0;
+  right: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  z-index: 9999999999999;
+}
+
+@media screen and (max-width: 1050px) {
+  .threed {
+    width: 100%;
+    margin: 0;
+    margin-bottom: 100px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .threed .basemapwrapper {
+    width: 100%;
+    padding: 0;
+  }
+  .threed .graphwrapper {
+    width: calc(100% - 80px);
+    box-sizing: border-box;
+    position: absolute;
+    right: 10px;
+    background-color: white;
+    z-index: 9999;
+    top: 10px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .threed .graphwrapper {
+    width: 100%;
+    height: calc(100vh - 170px);
+    right: 0;
+  }
+  .threed .basemapwrapper {
+    height: calc(100vh - 150px);
+  }
+
+  .threed .parameter-select {
+    margin-right: 10px;
+  }
+
+  .threed {
+    margin: 0;
+  }
+}
+
+@media print {
+  .threed {
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 999;
+  }
+
+  .threed .basemapwrapper {
+    height: 100vh;
+  }
+
+  .basemapwrapper .controls {
+    display: none;
+  }
+
+  .basemapwrapper .sidebar-gis {
+    display: none;
+  }
+
+  .basemapwrapper .shading {
+    display: none;
+  }
+
+  .basemapwrapper .timeselector-gis {
+    display: none;
+  }
+
+  .basemapwrapper .legend {
+    display: none;
+  }
+
+  .printlegend {
+    display: block;
+  }
+
+  .printheader {
+    display: block;
+  }
+
+  .legend-content {
+    overflow: hidden;
+  }
+
+  header {
+    margin: 0;
+  }
+  header .header-inner {
+    margin: 0;
+  }
+  header .desktop-nav,
+  .mobile-nav {
+    display: none;
+  }
+}

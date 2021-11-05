@@ -1,0 +1,108 @@
+ul.maplayers-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.maplayers-list li {
+  list-style-type: none;
+  z-index: 99999;
+}
+
+
+.maplayers-contents {
+  margin-bottom: 15px;
+}
+
+.maplayers-dropdown {
+  margin: 2px 0 5px 0;
+}
+
+.maplayers-dropdown .maplayers-dropdown-table {
+  width: 100%;
+}
+
+.maplayers-dropdown .maplayers-check {
+  width: 10px;
+  vertical-align: top;
+}
+
+.maplayers-dropdown .maplayers-checkbox {
+  display: inline-block;
+}
+
+.maplayers-dropdown .maplayers-symbol {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.maplayers-dropdown .maplayers-settings {
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.maplayers-dropdown-content {
+  margin-left: 12px;
+}
+
+.maplayers-dropdown-content.hide {
+  display: none;
+}
+
+.maplayers-parameter {
+  font-size: 12px;
+  font-style: italic;
+}
+
+.maplayers-label {
+  font-size: 18px;
+}
+
+.maplayers-label .maplayers-arrow {
+  font-size: 30px;
+  width: 100%;
+  text-align: center;
+}
+
+.editsettings {
+  background-color: rgb(240, 240, 240);
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+.editsettings-title {
+  margin: 10px 0 10px 4px;
+  text-decoration: underline;
+}
+
+.editsettings-table {
+  table-layout: fixed;
+}
+
+.editsettings-table input[type="text"] {
+  width: 50px;
+}
+
+.editsettings-table select {
+  width: 80px;
+}
+
+.editsettings-button {
+  width: 100%;
+  text-align: center;
+}
+
+.editsettings-button button {
+  margin: 10px;
+}
+
+.editsettings table.min-max {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.editsettings table.min-max input {
+  width: 100%;
+}

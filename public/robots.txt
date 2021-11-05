@@ -1,0 +1,7 @@
+# Google
+User-agent: Googlebot
+Disallow: /datadetail/
+
+# Others
+User-agent: *
+Allow: /

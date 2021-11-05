@@ -1,0 +1,39 @@
+.addlayers-box .addlayers-layer {
+  border: 1px solid rgb(169, 169, 169);
+  padding: 4px 6px;
+  margin: 2px 0;
+}
+
+.addlayers-title {
+  display: inline-block;
+  max-width: calc(100% - 50px);
+  cursor: pointer;
+}
+
+.addlayers-title:hover {
+  font-weight: bold;
+}
+
+.addlayers-symbol {
+  float: right;
+  width: 50px;
+  text-align: right;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.addlayers-detail {
+    cursor: pointer;
+    cursor: pointer;
+    padding: 3px 5px;
+    border: 1px solid rgb(169, 169, 169);
+    margin: 2px 0;
+}
+
+.addlayers-detail:hover {
+    background-color: rgb(220, 220, 220);
+}
+
+.addlayers-content {
+    margin-top: 10px;
+}

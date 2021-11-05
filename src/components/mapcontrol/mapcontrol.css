@@ -1,0 +1,124 @@
+.mapcontrol {
+  width: fit-content;
+}
+
+.mapcontrol .mapcontrol-item {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  display: block;
+  text-align: center;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  background-color: white;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-family: "Lucida Console", Monaco, monospace;
+  font-weight: bold;
+  font-size: 22px;
+  border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.mapcontrol .zoomcontrol {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+}
+
+.mapcontrol .zoomcontrol .mapcontrol-item {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mapcontrol .zoomcontrol .mapcontrol-item.one {
+  border-radius: 4px 4px 0 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.mapcontrol .zoomcontrol .mapcontrol-item.three {
+  border-radius: 0 0 4px 4px;
+  border-top: 1px solid #ccc;
+}
+
+.mapcontrol .othercontrol {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.mapcontrol .othercontrol .mapcontrol-item {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.mapcontrol .othercontrol .mapcontrol-item.top {
+  border-radius: 4px 4px 0 0;
+}
+
+.mapcontrol .othercontrol .mapcontrol-item.middle {
+  border-top: 1px solid #ccc;
+}
+
+.mapcontrol .othercontrol .mapcontrol-item.middle.active {
+  border-top: 1px solid black;
+}
+
+.mapcontrol .othercontrol .mapcontrol-item.bottom {
+  border-radius: 0 0 4px 4px;
+  border-top: 1px solid #ccc;
+}
+
+.mapcontrol .othercontrol .mapcontrol-item.bottom.active {
+  border-top: 1px solid black;
+}
+
+.mapcontrol .mapcontrol-item:hover {
+  background-color: #f4f4f4;
+}
+
+.mapcontrol .mapcontrol-item img {
+  width: 20px;
+  padding: 5px;
+}
+
+.mapcontrol .mapcontrol-item.active {
+  border: 1px solid black;
+}
+
+.mapcontrol .mapcontrol-item.outline:hover {
+  border: 1px solid black;
+}
+
+.othercontrol span {
+  position: absolute;
+  font-size: 16px;
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  display: inline-block;
+  max-width: 0;
+  overflow: hidden;
+  transition: all 0.5s ease-in;
+  white-space: nowrap;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.othercontrol img:hover + span {
+  max-width: none;
+  padding: 0 10px;
+}
+
+/* Tocuhscreen changes */
+
+@media (hover: none) and (pointer: coarse) {
+  .mapcontrol .mapcontrol-item {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+  }
+  .mapcontrol .mapcontrol-item img {
+    width: 22px;
+    padding: 6px;
+  }
+}

@@ -1,0 +1,763 @@
+.title-live {
+  font-size: 10px;
+  color: white;
+  background-color: black;
+  border-radius: 2px;
+  padding: 2px 6px;
+  font-weight: bold;
+  margin-left: 10px;
+  display: inline;
+  vertical-align: bottom;
+}
+
+.swagger-ui .opblock-tag {
+  font-size: 18px;
+  color: black;
+}
+
+.swagger-ui .wrapper {
+  padding: 0;
+}
+
+.swagger-ui .expand-operation {
+  display: none;
+}
+
+.z-edit {
+  width: 100%;
+}
+
+.z-edit input {
+  width: 60%;
+  display: inline-block;
+}
+
+.z-edit button {
+  margin: 0;
+  display: inline-block;
+  width: 30%;
+  padding: 2px 5px;
+  float: right;
+  border-color: grey;
+}
+
+.iframe {
+  margin-top: 10px;
+}
+
+.iframe img {
+  height: 15px;
+  transition: transform .2s;
+}
+
+.iframe img:hover {
+  height: 15px;
+  transform: scale(1.01);
+}
+
+.downsample {
+  width: 200px;
+}
+
+.downsample .downsample-left {
+  width: 70%;
+  display: inline-block;
+}
+
+.downsample .downsample-right {
+  display: inline-block;
+  width: 30%;
+  text-align: center;
+  padding: 10px 0;
+  vertical-align: top;
+}
+
+.downsample .downsample-left input {
+  width: calc(100% - 5px);
+  margin-bottom: 5px;
+}
+
+.downsample .downsample-left select {
+  width: 100%;
+}
+
+.ch2018graph {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  box-sizing: border-box;
+  position: relative;
+  height: 600px;
+  margin-bottom: 100px;
+  padding: 0 20px;
+}
+
+.ch2018graph .left {
+  width: calc(50% - 30px);
+  display: inline-block;
+  height: 100%;
+  vertical-align: top;
+  margin-right: 30px;
+}
+
+.ch2018graph .right {
+  width: calc(50% - 30px);
+  display: inline-block;
+  height: 100%;
+  vertical-align: top;
+  margin-left: 30px;
+}
+
+.ch2018graph .right .lower {
+  height: 50%;
+}
+
+.ch2018graph .right .upper {
+  height: 50%;
+}
+
+.ch2018graph .selections {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.ch2018graph .selections table {
+  margin: auto;
+}
+
+.ch2018graph .selections table td {
+  width: 150px;
+}
+.ch2018graph .selections table td select {
+  width: 100%;
+}
+
+.info-inner {
+  display: inline-block;
+  width: 50%;
+  vertical-align: top;
+  min-width: 350px;
+  padding-right: 20px;
+  box-sizing: border-box;
+  margin-bottom: 120px;
+}
+
+.info-width {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.info-width table {
+  max-width: 100%;
+  text-align: left;
+}
+
+.info-width td {
+  padding: 6px 0px;
+  padding-right: 40px;
+}
+
+.info-inner td {
+  padding: 6px 0px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  width: 70%;
+}
+
+.info-inner th {
+  text-align: left;
+  width: 30%;
+}
+
+.info-inner table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.info-head {
+  font-size: 16px;
+  font-weight: 700;
+  padding-top: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #c8c6bf;
+}
+
+.info-title {
+  font-size: 18px;
+  font-weight: 700;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.date-slider {
+  width: 550px;
+  max-width: 100%;
+}
+
+.side-date-slider {
+  width: 100%;
+}
+
+.pipeline img {
+  height: 75px;
+}
+
+.pipeline .diagram a {
+  display: inline-block;
+  text-align: center;
+  color: black;
+  text-decoration: none;
+}
+
+.pipeline .pipeline-icon {
+  display: inline-block;
+  text-align: center;
+  color: black;
+  text-decoration: none;
+}
+
+.pipeline .diagram {
+  text-align: center;
+  width: 100%;
+  padding-top: 100px;
+}
+
+.networkgraph-outer {
+  width: 100%;
+}
+
+.networkgraph-inner {
+  width: 100%;
+  height: 400px;
+}
+
+.detailgraph {
+  height: 500px;
+  padding-top: 25px;
+  max-height: 100vh;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  box-shadow: 0 0 4px black;
+  padding: 25px 10px 5px 10px;
+}
+
+.detailloading {
+  display: none;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  padding-top: calc(50% - 100px);
+  background-color: rgba(255, 255, 255, 0.4);
+  z-index: 999;
+}
+
+.separator {
+  display: inline-block;
+  background-color: rgb(161, 159, 159);
+  height: 9px;
+  margin: 33px;
+  vertical-align: top;
+}
+
+.separator.full {
+  width: 150px;
+}
+
+.separator.half {
+  width: 75px;
+}
+
+.keeplines {
+  text-align: center;
+}
+
+.filecontrol {
+  width: 100%;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.filecontrol input[type="color"] {
+  height: 12px;
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.filecontrol .color-line {
+  width: 20px;
+  height: 3px;
+}
+
+.filecontrol .removefile {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.data-subnav .subnav-item {
+  display: inline-block;
+  margin: 0 20px -1px 0;
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid #f3f3f3;
+}
+
+.data-subnav .subnav-item:hover {
+  border: 1px solid rgb(169, 169, 169);
+  transition: border 0.5s ease;
+}
+
+.data-subnav .subnav-item.active {
+  border: 1px solid rgb(169, 169, 169);
+  background-color: white;
+  font-weight: 500;
+}
+
+.data-subnav .subnav-item.hide {
+  display: none;
+}
+
+.data-subnav {
+  font-size: 13.33px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  margin-top: 20px;
+  padding: 10px;
+  background: #f3f3f3;
+}
+
+.data-subnav .subnav-item .subnav-text {
+  display: inline-block;
+}
+
+.data-subnav .subnav-item .subnav-img {
+  height: 16px;
+  padding-right: 10px;
+  vertical-align: top;
+}
+
+.pipeline-headitem {
+  width: auto;
+  display: inline-block;
+  padding: 5px 10px;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.pipeline-headitem.active {
+  border: 1px solid grey;
+}
+
+.meteolakesdownload select {
+  padding: 3px 6px;
+  margin-right: 10px;
+  border: 1px solid black;
+  background-color: white;
+}
+
+.api-meteolakes {
+  margin-top: 15px;
+}
+
+.raster-calculator {
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  box-sizing: border-box;
+  top: 30%;
+  z-index: 999999;
+  pointer-events: none;
+}
+
+.raster-calculator .inner {
+  position: relative;
+  background-color: white;
+  margin: auto;
+  width: fit-content;
+  max-width: 100%;
+  padding: 20px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+  pointer-events: all;
+}
+
+.raster-calculator .inner input {
+  width: 100%;
+  border: 1px solid black;
+}
+
+.raster-calculator .inner textarea {
+  width: 100%;
+  border: 1px solid black;
+}
+
+.raster-calculator .inner button {
+  margin: 6px 10px;
+}
+
+.raster-calculator .inner .title {
+  margin-bottom: 20px;
+  font-size: bold;
+}
+
+@media screen and (max-width: 900px) {
+  .data-subnav .subnav-item .subnav-text {
+    display: none;
+  }
+  .data-subnav .subnav-item .subnav-img {
+    padding: 0 5px;
+    height: 22px;
+  }
+  .data-subnav .subnav-item {
+    margin: 0 15px -1px 0;
+  }
+  .data-subnav {
+    padding: 0 0 10px 15px;
+  }
+
+  .ch2018graph {
+    margin-bottom: 200px;
+    padding: 0 10px;
+    height: auto;
+  }
+  .ch2018graph .left {
+    width: 100%;
+    height: 400px;
+    margin: 0;
+  }
+
+  .ch2018graph .right {
+    width: 100%;
+    height: 400px;
+    margin: 0;
+  }
+
+  .ch2018graph .right .lower {
+    height: 50%;
+  }
+
+  .ch2018graph .right .upper {
+    height: 50%;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .detailgraph {
+    margin-top: 10px;
+    margin-bottom: 0;
+    height: calc(100vh - 260px);
+  }
+
+  .data-subnav .subnav-item .subnav-text {
+    display: none;
+  }
+  .data-subnav .subnav-item .subnav-img {
+    padding: 0 3px;
+  }
+  .data-subnav .subnav-item {
+    margin: 0 0 -1px 0;
+    border-color: white;
+  }
+  .data-subnav {
+    padding: 0 5px 8px 5px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    background-color: white;
+    margin-top: -5px;
+  }
+  .info-inner {
+    margin: 0;
+  }
+  .info-width {
+    margin: 0;
+  }
+  .pipeline img {
+    height: 30px;
+  }
+  .separator {
+    width: 20px !important;
+    margin: 10px 10px;
+  }
+
+  .pipeline .pipeline-header {
+    margin-top: 20px;
+  }
+
+  .pipeline .diagram a {
+    width: 60px;
+  }
+
+  .pipeline .diagram {
+    padding-top: 30px;
+  }
+}
+
+.pipeline .renku-header {
+  margin-bottom: 20px;
+}
+
+.pipeline-left {
+  width: 50%;
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: 20px;
+  margin-top: -70px;
+}
+
+.pipeline-left .datasets {
+  display: block;
+  width: fit-content;
+  border: 1px solid black;
+  padding: 10px 15px;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: auto;
+}
+
+.pipeline-left .script {
+  display: block;
+  width: fit-content;
+  background-color: rgb(200, 200, 200);
+  padding: 20px 30px;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: auto;
+  -webkit-clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.pipeline-left .connector {
+  display: block;
+  width: fit-content;
+  font-size: 30px;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: auto;
+}
+
+.pipeline .pipeline-right {
+  width: 50%;
+  display: inline-block;
+  vertical-align: top;
+  padding-right: 5px;
+  box-sizing: border-box;
+}
+
+.pipeline .pipeline-right .accessType {
+  border: 1px solid rgb(169, 169, 169);
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 12px;
+  padding: 3px 3px;
+  margin-bottom: 10px;
+}
+
+.pipeline .pipeline-right .accessOption {
+  padding: 10px 10px;
+  font-size: 14px;
+}
+
+.pipeline .pipeline-right .accessOption .pipeline-private {
+  font-size: 10px;
+  color: grey;
+  margin-top: 5px;
+}
+
+.pipeline .pipeline-right .accessOption a {
+  width: 100%;
+}
+
+.pipeline .pipeline-right .accessOption button {
+  display: block;
+
+  margin-top: 10px;
+}
+
+@media screen and (max-width: 800px) {
+  .pipeline .pipeline-right {
+    width: 100%;
+    padding-right: 0;
+  }
+  .pipeline-left {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+.colors-table .color-value {
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1px solid black;
+}
+
+.colors-table {
+  width: 100%;
+  table-layout: fixed;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.colors-table td {
+  padding-right: 15px;
+}
+
+.downsample {
+  display: inline-block;
+  width: 50px;
+  margin-left: 5px;
+}
+
+.color-buttons {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.color-button {
+  border: solid 1px black;
+  background-color: white;
+  margin-right: 15px;
+  margin-top: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  width: 120px;
+}
+
+.download-button {
+  width: 120px;
+}
+
+.preview-table {
+  overflow-y: auto;
+  overflow-x: scroll;
+  margin-bottom: 120px;
+}
+
+.preview-table table {
+  border-collapse: collapse;
+}
+
+.preview-flat {
+  margin-bottom: 20px;
+}
+
+.preview-table table td {
+  padding: 0 15px;
+  text-align: center;
+  min-width: 100px;
+  border: 1px solid #c8c6bf;
+}
+
+.preview-table table th {
+  border: 1px solid #c8c6bf;
+}
+
+.preview-table table th {
+  background-color: #e9e9e9;
+}
+
+.axis-select {
+  width: calc(100% - 30px);
+  display: inline-block;
+  padding-left: 10px;
+}
+
+.axis-mask {
+  text-align: center;
+}
+
+.loading-table {
+  width: 100%;
+  height: 400px;
+  text-align: center;
+}
+
+.linegraph-downloading {
+  width: 100%;
+  text-align: center;
+}
+
+.linegraph-bottombox {
+  height: 80px;
+}
+
+.multipledownload {
+  background-color: #f3f3f3;
+  padding: 20px;
+  box-shadow: 0 0 4px black;
+  margin-bottom: 20px;
+}
+
+.multipledownload .subheading {
+  padding-top: 10px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.multipledownload .selected-download {
+  padding-bottom: 20px;
+  padding-top: 5px;
+  font-size: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.parsedata table {
+  margin-bottom: 30px;
+}
+
+.parsedata table th {
+  text-align: left;
+  background-color: #f3f3f3;
+  padding: 0 10px;
+}
+
+.scale-select {
+  background-color: white;
+  border-color: rgb(169, 169, 169);
+  padding: 3px;
+  width: 180px;
+}
+
+.datadetail-padding {
+  width: 100%;
+  padding: 0 10px 80px 10px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.datadetail-header {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.remotesensingdownload .downloadinner {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.remotesensingdownload .downloadinner th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
+
+.remotesensingdownload .downloadinner tbody {
+}
+
+.remotesensingdownload .downloadinner button {
+  margin: 0;
+  padding: 2px 5px;
+}
+
+.remotesensingdownload .downloadinner table td {
+  padding: 2px 10px;
+}

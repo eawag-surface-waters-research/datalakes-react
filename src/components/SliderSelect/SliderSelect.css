@@ -1,0 +1,29 @@
+.sliderselect {
+  position: relative;
+  width: 100%;
+}
+
+.sliderselectsvg {
+  cursor: pointer;
+}
+
+.xaxis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+  stroke-width: 2px;
+  margin-bottom: 3px;
+}
+
+.xaxis .tick {
+  margin-top: 10px;
+}
+
+.sliderselect .sliderselecttooltip {
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+  pointer-events: none;
+  top: 0;
+  white-space: nowrap;
+}

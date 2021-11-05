@@ -1,0 +1,77 @@
+/* -------------- Footer -------------------------  */
+
+footer {
+  border-top: 1px solid #d8d6d3;
+  width: 960px;
+  color: rgb(50, 50, 50);
+  margin: auto;
+  margin-top: 40px;
+  max-width: 100%;
+}
+
+footer .container {
+  width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+}
+
+footer .container .partners {
+  padding: 15px 0 10px 0;
+  text-align: center;
+}
+
+footer .container .partners img {
+  height: 30px;
+  margin: 5px 3%;
+}
+
+footer .container .partners .partner-logo img {
+  opacity: 0.5;
+}
+
+footer .container .partners .partner-logo img:hover {
+  opacity: 1;
+}
+
+footer .container .copyright {
+  width: 100%;
+  text-align: right;
+  box-sizing: border-box;
+  padding: 0 50px 10px 0;
+}
+
+footer .container .copyright .contact {
+  float: left;
+  padding-left: 50px;
+}
+
+footer .container .copyright .contact img {
+  height: 20px;
+  margin-top: -4px;
+  padding-right: 20px;
+  opacity: 0.5;
+}
+
+footer .container .copyright .contact img:hover {
+  opacity: 1;
+}
+
+@media screen and (max-width: 500px) {
+  footer {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  footer .container .partners img {
+    width: 10%;
+    height: auto;
+  }
+}
+
+@media screen and (max-height: 820px) {
+  footer {
+    position: relative;
+  }
+}

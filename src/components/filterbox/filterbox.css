@@ -1,0 +1,42 @@
+.filterbox {
+  padding: 16px 0px;
+  border-bottom: 1px solid #c8c6bf;
+}
+
+.filterbox .toprow {
+  cursor: pointer;
+  line-height: 22px;
+}
+
+.filterbox .title {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.filterbox .symbol {
+  float: right;
+  font-size: 22px;
+  transform: none!important;
+}
+
+.filterbox .content {
+  padding-top: 10px;
+}
+
+.filterbox .content.hide {
+  display: none;
+}
+
+.filterbox.inner {
+  padding: 5px 0px;
+  border: none;
+}
+
+.filterbox.inner .title {
+  font-size: 14px;
+}
+
+.filterbox.inner .symbol {
+  font-size: 20px;
+}

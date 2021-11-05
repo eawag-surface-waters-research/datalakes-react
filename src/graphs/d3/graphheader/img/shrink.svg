@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="135.46667mm"
+   height="135.46666mm"
+   viewBox="0 0 135.46667 135.46666"
+   version="1.1"
+   id="svg1535"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="shrink.svg">
+  <defs
+     id="defs1529" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="263.14286"
+     inkscape:cy="-209.71428"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1859"
+     inkscape:window-height="1025"
+     inkscape:window-x="61"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata1532">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(95.703572,42.120234)">
+    <g
+       id="g6-3"
+       transform="matrix(-0.26458333,0,0,-0.26458333,-41.388848,12.19449)"
+       style="fill:#fb0000;fill-opacity:1">
+      <g
+         id="g4-6"
+         style="fill:#fb0000;fill-opacity:1">
+        <polygon
+           points="40,165 40,68.284 177,205.284 205.284,177 68.284,40 165,40 165,0 0,0 0,165 "
+           id="polygon2-7"
+           style="fill:#fb0000;fill-opacity:1" />
+      </g>
+    </g>
+    <g
+       id="g12-5"
+       transform="matrix(-0.26458333,0,0,-0.26458333,-41.388848,174.49837)">
+      <g
+         id="g10-3">
+        <polygon
+           points="0,512 165,512 165,472 68.284,472 205.284,335 177,306.716 40,443.716 40,347 0,347 "
+           id="polygon8-5" />
+      </g>
+    </g>
+    <g
+       id="g18-6"
+       transform="matrix(-0.26458333,0,0,-0.26458333,120.91503,12.19449)">
+      <g
+         id="g16-2">
+        <polygon
+           points="472,68.284 472,165 512,165 512,0 347,0 347,40 443.716,40 306.716,177 335,205.284 "
+           id="polygon14-9" />
+      </g>
+    </g>
+    <g
+       id="g24-1"
+       transform="matrix(-0.26458333,0,0,-0.26458333,120.91504,174.49837)"
+       style="fill:#fb0000;fill-opacity:1">
+      <g
+         id="g22-2"
+         style="fill:#fb0000;fill-opacity:1">
+        <polygon
+           points="347,472 347,512 512,512 512,347 472,347 472,443.716 335,306.716 306.716,335 443.716,472 "
+           id="polygon20-7"
+           style="fill:#fb0000;fill-opacity:1" />
+      </g>
+    </g>
+  </g>
+</svg>

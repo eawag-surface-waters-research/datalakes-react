@@ -1,0 +1,67 @@
+.layergroups .layergroups-item {
+  margin: 20px 20px 0 20px;
+  display: inline-block;
+  height: 110px;
+  width: 145px;
+  vertical-align: top;
+  max-width: 34%;
+  cursor: pointer;
+  text-align: center;
+}
+
+.layergroups .layergroups-item img {
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.layergroups .layergroups-item img:hover {
+  animation: shake 1s;
+}
+
+.layergroups .layergroups-welcome-message {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+@media screen and (max-width: 800px) {
+  .layergroups .layergroups-welcome-message {
+    font-size: 14px;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-5deg);
+  }
+  20% {
+    transform: rotate(5deg);
+  }
+  30% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+  60% {
+    transform: rotate(0deg);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+  80% {
+    transform: rotate(5deg);
+  }
+  90% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-5deg);
+  }
+}

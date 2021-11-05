@@ -1,0 +1,50 @@
+.timetooltip {
+  position: absolute;
+  z-index: 10;
+  top: -110px;
+  visibility: hidden;
+  width: 250px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  box-sizing: border-box;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.tooltip-info {
+  position: absolute;
+  top: -70px;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  box-sizing: border-box;
+  font-size: 12px;
+  text-align: center;
+}
+
+.timetooltip:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -25px;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  z-index: 0;
+  border-top: 25px solid white;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  right: 0;
+}
+
+.timetooltip .tooltip-title {
+  width: 100%;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}

@@ -1,0 +1,65 @@
+.colorramp {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.colorramp-option {
+  width: 100%;
+  height: 25px;
+  text-align: center;
+  color: transparent;
+  line-height: 25px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 0 4px 0;
+}
+
+.colorramp-option:hover {
+  color: black;
+}
+
+.colorramp-dropdown {
+  width: 100%;
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid grey;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 5px 10px 0px rgba(150, 144, 150, 0.6);
+  -moz-box-shadow: 0px 5px 10px 0px rgba(150, 144, 150, 0.6);
+  box-shadow: 0px 5px 10px 0px rgba(150, 144, 150, 0.6);
+}
+
+.colorramp-dropdown.hide {
+  display: none;
+}
+
+.colorramp-select {
+  width: 100%;
+  height: 25px;
+  cursor: pointer;
+  text-align: right;
+  padding: 0 6px;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+  border: 1px solid black;
+}
+
+.colorramp-select .colorramp-arrow {
+  transform: rotate(90deg);
+  display: inline-block;
+  font-size: 22px;
+  color: black;
+  height: 20px;
+  font-family: "The Serif Bold", Arial, sans-serif;
+  pointer-events: none;
+}
+
+.colorramp-dropdown::-webkit-scrollbar {
+  display: none;
+}
+
+.colorramp-dropdown {
+  -ms-overflow-style: none;
+}

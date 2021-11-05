@@ -1,0 +1,44 @@
+#depthselector {
+  height: 100%;
+  position: relative;
+  text-align: left;
+}
+
+.tooltipdepth {
+  position: absolute;
+  z-index: 10;
+  top: -110px;
+  visibility: hidden;
+  width: 250px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  box-sizing: border-box;
+  font-size: 12px;
+  pointer-events: none;
+  color: black;
+  text-align: left;
+}
+
+.tooltipdepth:after {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 20px;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  z-index: 0;
+  border-left: 25px solid white;
+  border-top: 20px solid transparent;
+  border-bottom: 20px solid transparent;
+  transform: rotate(180deg);
+}
+
+.tooltipdepth .tooltip-title {
+  width: 100%;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+}

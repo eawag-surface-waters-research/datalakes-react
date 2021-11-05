@@ -1,0 +1,285 @@
+.multi-steps > li.is-active:before,
+.multi-steps > li.is-active ~ li:before {
+  content: counter(stepNum);
+  font-family: inherit;
+  font-weight: 700;
+}
+.multi-steps > li.is-active:after,
+.multi-steps > li.is-active ~ li:after {
+  background-color: #ededed;
+}
+.multi-steps {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  padding: 0;
+}
+.multi-steps > li {
+  counter-increment: stepNum;
+  text-align: center;
+  display: table-cell;
+  position: relative;
+  color: black;
+}
+.multi-steps > li:before {
+  content: "\f00c";
+  content: "\2713";
+  content: "\10003";
+  content: "\10004";
+  content: "\2713";
+  display: block;
+  margin: 0 auto 4px;
+  background-color: #fff;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-weight: bold;
+  border-width: 2px;
+  border-style: solid;
+  border-color: black;
+  border-radius: 50%;
+}
+.multi-steps > li:after {
+  content: "";
+  height: 2px;
+  width: 100%;
+  background-color: black;
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  z-index: -1;
+}
+.multi-steps > li:last-child:after {
+  display: none;
+}
+.multi-steps > li.is-active:before {
+  background-color: #fff;
+  border-color: black;
+}
+.multi-steps > li.is-active ~ li {
+  color: #808080;
+}
+.multi-steps > li.is-active ~ li:before {
+  border-color: #ededed;
+}
+
+.buttonnav button {
+  border: solid 1px black;
+  background-color: white;
+  margin: 5px;
+  cursor: pointer;
+  padding: 4px 8px;
+  width: 120px;
+}
+
+.buttonnav {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 120px;
+}
+
+form.adddataset-form select {
+  font-size: 14px;
+  margin-left: 5px;
+  margin-right: 5px;
+  background-color: white;
+}
+
+#git {
+  width: 960px;
+  max-width: calc(100% - 20px);
+  margin: auto;
+}
+
+.adddataset-form .form-group {
+  display: inline-block;
+  text-align: center;
+  padding: 10px 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.adddataset-form .form-group label {
+  display: block;
+  color: grey;
+  padding-bottom: 3px;
+}
+
+.adddataset-form .form-group label.optional-id {
+  margin-top: 20px;
+  font-size: 10px;
+}
+
+.adddataset-form .form-group .optional-id.hide {
+  display: none;
+}
+
+.adddataset-form input {
+  font-size: 14px;
+  width: 100%;
+  border: solid 1px rgb(169, 169, 169);
+  box-sizing: border-box;
+  padding: 7px 5px;
+  margin-bottom: 0;
+  background-color: white;
+  text-align: center;
+}
+
+.adddataset-form input.optional-id  {
+  width: 80px;
+}
+
+.repo-connection {
+  margin-top: 15px;
+}
+
+table.datareview {
+  width: 100%;
+  margin-bottom: 15px;
+  border-spacing: 10px;
+}
+
+table.datareview th {
+  padding: 5px 0;
+  width: 16.66%;
+  border-bottom: solid 1px black;
+}
+
+table.datareview th {
+  padding: 5px 0;
+  width: 16.66%;
+  border-bottom: solid 1px black;
+}
+
+table.addmetadata {
+  margin: auto;
+}
+
+table.addmetadata th {
+  text-align: left;
+}
+
+table.parameter {
+  width: 650px;
+  max-width: 100%;
+  margin: auto;
+  margin-bottom: 40px;
+}
+
+table.parameter th {
+  padding: 5px 0;
+  border-bottom: solid 1px black;
+}
+
+table.metadata {
+  width: 650px;
+  max-width: 100%;
+  margin: auto;
+  margin-bottom: 40px;
+  table-layout: fixed;
+  overflow: hidden;
+}
+
+table.metadata th {
+  width: 50%;
+  text-align: right;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+table.metadata td {
+  width: 50%;
+  text-align: left;
+  padding-left: 10px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+.input-lineage {
+  margin: 30px 0;
+}
+
+.text-lineage {
+  max-width: 60%;
+  margin: auto;
+  width: fit-content;
+  margin-bottom: 30px;
+}
+
+.lineage-text {
+  width: 820px;
+  max-width: 100%;
+  margin: auto;
+  margin-top: 30px;
+}
+
+.adddataset-form {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+
+.adddataset-form .welcome-text {
+  width: 900px;
+  max-width: 100%;
+  margin: auto;
+}
+
+.adddataset-form .selectedfiles {
+  width: 820px;
+  max-width: 100%;
+  margin: auto;
+  box-sizing: border-box;
+  border: 1px solid grey;
+  padding: 10px;
+  border-radius: 0 0 5px 5px;
+  margin-top: -1px;
+}
+
+.lineage-text .selectedfiles .sfile {
+  padding: 2px 0;
+}
+
+.lineage-text li {
+  list-style-type: decimal;
+}
+
+.container-fluid {
+  margin-bottom: 50px;
+}
+
+.error-message {
+  margin: 20px 0;
+  min-height: 80px;
+  text-align: center;
+  color: red;
+}
+
+.loading {
+  color: black;
+}
+
+.dropdownadd {
+  text-align: center;
+}
+
+.dropdownadd table {
+  margin: auto;
+}
+
+.publish {
+  text-align: center;
+  margin-bottom: 150px;
+}
+
+.orderarrows div {
+  cursor: pointer;
+}
+
+.fileconnection {
+  margin-left: 20px;
+}
+
+.liveconnection {
+  margin-left: 20px;
+}
