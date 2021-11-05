@@ -4,7 +4,7 @@
 
 .home-banner {
   width: 100%;
-  background: url("img/banner.jpg");
+  background: url("../../img/banner.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -259,7 +259,7 @@
 
 .section.rs .img {
   width: 100%;
-  background: url("img/rsmap.jpg");
+  background: url("../../img/rsmap.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -275,7 +275,7 @@
 
 .section.insitudata .img {
   width: 100%;
-  background: url("img/lexplore.jpg");
+  background: url("../../img/lexplore.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -298,7 +298,7 @@
   width: 100%;
   position: absolute;
   top: 0;
-  background: url("img/zurich.jpg");
+  background: url("../../img/zurich.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

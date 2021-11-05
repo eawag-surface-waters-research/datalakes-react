@@ -1,14 +1,13 @@
 import React, { Component } from "react";
 import { Link } from 'react-router-dom'
-import heat from "./img/heat.svg";
-import line from "./img/line.svg";
-import preview from "./img/preview.svg";
-import download from "./img/download.svg";
-import pipe from "./img/pipe.svg";
-import info from "./img/info.svg";
-import webgis from "./img/webgis.svg";
-import td from "./img/3d.svg";
-import map from "./img/map.svg";
+import line from "../../img/line.svg";
+import preview from "../../img/preview.svg";
+import download from "../../img/download.svg";
+import pipe from "../../img/pipe.svg";
+import info from "../../img/info.svg";
+import webgis from "../../img/webgis.svg";
+import td from "../../img/3d.svg";
+import map from "../../img/map.svg";
 import "./css/datadetail.css";
 
 class DataSubMenu extends Component {
@@ -95,24 +94,6 @@ class DataSubMenu extends Component {
             >
               <img src={line} className="subnav-img" alt="Plot" />
               <div className="subnav-text">Plot</div>
-            </div>
-            <div
-              title="Preview data as a heat map"
-              className={this.active("heatmap",step) ? "subnav-item active" : "subnav-item"}
-              style={{display: this.hide("heatmap",allowedStep) && 'none'}}
-              onClick={() => updateSelectedState("heatmap")}
-            >
-              <img src={heat} className="subnav-img" alt="Heatmap" />
-              <div className="subnav-text">Heat Map</div>
-            </div>
-            <div
-              title="Preview data as a line graph"
-              className={this.active("linegraph",step) ? "subnav-item active" : "subnav-item"}
-              style={{display: this.hide("linegraph",allowedStep) && 'none'}}
-              onClick={() => updateSelectedState("linegraph")}
-            >
-              <img src={line} className="subnav-img" alt="Line Graph" />
-              <div className="subnav-text">Line Graph</div>
             </div>
             <div
               title="Preview data on the map"

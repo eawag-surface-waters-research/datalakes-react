@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import DataSelect from "../../../components/dataselect/dataselect";
 import AddDropdownItem from "../adddropdownitem";
-import qm from "./img/qm.svg";
+import qm from "../../../img/qm.svg";
 
 class AddMetadata extends Component {
   state = {
