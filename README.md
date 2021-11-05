@@ -1,6 +1,6 @@
 # Datalakes Website
 
-React-App for searching, visualising and downloading data on Swiss lakes. Consists of a Web GIS for comparing raster and point datasets, Data Portal for selecting products and extensive options for graphing and downloading the products.
+React-App for searching, visualising and downloading data on Swiss lakes. Consists of a Web GIS for comparing raster, vector and point datasets, a Data Portal for selecting products and extensive options for graphing and downloading the products.
 
 Datalakes is a collaboration between a number of Swiss institutions to facilitate the visualisation and dissemination of reproducable datasets for Swiss lakes.
 
