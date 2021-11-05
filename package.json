@@ -33,7 +33,7 @@
     "source-map-explorer": "^2.5.2",
     "swagger-ui-react": "^3.30.2"
   },
-  "build": "INLINE_RUNTIME_CHUNK=false react-scripts build",
+  "build": "react-scripts build",
   "devDependencies": {},
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
