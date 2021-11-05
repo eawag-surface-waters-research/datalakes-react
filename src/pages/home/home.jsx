@@ -195,7 +195,8 @@ class Home extends Component {
   };
 
   render() {
-    document.title = "Datalakes - Search, visualise and download data on Swiss lakes";
+    document.title =
+      "Datalakes - Search, visualise and download data on Swiss lakes";
     return (
       <React.Fragment>
         <div className="home">
@@ -434,6 +435,22 @@ class Home extends Component {
               to the Swiss freshwater community via this newly developed open
               access data infrastructure.
             </p>
+            <p>
+              All our code is open source and it available in the git
+              repositories below:
+            </p>
+            <p>
+              <b>Frontend Code: </b>
+              <a href="https://github.com/Datalakes-Eawag/datalakes-react">
+                React App
+              </a>
+            </p>
+            <p>
+              <b>Backend Code: </b>
+              <a href="https://github.com/Datalakes-Eawag/datalakes-nodejs">
+                NodeJS Rest-API
+              </a>
+            </p>
           </div>
           <div className="sectiontitlemin" ref={this.contact}>
             <h2>Get in Touch</h2>
@@ -443,7 +460,7 @@ class Home extends Component {
               <tbody>
                 <tr>
                   <td>
-                    <img src={james} alt="Portrait James"/>
+                    <img src={james} alt="Portrait James" />
                   </td>
                   <td>
                     For all queries regarding the functioning of the Datalakes
@@ -455,7 +472,7 @@ class Home extends Component {
                 </tr>
                 <tr>
                   <td>
-                    <img src={damien} alt="Portrait Damien"/>
+                    <img src={damien} alt="Portrait Damien" />
                   </td>
                   <td>
                     For all queries regarding the Datalakes project and for

@@ -6,6 +6,8 @@ import carrtel from './img/carrtel.png';
 import sdsc from './img/sdsc.png';
 import unil from './img/unil.png';
 import twitter from './img/twitter.png';
+import node from './img/node.png';
+import react from './img/react.png'
 import './footer.css';
 
 class Footer extends Component {
@@ -35,11 +37,17 @@ class Footer extends Component {
                   </div>
                   <div className="copyright">
                       <span className="contact">
+                         <a href="https://github.com/Datalakes-Eawag/datalakes-react" title="Check out our open-source frontend (React-App) code." className="contact-inner">
+                              <img src={react} alt="React" />
+                          </a>
+                          <a href="https://github.com/Datalakes-Eawag/datalakes-nodejs" title="Check out our open-source backend (NodeJS) code" className="contact-inner">
+                              <img src={node} alt="NodeJS" />
+                          </a>
                           <a href="https://twitter.com/Datalakes1" title="Check out our Twitter page" className="contact-inner">
                               <img src={twitter} alt="Twitter" />
                           </a>
                       </span>
-                      <div className="inline">Version 0.1 | Copyright © 2020 Datalakes | </div><div className="inline">&nbsp; Developed @ Eawag</div>
+                      <div className="inline">Version 1.0 | Copyright © 2021 Datalakes | </div><div className="inline">&nbsp; Developed @ Eawag</div>
                 </div>
 
               </div>
