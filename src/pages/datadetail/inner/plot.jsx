@@ -824,7 +824,7 @@ class Plot extends Component {
     xReverse: false,
     timeaxis: "",
     refresh: false,
-    addNewFiles: true,
+    addNewFiles: false,
   };
 
   closest = (num, arr) => {
