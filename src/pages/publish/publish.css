@@ -73,3 +73,11 @@
   padding: 10px;
   text-align: center;
 }
+
+.metadataform table {
+  width: 100%;
+}
+
+.metadataform table input {
+  width: 90%;
+}

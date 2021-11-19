@@ -68,10 +68,24 @@ class SelectArchive extends React.Component {
 
 class MetadataReview extends React.Component {
   render() {
-    var { prevStep, nextStep } = this.props;
+    var { prevStep, nextStep, metadata, onChangeMetadata } = this.props;
     return (
-      <div>
-        Metadata Review
+      <div className="metadatareview">
+        <div className="metadataform">
+          <table>
+            <tbody>
+              <tr>
+                <td>Title</td>
+                <td>
+                  <input
+                    value={metadata.title}
+                    onChange={(e) => onChangeMetadata("title", e.target.value)}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div className="buttonnav">
           <button onClick={prevStep}>Back</button>
           <button onClick={nextStep}>Next </button>
@@ -89,7 +103,7 @@ class PublishData extends React.Component {
         Publish Data
         <div className="buttonnav">
           <button onClick={prevStep}>Back</button>
-          <button onClick={nextStep}>Next </button>
+          <button onClick={nextStep}>Publish </button>
         </div>
       </div>
     );
@@ -101,9 +115,57 @@ class Publish extends Component {
     step: 1,
     allowedStep: [1, 0, 0, 0],
     loading: true,
-    repo: 0,
+    repo: "19",
     archives: ["ERIC - Eawag Research Data Insitutional Collection"],
     archive: 0,
+    metadata: {
+      repo_name: "",
+      namespace: "",
+      repo_views: [],
+      repo_view_names: [],
+      _ckan_phase: "dataset_new_1",
+      pkg_name: "",
+      publicationlink: "",
+      open_data: "true",
+      embargo: "",
+      title: "",
+      "author-1": "",
+      "author-2": "",
+      "author-3": "",
+      notes: "",
+      tags_string: "",
+      variables: [],
+      substances: "",
+      substances_generic: "",
+      taxa: "",
+      taxa_generic: "",
+      systems: "",
+      "timerange-1": "",
+      spatial: "",
+      geographic_name: "",
+      owner_org: "dc50d0f2-da37-4a76-bb9b-806b841a2d59",
+      private: "False",
+      status: "complete",
+      review_level: "general",
+      reviewed_by: "datalakes-svc",
+      maintainer: "datalakes-svc",
+      usage_contact: "datalakes-svc",
+      "notes-2": "",
+      has_part: "",
+      is_part_of: "",
+      id_external: "",
+      save: "",
+    },
+  };
+
+  processSSH = (ssh) => {
+    //git@renkulab.io:lexplore/thetis.git
+    if (ssh.includes("renkulab.io")) {
+      var parts = ssh.split(":")[1].split(".git")[0].split("/");
+      return { repo_name: parts[1], namespace: parts[0] };
+    } else {
+      throw new Error("ProcessSSH only defined for renkulab");
+    }
   };
 
   onChangeArchive = (event) => {
@@ -114,9 +176,66 @@ class Publish extends Component {
     this.setState({ repo: event.target.value });
   };
 
+  onChangeMetadata = (parameter, value) => {
+    var { metadata } = this.state;
+    metadata[parameter] = value;
+    this.setState({ metadata });
+  };
+
+  cfl = (string) => {
+    const words = string.split(" ");
+    for (let i = 0; i < words.length; i++) {
+      words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+    }
+    return words.join(" ");
+  };
+
   validateSelectRepo = () => {
-    const { step } = this.state;
-    this.setState({ allowedStep: [1, 2, 0, 0], step: step + 1 });
+    const { step, repo, datasets, repositories, metadata, selectiontables } =
+      this.state;
+    var repo_id = repositories[repo].id;
+    var selected_datasets = datasets.filter(
+      (d) => d.repositories_id === repo_id
+    );
+    var { repo_name, namespace } = this.processSSH(repositories[repo].ssh);
+    var repo_views = [];
+    var repo_view_names = [];
+    var authors = [];
+    var latlng = [];
+    var lakes = [];
+    for (var ds of selected_datasets) {
+      repo_views.push(ds.id);
+      repo_view_names.push(ds.title);
+      authors.push(ds.persons_id);
+      if (ds.lakes !== 56) {
+        lakes.push(ds.lakes_id);
+      }
+      if (ds.latitude !== -9999) {
+        latlng.push(String(ds.latitude) + "," + String(ds.longitude));
+      }
+    }
+    authors = [...new Set(authors)];
+    latlng = [...new Set(latlng)];
+    lakes = [...new Set(lakes)];
+    lakes = lakes.map(
+      (l) => selectiontables.lakes.filter((ll) => l === ll.id)[0].name
+    );
+
+    for (var i = 0; i < authors.length; i++) {
+      var person = selectiontables.persons.filter(
+        (p) => p.id === authors[i]
+      )[0];
+      metadata["author-" + (i + 1)] = person.name;
+    }
+
+    metadata["repo_name"] = repo_name;
+    metadata["namespace"] = namespace;
+    metadata["repo_views"] = repo_views;
+    metadata["repo_view_names"] = repo_view_names;
+    metadata["title"] = this.cfl(repo_name.replaceAll("-", " "));
+    metadata["geographic_name"] = lakes;
+
+    this.setState({ allowedStep: [1, 2, 0, 0], step: step + 1, metadata });
   };
 
   validateSelectArchive = () => {
@@ -164,8 +283,16 @@ class Publish extends Component {
 
   render() {
     document.title = "Publish - Datalakes";
-    var { step, allowedStep, loading, repo, repositories, archives, archive } =
-      this.state;
+    var {
+      step,
+      allowedStep,
+      loading,
+      repo,
+      repositories,
+      archives,
+      archive,
+      metadata,
+    } = this.state;
     switch (step) {
       default:
         return (
@@ -180,6 +307,8 @@ class Publish extends Component {
               nextStep={this.validateSelectRepo}
               prevStep={this.prevStep}
               repositories={repositories}
+              repo={repo}
+              onChangeRepo={this.onChangeRepo}
             />
           </React.Fragment>
         );
@@ -229,6 +358,8 @@ class Publish extends Component {
             <MetadataReview
               nextStep={this.validateMetadataReview}
               prevStep={this.prevStep}
+              metadata={metadata}
+              onChangeMetadata={this.onChangeMetadata}
             />
           </React.Fragment>
         );
