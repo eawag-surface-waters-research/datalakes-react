@@ -12,6 +12,7 @@ import AddDataset from "./pages/adddataset/adddataset";
 import GIS from "./pages/gis/gis";
 import Monitor from "./pages/monitor/monitor";
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
+import Publish from "./pages/publish/publish";
 import "./index.css";
 
 const AsyncDataDetail = asyncComponent(() =>
@@ -90,6 +91,15 @@ class App extends Component {
               render={(props) => (
                 <ErrorBoundary {...props}>
                   <Monitor {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/publish"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <Publish {...props} />
                 </ErrorBoundary>
               )}
             />
