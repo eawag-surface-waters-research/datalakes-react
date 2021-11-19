@@ -97,16 +97,29 @@ class MetadataReview extends React.Component {
 
 class PublishData extends React.Component {
   render() {
-    var { prevStep, nextStep } = this.props;
-    return (
-      <div>
-        Publish Data
-        <div className="buttonnav">
-          <button onClick={prevStep}>Back</button>
-          <button onClick={nextStep}>Publish </button>
+    var { prevStep, nextStep, loading } = this.props;
+    if (loading) {
+      return (
+        <div className="selectrepo">
+          <div>Publishing dataset to the archive...</div>
+          <div>
+            <Loading />
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div>
+          Publish data to archive, you will be automatically redirected to the
+          archive data location. It will take some time for datasets to finish
+          uploading.
+          <div className="buttonnav">
+            <button onClick={prevStep}>Back</button>
+            <button onClick={nextStep}>Publish </button>
+          </div>
+        </div>
+      );
+    }
   }
 }
 
@@ -190,6 +203,10 @@ class Publish extends Component {
     return words.join(" ");
   };
 
+  getPerson = (selectiontables, author_id) => {
+    return selectiontables.persons.filter((p) => p.id === author_id)[0];
+  };
+
   validateSelectRepo = () => {
     const { step, repo, datasets, repositories, metadata, selectiontables } =
       this.state;
@@ -222,9 +239,7 @@ class Publish extends Component {
     );
 
     for (var i = 0; i < authors.length; i++) {
-      var person = selectiontables.persons.filter(
-        (p) => p.id === authors[i]
-      )[0];
+      var person = this.getPerson(selectiontables, authors[i]);
       metadata["author-" + (i + 1)] = person.name;
     }
 
@@ -248,8 +263,22 @@ class Publish extends Component {
     this.setState({ allowedStep: [1, 2, 3, 4], step: step + 1 });
   };
 
-  publishData = () => {
-    console.log("Publish");
+  publishData = async () => {
+    this.setState(
+      {
+        loading: true,
+      },
+      this.afterLoading
+    );
+  };
+
+  afterLoading = async () => {
+    var { metadata } = this.state;
+    var { data: link } = await axios.post(
+      "https://api.meteolakes.ch/api/eric",
+      metadata
+    );
+    window.location.href = link;
   };
 
   prevStep = () => {
@@ -371,7 +400,11 @@ class Publish extends Component {
               setStep={this.setStep}
               allowedStep={allowedStep}
             />
-            <PublishData nextStep={this.publishData} prevStep={this.prevStep} />
+            <PublishData
+              nextStep={this.publishData}
+              prevStep={this.prevStep}
+              loading={loading}
+            />
           </React.Fragment>
         );
     }
