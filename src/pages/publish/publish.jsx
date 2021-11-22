@@ -97,29 +97,55 @@ class MetadataReview extends React.Component {
 
 class PublishData extends React.Component {
   render() {
-    var { prevStep, nextStep, loading } = this.props;
-    if (loading) {
-      return (
-        <div className="selectrepo">
-          <div>Publishing dataset to the archive...</div>
+    var { prevStep, nextStep, loading, archive, metadata, error } = this.props;
+
+    var table = [];
+    for (const [key, value] of Object.entries(metadata)) {
+      if (value !== "") {
+        table.push(
+          <tr>
+            <td>{key}</td>
+            <td>{value}</td>
+          </tr>
+        );
+      }
+    }
+    return (
+      <div className="publishdata">
+        <p>
+          Publish dataset <b>{metadata.title}</b> to archive <b>{archive}</b>
+        </p>
+        <p>
+          <b>Metadata Summary</b>
+        </p>
+        <table>
+          <tbody>{table}</tbody>
+        </table>
+        <p>
+          You will be automatically redirected to the archived data in Eric
+          Internal (Eawag network required for access). Datasets may not be
+          immediatly availble as they require time to upload. If you have
+          selected to make this a public resource (ERIC Open) you request
+          requires approval and you will be notified when your dataset has
+          recieved a DOI and been made public.
+        </p>
+        <p>
+          Once published, changes to ERIC Internal packages can be made by
+          request to datalakes-svc@eawag.ch
+        </p>
+        {error !== "" && <div className="errormessage">{error}</div>}
+        {loading ? (
           <div>
             <Loading />
           </div>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          Publish data to archive, you will be automatically redirected to the
-          archive data location. It will take some time for datasets to finish
-          uploading.
+        ) : (
           <div className="buttonnav">
             <button onClick={prevStep}>Back</button>
             <button onClick={nextStep}>Publish </button>
           </div>
-        </div>
-      );
-    }
+        )}
+      </div>
+    );
   }
 }
 
@@ -129,8 +155,12 @@ class Publish extends Component {
     allowedStep: [1, 0, 0, 0],
     loading: true,
     repo: "19",
-    archives: ["ERIC - Eawag Research Data Insitutional Collection"],
+    archives: [
+      "ERIC Internal- Eawag Research Data (Only Eawag)",
+      "ERIC OPEN - Eawag Research Data (Public)",
+    ],
     archive: 0,
+    error: "",
     metadata: {
       repo_name: "",
       namespace: "",
@@ -157,7 +187,7 @@ class Publish extends Component {
       spatial: "",
       geographic_name: "",
       owner_org: "dc50d0f2-da37-4a76-bb9b-806b841a2d59",
-      private: "False",
+      private: "True",
       status: "complete",
       review_level: "general",
       reviewed_by: "datalakes-svc",
@@ -266,6 +296,7 @@ class Publish extends Component {
   publishData = async () => {
     this.setState(
       {
+        error: "",
         loading: true,
       },
       this.afterLoading
@@ -274,11 +305,16 @@ class Publish extends Component {
 
   afterLoading = async () => {
     var { metadata } = this.state;
-    var { data: link } = await axios.post(
-      "https://api.meteolakes.ch/api/eric",
-      metadata
-    );
-    window.location.href = link;
+    try {
+      var { data: link } = await axios.post(
+        "https://api.meteolakes.ch/api/eric",
+        metadata
+      );
+      window.location.href = link;
+    } catch (error) {
+      console.error(error.response);
+      this.setState({ loading: false, error: error.message });
+    }
   };
 
   prevStep = () => {
@@ -321,6 +357,7 @@ class Publish extends Component {
       archives,
       archive,
       metadata,
+      error,
     } = this.state;
     switch (step) {
       default:
@@ -404,6 +441,9 @@ class Publish extends Component {
               nextStep={this.publishData}
               prevStep={this.prevStep}
               loading={loading}
+              metadata={metadata}
+              archive={archives[archive]}
+              error={error}
             />
           </React.Fragment>
         );

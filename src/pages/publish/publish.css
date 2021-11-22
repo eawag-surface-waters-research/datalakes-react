@@ -81,3 +81,19 @@
 .metadataform table input {
   width: 90%;
 }
+
+.publishdata p {
+  margin: 20px 20px;
+}
+
+.publishdata .errormessage {
+  margin: 20px 20px;
+  font-size: 16px;
+  padding: 20px 20px;
+  color: red;
+  border: 1px solid red;
+}
+
+.publishdata table {
+  margin: 20px 20px;
+}
