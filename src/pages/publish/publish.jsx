@@ -67,20 +67,194 @@ class SelectArchive extends React.Component {
 }
 
 class MetadataReview extends React.Component {
+  onChangeMetadataWrapper = (e) => {
+    this.props.onChangeMetadata(e.target.id, e.target.value);
+  };
+
+  onChangeMinDate = (e) => {
+    var { metadata, onChangeMetadata } = this.props;
+    onChangeMetadata(
+      "timerange-1",
+      e.target.value + " TO " + metadata["timerange-1"].split(" TO ")[1]
+    );
+  };
+
+  onChangeMaxDate = (e) => {
+    var { metadata, onChangeMetadata } = this.props;
+    onChangeMetadata(
+      "timerange-1",
+      metadata["timerange-1"].split(" TO ")[0] + " TO " + e.target.value
+    );
+  };
+
   render() {
-    var { prevStep, nextStep, metadata, onChangeMetadata } = this.props;
+    var { prevStep, nextStep, metadata, onChangeMetadata, addAuthor } =
+      this.props;
+
+    var times = metadata["timerange-1"].split(" TO ");
+    var minDate = times[0];
+    var maxDate = times[1];
+
+    var authors = [];
+    for (var i = 1; i < 100; i++) {
+      if ("author-" + i in metadata) {
+        authors.push(
+          <tr key={"author-" + i}>
+            <th>Author-{i}</th>
+            <td>
+              <input
+                type="text"
+                value={metadata["author-" + i]}
+                id={"author-" + i}
+                onChange={this.onChangeMetadataWrapper}
+                placeholder="Person <person@eawag.ch>"
+              />
+            </td>
+            <td>
+              Main authors for the dataset.{" "}
+              <div className="addauthor" onClick={addAuthor}>
+                Add author.
+              </div>
+            </td>
+          </tr>
+        );
+      } else {
+        break;
+      }
+    }
+
     return (
       <div className="metadatareview">
         <div className="metadataform">
           <table>
             <tbody>
               <tr>
-                <td>Title</td>
-                <td>
+                <th style={{ width: "15%" }}>Title</th>
+                <td style={{ width: "40%" }}>
                   <input
+                    type="text"
                     value={metadata.title}
                     onChange={(e) => onChangeMetadata("title", e.target.value)}
                   />
+                </td>
+                <td style={{ width: "40%" }}>
+                  Descriptive title for the dataset.
+                </td>
+              </tr>
+              {authors}
+              <tr>
+                <th>Abstract</th>
+                <td>
+                  <textarea
+                    value={metadata.notes}
+                    onChange={(e) => onChangeMetadata("notes", e.target.value)}
+                    placeholder="A description of the package."
+                  />
+                </td>
+                <td>
+                  A brief narrative summary of the content of the package that
+                  could also include a summary of the intentions with which the
+                  package was developed. In case you are creating a publication
+                  data package, i.e., a package that supplies data for a
+                  specific publication, copying & pasting the publication's
+                  abstract here is a good start.
+                </td>
+              </tr>
+              <tr>
+                <th>Timerange</th>
+                <td>
+                  <p>
+                    From:{" "}
+                    <input
+                      type="date"
+                      defaultValue={minDate}
+                      onChange={this.onChangeMinDate}
+                    />
+                  </p>
+                  <p>
+                    To:{"    "}
+                    <input
+                      type="date"
+                      defaultValue={maxDate}
+                      onChange={this.onChangeMaxDate}
+                    />
+                  </p>
+                </td>
+                <td>
+                  Denote the timerange(s) to which the data in the package
+                  relates, i.e. when the state of the system under consideration
+                  was examined. Usually that would be the time(s) at which
+                  field-measurements were made or samples were taken.
+                </td>
+              </tr>
+              <tr>
+                <th>Keywords</th>
+                <td>
+                  <input
+                    type="text"
+                    value={metadata.tags_string}
+                    onChange={(e) =>
+                      onChangeMetadata("tags_string", e.target.value)
+                    }
+                    placeholder="Datalakes, ADCP, Lexplore"
+                  />
+                </td>
+                <td>
+                  Comma separated list of keywords. Just like the keywords of a
+                  scientific publication. In case you are creating a publication
+                  data package, i.e., a package the supplies data for a specific
+                  publication, you should copy & paste the publication's
+                  keywords here.
+                </td>
+              </tr>
+              <tr>
+                <th>Reviewer</th>
+                <td>
+                  <input
+                    type="text"
+                    value={metadata.reviewed_by}
+                    onChange={(e) =>
+                      onChangeMetadata("reviewed_by", e.target.value)
+                    }
+                    placeholder="bouffada"
+                  />
+                </td>
+                <td>Eawag username. The person who has reviewed the dataset.</td>
+              </tr>
+              <tr>
+                <th>Curator</th>
+                <td>
+                  <input
+                    type="text"
+                    value={metadata.maintainer}
+                    onChange={(e) =>
+                      onChangeMetadata("maintainer", e.target.value)
+                    }
+                    placeholder="bouffada"
+                  />
+                </td>
+                <td>
+                  Eawag username. The Curator is the person responsible for
+                  completeness, quality-control and maintenance of meta-data and
+                  resources in the package.
+                </td>
+              </tr>
+              <tr>
+                <th>Usage Contact</th>
+                <td>
+                  <input
+                    type="text"
+                    value={metadata.usage_contact}
+                    onChange={(e) =>
+                      onChangeMetadata("usage_contact", e.target.value)
+                    }
+                    placeholder="bouffada"
+                  />
+                </td>
+                <td>
+                  Eawag username. The person who has to be contacted before the
+                  data in this package can be used. This is usually the PI or
+                  research group leader.
                 </td>
               </tr>
             </tbody>
@@ -103,9 +277,9 @@ class PublishData extends React.Component {
     for (const [key, value] of Object.entries(metadata)) {
       if (value !== "") {
         table.push(
-          <tr>
+          <tr key={key}>
             <td>{key}</td>
-            <td>{value}</td>
+            <td>{JSON.stringify(value)}</td>
           </tr>
         );
       }
@@ -131,9 +305,14 @@ class PublishData extends React.Component {
         </p>
         <p>
           Once published, changes to ERIC Internal packages can be made by
-          request to datalakes-svc@eawag.ch
+          request to datalakes@eawag.ch.
         </p>
-        {error !== "" && <div className="errormessage">{error}</div>}
+        {error !== "" && (
+          <div className="errormessage">
+            <p>Error adding dataset to archive. See below for details.</p>
+            <p>{error}</p>
+          </div>
+        )}
         {loading ? (
           <div>
             <Loading />
@@ -173,11 +352,9 @@ class Publish extends Component {
       embargo: "",
       title: "",
       "author-1": "",
-      "author-2": "",
-      "author-3": "",
       notes: "",
       tags_string: "",
-      variables: [],
+      variables: ["none"],
       substances: "",
       substances_generic: "",
       taxa: "",
@@ -190,9 +367,9 @@ class Publish extends Component {
       private: "True",
       status: "complete",
       review_level: "general",
-      reviewed_by: "datalakes-svc",
+      reviewed_by: "bouffada",
       maintainer: "datalakes-svc",
-      usage_contact: "datalakes-svc",
+      usage_contact: "bouffada",
       "notes-2": "",
       has_part: "",
       is_part_of: "",
@@ -209,6 +386,17 @@ class Publish extends Component {
     } else {
       throw new Error("ProcessSSH only defined for renkulab");
     }
+  };
+
+  addAuthor = () => {
+    var { metadata } = this.state;
+    for (var i = 1; i < 100; i++) {
+      if (!("author-" + i in metadata)) {
+        metadata["author-" + i] = "";
+        break;
+      }
+    }
+    this.setState({ metadata });
   };
 
   onChangeArchive = (event) => {
@@ -234,7 +422,8 @@ class Publish extends Component {
   };
 
   getPerson = (selectiontables, author_id) => {
-    return selectiontables.persons.filter((p) => p.id === author_id)[0];
+    var person = selectiontables.persons.filter((p) => p.id === author_id)[0];
+    return person.name + " <" + person.email + ">";
   };
 
   validateSelectRepo = () => {
@@ -250,7 +439,11 @@ class Publish extends Component {
     var authors = [];
     var latlng = [];
     var lakes = [];
+    var mindatetime = [];
+    var maxdatetime = [];
     for (var ds of selected_datasets) {
+      mindatetime.push(new Date(ds.mindatetime));
+      maxdatetime.push(new Date(ds.maxdatetime));
       repo_views.push(ds.id);
       repo_view_names.push(ds.title);
       authors.push(ds.persons_id);
@@ -258,21 +451,41 @@ class Publish extends Component {
         lakes.push(ds.lakes_id);
       }
       if (ds.latitude !== -9999) {
-        latlng.push(String(ds.latitude) + "," + String(ds.longitude));
+        latlng.push(
+          parseFloat(ds.latitude).toFixed(3) +
+            "," +
+            parseFloat(ds.longitude).toFixed(3)
+        );
       }
     }
+    var maxDate = new Date(Math.max.apply(null, maxdatetime));
+    var minDate = new Date(Math.min.apply(null, mindatetime));
+    var timerange =
+      minDate.toISOString().substring(0, 10) +
+      " TO " +
+      maxDate.toISOString().substring(0, 10);
     authors = [...new Set(authors)];
     latlng = [...new Set(latlng)];
+    latlng = latlng.map((l) => [
+      parseFloat(l.split(",")[1]),
+      parseFloat(l.split(",")[0]),
+    ]);
+    var spatial = {
+      type: "MultiPoint",
+      coordinates: latlng,
+    };
     lakes = [...new Set(lakes)];
-    lakes = lakes.map(
-      (l) => selectiontables.lakes.filter((ll) => l === ll.id)[0].name
-    );
+    lakes = lakes
+      .map((l) => selectiontables.lakes.filter((ll) => l === ll.id)[0].name)
+      .join(", ");
 
     for (var i = 0; i < authors.length; i++) {
       var person = this.getPerson(selectiontables, authors[i]);
-      metadata["author-" + (i + 1)] = person.name;
+      metadata["author-" + (i + 1)] = person;
     }
 
+    metadata["spatial"] = spatial;
+    metadata["timerange-1"] = timerange;
     metadata["repo_name"] = repo_name;
     metadata["namespace"] = namespace;
     metadata["repo_views"] = repo_views;
@@ -313,7 +526,10 @@ class Publish extends Component {
       window.location.href = link;
     } catch (error) {
       console.error(error.response);
-      this.setState({ loading: false, error: error.message });
+      this.setState({
+        loading: false,
+        error: JSON.stringify(error.response.data),
+      });
     }
   };
 
@@ -426,6 +642,7 @@ class Publish extends Component {
               prevStep={this.prevStep}
               metadata={metadata}
               onChangeMetadata={this.onChangeMetadata}
+              addAuthor={this.addAuthor}
             />
           </React.Fragment>
         );

@@ -78,8 +78,27 @@
   width: 100%;
 }
 
-.metadataform table input {
-  width: 90%;
+.metadataform table input[type=text] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.metadataform table .addauthor {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.metadataform table textarea {
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 70px;
+}
+
+.metadataform table .addauthor:hover {
+  text-decoration: underline;
 }
 
 .publishdata p {
@@ -89,7 +108,6 @@
 .publishdata .errormessage {
   margin: 20px 20px;
   font-size: 16px;
-  padding: 20px 20px;
   color: red;
   border: 1px solid red;
 }
