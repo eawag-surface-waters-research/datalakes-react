@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import ProgressBar from "./progressbar";
+import Select from "react-select";
+import { variable_options } from "./variables";
 import axios from "axios";
 import { apiUrl } from "../../../src/config.json";
 import "./publish.css";
@@ -88,8 +90,16 @@ class MetadataReview extends React.Component {
   };
 
   render() {
-    var { prevStep, nextStep, metadata, onChangeMetadata, addAuthor } =
-      this.props;
+    var {
+      prevStep,
+      nextStep,
+      metadata,
+      onChangeMetadata,
+      addAuthor,
+      variables,
+      onChangeVariables,
+      error,
+    } = this.props;
 
     var times = metadata["timerange-1"].split(" TO ");
     var minDate = times[0];
@@ -123,13 +133,19 @@ class MetadataReview extends React.Component {
       }
     }
 
+    var r = (
+      <div className="required" title="This field is required">
+        *
+      </div>
+    );
+
     return (
       <div className="metadatareview">
         <div className="metadataform">
           <table>
             <tbody>
               <tr>
-                <th style={{ width: "15%" }}>Title</th>
+                <th style={{ width: "15%" }}>{r}Title</th>
                 <td style={{ width: "40%" }}>
                   <input
                     type="text"
@@ -143,7 +159,7 @@ class MetadataReview extends React.Component {
               </tr>
               {authors}
               <tr>
-                <th>Abstract</th>
+                <th>{r}Abstract</th>
                 <td>
                   <textarea
                     value={metadata.notes}
@@ -161,7 +177,7 @@ class MetadataReview extends React.Component {
                 </td>
               </tr>
               <tr>
-                <th>Timerange</th>
+                <th>{r}Timerange</th>
                 <td>
                   <p>
                     From:{" "}
@@ -188,7 +204,7 @@ class MetadataReview extends React.Component {
                 </td>
               </tr>
               <tr>
-                <th>Keywords</th>
+                <th>{r}Keywords</th>
                 <td>
                   <input
                     type="text"
@@ -200,7 +216,7 @@ class MetadataReview extends React.Component {
                   />
                 </td>
                 <td>
-                  Comma separated list of keywords. Just like the keywords of a
+                  <p>Comma seperated values.</p>Just like the keywords of a
                   scientific publication. In case you are creating a publication
                   data package, i.e., a package the supplies data for a specific
                   publication, you should copy & paste the publication's
@@ -208,7 +224,160 @@ class MetadataReview extends React.Component {
                 </td>
               </tr>
               <tr>
-                <th>Reviewer</th>
+                <th>{r}Variables</th>
+                <td>
+                  <Select
+                    isMulti
+                    name="variables"
+                    value={metadata.variables.map((v) => {
+                      return { value: v, label: v };
+                    })}
+                    options={variable_options.map((v) => {
+                      return { value: v, label: v };
+                    })}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    onChange={onChangeVariables}
+                  />
+                </td>
+                <td>
+                  <p>
+                    Select variables from the dropdown. Below is a list from the
+                    datasets.
+                  </p>
+                  {variables.map((v) => (
+                    <div key={v.name}>
+                      {v.name} ({v.unit})
+                    </div>
+                  ))}
+                  <p>
+                    If variables are missing please email rdm@eawag.ch to
+                    request they be added.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <th>Substances (scientific names)</th>
+                <td>
+                  <textarea
+                    value={metadata.substances}
+                    onChange={(e) =>
+                      onChangeMetadata("substances", e.target.value)
+                    }
+                    placeholder="ethanol (InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3)"
+                  />
+                </td>
+                <td>
+                  <p>One value per line.</p>
+                  List the chemical substances (molecules, ions, elements) that
+                  are the subject of this package. Substances should be denoted
+                  by an established name and their IUPAC International Chemical
+                  Identifier (InChI) in parentheses like so: ethanol
+                  (InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3)
+                </td>
+              </tr>
+              <tr>
+                <th>Substances (generic terms)</th>
+                <td>
+                  <textarea
+                    value={metadata.substances_generic}
+                    onChange={(e) =>
+                      onChangeMetadata("substances_generic", e.target.value)
+                    }
+                    placeholder="herbicide&#10;metabolites&#10;nutrients&#10;organic matter&#10;microplastics"
+                  />
+                </td>
+                <td>
+                  <p>One value per line.</p>
+                  List umbrella terms and commonly understood descriptions of
+                  substances and substance classes which are the subject of this
+                  package.
+                </td>
+              </tr>
+              <tr>
+                <th>Taxa (scientific names)</th>
+                <td>
+                  <textarea
+                    value={metadata.taxa}
+                    onChange={(e) => onChangeMetadata("taxa", e.target.value)}
+                    placeholder="Dictyosphaerium libertatis&#10;Nodularia moravica&#10;Phodopus sungorus&#10;Solanum tuberosum"
+                  />
+                </td>
+                <td>
+                  <p>One value per line.</p>
+                  List the taxonomic names that are the subject of this package,
+                  e.g. the species, genera, and/or families. Taxa should be
+                  denoted by the accepted scientific name.
+                </td>
+              </tr>
+              <tr>
+                <th>Organisms (generic terms)</th>
+                <td>
+                  <textarea
+                    value={metadata.taxa_generic}
+                    onChange={(e) =>
+                      onChangeMetadata("taxa_generic", e.target.value)
+                    }
+                    placeholder="fish&#10;algae&#10;invertebrates&#10;beetles"
+                  />
+                </td>
+                <td>
+                  <p>One value per line.</p>
+                  List umbrella terms and commonly understood descriptions of
+                  organisms and groups of organisms which are the subject of
+                  this package.
+                </td>
+              </tr>
+              <tr>
+                <th>Systems</th>
+                <td>
+                  <textarea
+                    value={metadata.systems}
+                    onChange={(e) =>
+                      onChangeMetadata("systems", e.target.value)
+                    }
+                    placeholder="river&#10;lake&#10;sewage system&#10;metropolitan area&#10;lab"
+                  />
+                </td>
+                <td>
+                  <p>One value per line.</p>A generally understandable answer to
+                  the question: "Where or in which medium did the measurements
+                  or observations take place?"
+                </td>
+              </tr>
+              <tr>
+                <th>{r}Geographic Name(s)</th>
+                <td>
+                  <textarea
+                    value={metadata.geographic_name}
+                    onChange={(e) =>
+                      onChangeMetadata("geographic_name", e.target.value)
+                    }
+                    placeholder="Greifensee&#10;River Rhine&#10;Kampala Uganda"
+                  />
+                </td>
+                <td>
+                  <p>One value per line.</p>
+                  List geographical names that have a relation to the data in
+                  this package.
+                </td>
+              </tr>
+              <tr>
+                <th>Notes</th>
+                <td>
+                  <textarea
+                    value={metadata["notes-2"]}
+                    onChange={(e) =>
+                      onChangeMetadata("notes-2", e.target.value)
+                    }
+                    placeholder="Additional notes for data users, the Eawag data-manager, or yourself."
+                  />
+                </td>
+                <td></td>
+              </tr>
+
+              <tr>
+                <th>{r}Reviewer</th>
                 <td>
                   <input
                     type="text"
@@ -219,10 +388,13 @@ class MetadataReview extends React.Component {
                     placeholder="bouffada"
                   />
                 </td>
-                <td>Eawag username. The person who has reviewed the dataset.</td>
+                <td>
+                  <p>Eawag username.</p> The person who has reviewed the
+                  dataset.
+                </td>
               </tr>
               <tr>
-                <th>Curator</th>
+                <th>{r}Curator</th>
                 <td>
                   <input
                     type="text"
@@ -234,13 +406,13 @@ class MetadataReview extends React.Component {
                   />
                 </td>
                 <td>
-                  Eawag username. The Curator is the person responsible for
-                  completeness, quality-control and maintenance of meta-data and
-                  resources in the package.
+                  <p>Eawag username.</p> The Curator is the person responsible
+                  for completeness, quality-control and maintenance of meta-data
+                  and resources in the package.
                 </td>
               </tr>
               <tr>
-                <th>Usage Contact</th>
+                <th>{r}Usage Contact</th>
                 <td>
                   <input
                     type="text"
@@ -252,14 +424,20 @@ class MetadataReview extends React.Component {
                   />
                 </td>
                 <td>
-                  Eawag username. The person who has to be contacted before the
-                  data in this package can be used. This is usually the PI or
-                  research group leader.
+                  <p>Eawag username.</p> The person who has to be contacted
+                  before the data in this package can be used. This is usually
+                  the PI or research group leader.
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        {error !== "" && (
+          <div className="errormessage">
+            <p>Metadata incomplete. See below for details.</p>
+            <p className="message">{error}</p>
+          </div>
+        )}
         <div className="buttonnav">
           <button onClick={prevStep}>Back</button>
           <button onClick={nextStep}>Next </button>
@@ -272,29 +450,18 @@ class MetadataReview extends React.Component {
 class PublishData extends React.Component {
   render() {
     var { prevStep, nextStep, loading, archive, metadata, error } = this.props;
-
-    var table = [];
-    for (const [key, value] of Object.entries(metadata)) {
-      if (value !== "") {
-        table.push(
-          <tr key={key}>
-            <td>{key}</td>
-            <td>{JSON.stringify(value)}</td>
-          </tr>
-        );
-      }
-    }
     return (
       <div className="publishdata">
         <p>
           Publish dataset <b>{metadata.title}</b> to archive <b>{archive}</b>
         </p>
         <p>
-          <b>Metadata Summary</b>
+          It is important that your git repository contains a README.md file and
+          conforms to the guidance found{" "}
+          <a href="https://opendata.eawag.ch/guides/eaw_research_data_publishing_guide/eaw_research_data_publishing_guide.html#documentation-scientific-metadata">
+            here.
+          </a>
         </p>
-        <table>
-          <tbody>{table}</tbody>
-        </table>
         <p>
           You will be automatically redirected to the archived data in Eric
           Internal (Eawag network required for access). Datasets may not be
@@ -333,13 +500,14 @@ class Publish extends Component {
     step: 1,
     allowedStep: [1, 0, 0, 0],
     loading: true,
-    repo: "19",
+    repo: "16",
     archives: [
       "ERIC Internal- Eawag Research Data (Only Eawag)",
       "ERIC OPEN - Eawag Research Data (Public)",
     ],
     archive: 0,
     error: "",
+    variables: [],
     metadata: {
       repo_name: "",
       namespace: "",
@@ -354,7 +522,7 @@ class Publish extends Component {
       "author-1": "",
       notes: "",
       tags_string: "",
-      variables: ["none"],
+      variables: [],
       substances: "",
       substances_generic: "",
       taxa: "",
@@ -399,6 +567,12 @@ class Publish extends Component {
     this.setState({ metadata });
   };
 
+  onChangeVariables = (event) => {
+    var { metadata } = this.state;
+    metadata["variables"] = event.map((e) => e.value);
+    this.setState({ metadata });
+  };
+
   onChangeArchive = (event) => {
     this.setState({ archive: event.target.value });
   };
@@ -427,8 +601,15 @@ class Publish extends Component {
   };
 
   validateSelectRepo = () => {
-    const { step, repo, datasets, repositories, metadata, selectiontables } =
-      this.state;
+    const {
+      step,
+      repo,
+      datasets,
+      datasetparameters,
+      repositories,
+      metadata,
+      selectiontables,
+    } = this.state;
     var repo_id = repositories[repo].id;
     var selected_datasets = datasets.filter(
       (d) => d.repositories_id === repo_id
@@ -441,12 +622,20 @@ class Publish extends Component {
     var lakes = [];
     var mindatetime = [];
     var maxdatetime = [];
+    var ids = [];
+    var git = selected_datasets[0].datasourcelink.split("/-/blob")[0];
+    var notes =
+      "Live data can be access at the git repository [" +
+      git +
+      "] or on Datalakes at the following links: ";
     for (var ds of selected_datasets) {
+      ids.push(ds.id);
       mindatetime.push(new Date(ds.mindatetime));
       maxdatetime.push(new Date(ds.maxdatetime));
       repo_views.push(ds.id);
       repo_view_names.push(ds.title);
       authors.push(ds.persons_id);
+      notes = notes + ", https://www.datalakes-eawag.ch/datadetail/" + ds.id;
       if (ds.lakes !== 56) {
         lakes.push(ds.lakes_id);
       }
@@ -458,6 +647,7 @@ class Publish extends Component {
         );
       }
     }
+
     var maxDate = new Date(Math.max.apply(null, maxdatetime));
     var minDate = new Date(Math.min.apply(null, mindatetime));
     var timerange =
@@ -484,6 +674,17 @@ class Publish extends Component {
       metadata["author-" + (i + 1)] = person;
     }
 
+    var variables = [
+      ...new Set(
+        datasetparameters
+          .filter((dp) => ids.includes(dp.datasets_id))
+          .map((dp) => dp.parameters_id)
+      ),
+    ]
+      .map((v) => selectiontables.parameters.find((p) => p.id === v))
+      .filter((sp) => sp.id > 4);
+
+    metadata["notes-2"] = notes;
     metadata["spatial"] = spatial;
     metadata["timerange-1"] = timerange;
     metadata["repo_name"] = repo_name;
@@ -493,7 +694,12 @@ class Publish extends Component {
     metadata["title"] = this.cfl(repo_name.replaceAll("-", " "));
     metadata["geographic_name"] = lakes;
 
-    this.setState({ allowedStep: [1, 2, 0, 0], step: step + 1, metadata });
+    this.setState({
+      allowedStep: [1, 2, 0, 0],
+      step: step + 1,
+      metadata,
+      variables,
+    });
   };
 
   validateSelectArchive = () => {
@@ -502,8 +708,34 @@ class Publish extends Component {
   };
 
   validateMetadataReview = () => {
-    const { step } = this.state;
-    this.setState({ allowedStep: [1, 2, 3, 4], step: step + 1 });
+    var { step, metadata, error } = this.state;
+    var required = [
+      "title",
+      "author-1",
+      "notes",
+      "tags_string",
+      "reviewed_by",
+      "maintainer",
+      "usage_contact",
+    ];
+    var forward = true;
+    if (metadata.variables.length < 1) {
+      forward = false;
+      error = "At least one variable must be defined.";
+    } else {
+      for (var r of required) {
+        if (metadata[r] === "") {
+          forward = false;
+          error = "Not all required fields completed.";
+          break;
+        }
+      }
+    }
+    if (forward) {
+      this.setState({ allowedStep: [1, 2, 3, 4], step: step + 1, error: "" });
+    } else {
+      this.setState({ error });
+    }
   };
 
   publishData = async () => {
@@ -550,13 +782,19 @@ class Publish extends Component {
     const { data: selectiontables } = await axios.get(
       apiUrl + "/selectiontables"
     );
-    const { data: repositories } = await axios.get(apiUrl + "/repositories");
+    var { data: repositories } = await axios.get(apiUrl + "/repositories");
     var { data: datasets } = await axios.get(apiUrl + "/datasets");
-    var { data: parameters } = await axios.get(apiUrl + "/datasetparameters");
+    var active_repos = [
+      ...new Set(datasets.map((d) => d.repositories_id)),
+    ].filter((d) => d > 0);
+    repositories = repositories.filter((r) => active_repos.includes(r.id));
+    var { data: datasetparameters } = await axios.get(
+      apiUrl + "/datasetparameters"
+    );
     this.setState({
       repositories,
       datasets,
-      parameters,
+      datasetparameters,
       selectiontables,
       loading: false,
     });
@@ -574,6 +812,7 @@ class Publish extends Component {
       archive,
       metadata,
       error,
+      variables,
     } = this.state;
     switch (step) {
       default:
@@ -643,6 +882,9 @@ class Publish extends Component {
               metadata={metadata}
               onChangeMetadata={this.onChangeMetadata}
               addAuthor={this.addAuthor}
+              variables={variables}
+              onChangeVariables={this.onChangeVariables}
+              error={error}
             />
           </React.Fragment>
         );
