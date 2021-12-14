@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import ProgressBar from "./progressbar";
 import Select from "react-select";
-import { variable_options } from "./variables";
 import axios from "axios";
 import { apiUrl } from "../../../src/config.json";
 import "./publish.css";
@@ -99,6 +98,7 @@ class MetadataReview extends React.Component {
       variables,
       onChangeVariables,
       error,
+      variable_options,
     } = this.props;
 
     var times = metadata["timerange-1"].split(" TO ");
@@ -508,6 +508,7 @@ class Publish extends Component {
     archive: 0,
     error: "",
     variables: [],
+    variable_options: [],
     metadata: {
       repo_name: "",
       namespace: "",
@@ -624,10 +625,8 @@ class Publish extends Component {
     var maxdatetime = [];
     var ids = [];
     var git = selected_datasets[0].datasourcelink.split("/-/blob")[0];
-    var notes =
-      "Live data can be access at the git repository [" +
-      git +
-      "] or on Datalakes at the following links: ";
+    var datalakes_links = [];
+
     for (var ds of selected_datasets) {
       ids.push(ds.id);
       mindatetime.push(new Date(ds.mindatetime));
@@ -635,7 +634,9 @@ class Publish extends Component {
       repo_views.push(ds.id);
       repo_view_names.push(ds.title);
       authors.push(ds.persons_id);
-      notes = notes + ", https://www.datalakes-eawag.ch/datadetail/" + ds.id;
+      datalakes_links.push(
+        "https://www.datalakes-eawag.ch/datadetail/" + ds.id
+      );
       if (ds.lakes !== 56) {
         lakes.push(ds.lakes_id);
       }
@@ -684,6 +685,16 @@ class Publish extends Component {
       .map((v) => selectiontables.parameters.find((p) => p.id === v))
       .filter((sp) => sp.id > 4);
 
+    var notes =
+      "Variables contained in this dataset: " +
+      variables.map((v) => `${v.name} (${v.unit})`).join(", ") +
+      ". Live data can be accessed at the git repository [" +
+      git +
+      "] or on Datalakes at the following links: " +
+      datalakes_links.join(", ");
+
+    metadata["tags_string"] =
+      "Datalakes, " + variables.map((v) => v.name).join(", ");
     metadata["notes-2"] = notes;
     metadata["spatial"] = spatial;
     metadata["timerange-1"] = timerange;
@@ -784,6 +795,13 @@ class Publish extends Component {
     );
     var { data: repositories } = await axios.get(apiUrl + "/repositories");
     var { data: datasets } = await axios.get(apiUrl + "/datasets");
+    var { data: eric } = await axios.get(
+      "https://raw.githubusercontent.com/eawag-rdm/ckanext-eaw_schema/master/ckanext/eaw_schema/eaw_schema_dataset.json"
+    );
+    var variable_options = eric.dataset_fields
+      .find((df) => df.modal_text === "variables_help")
+      .choices.map((c) => c.value);
+
     var active_repos = [
       ...new Set(datasets.map((d) => d.repositories_id)),
     ].filter((d) => d > 0);
@@ -796,6 +814,7 @@ class Publish extends Component {
       datasets,
       datasetparameters,
       selectiontables,
+      variable_options,
       loading: false,
     });
   }
@@ -813,6 +832,7 @@ class Publish extends Component {
       metadata,
       error,
       variables,
+      variable_options,
     } = this.state;
     switch (step) {
       default:
@@ -883,6 +903,7 @@ class Publish extends Component {
               onChangeMetadata={this.onChangeMetadata}
               addAuthor={this.addAuthor}
               variables={variables}
+              variable_options={variable_options}
               onChangeVariables={this.onChangeVariables}
               error={error}
             />

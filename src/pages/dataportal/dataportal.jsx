@@ -511,6 +511,18 @@ class DataPortal extends Component {
         }
       }
     }
+    
+    var url = "https://www.internal.eawag.ch/de/sitemap";
+    var win = window.open(url, "_blank");
+    if (win) {
+      //Browser has allowed it to be opened
+      win.focus();
+    } else {
+      //Broswer has blocked it
+      alert("Please allow popups for this site");
+    }
+    console.log(win);
+
     this.setState({ datasets, parameters, dropdown, loading: false });
   }
 
