@@ -25,7 +25,7 @@ class LakeMorphologyGraph extends Component {
     var { morphology, title } = this.state;
     var download = JSON.parse(JSON.stringify(morphology));
     delete download.id;
-    var keys = Object.keys(download).filter(k => k !== "Source");
+    var keys = Object.keys(download).filter((k) => k !== "Source");
     var csv = `data:text/csv;charset=utf-8, ${keys
       .map((d) => `${d} (${download[d].unit})`)
       .join(",")}\n`;
@@ -181,11 +181,15 @@ class LakeMorphologyGraph extends Component {
       xunits,
       yunits,
       interpolated,
-      morphology
+      morphology,
     } = this.state;
+    var { reset } = this.props;
     return (
       <React.Fragment>
         <div className="lake-morphology">
+          <div className="close" title="Deselect lake" onClick={reset}>
+            &#215;
+          </div>
           <div className="lakes-graph-short">
             <D3LineGraph
               data={data}
@@ -222,7 +226,9 @@ class LakeMorphologyGraph extends Component {
             <button onClick={this.download}>Download</button>
           </div>
           <div className="reference">
-            {"Source" in morphology ? morphology["Source"] : "Please contact Isabel Kiefer (isabel.kiefer@epfl.ch) at EPFL for more information on this dataset."}
+            {"Source" in morphology
+              ? morphology["Source"]
+              : "Please contact Isabel Kiefer (isabel.kiefer@epfl.ch) at EPFL for more information on this dataset."}
           </div>
         </div>
       </React.Fragment>
@@ -269,6 +275,14 @@ class LakeMorphology extends Component {
     this.props.history.push({
       pathname: pathname,
       search: this.urlSafe(name) + "_" + id,
+    });
+  };
+
+  resetLocation = () => {
+    const pathname = this.props.location.pathname;
+    this.props.history.push({
+      pathname: pathname,
+      search: "",
     });
   };
 
@@ -346,6 +360,7 @@ class LakeMorphology extends Component {
               lake={lake}
               lakename={lake.name}
               geojson={geojson}
+              reset={this.resetLocation}
             />
           ) : (
             <div className="banner">
