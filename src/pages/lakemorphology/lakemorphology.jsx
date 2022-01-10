@@ -136,7 +136,8 @@ class LakeMorphologyGraph extends Component {
         `${apiUrl}/externaldata/morphology/${lake.id}`
       );
       for (var key of Object.keys(morphology)) {
-        if (!["id", "Interpolated", "Source"].includes(key)) {
+        console.log(key.toLowerCase())
+        if (!["id", "interpolated", "source"].includes(key.toLowerCase())) {
           morphology[key].values = morphology[key].values.map((d) =>
             parseFloat(d)
           );
@@ -146,7 +147,7 @@ class LakeMorphologyGraph extends Component {
       var ylabel = "Depth";
 
       var xlabels = Object.keys(morphology).filter(
-        (m) => !["id", "Depth", "Interpolated"].includes(m)
+        (m) => !["id", "depth", "interpolated", "source"].includes(m.toLowerCase())
       );
 
       var xlabel = xlabels[0];
