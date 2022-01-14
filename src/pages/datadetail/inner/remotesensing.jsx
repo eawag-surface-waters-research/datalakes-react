@@ -757,7 +757,6 @@ class RemoteSensing extends Component {
       layer["opacity"] = 1;
       layer["datamin"] = filemin;
       layer["datamax"] = filemax;
-      layer["movingAverage"] = 4;
       layer["validpixelexpression"] = true;
       layer["unit"] = unit;
       layer["array"] = filearray;
