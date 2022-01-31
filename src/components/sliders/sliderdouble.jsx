@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import "./slider.css";
 import SliderSelect from "../SliderSelect/SliderSelect";
 
-
 class DateSliderDouble extends Component {
   state = {
     upper: this.props.upper,
@@ -41,8 +40,17 @@ class DateSliderDouble extends Component {
   };
 
   render() {
-    var { min, max, lower, upper, onChangeLower, onChangeUpper, files, language } =
-      this.props;
+    var {
+      min,
+      max,
+      lower,
+      upper,
+      onChangeLower,
+      onChangeUpper,
+      files,
+      language,
+      removedateselect,
+    } = this.props;
     min = this.formatDate(min);
     max = this.formatDate(max);
     lower = this.formatDate(lower);
@@ -51,9 +59,14 @@ class DateSliderDouble extends Component {
       new Date(f.mindatetime),
       new Date(f.maxdatetime),
     ]);
+    var marginTop = "0";
+    if (removedateselect) {
+      onChangeLower = false;
+      marginTop = "-45px";
+    }
 
     return (
-      <div className="datetime-selector">
+      <div className="datetime-selector" style={{ marginTop: marginTop }}>
         {onChangeLower && (
           <div className="datetime-picker">
             <div className="datetime-value" style={{ float: "left" }}>
