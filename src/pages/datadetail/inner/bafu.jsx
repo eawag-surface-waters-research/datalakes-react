@@ -35,8 +35,6 @@ class Bafu extends Component {
       yScale,
       minX,
       maxX,
-      minZ,
-      maxZ,
       lowerX,
       upperX,
       file,
@@ -108,8 +106,6 @@ class Bafu extends Component {
                 bcolor={bcolor}
                 colors={colors}
                 thresholdStep={thresholdStep}
-                minvalue={minZ}
-                maxvalue={maxZ}
                 yReverse={yReverse}
                 xReverse={xReverse}
                 display={"contour"}
