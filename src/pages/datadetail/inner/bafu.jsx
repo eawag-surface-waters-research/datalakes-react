@@ -63,9 +63,9 @@ class Bafu extends Component {
 
       { color: "#9d3543", point: 0.833 },
       { color: "#9d3543", point: 1 },
-    ];*/
+    ];
     minZ = 0;
-    maxZ = 30;
+    maxZ = 30;*/
     thresholdStep = 50;
     var language = "de";
 
