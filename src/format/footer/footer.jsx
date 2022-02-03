@@ -37,10 +37,10 @@ class Footer extends Component {
                   </div>
                   <div className="copyright">
                       <span className="contact">
-                         <a href="https://github.com/Datalakes-Eawag/datalakes-react" title="Check out our open-source frontend (React-App) code." className="contact-inner">
+                         <a href="https://github.com/eawag-surface-waters-research/datalakes-react" title="Check out our open-source frontend (React-App) code." className="contact-inner">
                               <img src={react} alt="React" />
                           </a>
-                          <a href="https://github.com/Datalakes-Eawag/datalakes-nodejs" title="Check out our open-source backend (NodeJS) code" className="contact-inner">
+                          <a href="https://github.com/eawag-surface-waters-research/datalakes-nodejs" title="Check out our open-source backend (NodeJS) code" className="contact-inner">
                               <img src={node} alt="NodeJS" />
                           </a>
                           <a href="https://twitter.com/Datalakes1" title="Check out our Twitter page" className="contact-inner">
