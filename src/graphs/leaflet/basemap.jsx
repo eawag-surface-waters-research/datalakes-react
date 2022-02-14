@@ -1035,9 +1035,17 @@ class Basemap extends Component {
     var dd = "<tr><td><strong>Depth</strong></td><td>";
 
     if (type.includes("M&1") && type.includes("y&2")) {
-      // Profiler
-      var dp2 = datasetparameters.find((dp) => dp.parameters_id === 1);
-      var dp3 = datasetparameters.find((dp) => dp.parameters_id === 2);
+      // Profiler vs depth
+      let dp2 = datasetparameters.find((dp) => dp.parameters_id === 1);
+      let dp3 = datasetparameters.find((dp) => dp.parameters_id === 2);
+      index = this.indexClosest(depth, data.y);
+      value = this.numberformat(parseFloat(data[datasetparameter.axis][index]));
+      dt = new Date(data[dp2.axis][index] * 1000);
+      dd = dd + data[dp3.axis][index] + "m";
+    } else if (type.includes("M&1") && type.includes("y&18")) {
+      // Profiler vs pressure
+      let dp2 = datasetparameters.find((dp) => dp.parameters_id === 1);
+      let dp3 = datasetparameters.find((dp) => dp.parameters_id === 18);
       index = this.indexClosest(depth, data.y);
       value = this.numberformat(parseFloat(data[datasetparameter.axis][index]));
       dt = new Date(data[dp2.axis][index] * 1000);
