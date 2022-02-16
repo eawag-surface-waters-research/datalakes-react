@@ -158,6 +158,7 @@ class Triple extends Component {
 class Home extends Component {
   constructor(props) {
     super(props);
+    this.home = React.createRef();
     this.ourdata = React.createRef();
     this.accessoptions = React.createRef();
     this.about = React.createRef();
@@ -177,6 +178,7 @@ class Home extends Component {
     try {
       var { search } = this.props.location;
       if (search) {
+        if (search === "?home") this.scrollTo(this.home, -50);
         if (search === "?ourdata") this.scrollTo(this.ourdata, -50);
         if (search === "?accessoptions") this.scrollTo(this.accessoptions, -50);
         if (search === "?about") this.scrollTo(this.about, -50);
@@ -199,7 +201,7 @@ class Home extends Component {
       "Datalakes - Search, visualise and download data on Swiss lakes";
     return (
       <React.Fragment>
-        <div className="home">
+        <div className="home" ref={this.home}>
           <div id="home-banner" className="home-banner">
             <div className="home-tagline">
               Search, visualise and download data on Swiss lakes.
