@@ -66,9 +66,9 @@
   font-size: 22px;
   background-color: black;
   color: white;
-  height: 40px;
-  padding: 0 20px;
+  padding: 10px 20px;
   animation: pulse 2s 5;
+  border-radius: 15px;
 }
 
 @-webkit-keyframes pulse {
@@ -98,7 +98,7 @@
 }
 
 .home-banner button:hover {
-  color: grey;
+  transform: scale(1.05);
 }
 
 .home-partners {
@@ -213,6 +213,85 @@
   position: relative;
 }
 
+.section.access {
+  margin-top: -100px;
+  margin-bottom: 100px;
+}
+
+.section.access a {
+  text-decoration: none;
+}
+
+.section.access .box {
+  width: 280px;
+  border-radius: 20px;
+  background-color: #f0f4f8;
+  font-size: 22px;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+  margin: 0 20px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.section.access .box .box-header {
+  background-color: #d9e2ec;
+  text-align: center;
+  border-radius: 20px 20px 0 0;
+  padding: 10px 0;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+}
+
+.section.access .box .box-img {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.section.access .box .box-img img {
+  height: 150px;
+}
+
+.section.access .box .box-text {
+  padding: 0px 30px 20px 30px;
+}
+
+.section.access .box:hover {
+  transform: scale(1.02);
+}
+
+@media screen and (max-width: 1000px) and (min-width: 650px) {
+  .section.access .box {
+    display: block;
+    width: calc(100% - 100px);
+    margin: 30px 50px;
+  }
+  .section.access .box .box-text {
+    display: inline-block;
+    width: 50%;
+    box-sizing: border-box;
+    vertical-align: top;
+    margin-top: 40px;
+  }
+  .section.access .box .box-img {
+    display: inline-block;
+    width: 50%;
+    padding: 20px 0;
+    box-sizing: border-box;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .section.access {
+    margin: 0;
+  }
+  .section.access .box {
+    display: block;
+    width: calc(100% - 20px);
+    margin: 30px 10px;
+  }
+}
+
 .section.lakesimulations {
   margin-bottom: 120px;
 }
@@ -317,18 +396,23 @@
 
 .section.lakesimulations .inner {
   float: right;
-  text-align: right;
 }
 
 .section.section.lakesimulations button {
   display: block;
   font-size: 24px;
+  border-radius: 15px;
+  width: 300px;
+  margin: auto;
   margin-top: 20px;
-  float: right;
+  background-color: black;
+  color: rgba(240, 240, 240, 1);
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  transition: all .2s ease-in-out;
 }
 
 .section.lakesimulations button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
 }
 
 .section.insitudata .inner {
@@ -337,7 +421,6 @@
 
 .section .outer {
   font-size: 34px;
-  padding-top: 40px;
   font-family: "Arial", sans-serif;
   font-weight: bold;
   width: 960px;
@@ -352,12 +435,54 @@
   height: 100%;
 }
 
+.section.about {
+  padding: 25px 50px;
+  border-radius: 20px;
+  background-color: #f0f4f8;
+  font-size: 18px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.section.about .contacts .contact {
+  display: inline-block;
+  width: 50%;
+}
+
+.section.about .contacts .contact img {
+  width: 40%;
+  display: inline-block;
+  border-radius: 20px;
+}
+
+.section.about .contacts .contact .text {
+  display: inline-block;
+  width: 60%;
+  box-sizing: border-box;
+  padding: 0 30px;
+  vertical-align: top;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.section.about .title {
+  font-size: 36px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: rgb(134, 134, 139);
+  font-family: "Arial", sans-serif;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
 .section.insitudata button {
   border-color: white;
   color: white;
   display: block;
   font-size: 24px;
   margin-top: 20px;
+  border-radius: 15px;
+  padding: 5px 30px;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .section.insitudata button:hover {
@@ -370,6 +495,9 @@
   display: block;
   font-size: 24px;
   margin-top: 20px;
+  border-radius: 15px;
+  padding: 5px 30px;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .section.rs button:hover {
@@ -377,6 +505,10 @@
 }
 
 .section.insitudata a {
+  text-decoration: none !important;
+}
+
+.section.rs a {
   text-decoration: none !important;
 }
 
@@ -515,6 +647,12 @@
     padding: 0;
     margin-bottom: 100px;
   }
+  .section.about .contacts .contact {
+    width: 100%;
+  }
+  .section.about {
+    border-radius: 0;
+  }
   .home-banner {
     margin-bottom: 0;
   }
@@ -530,6 +668,15 @@
 
   .triple-inner {
     margin: 0;
+  }
+
+  .section.about .contacts .contact .text {
+    padding: 0 10px;
+    margin: 0;
+  }
+
+  .section.about .contacts .contact .text b {
+    font-size: 12px;
   }
 
   .sectiontitle {
@@ -568,10 +715,6 @@
 
   .section.lakesimulations .inner {
     width: 100%;
-  }
-
-  .section.rs .outer {
-    font-size: 18px;
   }
 
   .section.rs .inner {
