@@ -4,15 +4,15 @@
 
 .sidebarlayout .rightcontainer {
   width: 318px;
-  padding-left: 10px;
-  padding-right: 10px;
-  vertical-align: top;
   max-width: 100%;
   box-sizing: border-box;
   display: inline-block;
   position: relative;
   background-color: white;
   min-height: 500px;
+  border: solid 1px rgb(169, 169, 169);
+  border-radius: 5px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
 }
 
 .sidebarlayout .rightcontainer.hide {
@@ -27,6 +27,15 @@
   font-weight: 500;
   line-height: 20px;
   font-family: "The Serif Bold", Arial, sans-serif;
+  padding: 10px 15px;
+  border-radius: 5px 5px 0 0;
+}
+
+.sidebarlayout .rightcontainer.hide .righthead {
+  padding: 10px 8px;
+  background-color: transparent;
+  border: none;
+  min-height: 500px;
 }
 
 .sidebarlayout .rightcontainer .righthead .sidebartitle {
@@ -42,6 +51,7 @@
   max-width: 300px;
   margin: auto;
   height: inherit;
+  padding: 0 15px;
 }
 
 .sidebarlayout .rightcontainer .rightcontent .scroll {

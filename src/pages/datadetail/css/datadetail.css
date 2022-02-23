@@ -7,7 +7,7 @@
   font-weight: bold;
   margin-left: 10px;
   display: inline;
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 
 .swagger-ui .opblock-tag {

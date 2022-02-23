@@ -1184,7 +1184,6 @@ class GIS extends Component {
     document.title = "Map Viewer - Datalakes";
     return (
       <React.Fragment>
-        <h1>Map Viewer</h1>
         <ErrorModal
           visible={modal}
           text={modaltext}

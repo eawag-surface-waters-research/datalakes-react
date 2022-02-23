@@ -223,24 +223,26 @@
 }
 
 .section.access .box {
-  width: 280px;
+  width: 278px;
   border-radius: 20px;
-  background-color: #f0f4f8;
-  font-size: 22px;
+  background-color: white;
+  font-size: 20px;
   text-decoration: none;
   transition: all 0.2s ease-in-out;
   display: inline-block;
   margin: 0 20px;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border: 1px solid rgba(59, 65, 81, 0.3);
 }
 
 .section.access .box .box-header {
-  background-color: #d9e2ec;
+  background-color: #102a43;
   text-align: center;
   border-radius: 20px 20px 0 0;
   padding: 10px 0;
   font-family: "Lato", sans-serif;
   font-size: 24px;
+  color: white;
 }
 
 .section.access .box .box-img {
@@ -253,7 +255,7 @@
 }
 
 .section.access .box .box-text {
-  padding: 0px 30px 20px 30px;
+  padding: 0px 20px 20px 20px;
 }
 
 .section.access .box:hover {
@@ -398,17 +400,22 @@
   float: right;
 }
 
-.section.section.lakesimulations button {
+.section.lakesimulations a {
+  text-decoration: none;
+}
+
+.section.lakesimulations button {
   display: block;
   font-size: 24px;
   border-radius: 15px;
   width: 300px;
   margin: auto;
   margin-top: 20px;
-  background-color: black;
-  color: rgba(240, 240, 240, 1);
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  transition: all .2s ease-in-out;
+  background-color: white;
+  color: black;
+  box-shadow: rgb(99 99 99 / 20%) 0px 2px 8px 0px;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #bcccdc;
 }
 
 .section.lakesimulations button:hover {
@@ -438,9 +445,10 @@
 .section.about {
   padding: 25px 50px;
   border-radius: 20px;
-  background-color: #f0f4f8;
+  background-color: white;
   font-size: 18px;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border: 1px solid rgba(59, 65, 81, 0.3);
 }
 
 .section.about .contacts .contact {
@@ -468,7 +476,7 @@
   font-size: 36px;
   margin-top: 20px;
   margin-bottom: 20px;
-  color: rgb(134, 134, 139);
+  color: #102a43;
   font-family: "Arial", sans-serif;
   font-weight: bold;
   box-sizing: border-box;

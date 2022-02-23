@@ -324,9 +324,9 @@ class LakeMorphology extends Component {
     return (
       <React.Fragment>
         {lake ? (
-          <h1>Lake Morphology - {lake.name}</h1>
+          <h2>Lake Morphology - {lake.name}</h2>
         ) : (
-          <h1>Lake Morphology</h1>
+          <h2>Lake Morphology</h2>
         )}
 
         <div className={lake ? "lakes-map" : "lakes-map full"}>

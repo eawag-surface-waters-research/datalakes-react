@@ -1,6 +1,9 @@
 .api-container {
   border: 1px solid rgba(59, 65, 81, 0.3);
-  padding: 0 20px;
+  padding: 30px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
 }
 
 .api-inner {
@@ -14,12 +17,8 @@
 
 .swagger-ui .scheme-container {
   padding: 0;
+  margin-top: -50px;
   box-shadow: none;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  margin-right: 10px;
-  z-index: 999999999;
 }
 
 .swagger-ui .wrapper {

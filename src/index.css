@@ -8,7 +8,7 @@ _/ __ \ \__  \  \ \/ \/ /\__  \    /  ___/
 
 /* ------------------- General --------------------------- */
 
-@import url("https://fonts.googleapis.com/css2?family=Lato&family=Roboto:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato&family=Roboto:wght@100;500&display=swap");
 
 @font-face {
   font-family: "The Serif Bold";
@@ -24,6 +24,7 @@ body {
   font-family: Arial, sans-serif;
   font-size: 14px;
   margin: 0;
+  background-color: rgb(249, 249, 249);
 }
 
 h1,
@@ -36,16 +37,23 @@ h6 {
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 60px;
   font-weight: 500;
-  line-height: 30px;
+  margin: 15px 0;
+  padding: 0 10px;
+  text-size-adjust: 100%;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 500;
   margin: 15px 0;
   padding: 0 10px;
   text-size-adjust: 100%;
 }
 
 h3 {
-  font-size: 15px;
+  font-size: 21px;
   font-weight: 500;
 }
 
@@ -66,7 +74,7 @@ main {
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 90px;
+  margin-top: 70px;
   min-height: calc(100vh - 240px);
 }
 

@@ -126,7 +126,7 @@ class Home extends Component {
         if (search === "?home") this.scrollTo(this.home, -50);
         if (search === "?ourdata") this.scrollTo(this.ourdata, -50);
         if (search === "?accessoptions") this.scrollTo(this.accessoptions, -50);
-        if (search === "?about") this.scrollTo(this.about, -50);
+        if (search === "?about") this.scrollTo(this.about, -100);
         if (search === "?contact") this.scrollTo(this.contact, -50);
       }
     } catch (e) {
@@ -168,7 +168,7 @@ class Home extends Component {
           <div className="section access">
             <Link to="/map">
               <div className="box">
-                <div className="box-header">MAP VIEWER</div>
+                <div className="box-header">Map Viewer</div>
                 <div className="box-img">
                   <img src={map} alt="map" />
                 </div>
@@ -180,7 +180,7 @@ class Home extends Component {
             </Link>
             <Link to="/data">
               <div className="box">
-                <div className="box-header">DATA PORTAL</div>
+                <div className="box-header">Data Portal</div>
                 <div className="box-img">
                   <img src={data} alt="data" />
                 </div>

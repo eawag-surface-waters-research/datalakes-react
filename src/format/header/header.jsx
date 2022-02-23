@@ -6,6 +6,11 @@ import data from "./img/data.svg";
 import home from "./img/home.svg";
 import about from "./img/about.svg";
 
+import map_2 from "./img/map_2.svg";
+import data_2 from "./img/data_2.svg";
+import api_2 from "./img/api_2.svg";
+import about_2 from "./img/about_2.svg";
+
 import "./header.css";
 
 class Header extends Component {
@@ -18,7 +23,7 @@ class Header extends Component {
           <div className="header-inner">
             <div className="logo">
               <Link to="/">
-                <img alt="Datalakes logo" src={logo} />
+                <img alt="Datalakes logo" src={logo} title="Go to homepage"/>
               </Link>
             </div>
 
@@ -30,24 +35,28 @@ class Header extends Component {
                     className="header-item"
                     to="/map"
                   >
-                    MAP VIEWER
+                    <img alt="Map Viewer" src={map_2} />
+                    Map Viewer
                   </NavLink>
                   <NavLink
                     activeClassName="active"
                     className="header-item"
                     to="/data"
                   >
-                    DATA PORTAL
+                    <img alt="Data Portal" src={data_2} />
+                    Data Portal
                   </NavLink>
                   <NavLink
                     activeClassName="active"
                     className="header-item"
                     to="/api"
                   >
+                    <img alt="API" src={api_2} />
                     API
                   </NavLink>
                   <Link className="header-item" to="/?about">
-                    ABOUT
+                    <img alt="About" src={about_2} />
+                    About
                   </Link>
                 </div>
               </div>
