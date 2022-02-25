@@ -1224,6 +1224,8 @@ class GIS extends Component {
               datasets={datasets}
               parameters={parameters}
               datasetparameters={datasetparameters}
+              datetime={datetime}
+              onChangeDatetime={this.onChangeDatetime}
               basemap={basemap}
               updateBaseMap={this.updateBaseMap}
               setSelected={this.setSelected}

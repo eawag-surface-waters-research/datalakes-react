@@ -1,5 +1,5 @@
 .home {
-  margin-top: 120px;
+  margin-top: -20px;
 }
 
 .home-banner {
@@ -8,15 +8,13 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 55vh;
+  height: 75vh;
+  padding-top: 25vh;
   text-align: center;
   margin-bottom: 30px;
-  padding-top: 15vh;
   box-sizing: border-box;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
-  -webkit-animation: fadeIn 2s; /* Chrome, Safari, Opera */
-  animation: fadeIn 2s;
 }
 
 .homepagemap {

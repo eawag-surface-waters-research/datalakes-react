@@ -160,25 +160,6 @@ class DatetimeDepthSelector extends Component {
                 {this.lableTimestep(timestep)}
               </div>
             </div>
-            <div className="datetime">
-              <div
-                className="time text"
-                title="Edit time"
-                onClick={() => this.toggleModal("time")}
-              >
-                {datetime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-              <div
-                className="date text"
-                title="Edit date"
-                onClick={() => this.toggleModal("date")}
-              >{`${datetime.getDate()} ${
-                months[datetime.getMonth()]
-              } ${datetime.getFullYear()}`}</div>
-            </div>
             <div className="depthtimestep">
               <div
                 className="depth text"

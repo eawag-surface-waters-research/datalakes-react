@@ -132,12 +132,14 @@ class Dataset extends Component {
                 >
                   <div className="button-main">View Dataset</div>
                 </Link>
-                <div
-                  className="button-sub"
-                  onClick={() => onSelectDataset(dataset)}
-                >
-                  {selected.includes(dataset) ? "Deselect" : "Select"}
-                </div>
+                {dataset.mapplotfunction !== "none" && (
+                  <div
+                    className={selected.includes(dataset) ? "button-sub grey" : "button-sub"}
+                    onClick={() => onSelectDataset(dataset)}
+                  >
+                    {selected.includes(dataset) ? "Deselect" : "Select"}
+                  </div>
+                )}
               </div>
             </td>
             <td rowSpan={2} className="dataset-right">
@@ -738,15 +740,23 @@ class DataPortal extends Component {
           }
           rightNoScroll={
             <React.Fragment>
-              <div className="characteristics">
-                <FilterBoxInner
-                  checkbox={this.checkboxAddFilter}
-                  cat="characteristic"
-                  params={dChar}
-                  filters={filters}
-                  table="parameters"
-                />
-              </div>
+              <table className="time-selector">
+                <tbody>
+                  <tr>
+                    <td>From</td>
+                    <td>Until</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="date" onChange={this.startTimeAddFilter} />
+                    </td>
+                    <td>
+                      <input type="date" onChange={this.endTimeAddFilter} />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <PopupBox title="Location" fun={this.mapToggle} state={map} />
               <FilterBox
                 title="Origin"
                 content={
@@ -761,12 +771,12 @@ class DataPortal extends Component {
                 preopen="true"
               />
               <FilterBox
-                title="Data Source"
+                title="Lake"
                 content={
                   <FilterBoxInner
                     checkbox={this.checkboxAddFilter}
-                    cat="datasource"
-                    params={dSource}
+                    cat="lakes_id"
+                    params={dLake}
                     filters={filters}
                     table="datasets"
                   />
@@ -785,64 +795,6 @@ class DataPortal extends Component {
                   />
                 }
                 preopen="true"
-              />
-              <FilterBox
-                title="Time"
-                content={
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>Show Data After</td>
-                        <td>Show Data Before</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <input
-                            type="date"
-                            onChange={this.startTimeAddFilter}
-                          />
-                        </td>
-                        <td>
-                          <input type="date" onChange={this.endTimeAddFilter} />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                }
-              />
-              {/*<FilterBox
-                title="Depth"
-                content={
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>Min</td>
-                        <td>
-                          <input type="number" placeholder="Depth in meters" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Max</td>
-                        <td>
-                          <input type="number" placeholder="Depth in meters" />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                }
-              />*/}
-              <PopupBox title="Location" fun={this.mapToggle} state={map} />
-              <FilterBox
-                title="Lake"
-                content={
-                  <FilterBoxInner
-                    checkbox={this.checkboxAddFilter}
-                    cat="lakes_id"
-                    params={dLake}
-                    filters={filters}
-                    table="datasets"
-                  />
-                }
               />
             </React.Fragment>
           }

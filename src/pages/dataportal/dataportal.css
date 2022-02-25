@@ -8,6 +8,10 @@
   border-collapse: collapse;
 }
 
+.dataset:hover {
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
 .dataset .dataset-top {
   padding: 20px 35px 20px 20px;
   position: relative;
@@ -58,6 +62,11 @@
   width: 90px;
   box-sizing: border-box;
   text-align: center;
+}
+
+.dataset .dataset-top .buttons .button-sub.grey {
+  color: grey;
+  border-color: grey;
 }
 
 .dataset .dataset-bottom {
@@ -149,6 +158,18 @@ input.SearchBar::placeholder {
   box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
   font-size: 12px;
   transition: all 0.2s ease-in-out;
+}
+
+table.time-selector {
+  width: 100%;
+  table-layout: fixed;
+  overflow-wrap: break-word;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+table.time-selector input {
+  width: 90%;
 }
 
 .download-multiple-title {

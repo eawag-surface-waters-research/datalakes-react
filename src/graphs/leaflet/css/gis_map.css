@@ -12,39 +12,53 @@
   text-align: center;
 }
 
-.map {
-  height: calc(100% - 150px);
-  min-height: 300px;
-  width: 100%;
-  position: absolute;
-  left: 0;
-  z-index: 1;
-}
-
-.map.full {
-  height: 100%;
+.gis {
   width: 100%;
   position: fixed;
-  top: 0;
   left: 0;
-  margin: 0 !important;
+  top: 0;
+  height: 100vh;
+  z-index: 9;
+}
+
+.gis .sidebar {
+  width: 400px;
+  height: 100%;
+  background-color: rgb(249, 249, 249);
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
+.gis .sidebar .sidebar-gis {
+  width: 100%;
+  padding: 70px 20px 20px 20px;
+  box-sizing: border-box;
+}
+
+.gis .sidebar .boundary {
+  height: 100%;
+  background-image: linear-gradient(90deg, rgba(25, 25, 25, 0.4), transparent);
+  width: 15px;
+  position: absolute;
+  right: -15px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.gis .map {
+  height: 100%;
+  width: calc(100% - 400px);
+  display: inline-block;
+  min-height: 300px;
+  position: relative;
 }
 
 .mapviewerlegend {
   position: absolute;
-  top: 110px;
-  right: 10px;
+  top: 50px;
+  right: 5px;
   z-index: 999;
-}
-
-@media screen and (max-width: 500px) {
-  .map {
-    height: calc(100% - 120px);
-  }
-  .mapviewerlegend {
-    top: 50px;
-    right: 0;
-  }
 }
 
 .help {
@@ -164,17 +178,10 @@
   text-align: center;
 }
 
-.timeselector-gis {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  z-index: 9998;
-}
-
 .gis-controls {
   position: absolute;
   left: 10px;
-  top: 120px;
+  top: 60px;
   z-index: 999;
 }
 

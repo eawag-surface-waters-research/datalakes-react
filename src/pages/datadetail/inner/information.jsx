@@ -29,7 +29,7 @@ class Information extends Component {
     }
 
     return (
-      <div className="datadetail-padding">
+      <div className="information">
         {dataset.description}
         <div className="info-width">
           <div className="info-head">Parameters</div>

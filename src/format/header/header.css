@@ -29,6 +29,12 @@ header .logo {
   height: 22px;
   padding-top: 8px;
   margin-left: 20px;
+  opacity: 0.4;
+}
+
+header .logo:hover {
+  opacity: 1;
+  transition: opacity 200ms linear;
 }
 
 header .logo img {

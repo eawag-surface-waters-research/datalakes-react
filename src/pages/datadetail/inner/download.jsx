@@ -114,7 +114,7 @@ class Download extends Component {
     }
 
     return (
-      <div className="datadetail-padding">
+      <div className="download">
         <div className="info-title">Licence</div>
         <a
           href={getLabel("licenses", dataset.licenses_id, "link")}

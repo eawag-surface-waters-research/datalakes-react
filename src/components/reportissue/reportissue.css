@@ -1,11 +1,12 @@
 .report-issue {
-  margin-top: 15px;
+  margin-top: 25px;
   margin-left: 10px;
 }
 
 .report-issue button {
   margin: 0;
   margin-left: 20px;
+  border-radius: 5px;
 }
 
 .report-issue .report-modal {

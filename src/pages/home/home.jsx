@@ -313,7 +313,7 @@ class Home extends Component {
           </div>
 
           <div className="section about" ref={this.about}>
-            <div className="title">About Datalakes</div>
+            <h1>About Datalakes</h1>
             <div className="home-text">
               <div>
                 <b>

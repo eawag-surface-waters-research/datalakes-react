@@ -1,0 +1,41 @@
+.gis {
+  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 9;
+}
+
+.gis .sidebar {
+  width: 400px;
+  height: 100%;
+  background-color: rgb(249, 249, 249);
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
+.gis .sidebar .sidebar-inner {
+  width: 100%;
+  padding: 70px 20px 20px 20px;
+  box-sizing: border-box;
+}
+
+.gis .sidebar .boundary {
+  height: 100%;
+  background-image: linear-gradient(90deg, rgba(25, 25, 25, 0.4), transparent);
+  width: 15px;
+  position: absolute;
+  right: -15px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.gis .map {
+  height: 100%;
+  width: calc(100% - 400px);
+  display: inline-block;
+  min-height: 300px;
+  position: relative;
+}

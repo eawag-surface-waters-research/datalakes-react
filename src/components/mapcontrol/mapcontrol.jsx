@@ -97,11 +97,10 @@ class MapControl extends Component {
         ) : (
           <div
             className="mapcontrol-item outline"
-            onClick={window.print()}
+            onClick={this.print}
             title="Print"
           >
             <img src={print} alt="print" />
-            <span>Print</span>
           </div>
         )}
       </div>

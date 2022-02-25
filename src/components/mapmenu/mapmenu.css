@@ -1,57 +1,5 @@
 .sidebar-gis {
-  position: absolute;
-  left: 50px;
-  top: 120px;
-  z-index: 9998;
-  height: calc(100% - 250px);
-  max-width: calc(100% - 60px);
-}
-
-.sidebar-gis-inner {
-  display: inline-block;
-  max-width: 100%;
-  width: 300px;
-  border-radius: 4px;
-  height: 100%;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
-  box-sizing: border-box;
-  background-color: white;
-  margin-right: 20px;
-  vertical-align: top;
-}
-.sidebar-gis-inner.wide {
-  width: 600px;
-}
-
-.sidebar-gis-inner.hide {
-  display: none;
-}
-
-.sidebar-gis .sidebar-title {
-  cursor: pointer;
-  font-size: 15px;
-  border-bottom: 1px solid rgb(169, 169, 169);
-  padding: 10px 20px;
-}
-
-.sidebar-gis .sidebar-title .sidebar-symbol {
-  float: right;
-}
-
-.sidebar-gis .sidebar-content {
-  overflow-y: auto;
   width: 100%;
-  padding: 0 20px;
+  padding: 70px 20px 20px 20px;
   box-sizing: border-box;
-  height: calc(100% - 38px);
-}
-
-@media screen and (max-width: 500px) {
-  .sidebar-gis {
-    left: 10px;
-    max-width: calc(100% - 20px);
-    top: 60px;
-    z-index: 99999;
-    height: calc(100% - 140px);
-  }
 }

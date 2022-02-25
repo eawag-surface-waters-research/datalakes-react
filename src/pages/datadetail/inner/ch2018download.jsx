@@ -39,7 +39,7 @@ class Ch2018Download extends Component {
     ));
     var download = apiUrl + "/externaldata/ch2018/" + lake;
     return (
-      <div className="datadetail-padding">
+      <div className="download">
         <div className="info-title">Licence</div>
         <a
           href={getLabel("licenses", dataset.licenses_id, "link")}

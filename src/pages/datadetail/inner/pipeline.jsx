@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import { apiUrl } from "../../../../src/config.json";
-import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import github from "react-syntax-highlighter/dist/esm/styles/hljs/github";
-import js from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
-import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
-import r from 'react-syntax-highlighter/dist/esm/languages/hljs/r';
+import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+import python from "react-syntax-highlighter/dist/esm/languages/hljs/python";
+import r from "react-syntax-highlighter/dist/esm/languages/hljs/r";
 import NetworkGraph from "../../../graphs/d3/networkgraph/networkgraph";
 import "../css/datadetail.css";
 
-SyntaxHighlighter.registerLanguage('javascript', js);
-SyntaxHighlighter.registerLanguage('python', python);
-SyntaxHighlighter.registerLanguage('r', r);
+SyntaxHighlighter.registerLanguage("javascript", js);
+SyntaxHighlighter.registerLanguage("python", python);
+SyntaxHighlighter.registerLanguage("r", r);
 
 class Pipeline extends Component {
   state = {
@@ -173,24 +173,26 @@ class Pipeline extends Component {
           </div>
         </div>
         {dataset.renku === 0 && <div className="pipeline-left">{diagram}</div>}
-        <h3>Proccessing Scripts</h3>
-        <div className="pipeline-script">
-          <div className="pipeline-head">{scriptHeaders}</div>
-          <div className="pipeline-body">
-            {selectedscript ? (
-              <SyntaxHighlighter
-                language={scriptType}
-                style={github}
-                wrapLines={true}
-              >
-                {selectedscript.data}
-              </SyntaxHighlighter>
-            ) : (
-              <div>
-                Appologies, no accompanying scripts have been included with this
-                dataset.
-              </div>
-            )}
+        <div className="scripts">
+          <h3>Proccessing Scripts</h3>
+          <div className="pipeline-script">
+            <div className="pipeline-head">{scriptHeaders}</div>
+            <div className="pipeline-body">
+              {selectedscript ? (
+                <SyntaxHighlighter
+                  language={scriptType}
+                  style={github}
+                  wrapLines={true}
+                >
+                  {selectedscript.data}
+                </SyntaxHighlighter>
+              ) : (
+                <div>
+                  Appologies, no accompanying scripts have been included with
+                  this dataset.
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {dataset.renku === 0 && (
