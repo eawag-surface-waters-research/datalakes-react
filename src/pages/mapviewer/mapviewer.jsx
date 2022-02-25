@@ -5,6 +5,7 @@ import "./mapviewer.css";
 class MapViewer extends Component {
   state = {};
   render() {
+    document.title = "Map Viewer - Datalakes";
     return (
       <div className="mapviewer">
         <GIS />

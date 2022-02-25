@@ -94,6 +94,35 @@ main {
   display: inline-block;
 }
 
+/* Swagger */
+
+.swagger-ui .opblock.opblock-get {
+  border-color: #102a43 !important;
+  background-color: transparent !important;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background-color: #102a43 !important;
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: #627d98 !important;
+  background-color: transparent !important;
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background-color: #627d98 !important;
+}
+
+.swagger-ui .btn.authorize {
+  border-color: #38bec9 !important;
+  color: #38bec9 !important;
+}
+
+.swagger-ui .btn.authorize svg {
+  fill: #38bec9 !important;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;

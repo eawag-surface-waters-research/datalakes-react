@@ -1,10 +1,11 @@
 .gis {
   width: 100%;
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  z-index: 9;
+  height: 100%;
+}
+
+.hide {
+  visibility: hidden;
+  position: absolute;
 }
 
 .gis .sidebar {
@@ -14,12 +15,62 @@
   display: inline-block;
   position: relative;
   vertical-align: top;
+  max-width: 100%;
+}
+
+.gis .sidebar.min {
+  width: 40px;
+  cursor: pointer;
 }
 
 .gis .sidebar .sidebar-inner {
   width: 100%;
-  padding: 70px 20px 20px 20px;
+  padding: 60px 20px 20px 20px;
   box-sizing: border-box;
+}
+
+.gis .sidebar .sidebar-buttons {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 35px 20px;
+  box-sizing: border-box;
+  text-align: right;
+  background-color: #f2f5f7;
+}
+
+.gis .sidebar .sidebar-buttons button.addlayers {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: 0;
+}
+
+.gis .sidebar .sidebar-buttons button.addlayers:hover {
+  transform: scale(1.05);
+}
+
+.gis .sidebar .sidebar-buttons button.hidemenu {
+  cursor: pointer;
+  border: 1px solid #38bec9;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 16px;
+  margin-left: 16px;
+  color: #38bec9;
+  font-size: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 0 20px 0 0;
 }
 
 .gis .sidebar .boundary {
@@ -32,10 +83,29 @@
   z-index: 999;
 }
 
+.gis .siderbar-mini {
+  cursor: pointer;
+  font-size: 24px;
+  color: #102a43;
+  padding: 60px 0 0 9px;
+}
+
+.gis .siderbar-mini .rotate {
+  transform: rotate(90deg);
+  transform-origin: left;
+  width: 500px;
+  padding-bottom: 20px;
+  font-size: 18px;
+}
+
 .gis .map {
   height: 100%;
   width: calc(100% - 400px);
   display: inline-block;
   min-height: 300px;
   position: relative;
+}
+
+.gis .map.min {
+  width: calc(100% - 40px);
 }

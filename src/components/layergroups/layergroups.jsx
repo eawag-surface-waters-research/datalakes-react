@@ -5,10 +5,9 @@ import "./layergroups.css";
 
 class Group extends Component {
   clickOnGroup = () => {
-    var { updateState, toggleMenu, properties } = this.props;
+    var { setLayerGroup, properties } = this.props;
     var { data } = properties;
-    toggleMenu();
-    updateState(data);
+    setLayerGroup(data);
   };
   render() {
     var { name, img } = this.props.properties;
@@ -23,10 +22,10 @@ class Group extends Component {
 
 class LayerGroups extends Component {
   render() {
-    var { toggleMenu, updateState, arr } = this.props;
+    var { setLayerGroup } = this.props;
     var groups = [
       {
-        name: "Build map from scratch",
+        name: "Add Layer",
         description: "Some description",
         img: drawing,
         data: { selected: [] },
@@ -88,34 +87,21 @@ class LayerGroups extends Component {
         description: "Some description",
         img: editlayers,
         data: {
-          selected: [
-            [20, 15],
-          ],
+          selected: [[20, 15]],
           center: [46.405, 6.578],
           zoom: 11,
           datetime: new Date(1630839900000),
-
         },
       },
     ];
     return (
       <div className="layergroups">
-        {arr.length === 0 && (
-          <div className="layergroups-welcome-message">
-            Welcome to the Datalakes Map Viewer. This is an online GIS service
-            for visualising geospatial data. Get started by adding one of the
-            pre-prepared layer packages below or if you know what you're looking
-            for, start your map from scratch. Time, depth and animation controls
-            are available at the bottom of the page.
-          </div>
-        )}
+        <div className="layergroups-header">
+          Check out an example package or add a layer to start building your own
+          custom map.
+        </div>
         {groups.map((g) => (
-          <Group
-            key={g.name}
-            properties={g}
-            updateState={updateState}
-            toggleMenu={toggleMenu}
-          />
+          <Group key={g.name} properties={g} setLayerGroup={setLayerGroup} />
         ))}
       </div>
     );

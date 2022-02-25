@@ -7,6 +7,14 @@
   max-width: 34%;
   cursor: pointer;
   text-align: center;
+  color: #102a43;
+}
+
+.layergroups .layergroups-header {
+  font-size: 18px;
+  color: #102a43;
+  text-align: center;
+  margin-bottom: 5px;
 }
 
 .layergroups .layergroups-item img {
