@@ -23,7 +23,7 @@ class Preview extends Component {
 
   tableBody = (i, l, datasetparameters, data) => {
     var out = datasetparameters[i] && data[datasetparameters[i].axis][l];
-    if (out === null) out = "";
+    if (out === null) out = "null";
     return out;
   };
 

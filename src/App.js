@@ -9,7 +9,6 @@ import Home from "./pages/home/home";
 import NotFound from "./pages/notfound/notfound";
 import DataPortal from "./pages/dataportal/dataportal";
 import AddDataset from "./pages/adddataset/adddataset";
-import GIS from "./pages/gis/gis";
 import Monitor from "./pages/monitor/monitor";
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
 import "./index.css";

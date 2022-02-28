@@ -3,7 +3,7 @@ import "./sidebardatetime.css";
 
 class SidebarDatetime extends Component {
   render() {
-    var { datetime } = this.props;
+    var { datetime, depth } = this.props;
     var months = [
       "Jan ",
       "Feb ",
@@ -33,12 +33,14 @@ class SidebarDatetime extends Component {
             </tr>
           </tbody>
         </table>
+        <div></div>
         <div className="time">
           {datetime.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
-          })}
+          })} @ {depth}m
         </div>
+        
       </div>
     );
   }

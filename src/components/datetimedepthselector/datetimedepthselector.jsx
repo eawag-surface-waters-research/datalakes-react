@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import { clearIntervalAsync } from "set-interval-async";
-//import * as d3 from "d3";
 import "./datetimedepthselector.css";
 import pauseicon from "./img/pause.svg";
 import playicon from "./img/play.svg";
@@ -108,20 +107,6 @@ class DatetimeDepthSelector extends Component {
       selectedlayers,
     } = this.props;
     var { modal, play } = this.state;
-    var months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
     return (
       <React.Fragment>
         <div className="shading" />

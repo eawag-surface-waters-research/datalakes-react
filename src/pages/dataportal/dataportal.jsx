@@ -600,7 +600,7 @@ class DataPortal extends Component {
 
     // Filter by search
     if (search !== "") {
-      fDatasets = fuse.search(search);
+      fDatasets = fuse.search(search).map(f => f.item);
     }
 
     // Parameter filtering
@@ -610,15 +610,9 @@ class DataPortal extends Component {
       parameters
     );
     const dataL = this.filterDataSet(datasets, filters, parameters, "lakes_id");
-    const dataC = this.filterParameters(
-      this.filterDataSet(datasets, filters, parameters, "characteristic"),
-      parameters
-    );
-
+  
     var dParams = this.filterList(dataP, "parameters_id", "parameters", 1);
     var dLake = this.filterList(dataL, "lakes_id", "lakes");
-    var dChar = this.filterList(dataC, "characteristic", "characterstic");
-    var dSource = this.filterList(datasets, "datasource", "NA");
     var dOrigin = this.filterList(datasets, "origin", "NA");
 
     // Sort by

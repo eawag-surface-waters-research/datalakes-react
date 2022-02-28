@@ -31,6 +31,20 @@ class LayerGroups extends Component {
         data: { selected: [] },
       },
       {
+        name: "Lake Geneva Algal Bloom 06.09.21",
+        description: "Some description",
+        img: editlayers,
+        data: {
+          selected: [
+            [14, 25],
+            [20, 15],
+          ],
+          center: [46.405, 6.578],
+          zoom: 11,
+          datetime: new Date(1630937100),
+        },
+      },
+      {
         name: "Lake Zurich 3D Model",
         description: "Some description",
         img: editlayers,
@@ -80,17 +94,6 @@ class LayerGroups extends Component {
           ],
           center: [46.405, 6.578],
           zoom: 11,
-        },
-      },
-      {
-        name: "Lake Geneva Algal Bloom",
-        description: "Some description",
-        img: editlayers,
-        data: {
-          selected: [[20, 15]],
-          center: [46.405, 6.578],
-          zoom: 11,
-          datetime: new Date(1630839900000),
         },
       },
     ];

@@ -166,7 +166,7 @@ class GIS extends Component {
       <div className="gis">
         <div
           className={menu ? "sidebar" : "sidebar min"}
-          onClick={!menu ? this.showMenu : ""}
+          onClick={!menu ? this.showMenu : () => {}}
         >
           <div className="boundary" />
           <div
@@ -181,9 +181,11 @@ class GIS extends Component {
           <div className={menu ? "sidebar-inner" : "sidebar-inner hide"}>
             <SidebarDatetime
               datetime={this.state.datetime}
+              depth={this.state.depth}
+              onChangeDepth={this.onChangeDepth}
               onChangeDatetime={this.onChangeDatetime}
             />
-            {this.state.selectedlayers.length == 0 ? (
+            {this.state.selectedlayers.length === 0 ? (
               <LayerGroups setLayerGroup={this.setLayerGroup} />
             ) : (
               <MapLayers
