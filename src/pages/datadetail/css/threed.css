@@ -46,7 +46,7 @@
 }
 
 .threed .basemapwrapper {
-  height: calc(100vh - 230px);
+  height: calc(100vh - 200px);
   width: 100%;
   box-sizing: border-box;
   position: absolute;

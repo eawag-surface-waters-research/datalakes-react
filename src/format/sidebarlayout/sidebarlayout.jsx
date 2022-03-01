@@ -17,8 +17,9 @@ class SidebarLayout extends Component {
 
   render() {
     const { open } = this.state;
+    const { wide } = this.props;
     return (
-      <div className="sidebarlayout">
+      <div className={"sidebarlayout" + (wide ? " wide" : "")}>
         <div className={open ? "leftcontainer" : "leftcontainer full"}>
           {this.props.left}
         </div>

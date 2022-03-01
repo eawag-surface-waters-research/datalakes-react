@@ -3,7 +3,17 @@
   height: 100%;
 }
 
-.hide {
+.gis .siderbar-mini.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.gis .sidebar-inner.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.gis .sidebar-buttons.hide {
   visibility: hidden;
   position: absolute;
 }
@@ -106,6 +116,56 @@
   position: relative;
 }
 
+.gis .map .map-loading {
+  z-index: 9999;
+  position: absolute;
+  top: calc(50% - 76px);
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+
 .gis .map.min {
   width: calc(100% - 40px);
+}
+
+.gis .layers {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.6);
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+}
+
+.gis .layers.hide {
+  visibility: hidden;
+}
+
+.gis .layers .layers-modal {
+  width: 500px;
+  margin: auto;
+  margin-top: 15vh;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  max-height: 70vh;
+  overflow-y: auto;
+  max-width: 100%;
+}
+
+.gis .layers .layers-modal .layers-modal-header {
+  background-color: #f2f5f7;
+  padding: 30px;
+  border-radius: 5px 5px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: #102a43;
+}
+
+.gis .layers .layers-modal .layers-modal-content {
+  padding: 20px;
+  font-size: 16px;
 }

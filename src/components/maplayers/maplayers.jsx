@@ -3,7 +3,7 @@ import "./maplayers.css";
 import {
   SortableContainer,
   SortableElement,
-  arrayMove
+  arrayMove,
 } from "react-sortable-hoc";
 import RasterLegendItem from "../legend/rasterlegenditem";
 import MarkerLegendItem from "../legend/markerlegenditem";
@@ -24,9 +24,11 @@ class GroupDisplay extends Component {
       colors,
       markerFixedSize,
       markerSymbol,
-      parameters_id
+      parameters_id,
     } = display;
-    var datasetparameter = datasetparameters.find(dp => dp.parameters_id === parameters_id);
+    var datasetparameter = datasetparameters.find(
+      (dp) => dp.parameters_id === parameters_id
+    );
     var { unit } = datasetparameter;
     var inner = <div></div>;
     if (mapplot === "marker")
@@ -63,12 +65,8 @@ class GroupDisplay extends Component {
 
 const SortableItem = SortableElement(({ layer, props }) => {
   var { id, title, name, color } = layer;
-  var {
-    selectedlayers,
-    removeSelected,
-    updateMapLayers,
-    toggleLayerView
-  } = props;
+  var { selectedlayers, removeSelected, updateMapLayers, toggleLayerView } =
+    props;
   return (
     <li tabIndex={0}>
       <LayerObject
@@ -111,24 +109,17 @@ class MapLayers extends Component {
     selectedlayers = arrayMove(selectedlayers, oldIndex, newIndex);
     setSelected(selectedlayers);
   };
-  
+
   render() {
-    if (this.props.selectedlayers.length > 0){
-      return (
-        <SortableList
-          props={this.props}
-          onSortEnd={this.onSortEnd}
-          distance={10}
-          useDragHandle
-          lockAxis="y"
-        />
-      );
-    } else {
-      return (<div className="maplayers-label">
-        Customise your map by adding layers from the dropdown below. <div className="maplayers-arrow">&darr;</div>
-      </div>)
-    }
-    
+    return (
+      <SortableList
+        props={this.props}
+        onSortEnd={this.onSortEnd}
+        distance={10}
+        useDragHandle
+        lockAxis="y"
+      />
+    );
   }
 }
 

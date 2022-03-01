@@ -1,6 +1,6 @@
 .report-issue {
-  margin-top: 25px;
-  margin-left: 10px;
+  margin: 15px;
+  text-align: center;
 }
 
 .report-issue button {
@@ -27,14 +27,15 @@
   padding: 30px;
   background-color: white;
   position: relative;
+  border-radius: 5px;
 }
 
 .report-issue .report-modal .report-modal-box .close-modal {
-    position: absolute;
-    font-size: 30px;
-    right: 10px;
-    top: 10px;
-    cursor: pointer;
+  position: absolute;
+  font-size: 30px;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
 }
 
 .report-issue .report-modal .report-modal-box textarea {

@@ -5,9 +5,13 @@ import "./layergroups.css";
 
 class Group extends Component {
   clickOnGroup = () => {
-    var { setLayerGroup, properties } = this.props;
-    var { data } = properties;
-    setLayerGroup(data);
+    var { setLayerGroup, properties, onClick } = this.props;
+    if (onClick) {
+      onClick();
+    } else {
+      var { data } = properties;
+      setLayerGroup(data);
+    }
   };
   render() {
     var { name, img } = this.props.properties;
@@ -25,23 +29,17 @@ class LayerGroups extends Component {
     var { setLayerGroup } = this.props;
     var groups = [
       {
-        name: "Add Layer",
-        description: "Some description",
-        img: drawing,
-        data: { selected: [] },
-      },
-      {
         name: "Lake Geneva Algal Bloom 06.09.21",
         description: "Some description",
         img: editlayers,
         data: {
           selected: [
-            [14, 25],
             [20, 15],
+            [14, 25],
           ],
           center: [46.405, 6.578],
           zoom: 11,
-          datetime: new Date(1630937100),
+          datetime: new Date(1630937100000),
         },
       },
       {
@@ -100,9 +98,20 @@ class LayerGroups extends Component {
     return (
       <div className="layergroups">
         <div className="layergroups-header">
-          Check out an example package or add a layer to start building your own
+          Select an example package or add a layer to start building your own
           custom map.
         </div>
+        <Group
+          key={"Add Layers"}
+          properties={{
+            name: "Add Layers",
+            description: "Click here to add a new layers.",
+            img: drawing,
+            data: { selected: [] },
+          }}
+          setLayerGroup={setLayerGroup}
+          onClick={this.props.showLayers}
+        />
         {groups.map((g) => (
           <Group key={g.name} properties={g} setLayerGroup={setLayerGroup} />
         ))}

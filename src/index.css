@@ -75,7 +75,7 @@ main {
   margin-left: auto;
   margin-right: auto;
   margin-top: 70px;
-  min-height: calc(100vh - 240px);
+  min-height: calc(100vh - 205px);
 }
 
 @media screen and (max-width: 500px) {

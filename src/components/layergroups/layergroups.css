@@ -1,7 +1,6 @@
 .layergroups .layergroups-item {
   margin: 20px 20px 0 20px;
   display: inline-block;
-  height: 110px;
   width: 145px;
   vertical-align: top;
   max-width: 34%;
@@ -14,7 +13,7 @@
   font-size: 18px;
   color: #102a43;
   text-align: center;
-  margin-bottom: 5px;
+  margin-bottom: 25px;
 }
 
 .layergroups .layergroups-item img {

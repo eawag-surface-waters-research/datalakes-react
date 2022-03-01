@@ -1,0 +1,38 @@
+.selectbasemap {
+  position: absolute;
+  top: 60px;
+  left: 40px;
+  z-index: 999;
+}
+
+.selectbasemap .minimap {
+  height: 60px;
+  width: 60px;
+  cursor: pointer;
+}
+
+.selectbasemap .minimap .leaflet-container {
+  border-radius: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.selectbasemap .minimap {
+  display: inline-block;
+  padding-left: 20px;
+}
+
+.selectbasemap .minimap.hide {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1s, opacity 1s linear;
+}
+
+.selectbasemap:hover .minimap.hide {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1s linear;
+}
+
+.selectbasemap .minimap .leaflet-control-attribution {
+  display: none;
+}

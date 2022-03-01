@@ -132,6 +132,110 @@
   width: 100%;
 }
 
+.info-mation .description {
+  font-size: 16px;
+  margin-bottom: 25px;
+  background-color: white;
+  padding: 25px 25px 20px 25px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+  border-radius: 5px;
+  border: solid 1px rgb(169, 169, 169);
+  width: 585px;
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.contact {
+  display: inline-block;
+  vertical-align: top;
+  width: 350px;
+  box-sizing: border-box;
+  position: relative;
+  background-color: white;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+  border-radius: 5px;
+  margin-bottom: 25px;
+  margin-right: 25px;
+  max-width: 100%;
+}
+
+.contact .contact-header {
+  width: 100%;
+  background-color: #f2f5f7;
+  padding: 15px 25px;
+  font-size: 16px;
+  box-sizing: border-box;
+  font-weight: 700;
+}
+
+.contact .contact-inner {
+  padding: 25px;
+}
+
+.info-mation .description .desc-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.info-mation .description .data-row {
+  padding: 20px 30px 0 0;
+  display: inline-block;
+}
+
+.info-mation .description .data-row img {
+  height: 18px;
+  margin-right: 8px;
+  margin-bottom: -2px;
+}
+
+.info-mation .description .parameters {
+  margin-top: 30px;
+}
+
+.info-mation .description .parameters .rows {
+  margin: 5px 0;
+}
+
+.info-mation .description .parameters .unit {
+  font-size: 12px;
+  color: #829ab1;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.contact .contact-icon {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 10px;
+  margin-top: 4px;
+}
+
+.contact .contact-icon img {
+  height: 20px;
+}
+
+.contact .contact-text {
+  display: inline-block;
+}
+
+.contact .contact-text .contact-name {
+  color: #044e54;
+  font-size: 28px;
+}
+
+.contact .contact-text .contact-job {
+  color: #044e54;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+.contact .contact-text .contact-email {
+  color: #829ab1;
+  font-size: 16px;
+  margin-top: 2px;
+}
+
 .info-inner {
   display: inline-block;
   width: 50%;
@@ -247,8 +351,9 @@
 }
 
 .detailgraph {
-  height: 500px;
+  height: calc(100vh - 370px);
   max-height: 100vh;
+  min-height: 500px;
   padding: 25px 15px 5px 10px;
   background-color: white;
   border-radius: 5px;
