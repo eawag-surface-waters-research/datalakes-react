@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl } from "../../config.json";
+import { apiUrl, basemaps } from "../../config.json";
 import Basemap from "./basemap";
 import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
 import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
@@ -12,11 +12,91 @@ import colorlist from "../../components/colorramp/colors";
 import "./css/datalakesgis.css";
 import Loading from "../../components/loading/loading";
 import BasemapSelector from "../../components/basemapselector/basemapselector";
+import { Calendar } from "react-calendar";
+
+class Modal extends Component {
+  state = {};
+  render() {
+    var { title, content, visible, hide } = this.props;
+    return (
+      <div className={visible ? "layers" : "layers hide"}>
+        <div className="layers-modal">
+          <div className="layers-modal-header">
+            {title}
+            <div className="close" onClick={hide}>
+              &times;
+            </div>
+          </div>
+          <div className="layers-modal-content">{content}</div>
+        </div>
+      </div>
+    );
+  }
+}
+
+class TimeDepth extends Component {
+  state = {
+    time: `${this.props.datetime.getHours()}:${this.props.datetime.getMinutes()}`,
+    depth: this.props.depth,
+  };
+  onChangeTime = (event) => {
+    this.setState({ time: event.target.value });
+  };
+
+  onChangeDepth = (event) => {
+    this.setState({ depth: event.target.value });
+  };
+
+  update = () => {
+    var { time, depth } = this.state;
+    this.props.onChangeDepth(depth);
+    var datetime = new Date(this.props.datetime.getTime());
+    var time_arr = time.split(":");
+    datetime.setHours(time_arr[0]);
+    datetime.setMinutes(time_arr[1]);
+    this.props.onChangeDatetime(datetime);
+  };
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.datetime !== this.props.datetime) {
+      this.setState({
+        time: `${this.props.datetime.getHours()}:${this.props.datetime.getMinutes()}`,
+      });
+    }
+    if (prevProps.depth !== this.props.depth) {
+      this.setState({
+        depth: this.props.depth,
+      });
+    }
+  };
+
+  render() {
+    return (
+      <div className="timedepth">
+        <input
+          className="input-time"
+          type="time"
+          value={this.state.time}
+          onChange={this.onChangeTime}
+        />
+        <input
+          className="input-depth"
+          type="number"
+          value={this.state.depth}
+          onChange={this.onChangeDepth}
+        />
+        m<button onClick={this.update}>Update</button>
+      </div>
+    );
+  }
+}
 
 class GIS extends Component {
   state = {
     menu: window.screen.width < 900 ? false : true,
-    layers: false,
+    layersModal: false,
+    dateModal: false,
+    timeDepthModal: false,
     selectedlayers: [],
     parameters: [],
     datasets: [],
@@ -35,32 +115,6 @@ class GIS extends Component {
     modaltext: "",
     modaldetail: "",
     lakejson: false,
-    basemaps: {
-      snowlinesmap: {
-        url: "https://api.mapbox.com/styles/v1/jamesrunnalls/ckgv0jzjb3mo219n8bgwzu88j/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-        attribution:
-          "<a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> | &copy; <a href='https://www.mapbox.com/'>mapbox</a>",
-        title: "Colored Activity Map",
-      },
-      satellite: {
-        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        attribution:
-          "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-        title: "Satellite Imagery",
-      },
-      openstreetmap: {
-        url: "https://tile.osm.ch/switzerland/{z}/{x}/{y}.png",
-        attribution:
-          "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors",
-        title: "Open Street Map",
-      },
-      dark: {
-        url: "https://api.mapbox.com/styles/v1/jamesrunnalls/ckijzgluf0c2o17nr4t7sqg9e/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-        attribution:
-          "<a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> | &copy; <a href='https://www.mapbox.com/'>mapbox</a>",
-        title: "Dark Theme",
-      },
-    },
   };
 
   hideMenu = () => {
@@ -75,12 +129,28 @@ class GIS extends Component {
     });
   };
 
-  hideLayers = () => {
-    this.setState({ layers: false });
+  hideTimeDepthModal = () => {
+    this.setState({ timeDepthModal: false });
   };
 
-  showLayers = () => {
-    this.setState({ layers: true });
+  showTimeDepthModal = () => {
+    this.setState({ timeDepthModal: true });
+  };
+
+  hideDateModal = () => {
+    this.setState({ dateModal: false });
+  };
+
+  showDateModal = () => {
+    this.setState({ dateModal: true });
+  };
+
+  hideLayersModal = () => {
+    this.setState({ layersModal: false });
+  };
+
+  showLayersModal = () => {
+    this.setState({ layersModal: true });
   };
 
   closeModal = () => {
@@ -158,6 +228,10 @@ class GIS extends Component {
         this.updateVariable(datetime, depth);
       });
     }
+  };
+
+  onChangeBasemap = (basemap) => {
+    this.setState({ basemap });
   };
 
   setSelected = (selectedlayers) => {
@@ -1063,7 +1137,7 @@ class GIS extends Component {
   }
 
   render() {
-    var { menu, layers } = this.state;
+    var { menu } = this.state;
     return (
       <div className="gis">
         <div
@@ -1084,13 +1158,13 @@ class GIS extends Component {
             <SidebarDatetime
               datetime={this.state.datetime}
               depth={this.state.depth}
-              onChangeDepth={this.onChangeDepth}
-              onChangeDatetime={this.onChangeDatetime}
+              showDateModal={this.showDateModal}
+              showTimeDepthModal={this.showTimeDepthModal}
             />
             {this.state.selectedlayers.length === 0 ? (
               <LayerGroups
                 setLayerGroup={this.updateState}
-                showLayers={this.showLayers}
+                showLayers={this.showLayersModal}
               />
             ) : (
               <MapLayers
@@ -1106,7 +1180,7 @@ class GIS extends Component {
             <button className="hidemenu" onClick={this.hideMenu}>
               Hide Menu
             </button>
-            <button className="addlayers" onClick={this.showLayers}>
+            <button className="addlayers" onClick={this.showLayersModal}>
               Add Layers
             </button>
           </div>
@@ -1143,34 +1217,54 @@ class GIS extends Component {
           <BasemapSelector
             center={this.state.center}
             zoom={this.state.zoom}
-            basemaps={this.state.basemaps}
+            basemaps={basemaps}
             basemap={this.state.basemap}
             onChangeBasemap={this.onChangeBasemap}
           />
           {this.state.loading && (
             <div className="map-loading">
               <Loading />
+              Loading Layers
             </div>
           )}
         </div>
-        <div className={layers ? "layers" : "layers hide"}>
-          <div className="layers-modal">
-            <div className="layers-modal-header">
-              Select layers to add to the map
-              <div className="close" onClick={this.hideLayers}>
-                &times;
-              </div>
-            </div>
-            <div className="layers-modal-content">
-              <AddLayers
-                datasets={this.state.datasets}
-                parameters={this.state.parameters}
-                datasetparameters={this.state.datasetparameters}
-                addSelected={this.addSelected}
-              />
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Select layers"
+          visible={this.state.layersModal}
+          hide={this.hideLayersModal}
+          content={
+            <AddLayers
+              datasets={this.state.datasets}
+              parameters={this.state.parameters}
+              datasetparameters={this.state.datasetparameters}
+              addSelected={this.addSelected}
+            />
+          }
+        />
+        <Modal
+          title="Edit date"
+          visible={this.state.dateModal}
+          hide={this.hideDateModal}
+          content={
+            <Calendar
+              onChange={this.onChangeDatetime}
+              value={this.state.datetime}
+            />
+          }
+        />
+        <Modal
+          title="Edit time and depth"
+          visible={this.state.timeDepthModal}
+          hide={this.hideTimeDepthModal}
+          content={
+            <TimeDepth
+              datetime={this.state.datetime}
+              depth={this.state.depth}
+              onChangeDatetime={this.onChangeDatetime}
+              onChangeDepth={this.onChangeDepth}
+            />
+          }
+        />
       </div>
     );
   }

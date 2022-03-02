@@ -15,6 +15,7 @@
   bottom: 0;
   left: 0;
   z-index: 999;
+  min-width: 340px;
 }
 
 .datetimedepthselector .timeselectionbar {
@@ -247,7 +248,7 @@
   width: 300px;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
   .datetimedepthselector .controlbar .depthtimestep {
     font-size: 18px;
   }

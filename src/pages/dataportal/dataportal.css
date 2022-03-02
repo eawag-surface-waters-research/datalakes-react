@@ -31,7 +31,6 @@
 }
 
 .dataset .dataset-top .buttons {
-  margin-top: 20px;
 }
 
 .dataset .dataset-top .buttons .button-main {
@@ -45,6 +44,7 @@
   box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
   font-size: 12px;
   transition: all 0.2s ease-in-out;
+  margin-top: 20px;
 }
 
 .dataset .dataset-top .buttons .button-main:hover {
@@ -62,6 +62,7 @@
   width: 90px;
   box-sizing: border-box;
   text-align: center;
+  margin-top: 10px;
 }
 
 .dataset .dataset-top .buttons .button-sub.grey {
@@ -91,6 +92,7 @@
 
 .dataset .dataset-bottom .date-highlight {
   margin-top: 5px;
+  max-width: calc(100% - 40px);
 }
 
 .dataset .dataset-top .dataset-title {
@@ -122,7 +124,7 @@
 }
 
 input.SearchBar {
-  width: calc(100% - 15px);
+  width: calc(100% - 10px);
   border: solid 1px rgb(169, 169, 169);
   box-sizing: border-box;
   padding: 6px 15px 6px 35px;
@@ -131,7 +133,7 @@ input.SearchBar {
   border-radius: 5px;
   font-size: 18px;
   box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 input.SearchBar::placeholder {
@@ -412,5 +414,13 @@ table.sortbar-table td {
   }
   .filterbar {
     padding: 0 5px;
+  }
+  input.SearchBar {
+    margin-bottom: 4px;
+    margin-top: 2px;
+  }
+  .search img {
+    left: 15px;
+    top: 10px;
   }
 }

@@ -134,7 +134,11 @@ class Dataset extends Component {
                 </Link>
                 {dataset.mapplotfunction !== "none" && (
                   <div
-                    className={selected.includes(dataset) ? "button-sub grey" : "button-sub"}
+                    className={
+                      selected.includes(dataset)
+                        ? "button-sub grey"
+                        : "button-sub"
+                    }
                     onClick={() => onSelectDataset(dataset)}
                   >
                     {selected.includes(dataset) ? "Deselect" : "Select"}
@@ -152,7 +156,9 @@ class Dataset extends Component {
           </tr>
           <tr>
             <td className="dataset-bottom">
-              <img className="icon" src={location} alt="location" /> {lake}
+              <div className="date-highlight">
+                <img className="icon" src={location} alt="location" /> {lake}
+              </div>
               <div className="date-highlight">
                 <img className="icon" src={calendar} alt="calendar" />
                 {this.parseDate(dataset.mindatetime)} to{" "}
@@ -600,7 +606,7 @@ class DataPortal extends Component {
 
     // Filter by search
     if (search !== "") {
-      fDatasets = fuse.search(search).map(f => f.item);
+      fDatasets = fuse.search(search).map((f) => f.item);
     }
 
     // Parameter filtering
@@ -610,7 +616,7 @@ class DataPortal extends Component {
       parameters
     );
     const dataL = this.filterDataSet(datasets, filters, parameters, "lakes_id");
-  
+
     var dParams = this.filterList(dataP, "parameters_id", "parameters", 1);
     var dLake = this.filterList(dataL, "lakes_id", "lakes");
     var dOrigin = this.filterList(datasets, "origin", "NA");

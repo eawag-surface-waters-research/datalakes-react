@@ -26,6 +26,7 @@
   position: relative;
   vertical-align: top;
   max-width: 100%;
+  z-index: 999;
 }
 
 .gis .sidebar.min {
@@ -136,7 +137,7 @@
   top: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 999;
+  z-index: 9999;
 }
 
 .gis .layers.hide {
@@ -153,11 +154,12 @@
   max-height: 70vh;
   overflow-y: auto;
   max-width: 100%;
+  max-width: 90%;
 }
 
 .gis .layers .layers-modal .layers-modal-header {
   background-color: #f2f5f7;
-  padding: 30px;
+  padding: 20px 30px;
   border-radius: 5px 5px 0 0;
   font-size: 22px;
   font-weight: 700;
@@ -168,4 +170,61 @@
 .gis .layers .layers-modal .layers-modal-content {
   padding: 20px;
   font-size: 16px;
+}
+
+.gis .react-calendar {
+  margin: auto;
+  border: none;
+}
+
+.gis .timedepth {
+  font-size: 22px;
+  text-align: center;
+}
+
+.gis .timedepth .input-depth {
+  font-size: 50px;
+  width: 150px;
+  text-align: right;
+  border: none;
+  margin: 10px 0;
+}
+
+.gis .timedepth .input-time {
+  font-size: 34px;
+  border: none;
+  margin: 10px 0;
+}
+
+.gis .timedepth button {
+  display: block;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: auto;
+  margin-top: 30px;
+}
+
+.gis .timedepth button:hover {
+  transform: scale(1.05);
+}
+
+@media screen and (max-height: 800px) {
+  .gis .sidebar .sidebar-buttons {
+    padding: 15px 20px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .gis .sidebar .sidebar-buttons {
+    bottom: 60px;
+    padding: 15px 20px;
+  }
 }

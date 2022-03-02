@@ -657,15 +657,19 @@
     width: 100%;
   }
   .section.about {
-    border-radius: 0;
+    box-sizing: border-box;
+    width: 90%;
+    margin-left: 5%;
+    padding: 20px;
   }
   .home-banner {
     margin-bottom: 0;
+    padding-top: 15vh;
   }
   .home-banner .home-tagline {
-    font-size: 30px;
+    font-size: 50px;
     width: 100%;
-    padding-left: 10px;
+    padding: 0 10px;
     box-sizing: border-box;
   }
   .home-banner button {

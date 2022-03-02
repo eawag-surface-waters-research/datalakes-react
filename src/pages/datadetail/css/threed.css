@@ -2,7 +2,9 @@
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   box-sizing: border-box;
-  position: relative;
+  position: absolute;
+  height: calc(100vh - 200px);
+  left: 0;
 }
 
 .threed.full {
@@ -87,7 +89,6 @@
 }
 
 .threed .graphwrapper table {
-  
   margin: auto;
 }
 

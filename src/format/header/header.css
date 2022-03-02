@@ -76,6 +76,10 @@ header .mobile-nav img {
   margin: 5px 2px;
 }
 
+header .mobile-nav .imgactive {
+  background-color: rgb(249, 249, 249);
+}
+
 header .mobile-nav .imgactive img {
   border-bottom: 1px black solid;
 }
@@ -189,14 +193,14 @@ header .desktop-nav .midscreen {
 
 @media screen and (max-width: 1100px) {
   header .desktop-nav a.header-item {
-    padding: 7px 20px 0px 20px;
+    padding: 9px 20px 9px 20px;
   }
 }
 
 @media screen and (max-width: 800px) {
   header .desktop-nav a.header-item {
-    padding: 5px 5px;
-    font-size: 14px;
+    padding: 8px 10px;
+    font-size: 16px;
   }
   header .desktop-nav .desktop-navbar .links img {
     display: none;

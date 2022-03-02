@@ -132,29 +132,43 @@
 }
 
 @media screen and (max-width: 500px) {
+  .sidebarlayout.wide {
+    width: calc(100% - 10px);
+    margin-left: 5px;
+    padding: 0;
+  }
   .sidebarlayout .rightcontainer.hide {
-    right: 0;
-    width: 100%;
+    width: 150px;
     min-height: 0;
     padding: 2px 5px;
+    margin-bottom: 10px;
+    margin-top: -10px;
+    position: fixed;
+    bottom: 60px;
+    top: unset;
+    left: unset;
+    right: 5px;
   }
 
   .sidebarlayout .rightcontainer {
-    right: 0;
-    width: 100%;
+    left: 5px;
+    width: calc(100% - 10px);
     min-height: 0;
     padding: 2px 5px;
     order: 1;
+    position: fixed;
+    top: 42px;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead {
     -ms-writing-mode: unset;
     writing-mode: unset;
+    min-height: unset;
+    margin-bottom: 0;
   }
 
   .sidebarlayout .rightcontainer .righthead {
     width: 100%;
-    border: 1px solid rgb(169, 169, 169);
     padding: 4px 5px;
     box-sizing: border-box;
   }
@@ -177,9 +191,10 @@
   }
 
   .sidebarlayout .rightcontainer .rightcontent {
-    padding: 0 5px;
-    margin-bottom: 60px;
     max-width: 500px;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
+    padding: 5px;
   }
 
   .sidebarlayout .leftcontainer {
@@ -189,6 +204,11 @@
   }
 
   .sidebarlayout .leftcontainer.full {
+    width: 100%;
+    padding: 0;
+  }
+
+  .sidebarlayout.wide .leftcontainer.full {
     width: 100%;
     padding: 0;
   }

@@ -2,7 +2,7 @@
   position: absolute;
   top: 60px;
   left: 40px;
-  z-index: 999;
+  z-index: 996;
 }
 
 .selectbasemap .minimap {
@@ -21,6 +21,20 @@
   padding-left: 20px;
 }
 
+.selectbasemap .minimap .minimap-text {
+  position: absolute;
+  bottom: 0;
+  width: 60px;
+  z-index: 999;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 1px 0 0 rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(0, 0, 0, 0.4), -1px 0 0 rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  text-align: center;
+  padding-bottom: 10px;
+  pointer-events: none;
+}
+
 .selectbasemap .minimap.hide {
   visibility: hidden;
   opacity: 0;
@@ -35,4 +49,10 @@
 
 .selectbasemap .minimap .leaflet-control-attribution {
   display: none;
+}
+
+@media print {
+  .selectbasemap {
+    display: none;
+  }
 }

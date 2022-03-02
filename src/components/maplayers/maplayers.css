@@ -139,3 +139,15 @@ ul.maplayers-list {
 .editsettings table.min-max input {
   width: 100%;
 }
+
+@media screen and (max-height: 800px) {
+  ul.maplayers-list {
+    height: calc(100vh - 250px);
+  }
+}
+
+@media screen and (max-width: 500px) {
+  ul.maplayers-list {
+    height: calc(100vh - 310px);
+  }
+}

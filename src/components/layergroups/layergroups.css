@@ -1,3 +1,8 @@
+.layergroups {
+  max-height: calc(100vh - 390px);
+  overflow-y: auto;
+}
+
 .layergroups .layergroups-item {
   margin: 20px 20px 0 20px;
   display: inline-block;
@@ -70,5 +75,17 @@
   }
   100% {
     transform: rotate(-5deg);
+  }
+}
+
+@media screen and (max-height: 800px) {
+  .layergroups {
+    max-height: calc(100vh - 250px);
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .layergroups {
+    max-height: calc(100vh - 310px);
   }
 }

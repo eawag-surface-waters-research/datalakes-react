@@ -81,7 +81,7 @@ main {
 @media screen and (max-width: 500px) {
   main {
     margin-bottom: 70px;
-    margin-top: 55px;
+    margin-top: 40px;
     min-height: calc(100vh - 120px);
   }
 }
