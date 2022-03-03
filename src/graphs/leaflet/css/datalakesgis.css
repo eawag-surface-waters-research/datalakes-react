@@ -41,10 +41,10 @@
 }
 
 .gis .sidebar .sidebar-buttons {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;
+  width: 400px;
   padding: 35px 20px;
   box-sizing: border-box;
   text-align: right;
@@ -128,6 +128,16 @@
 
 .gis .map.min {
   width: calc(100% - 40px);
+}
+
+.gis .map.min .datetimedepthselector {
+  position: fixed;
+  width: calc(100% - 40px);
+}
+
+.gis .map .datetimedepthselector {
+  position: fixed;
+  width: calc(100% - 400px);
 }
 
 .gis .layers {

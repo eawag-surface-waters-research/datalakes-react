@@ -844,8 +844,6 @@ class ThreeDModel extends Component {
       }
     }
 
-    var load = loading && false;
-
     var defaults = {};
 
     return (

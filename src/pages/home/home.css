@@ -287,8 +287,8 @@
   }
   .section.access .box {
     display: block;
-    width: calc(100% - 20px);
-    margin: 30px 10px;
+    width: calc(100% - 60px);
+    margin: 30px 30px;
   }
 }
 
@@ -664,10 +664,10 @@
   }
   .home-banner {
     margin-bottom: 0;
-    padding-top: 15vh;
+    padding-top: 25vh;
   }
   .home-banner .home-tagline {
-    font-size: 50px;
+    font-size: 40px;
     width: 100%;
     padding: 0 10px;
     box-sizing: border-box;

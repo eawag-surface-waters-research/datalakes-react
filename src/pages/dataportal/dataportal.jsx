@@ -12,7 +12,6 @@ import location from "./img/location.svg";
 import model from "./img/model.svg";
 import satellite from "./img/satellite.svg";
 import measurement from "./img/measurement.svg";
-import searchimg from "./img/search.svg";
 import "./dataportal.css";
 
 class DatasetList extends Component {
@@ -535,7 +534,6 @@ class DataPortal extends Component {
   };
 
   async componentDidMount() {
-    this.refs.search.focus();
     const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
     var { data: datasets, status: dstatus } = await axios.get(
       apiUrl + "/datasets"
@@ -645,7 +643,6 @@ class DataPortal extends Component {
             type="search"
             ref="search"
           />
-          <img src={searchimg} alt="Search" />
         </div>
         <SidebarLayout
           sidebartitle="Filters"

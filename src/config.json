@@ -13,7 +13,7 @@
             "title": "Satellite Imagery"
         },
         "swisstopo": {
-            "url": "https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg",
+            "url": "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg",
             "attribution": "<a title='Swiss Federal Office of Topography' href='https://www.swisstopo.admin.ch/'>swisstopo</a>",
             "title": "Swisstopo"
         },

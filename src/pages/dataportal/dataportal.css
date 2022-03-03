@@ -127,7 +127,7 @@ input.SearchBar {
   width: calc(100% - 10px);
   border: solid 1px rgb(169, 169, 169);
   box-sizing: border-box;
-  padding: 6px 15px 6px 35px;
+  padding: 6px 15px 6px 15px;
   margin-bottom: 15px;
   margin-top: 10px;
   border-radius: 5px;
@@ -422,5 +422,19 @@ table.sortbar-table td {
   .search img {
     left: 15px;
     top: 10px;
+  }
+  .dataset .dataset-top .dataset-title {
+    font-size: 18px;
+    margin: 0;
+    font-weight: 700;
+  }
+  .dataset .dataset-top .buttons .button-main {
+    margin-top: 10px;
+  }
+  .dataset .dataset-top {
+    padding: 20px 15px 15px 10px;
+  }
+  .dataset .dataset-right {
+    width: 120px;
   }
 }
