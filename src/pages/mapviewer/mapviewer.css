@@ -6,7 +6,3 @@
   height: 100vh;
   z-index: 9;
 }
-
-.mapviewer .leaflet-control-container .leaflet-top {
-  top: 50px;
-}

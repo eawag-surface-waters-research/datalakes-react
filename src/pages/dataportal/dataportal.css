@@ -437,4 +437,8 @@ table.sortbar-table td {
   .dataset .dataset-right {
     width: 120px;
   }
+  .dataset .dataset-top .buttons .button-sub {
+    width: 60px;
+    padding: 6px;
+  }
 }

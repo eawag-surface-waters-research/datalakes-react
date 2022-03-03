@@ -1,12 +1,10 @@
 .legend {
   z-index: 998;
   background-color: white;
-  margin: 10px;
-  border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 1px 5px rgb(0 0 0 / 65%);
   position: absolute;
-  right: 0;
-  top: 50px;
+  right: 10px;
+  top: 10px;
   border-radius: 5px;
 }
 

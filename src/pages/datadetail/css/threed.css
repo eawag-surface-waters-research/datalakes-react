@@ -2,9 +2,11 @@
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   box-sizing: border-box;
-  position: absolute;
-  height: calc(100vh - 200px);
+  position: fixed;
+  height: calc(100vh - 150px);
   left: 0;
+  z-index: 9;
+  bottom: 0;
 }
 
 .threed.full {

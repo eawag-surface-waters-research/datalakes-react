@@ -1138,6 +1138,8 @@ class GIS extends Component {
 
   render() {
     var { menu } = this.state;
+    var hidelayerbutton = false;
+    if (this.props.hidelayerbutton) hidelayerbutton = true;
     return (
       <div className="gis">
         <div
@@ -1180,9 +1182,11 @@ class GIS extends Component {
             <button className="hidemenu" onClick={this.hideMenu}>
               Hide Menu
             </button>
-            <button className="addlayers" onClick={this.showLayersModal}>
-              Add Layers
-            </button>
+            {!hidelayerbutton && (
+              <button className="addlayers" onClick={this.showLayersModal}>
+                Add Layers
+              </button>
+            )}
           </div>
         </div>
         <div className={menu ? "map" : "map min"}>

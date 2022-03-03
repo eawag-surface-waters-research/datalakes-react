@@ -1,6 +1,6 @@
 .selectbasemap {
   position: absolute;
-  top: 60px;
+  top: 10px;
   left: 40px;
   z-index: 996;
 }
@@ -56,3 +56,4 @@
     display: none;
   }
 }
+

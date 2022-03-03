@@ -4,7 +4,7 @@ ul.maplayers-list {
   cursor: pointer;
   background-color: white;
   padding: 10px;
-  height: calc(100vh - 390px);
+  height: calc(100% - 290px);
   box-shadow: 1px 1px 10px #ebe3e3 inset;
   border-radius: 5px;
   overflow-y: auto;
