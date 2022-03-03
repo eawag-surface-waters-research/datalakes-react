@@ -126,7 +126,7 @@ class Pipeline extends Component {
     }
 
     return (
-      <div className="datadetail-padding">
+      <div>
         <div className="pipeline">
           <div className="pipeline-right">
             <div className="accessType">

@@ -146,10 +146,10 @@
   box-sizing: border-box;
 }
 
-.contact {
+.info-contact {
   display: inline-block;
   vertical-align: top;
-  width: 350px;
+  width: 330px;
   box-sizing: border-box;
   position: relative;
   background-color: white;
@@ -160,7 +160,7 @@
   max-width: 100%;
 }
 
-.contact .contact-header {
+.info-contact .contact-header {
   width: 100%;
   background-color: #f2f5f7;
   padding: 15px 25px;
@@ -169,7 +169,7 @@
   font-weight: 700;
 }
 
-.contact .contact-inner {
+.info-contact .contact-inner {
   padding: 25px;
 }
 
@@ -204,33 +204,33 @@
   margin-left: 10px;
 }
 
-.contact .contact-icon {
+.info-contact .contact-icon {
   display: inline-block;
   vertical-align: top;
   margin-right: 10px;
   margin-top: 4px;
 }
 
-.contact .contact-icon img {
+.info-contact .contact-icon img {
   height: 20px;
 }
 
-.contact .contact-text {
+.info-contact .contact-text {
   display: inline-block;
 }
 
-.contact .contact-text .contact-name {
+.info-contact .contact-text .contact-name {
   color: #044e54;
   font-size: 28px;
 }
 
-.contact .contact-text .contact-job {
+.info-contact .contact-text .contact-job {
   color: #044e54;
   font-size: 18px;
   margin-top: 4px;
 }
 
-.contact .contact-text .contact-email {
+.info-contact .contact-text .contact-email {
   color: #829ab1;
   font-size: 16px;
   margin-top: 2px;
@@ -564,9 +564,19 @@
 }
 
 @media screen and (max-width: 500px) {
+  .info-contact {
+    width: 100%;
+  }
+
+  .report-issue {
+    margin: 15px 0;
+    text-align: left;
+    width: 50%;
+  }
+
   .detailgraph {
     margin-top: 10px;
-    margin-bottom: 0;
+    margin-bottom: 100px;
     height: calc(100vh - 260px);
   }
 
@@ -858,9 +868,9 @@
 }
 
 .datadetail-padding {
-  width: 100%;
+  width: calc(100% - 20px);
   box-sizing: border-box;
-  overflow: auto;
+  margin: 10px;
 }
 
 .datadetail-header {

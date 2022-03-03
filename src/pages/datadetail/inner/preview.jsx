@@ -61,7 +61,6 @@ class Preview extends Component {
 
     return (
       <React.Fragment>
-        <div className="datadetail-padding">
           <div className="preview-table">
             <table className="excel">
               <tbody>
@@ -79,7 +78,6 @@ class Preview extends Component {
               </tbody>
             </table>
           </div>
-        </div>
       </React.Fragment>
     );
   }

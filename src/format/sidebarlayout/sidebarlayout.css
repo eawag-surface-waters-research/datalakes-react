@@ -147,13 +147,15 @@
   }
 
   .sidebarlayout .rightcontainer {
-    left: 5px;
-    width: calc(100% - 10px);
+    left: 0;
+    width: 100%;
     min-height: 0;
-    padding: 2px 5px;
     order: 1;
     position: fixed;
-    top: 42px;
+    top: 41px;
+    border-radius: 0;
+    border: none;
+    padding-bottom: 10px;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead {
@@ -165,8 +167,9 @@
 
   .sidebarlayout .rightcontainer .righthead {
     width: 100%;
-    padding: 4px 5px;
     box-sizing: border-box;
+    border-radius: 0;
+    border: 2px solid black;
   }
 
   .sidebarlayout .rightcontainer .righthead .sidebartitle {
@@ -188,9 +191,10 @@
 
   .sidebarlayout .rightcontainer .rightcontent {
     max-width: 500px;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 220px);
     overflow-y: auto;
     padding: 5px;
+    padding-bottom: 100px;
   }
 
   .sidebarlayout .leftcontainer {

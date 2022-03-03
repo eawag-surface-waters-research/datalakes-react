@@ -1223,8 +1223,10 @@ class GIS extends Component {
           />
           {this.state.loading && (
             <div className="map-loading">
-              <Loading />
-              Loading Layers
+              <div className="map-loading-inner">
+                <Loading />
+                Loading Layers
+              </div>
             </div>
           )}
         </div>

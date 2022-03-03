@@ -678,21 +678,23 @@ class DataDetail extends Component {
                 />
               </React.Fragment>
             )}
-            <Plot
-              datasetparameters={datasetparameters}
-              dropdown={dropdown}
-              dataset={dataset}
-              data={data}
-              files={files}
-              file={file}
-              fileChange={JSON.stringify(file)}
-              maxdatetime={maxdatetime}
-              mindatetime={mindatetime}
-              removeFile={this.removeFile}
-              downloadMultipleFiles={this.downloadMultipleFiles}
-              iframe={iframe}
-              search={search}
-            />
+            <div className="datadetail-padding">
+              <Plot
+                datasetparameters={datasetparameters}
+                dropdown={dropdown}
+                dataset={dataset}
+                data={data}
+                files={files}
+                file={file}
+                fileChange={JSON.stringify(file)}
+                maxdatetime={maxdatetime}
+                mindatetime={mindatetime}
+                removeFile={this.removeFile}
+                downloadMultipleFiles={this.downloadMultipleFiles}
+                iframe={iframe}
+                search={search}
+              />
+            </div>
           </React.Fragment>
         );
       case "locationmap":
@@ -705,16 +707,18 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <LocationMap
-              dataset={dataset}
-              file={file}
-              files={files}
-              min={mindatetime}
-              max={maxdatetime}
-              onChangeFileInt={this.onChangeFileInt}
-              removeFile={this.removeFile}
-              selectFilesDatetime={this.selectFilesDatetime}
-            />
+            <div className="datadetail-padding">
+              <LocationMap
+                dataset={dataset}
+                file={file}
+                files={files}
+                min={mindatetime}
+                max={maxdatetime}
+                onChangeFileInt={this.onChangeFileInt}
+                removeFile={this.removeFile}
+                selectFilesDatetime={this.selectFilesDatetime}
+              />
+            </div>
           </React.Fragment>
         );
       case "preview":
@@ -727,11 +731,13 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Preview
-              data={data}
-              getLabel={this.getLabel}
-              datasetparameters={datasetparameters}
-            />
+            <div className="datadetail-padding">
+              <Preview
+                data={data}
+                getLabel={this.getLabel}
+                datasetparameters={datasetparameters}
+              />
+            </div>
           </React.Fragment>
         );
       case "download":
@@ -744,16 +750,18 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Download
-              dataset={dataset}
-              files={files}
-              datasetparameters={datasetparameters}
-              selectedFiles={this.selectedFiles}
-              getLabel={this.getLabel}
-              max={maxdatetime}
-              min={mindatetime}
-              apiUrl={apiUrl}
-            />
+            <div className="datadetail-padding">
+              <Download
+                dataset={dataset}
+                files={files}
+                datasetparameters={datasetparameters}
+                selectedFiles={this.selectedFiles}
+                getLabel={this.getLabel}
+                max={maxdatetime}
+                min={mindatetime}
+                apiUrl={apiUrl}
+              />
+            </div>
           </React.Fragment>
         );
       case "pipeline":
@@ -766,7 +774,9 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Pipeline dataset={dataset} renku={renku} scripts={scripts} />
+            <div className="datadetail-padding">
+              <Pipeline dataset={dataset} renku={renku} scripts={scripts} />
+            </div>
           </React.Fragment>
         );
       case "information":
@@ -779,11 +789,13 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Information
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-            />
+            <div className="datadetail-padding">
+              <Information
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+              />
+            </div>
           </React.Fragment>
         );
       case "external":
@@ -796,12 +808,14 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <External
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <External
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "threedmodel":
@@ -814,13 +828,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <ThreeDModel
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <ThreeDModel
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "threedmodeldownload":
@@ -833,13 +849,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <ThreeDModelDownload
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <ThreeDModelDownload
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "remotesensingdownload":
@@ -852,13 +870,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <RemoteSensingDownload
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <RemoteSensingDownload
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "remotesensing":
@@ -871,13 +891,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <RemoteSensing
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <RemoteSensing
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "ch2018":
@@ -890,14 +912,16 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Ch2018Graph
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-              search={this.props.location.search}
-            />
+            <div className="datadetail-padding">
+              <Ch2018Graph
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+                search={this.props.location.search}
+              />
+            </div>
           </React.Fragment>
         );
       case "ch2018download":
@@ -910,13 +934,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Ch2018Download
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <Ch2018Download
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "error":

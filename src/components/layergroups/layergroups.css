@@ -87,5 +87,7 @@
 @media screen and (max-width: 500px) {
   .layergroups {
     max-height: calc(100vh - 310px);
+    padding-bottom: 65px;
+    box-sizing: border-box;
   }
 }

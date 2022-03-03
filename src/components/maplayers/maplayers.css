@@ -149,5 +149,7 @@ ul.maplayers-list {
 @media screen and (max-width: 500px) {
   ul.maplayers-list {
     height: calc(100vh - 310px);
+    padding-bottom: 65px;
+    box-sizing: border-box;
   }
 }

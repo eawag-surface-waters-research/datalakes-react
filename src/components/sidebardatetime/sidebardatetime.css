@@ -42,7 +42,7 @@
 @media screen and (max-height: 800px) {
   .siderbar-datetime {
     margin-bottom: 10px;
-    margin-top: -30px;
+    margin-top: -20px;
   }
   .siderbar-datetime table td.day {
     font-size: 80px;
@@ -63,7 +63,7 @@
 @media screen and (max-width: 500px) {
   .siderbar-datetime {
     margin-bottom: 10px;
-    margin-top: -30px;
+    margin-top: -20px;
   }
   .siderbar-datetime table td.day {
     font-size: 80px;

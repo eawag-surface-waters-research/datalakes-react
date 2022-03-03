@@ -49,7 +49,7 @@ class Information extends Component {
     return (
       <React.Fragment>
         <div className="info-mation">
-          <div className="contact">
+          <div className="info-contact">
             <div className="contact-header">Questions about the dataset?</div>
             <div className="contact-inner">
               <div className="contact-icon">
