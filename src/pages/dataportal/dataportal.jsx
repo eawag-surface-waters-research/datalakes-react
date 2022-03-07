@@ -131,7 +131,7 @@ class Dataset extends Component {
                 >
                   <div className="button-main">View Dataset</div>
                 </Link>
-                {dataset.mapplotfunction !== "none" && (
+                {dataset.mapplot !== "other" && (
                   <div
                     className={
                       selected.includes(dataset)
