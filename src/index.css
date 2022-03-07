@@ -101,6 +101,14 @@ main {
   background-color: transparent !important;
 }
 
+.swagger-ui .opblock .opblock-summary-path {
+  min-width: 80px;
+}
+
+.swagger-ui .opblock-tag small {
+  min-width: 80px;
+}
+
 .swagger-ui .opblock.opblock-get .opblock-summary-method {
   background-color: #102a43 !important;
 }

@@ -1,16 +1,15 @@
 .threed {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
+  width: 100%;
   box-sizing: border-box;
   position: fixed;
-  height: calc(100vh - 150px);
+  height: calc(100% - 180px);
   left: 0;
   z-index: 9;
   bottom: 0;
 }
 
 .threed.full {
-  height: 100vh;
+  height: 100%;
   position: absolute;
   left: 0;
   top: 0;
@@ -118,13 +117,6 @@
 }
 
 @media screen and (max-width: 1050px) {
-  .threed {
-    width: 100%;
-    margin: 0;
-    margin-bottom: 100px;
-    padding: 0;
-    box-sizing: border-box;
-  }
   .threed .basemapwrapper {
     width: 100%;
     padding: 0;
@@ -141,22 +133,8 @@
 }
 
 @media screen and (max-width: 500px) {
-  .threed .graphwrapper {
-    width: 100%;
-    height: calc(100vh - 170px);
-    right: 0;
-  }
-  .threed .basemapwrapper {
-    height: calc(100vh - 150px);
-  }
-
-  .threed .parameter-select {
-    margin-right: 10px;
-  }
-
   .threed {
-    margin: 0;
-    height: calc(100vh - 230px);
+    padding-bottom: 60px;
   }
 }
 
@@ -168,30 +146,6 @@
     left: 0;
     top: 0;
     z-index: 999;
-  }
-
-  .threed .basemapwrapper {
-    height: 100vh;
-  }
-
-  .basemapwrapper .controls {
-    display: none;
-  }
-
-  .basemapwrapper .sidebar-gis {
-    display: none;
-  }
-
-  .basemapwrapper .shading {
-    display: none;
-  }
-
-  .basemapwrapper .timeselector-gis {
-    display: none;
-  }
-
-  .basemapwrapper .legend {
-    display: none;
   }
 
   .printlegend {

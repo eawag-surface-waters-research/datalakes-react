@@ -15,7 +15,7 @@
   bottom: 0;
   right: 0;
   z-index: 994;
-  min-width: 340px;
+  min-width: 300px;
 }
 
 .datetimedepthselector .timeselectionbar {
@@ -272,9 +272,6 @@
 }
 
 @media screen and (max-width: 500px) {
-  .datetimedepthselector {
-    bottom: 65px;
-  }
   .datetimedepthselector .controlbar .datetime {
     position: absolute;
     top: -20px;

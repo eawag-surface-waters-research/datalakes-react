@@ -35,4 +35,7 @@
     margin: 0;
     bottom: 70px;
   }
+  .api-container {
+    margin: 50px 15px;
+  }
 }

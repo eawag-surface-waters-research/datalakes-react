@@ -1190,7 +1190,7 @@ class GIS extends Component {
           </div>
         </div>
         <div className={menu ? "map" : "map min"}>
-          <Legend selectedlayers={this.state.selectedlayers} open={true} />
+          <Legend selectedlayers={this.state.selectedlayers} open={false} />
           <Basemap
             selectedlayers={this.state.selectedlayers}
             basemap={this.state.basemap}
