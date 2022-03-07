@@ -22,7 +22,7 @@ class Header extends Component {
         <div className="header">
           <div className="header-inner">
             <div className="logo">
-              <Link to="/">
+              <Link to="/?home">
                 <img alt="Datalakes logo" src={logo} title="Go to homepage"/>
               </Link>
             </div>
