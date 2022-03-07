@@ -111,6 +111,7 @@ class Bafu extends Component {
                 display={"contour"}
                 header={false}
                 language={language}
+                levels={true}
               />
             </div>
             <div className="selector">
