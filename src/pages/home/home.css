@@ -425,7 +425,7 @@
 }
 
 .section .outer {
-  font-size: 34px;
+  font-size: 28px;
   font-family: "Arial", sans-serif;
   font-weight: bold;
   width: 960px;
@@ -433,6 +433,8 @@
   margin: auto;
   text-align: left;
   height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .section .outer .inner {
@@ -733,11 +735,6 @@
 
   .section.insitudata {
     margin: 0;
-  }
-
-  .section .outer {
-    font-size: 28px;
-    padding-left: 10px;
   }
 
   .section.rs {
