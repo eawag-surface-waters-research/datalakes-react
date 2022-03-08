@@ -3,11 +3,11 @@ import L from "leaflet";
 import * as d3 from "d3";
 import "leaflet-draw";
 import "leaflet-contour";
-import "leaflet-streamlines"
+import "leaflet-streamlines";
 import "./leaflet_vectorField";
 import "./leaflet_customcontrol";
 import "./leaflet_colorpicker";
-
+import { basemaps } from "../../config.json";
 import { getColor } from "../../components/gradients/gradients";
 import "./css/leaflet.css";
 
@@ -1480,55 +1480,17 @@ class Basemap extends Component {
       zoom = this.props.zoom;
     }
 
-    var datalakesmap = L.tileLayer(
-      "https://api.mapbox.com/styles/v1/jamesrunnalls/ck96x8fhp6h2i1ik5q9xz0iqn/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-      {
-        attribution:
-          'swisstopo DV 5704 000 000 | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://www.mapbox.com/">mapbox</a>',
-      }
-    );
-    var datalakesmapgrey = L.tileLayer(
-      "https://api.mapbox.com/styles/v1/jamesrunnalls/ckfs3ngtw0fx519o5oinhc5mh/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-      {
-        attribution:
-          'swisstopo DV 5704 000 000 | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://www.mapbox.com/">mapbox</a>',
-      }
-    );
-    var swisstopo = L.tileLayer(
-      "https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg",
-      {
-        attribution:
-          '<a title="Swiss Federal Office of Topography" href="https://www.swisstopo.admin.ch/">swisstopo</a>',
-      }
-    );
-    var satellite = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution:
-          "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-      }
-    );
-
-    var dark = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      }
-    );
+    this.baseMaps = {};
+    for (var layer of Object.keys(basemaps)) {
+      this.baseMaps[layer] = L.tileLayer(basemaps[layer]["url"], {
+        attribution: basemaps[layer]["attribution"],
+      });
+    }
 
     var topolink =
       "https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ";
 
-    this.baseMaps = {
-      datalakesmap,
-      datalakesmapgrey,
-      swisstopo,
-      satellite,
-      dark,
-    };
-
-    this.layer = datalakesmap;
+    this.layer = this.baseMaps["datalakesmap"];
     if ("basemap" in this.props) {
       this.layer = this.baseMaps[this.props.basemap];
     }

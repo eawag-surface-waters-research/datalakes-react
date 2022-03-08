@@ -1,0 +1,59 @@
+.selectbasemap {
+  position: absolute;
+  top: 10px;
+  left: 40px;
+  z-index: 996;
+}
+
+.selectbasemap .minimap {
+  height: 60px;
+  width: 60px;
+  cursor: pointer;
+}
+
+.selectbasemap .minimap .leaflet-container {
+  border-radius: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+.selectbasemap .minimap {
+  display: inline-block;
+  padding-left: 20px;
+}
+
+.selectbasemap .minimap .minimap-text {
+  position: absolute;
+  bottom: 0;
+  width: 60px;
+  z-index: 999;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 1px 0 0 rgba(0, 0, 0, 0.4), 0 -1px 0 rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(0, 0, 0, 0.4), -1px 0 0 rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  text-align: center;
+  padding-bottom: 10px;
+  pointer-events: none;
+}
+
+.selectbasemap .minimap.hide {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1s, opacity 1s linear;
+}
+
+.selectbasemap:hover .minimap.hide {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1s linear;
+}
+
+.selectbasemap .minimap .leaflet-control-attribution {
+  display: none;
+}
+
+@media print {
+  .selectbasemap {
+    display: none;
+  }
+}
+

@@ -5,10 +5,13 @@ import "./layergroups.css";
 
 class Group extends Component {
   clickOnGroup = () => {
-    var { updateState, toggleMenu, properties } = this.props;
-    var { data } = properties;
-    toggleMenu();
-    updateState(data);
+    var { setLayerGroup, properties, onClick } = this.props;
+    if (onClick) {
+      onClick();
+    } else {
+      var { data } = properties;
+      setLayerGroup(data);
+    }
   };
   render() {
     var { name, img } = this.props.properties;
@@ -23,13 +26,21 @@ class Group extends Component {
 
 class LayerGroups extends Component {
   render() {
-    var { toggleMenu, updateState, arr } = this.props;
+    var { setLayerGroup } = this.props;
     var groups = [
       {
-        name: "Build map from scratch",
+        name: "Lake Geneva Algal Bloom 06.09.21",
         description: "Some description",
-        img: drawing,
-        data: { selected: [] },
+        img: editlayers,
+        data: {
+          selected: [
+            [20, 15],
+            [14, 25],
+          ],
+          center: [46.405, 6.578],
+          zoom: 11,
+          datetime: new Date(1630937100000),
+        },
       },
       {
         name: "Lake Zurich 3D Model",
@@ -83,39 +94,26 @@ class LayerGroups extends Component {
           zoom: 11,
         },
       },
-      {
-        name: "Lake Geneva Algal Bloom",
-        description: "Some description",
-        img: editlayers,
-        data: {
-          selected: [
-            [20, 15],
-          ],
-          center: [46.405, 6.578],
-          zoom: 11,
-          datetime: new Date(1630839900000),
-
-        },
-      },
     ];
     return (
       <div className="layergroups">
-        {arr.length === 0 && (
-          <div className="layergroups-welcome-message">
-            Welcome to the Datalakes Map Viewer. This is an online GIS service
-            for visualising geospatial data. Get started by adding one of the
-            pre-prepared layer packages below or if you know what you're looking
-            for, start your map from scratch. Time, depth and animation controls
-            are available at the bottom of the page.
-          </div>
-        )}
+        <div className="layergroups-header">
+          Select an example package or add a layer to start building your own
+          custom map.
+        </div>
+        <Group
+          key={"Add Layers"}
+          properties={{
+            name: "Add Layers",
+            description: "Click here to add a new layers.",
+            img: drawing,
+            data: { selected: [] },
+          }}
+          setLayerGroup={setLayerGroup}
+          onClick={this.props.showLayers}
+        />
         {groups.map((g) => (
-          <Group
-            key={g.name}
-            properties={g}
-            updateState={updateState}
-            toggleMenu={toggleMenu}
-          />
+          <Group key={g.name} properties={g} setLayerGroup={setLayerGroup} />
         ))}
       </div>
     );

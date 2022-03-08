@@ -2162,6 +2162,7 @@ class Plot extends Component {
         <React.Fragment>
           <SidebarLayout
             sidebartitle="Plot Controls"
+            wide={true}
             left={
               <React.Fragment>
                 <div className="detailloading" id="detailloading">

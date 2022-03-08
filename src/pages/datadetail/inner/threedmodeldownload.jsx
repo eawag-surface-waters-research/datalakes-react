@@ -80,7 +80,7 @@ class ThreeDModelDownload extends Component {
       });
     var dates, lake;
     if (id === 11) {
-      dates = data.find((d) => d.name === "Lake Zürich").data;
+      dates = data.find((d) => d.folder === "data_zurich").data;
       lake = "zurich";
     } else if (id === 14 || id === 17) {
       dates = data.find((d) => d.name === "Lake Geneva").data;
@@ -150,7 +150,7 @@ class ThreeDModelDownload extends Component {
     var link = `${url}/nc/${lake}/${year}/${week}`;
 
     return (
-      <div className="datadetail-padding">
+      <div className="download">
         <div className="info-title">Licence</div>
         <a
           href={getLabel("licenses", dataset.licenses_id, "link")}

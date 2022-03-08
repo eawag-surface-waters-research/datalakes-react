@@ -44,6 +44,7 @@
   box-sizing: border-box;
   margin-bottom: 6px;
   border: 1px solid black;
+  border-radius: 5px;
 }
 
 .colorramp-select .colorramp-arrow {

@@ -1,0 +1,239 @@
+.gis {
+  width: 100%;
+  height: 100%;
+}
+
+.gis .siderbar-mini.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.gis .sidebar-inner.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.gis .sidebar-buttons.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.gis .sidebar {
+  width: 400px;
+  height: 100%;
+  background-color: rgb(249, 249, 249);
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  max-width: 100%;
+  z-index: 999;
+}
+
+.gis .sidebar.min {
+  width: 40px;
+  cursor: pointer;
+}
+
+.gis .sidebar .sidebar-inner {
+  width: 100%;
+  padding: 10px 20px 20px 20px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.gis .sidebar .sidebar-buttons {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 400px;
+  padding: 35px 20px;
+  box-sizing: border-box;
+  text-align: right;
+  background-color: #f2f5f7;
+  max-width: 100vw;
+}
+
+.gis .sidebar .sidebar-buttons button.addlayers {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: 0;
+}
+
+.gis .sidebar .sidebar-buttons button.addlayers:hover {
+  transform: scale(1.05);
+}
+
+.gis .sidebar .sidebar-buttons button.hidemenu {
+  cursor: pointer;
+  border: 1px solid #38bec9;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 16px;
+  margin-left: 16px;
+  color: #38bec9;
+  font-size: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 0 20px 0 0;
+}
+
+.gis .sidebar .boundary {
+  height: 100%;
+  background-image: linear-gradient(90deg, rgba(25, 25, 25, 0.4), transparent);
+  width: 15px;
+  position: absolute;
+  right: -15px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.gis .siderbar-mini {
+  cursor: pointer;
+  font-size: 24px;
+  color: #102a43;
+  padding: 0 0 0 9px;
+}
+
+.gis .siderbar-mini .rotate {
+  transform: rotate(90deg);
+  transform-origin: left;
+  width: 500px;
+  padding-bottom: 20px;
+  font-size: 18px;
+}
+
+.gis .map {
+  height: 100%;
+  width: calc(100% - 400px);
+  display: inline-block;
+  min-height: 300px;
+  position: relative;
+}
+
+.gis .map .map-loading {
+  z-index: 9999;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  height: 100%;
+}
+
+.gis .map .map-loading .map-loading-inner {
+  top: calc(50% - 76px);
+  position: absolute;
+  width: 100%;
+}
+
+.gis .map.min {
+  width: calc(100% - 40px);
+}
+
+.gis .layers {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.6);
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+}
+
+.gis .layers.hide {
+  visibility: hidden;
+}
+
+.gis .layers .layers-modal {
+  width: 500px;
+  margin: auto;
+  margin-top: 15vh;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  max-height: 70vh;
+  overflow-y: auto;
+  max-width: 100%;
+  max-width: 90%;
+}
+
+.gis .layers .layers-modal .layers-modal-header {
+  background-color: #f2f5f7;
+  padding: 20px 30px;
+  border-radius: 5px 5px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: #102a43;
+  position: relative;
+}
+
+.gis .layers .layers-modal .layers-modal-content {
+  padding: 20px;
+  font-size: 16px;
+}
+
+.gis .react-calendar {
+  margin: auto;
+  border: none;
+}
+
+.gis .timedepth {
+  font-size: 22px;
+  text-align: center;
+}
+
+.gis .timedepth .input-depth {
+  font-size: 50px;
+  width: 150px;
+  text-align: right;
+  border: none;
+  margin: 10px 0;
+}
+
+.gis .timedepth .input-time {
+  font-size: 34px;
+  border: none;
+  margin: 10px 0;
+}
+
+.gis .timedepth button {
+  display: block;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: auto;
+  margin-top: 30px;
+}
+
+.gis .timedepth button:hover {
+  transform: scale(1.05);
+}
+
+@media screen and (max-height: 800px) {
+  .gis .sidebar .sidebar-buttons {
+    padding: 15px 20px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .gis .sidebar .sidebar-buttons {
+    padding: 15px 20px;
+  }
+}

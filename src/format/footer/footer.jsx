@@ -47,7 +47,7 @@ class Footer extends Component {
                               <img src={twitter} alt="Twitter" />
                           </a>
                       </span>
-                      <div className="inline">Version 1.0 | Copyright © 2021 Datalakes | </div><div className="inline">&nbsp; Developed @ Eawag</div>
+                      <div className="inline">v2.0 | Copyright © 2022 Datalakes | </div><div className="inline">&nbsp; Developed @ Eawag</div>
                 </div>
 
               </div>

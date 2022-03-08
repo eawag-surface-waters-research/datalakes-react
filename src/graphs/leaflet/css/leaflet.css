@@ -664,3 +664,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   margin-left: -12px;
   border-right-color: #fff;
 }
+
+@media print {
+  .leaflet-control-container {
+    display: none;
+  }
+}

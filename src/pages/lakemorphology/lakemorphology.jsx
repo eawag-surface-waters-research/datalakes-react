@@ -136,7 +136,6 @@ class LakeMorphologyGraph extends Component {
         `${apiUrl}/externaldata/morphology/${lake.id}`
       );
       for (var key of Object.keys(morphology)) {
-        console.log(key.toLowerCase())
         if (!["id", "interpolated", "source"].includes(key.toLowerCase())) {
           morphology[key].values = morphology[key].values.map((d) =>
             parseFloat(d)
@@ -324,9 +323,9 @@ class LakeMorphology extends Component {
     return (
       <React.Fragment>
         {lake ? (
-          <h1>Lake Morphology - {lake.name}</h1>
+          <h2>Lake Morphology - {lake.name}</h2>
         ) : (
-          <h1>Lake Morphology</h1>
+          <h2>Lake Morphology</h2>
         )}
 
         <div className={lake ? "lakes-map" : "lakes-map full"}>

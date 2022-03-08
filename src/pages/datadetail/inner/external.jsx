@@ -30,7 +30,7 @@ class External extends Component {
     }
 
     return (
-      <div className="datadetail-padding">
+      <div className="information">
         <div className="datadetail-header">
           This in an external datasource. If you are intersted in previewing the
           data either view the dataset in the Web GIS or follow the link below

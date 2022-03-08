@@ -1,12 +1,24 @@
+.layergroups {
+  max-height: calc(100vh - 390px);
+  overflow-y: auto;
+}
+
 .layergroups .layergroups-item {
   margin: 20px 20px 0 20px;
   display: inline-block;
-  height: 110px;
   width: 145px;
   vertical-align: top;
   max-width: 34%;
   cursor: pointer;
   text-align: center;
+  color: #102a43;
+}
+
+.layergroups .layergroups-header {
+  font-size: 18px;
+  color: #102a43;
+  text-align: center;
+  margin-bottom: 25px;
 }
 
 .layergroups .layergroups-item img {
@@ -63,5 +75,19 @@
   }
   100% {
     transform: rotate(-5deg);
+  }
+}
+
+@media screen and (max-height: 800px) {
+  .layergroups {
+    max-height: calc(100vh - 250px);
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .layergroups {
+    max-height: calc(100vh - 310px);
+    padding-bottom: 65px;
+    box-sizing: border-box;
   }
 }

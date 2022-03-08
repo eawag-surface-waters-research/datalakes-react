@@ -59,6 +59,7 @@ class LocationMap extends Component {
       <React.Fragment>
         <SidebarLayout
           sidebartitle="Plot Controls"
+          wide={true}
           left={
             <React.Fragment>
               <MapSelect

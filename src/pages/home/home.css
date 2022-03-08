@@ -1,5 +1,5 @@
 .home {
-  margin-top: 60px;
+  margin-top: -20px;
 }
 
 .home-banner {
@@ -8,15 +8,13 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 55vh;
+  height: 75vh;
+  padding-top: 25vh;
   text-align: center;
   margin-bottom: 30px;
-  padding-top: 15vh;
   box-sizing: border-box;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
-  -webkit-animation: fadeIn 2s; /* Chrome, Safari, Opera */
-  animation: fadeIn 2s;
 }
 
 .homepagemap {
@@ -66,9 +64,9 @@
   font-size: 22px;
   background-color: black;
   color: white;
-  height: 40px;
-  padding: 0 20px;
+  padding: 10px 20px;
   animation: pulse 2s 5;
+  border-radius: 15px;
 }
 
 @-webkit-keyframes pulse {
@@ -98,7 +96,7 @@
 }
 
 .home-banner button:hover {
-  color: grey;
+  transform: scale(1.05);
 }
 
 .home-partners {
@@ -213,6 +211,87 @@
   position: relative;
 }
 
+.section.access {
+  margin-top: -100px;
+  margin-bottom: 100px;
+}
+
+.section.access a {
+  text-decoration: none;
+}
+
+.section.access .box {
+  width: 278px;
+  border-radius: 20px;
+  background-color: white;
+  font-size: 20px;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+  margin: 0 20px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border: 1px solid rgba(59, 65, 81, 0.3);
+}
+
+.section.access .box .box-header {
+  background-color: #102a43;
+  text-align: center;
+  border-radius: 20px 20px 0 0;
+  padding: 10px 0;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  color: white;
+}
+
+.section.access .box .box-img {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.section.access .box .box-img img {
+  height: 150px;
+}
+
+.section.access .box .box-text {
+  padding: 0px 20px 20px 20px;
+}
+
+.section.access .box:hover {
+  transform: scale(1.02);
+}
+
+@media screen and (max-width: 1000px) and (min-width: 650px) {
+  .section.access .box {
+    display: block;
+    width: calc(100% - 100px);
+    margin: 30px 50px;
+  }
+  .section.access .box .box-text {
+    display: inline-block;
+    width: 50%;
+    box-sizing: border-box;
+    vertical-align: top;
+    margin-top: 40px;
+  }
+  .section.access .box .box-img {
+    display: inline-block;
+    width: 50%;
+    padding: 20px 0;
+    box-sizing: border-box;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .section.access {
+    margin: 0;
+  }
+  .section.access .box {
+    display: block;
+    width: calc(100% - 60px);
+    margin: 30px 30px;
+  }
+}
+
 .section.lakesimulations {
   margin-bottom: 120px;
 }
@@ -317,18 +396,28 @@
 
 .section.lakesimulations .inner {
   float: right;
-  text-align: right;
 }
 
-.section.section.lakesimulations button {
+.section.lakesimulations a {
+  text-decoration: none;
+}
+
+.section.lakesimulations button {
   display: block;
   font-size: 24px;
+  border-radius: 15px;
+  width: 300px;
+  margin: auto;
   margin-top: 20px;
-  float: right;
+  background-color: white;
+  color: black;
+  box-shadow: rgb(99 99 99 / 20%) 0px 2px 8px 0px;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #bcccdc;
 }
 
 .section.lakesimulations button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
 }
 
 .section.insitudata .inner {
@@ -336,8 +425,7 @@
 }
 
 .section .outer {
-  font-size: 34px;
-  padding-top: 40px;
+  font-size: 28px;
   font-family: "Arial", sans-serif;
   font-weight: bold;
   width: 960px;
@@ -345,11 +433,53 @@
   margin: auto;
   text-align: left;
   height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .section .outer .inner {
   width: 50%;
   height: 100%;
+}
+
+.section.about {
+  padding: 25px 50px;
+  border-radius: 20px;
+  background-color: white;
+  font-size: 18px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border: 1px solid rgba(59, 65, 81, 0.3);
+}
+
+.section.about .contacts .contact {
+  display: inline-block;
+  width: 50%;
+}
+
+.section.about .contacts .contact img {
+  width: 40%;
+  display: inline-block;
+  border-radius: 20px;
+}
+
+.section.about .contacts .contact .text {
+  display: inline-block;
+  width: 60%;
+  box-sizing: border-box;
+  padding: 0 30px;
+  vertical-align: top;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.section.about .title {
+  font-size: 36px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #102a43;
+  font-family: "Arial", sans-serif;
+  font-weight: bold;
+  box-sizing: border-box;
 }
 
 .section.insitudata button {
@@ -358,6 +488,9 @@
   display: block;
   font-size: 24px;
   margin-top: 20px;
+  border-radius: 15px;
+  padding: 5px 30px;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .section.insitudata button:hover {
@@ -370,6 +503,9 @@
   display: block;
   font-size: 24px;
   margin-top: 20px;
+  border-radius: 15px;
+  padding: 5px 30px;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .section.rs button:hover {
@@ -377,6 +513,10 @@
 }
 
 .section.insitudata a {
+  text-decoration: none !important;
+}
+
+.section.rs a {
   text-decoration: none !important;
 }
 
@@ -515,13 +655,23 @@
     padding: 0;
     margin-bottom: 100px;
   }
+  .section.about .contacts .contact {
+    width: 100%;
+  }
+  .section.about {
+    box-sizing: border-box;
+    width: 90%;
+    margin-left: 5%;
+    padding: 20px;
+  }
   .home-banner {
     margin-bottom: 0;
+    padding-top: 25vh;
   }
   .home-banner .home-tagline {
-    font-size: 30px;
+    font-size: 40px;
     width: 100%;
-    padding-left: 10px;
+    padding: 0 10px;
     box-sizing: border-box;
   }
   .home-banner button {
@@ -530,6 +680,15 @@
 
   .triple-inner {
     margin: 0;
+  }
+
+  .section.about .contacts .contact .text {
+    padding: 0 10px;
+    margin: 0;
+  }
+
+  .section.about .contacts .contact .text b {
+    font-size: 12px;
   }
 
   .sectiontitle {
@@ -570,21 +729,12 @@
     width: 100%;
   }
 
-  .section.rs .outer {
-    font-size: 18px;
-  }
-
   .section.rs .inner {
     width: 100%;
   }
 
   .section.insitudata {
     margin: 0;
-  }
-
-  .section .outer {
-    font-size: 28px;
-    padding-left: 10px;
   }
 
   .section.rs {

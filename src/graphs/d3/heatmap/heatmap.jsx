@@ -208,6 +208,7 @@ class D3HeatMap extends Component {
           xReverse,
           thresholdStep,
           language,
+          levels,
         } = this.props;
 
         var options = {
@@ -231,6 +232,7 @@ class D3HeatMap extends Component {
           contour: display === "contour",
           hover: this.hover,
           setDownloadGraphDiv: "png" + graphid,
+          levels,
         };
         heatmap("vis" + graphid, data, options);
       } catch (e) {

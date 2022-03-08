@@ -9,10 +9,10 @@ import Home from "./pages/home/home";
 import NotFound from "./pages/notfound/notfound";
 import DataPortal from "./pages/dataportal/dataportal";
 import AddDataset from "./pages/adddataset/adddataset";
-import GIS from "./pages/gis/gis";
 import Monitor from "./pages/monitor/monitor";
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
 import "./index.css";
+import MapViewer from "./pages/mapviewer/mapviewer";
 
 const AsyncDataDetail = asyncComponent(() =>
   import("./pages/datadetail/datadetail")
@@ -35,7 +35,7 @@ class App extends Component {
               exact
               render={(props) => (
                 <ErrorBoundary {...props}>
-                  <GIS {...props} />
+                  <MapViewer {...props} />
                 </ErrorBoundary>
               )}
             />

@@ -1,94 +1,102 @@
 import React, { Component } from "react";
-import GISMap from "../../graphs/leaflet/gis_map";
 import axios from "axios";
-import { apiUrl } from "../../config.json";
-import FilterBox from "../../components/filterbox/filterbox";
+import { apiUrl, basemaps } from "../../config.json";
+import Basemap from "./basemap";
+import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
+import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
+import LayerGroups from "../../components/layergroups/layergroups";
 import MapLayers from "../../components/maplayers/maplayers";
 import AddLayers from "../../components/addlayers/addlayers";
 import Legend from "../../components/legend/legend";
 import colorlist from "../../components/colorramp/colors";
-import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
-import "./gis.css";
-import PrintLegend from "../../components/legend/printlegend";
-import ErrorModal from "../../components/errormodal/errormodal";
+import "./css/gis.css";
+import Loading from "../../components/loading/loading";
+import BasemapSelector from "../../components/basemapselector/basemapselector";
+import { Calendar } from "react-calendar";
 
-class SidebarGIS extends Component {
+class Modal extends Component {
+  state = {};
   render() {
-    var {
-      selectedlayers,
-      datasets,
-      parameters,
-      datasetparameters,
-      sidebarextratop,
-      sidebarextrabottom,
-      setSelected,
-      removeSelected,
-      toggleLayerView,
-      updateMapLayers,
-      addSelected,
-      basemap,
-      updateBaseMap,
-    } = this.props;
-    var add;
-    if (selectedlayers.length === 0) add = "true";
+    var { title, content, visible, hide } = this.props;
     return (
-      <React.Fragment>
-        {sidebarextratop}
-        <FilterBox
-          title="Basemap"
-          preopen="true"
-          content={
-            <div className="basemap">
-              <select
-                className="basemapselector"
-                onChange={updateBaseMap}
-                value={basemap}
-                title="Edit the background map style"
-              >
-                <option value="datalakesmap">Datalakes Map</option>
-                <option value="datalakesmapgrey">
-                  Datalakes Map Greyscale
-                </option>
-                <option value="swisstopo">Swisstopo</option>
-                <option value="satellite">Satellite</option>
-                <option value="dark">Dark</option>
-              </select>
+      <div className={visible ? "layers" : "layers hide"}>
+        <div className="layers-modal">
+          <div className="layers-modal-header">
+            {title}
+            <div className="close" onClick={hide}>
+              &times;
             </div>
-          }
+          </div>
+          <div className="layers-modal-content">{content}</div>
+        </div>
+      </div>
+    );
+  }
+}
+
+class TimeDepth extends Component {
+  state = {
+    time: `${this.props.datetime.getHours()}:${this.props.datetime.getMinutes()}`,
+    depth: this.props.depth,
+  };
+  onChangeTime = (event) => {
+    this.setState({ time: event.target.value });
+  };
+
+  onChangeDepth = (event) => {
+    this.setState({ depth: event.target.value });
+  };
+
+  update = () => {
+    var { time, depth } = this.state;
+    this.props.onChangeDepth(depth);
+    var datetime = new Date(this.props.datetime.getTime());
+    var time_arr = time.split(":");
+    datetime.setHours(time_arr[0]);
+    datetime.setMinutes(time_arr[1]);
+    this.props.onChangeDatetime(datetime);
+  };
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.datetime !== this.props.datetime) {
+      this.setState({
+        time: `${this.props.datetime.getHours()}:${this.props.datetime.getMinutes()}`,
+      });
+    }
+    if (prevProps.depth !== this.props.depth) {
+      this.setState({
+        depth: this.props.depth,
+      });
+    }
+  };
+
+  render() {
+    return (
+      <div className="timedepth">
+        <input
+          className="input-time"
+          type="time"
+          value={this.state.time}
+          onChange={this.onChangeTime}
         />
-        <FilterBox
-          title="Map Layers"
-          preopen="true"
-          content={
-            <MapLayers
-              selectedlayers={selectedlayers}
-              setSelected={setSelected}
-              removeSelected={removeSelected}
-              toggleLayerView={toggleLayerView}
-              updateMapLayers={updateMapLayers}
-            />
-          }
+        <input
+          className="input-depth"
+          type="number"
+          value={this.state.depth}
+          onChange={this.onChangeDepth}
         />
-        <FilterBox
-          title="Add Layers"
-          preopen={add}
-          content={
-            <AddLayers
-              datasets={datasets}
-              parameters={parameters}
-              datasetparameters={datasetparameters}
-              addSelected={addSelected}
-            />
-          }
-        />
-        {sidebarextrabottom}
-      </React.Fragment>
+        m<button onClick={this.update}>Update</button>
+      </div>
     );
   }
 }
 
 class GIS extends Component {
   state = {
+    menu: window.screen.width < 900 ? false : true,
+    layersModal: false,
+    dateModal: false,
+    timeDepthModal: false,
     selectedlayers: [],
     parameters: [],
     datasets: [],
@@ -107,6 +115,42 @@ class GIS extends Component {
     modaltext: "",
     modaldetail: "",
     lakejson: false,
+  };
+
+  hideMenu = () => {
+    this.setState({ menu: false }, () => {
+      window.dispatchEvent(new Event("resize"));
+    });
+  };
+
+  showMenu = () => {
+    this.setState({ menu: true }, () => {
+      window.dispatchEvent(new Event("resize"));
+    });
+  };
+
+  hideTimeDepthModal = () => {
+    this.setState({ timeDepthModal: false });
+  };
+
+  showTimeDepthModal = () => {
+    this.setState({ timeDepthModal: true });
+  };
+
+  hideDateModal = () => {
+    this.setState({ dateModal: false });
+  };
+
+  showDateModal = () => {
+    this.setState({ dateModal: true });
+  };
+
+  hideLayersModal = () => {
+    this.setState({ layersModal: false });
+  };
+
+  showLayersModal = () => {
+    this.setState({ layersModal: true });
   };
 
   closeModal = () => {
@@ -184,6 +228,10 @@ class GIS extends Component {
         this.updateVariable(datetime, depth);
       });
     }
+  };
+
+  onChangeBasemap = (basemap) => {
+    this.setState({ basemap });
   };
 
   setSelected = (selectedlayers) => {
@@ -938,167 +986,98 @@ class GIS extends Component {
     });
   };
 
-  searchLocation = (
-    selected,
-    hidden,
-    datetime,
-    depth,
-    zoom,
-    center,
-    basemap
-  ) => {
-    return [
-      "?",
-      "selected=",
-      JSON.stringify(selected),
-      "&hidden=",
-      JSON.stringify(hidden),
-      "&datetime=",
-      datetime.getTime() / 1000,
-      "&depth=",
-      depth,
-      "&zoom=",
-      JSON.stringify(zoom),
-      "&center=",
-      JSON.stringify(center),
-      "&basemap=",
-      basemap,
-    ].join("");
-  };
+  getSliderParameters = (selectedlayers) => {
+    var files = [];
+    var mindatetime = Infinity;
+    var maxdatetime = -Infinity;
+    var mindepth = 0;
+    var maxdepth = 100;
+    for (var i = 0; i < selectedlayers.length; i++) {
+      mindatetime = new Date(
+        Math.min(mindatetime, new Date(selectedlayers[i].mindatetime))
+      );
+      maxdatetime = new Date(
+        Math.max(maxdatetime, new Date(selectedlayers[i].maxdatetime))
+      );
+      maxdepth = Math.max(maxdepth, selectedlayers[i].maxdepth);
 
-  parseSearch = (search) => {
-    search = search.replace("?", "").split("&");
-    var out = {};
-    for (var i = 0; i < search.length; i++) {
-      try {
-        var split = search[i].split("=");
-        if (["selected", "hidden", "center"].includes(split[0])) {
-          out[split[0]] = JSON.parse(split[1]);
-        } else if (split[0] === "datetime") {
-          out[split[0]] = new Date(split[1] * 1000);
-        } else if (["depth", "zoom"].includes(split[0])) {
-          out[split[0]] = parseFloat(split[1]);
-        } else if (split[0] === "basemap") {
-          out[split[0]] = split[1];
-        }
-      } catch (e) {
-        console.error("Parsing query " + split[0] + " failed.");
-      }
+      files = files.concat(selectedlayers[i].files);
     }
-    return out;
+    maxdepth = Math.min(370, maxdepth);
+    if (mindatetime === Infinity)
+      mindatetime = new Date().getTime() - 1209600000;
+    if (maxdatetime === -Infinity) maxdatetime = new Date().getTime();
+    maxdatetime = new Date(maxdatetime);
+    mindatetime = new Date(mindatetime);
+    return { files, mindepth, maxdepth, mindatetime, maxdatetime };
   };
 
-  updateSearch = (query, value, search) => {
-    if (query in search) {
-      var newValue = search[query];
-      if (["selected", "hidden"].includes(query)) {
-        if (Array.isArray(newValue)) {
-          value = newValue;
-        }
-      } else if (["depth"].includes(query)) {
-        let depth = newValue;
-        if (depth > -2 && depth < 400) {
-          value = depth;
-        }
-      } else if (["datetime"].includes(query)) {
-        let dt = newValue.getTime() / 1000;
-        let dt_max = new Date().getTime() / 1000 + 30 * 24 * 60 * 60;
-        if (dt > 0 && dt < dt_max) {
-          value = newValue;
-        }
-      } else if (["zoom"].includes(query)) {
-        let zoom = parseInt(newValue);
-        if (zoom > 0 && zoom < 18) {
-          value = zoom;
-        }
-      } else if (["center"].includes(query)) {
-        let lat = parseFloat(newValue[0]);
-        let lng = parseFloat(newValue[1]);
-        if (lat > -85 && lat < 85 && lng > -180 && lng < 180) {
-          value = [lat, lng];
-        }
-      } else if (["basemap"].includes(query)) {
-        if (
-          ["datalakesmap", "swisstopo", "satellite", "dark"].includes(newValue)
-        ) {
-          value = newValue;
-        }
-      }
+  updateLocation = (zoom, center) => {
+    if (zoom !== this.state.zoom || center !== this.state.center) {
+      this.setState({ zoom, center });
     }
-    return value;
   };
 
-  fixedEncodeURI = (str) => {
-    return str.replace(/%5b/g, "[").replace(/%5d/g, "]");
+  siderbarMinDatetime = (datetime) => {
+    var months = [
+      "January",
+      "Feburary",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    return `${datetime.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} ${datetime.getDate()} ${
+      months[datetime.getMonth()]
+    } ${datetime.getFullYear()}`;
   };
 
-  componentDidUpdate(prevState) {
+  setDefaults = () => {
     var { selected, hidden, datetime, depth, zoom, center, basemap } =
       this.state;
-    var newSearch = this.searchLocation(
-      selected,
-      hidden,
-      datetime,
-      depth,
-      zoom,
-      center,
-      basemap
-    );
-    let { search, pathname } = this.props.location;
-    if (newSearch !== search) {
-      this.props.history.push({
-        pathname: pathname,
-        search: newSearch,
-      });
+    var { defaults } = this.props;
+    if ("selected" in defaults) selected = defaults.selected;
+    if ("hidden" in defaults) hidden = defaults.hidden;
+    if ("datetime" in defaults) datetime = defaults.datetime;
+    if ("depth" in defaults) depth = defaults.depth;
+    if ("zoom" in defaults) zoom = defaults.zoom;
+    if ("center" in defaults) center = defaults.center;
+    if ("basemap" in defaults) basemap = defaults.basemap;
+    return { selected, hidden, datetime, depth, zoom, center, basemap };
+  };
+
+  componentDidUpdate() {
+    var { setDefaults } = this.props;
+    if (setDefaults) {
+      var { selected, hidden, datetime, depth, zoom, center, basemap } =
+        this.state;
+      var defaults = {
+        selected,
+        hidden,
+        datetime,
+        depth,
+        zoom,
+        center,
+        basemap,
+      };
+      setDefaults(defaults);
     }
   }
 
   async componentDidMount() {
     // Defaults
-    var { selected, hidden, datetime, depth, zoom, center, basemap, lakejson } =
-      this.state;
-
-    var defaultSearchLocation = this.searchLocation(
-      selected,
-      hidden,
-      datetime,
-      depth,
-      zoom,
-      center,
-      basemap
-    );
-
-    // Parse location search
-    const pathname = this.props.location.pathname;
-    try {
-      var { search } = this.props.location;
-      search = this.fixedEncodeURI(search);
-      if (search) {
-        search = this.parseSearch(search);
-        selected = this.updateSearch("selected", selected, search);
-        hidden = this.updateSearch("hidden", hidden, search);
-        datetime = this.updateSearch("datetime", datetime, search);
-        depth = this.updateSearch("depth", depth, search);
-        zoom = this.updateSearch("zoom", zoom, search);
-        center = this.updateSearch("center", center, search);
-        basemap = this.updateSearch("basemap", basemap, search);
-        this.props.history.push({
-          pathname: pathname,
-          search: search,
-        });
-      } else {
-        this.props.history.push({
-          pathname: pathname,
-          search: defaultSearchLocation,
-        });
-      }
-    } catch (e) {
-      console.error("Error processing search parameters.");
-      this.props.history.push({
-        pathname: pathname,
-        search: defaultSearchLocation,
-      });
-    }
+    var { lakejson } = this.state;
+    var { selected, hidden, datetime, depth, zoom, center, basemap } =
+      this.setDefaults();
 
     // Get data
     let server = await Promise.all([
@@ -1106,19 +1085,17 @@ class GIS extends Component {
       axios.get(apiUrl + "/datasets"),
       axios.get(apiUrl + "/datasetparameters"),
     ]).catch((error) => {
-      this.setState({ step: "error" });
+      console.log(error);
     });
 
     var parameters = server[0].data;
     var datasets = server[1].data;
     var datasetparameters = server[2].data;
 
-    // Build selected layers object
     var selectedlayers = [];
-    var fixedSelected = JSON.parse(JSON.stringify(selected));
-    for (var i = fixedSelected.length - 1; i > -1; i--) {
-      var datasets_id = fixedSelected[i][0];
-      var parameters_id = fixedSelected[i][1];
+    for (var i = selected.length - 1; i > -1; i--) {
+      var datasets_id = selected[i][0];
+      var parameters_id = selected[i][1];
       ({ selectedlayers, datasets, selected, lakejson } =
         await this.addNewLayer(
           selected,
@@ -1160,91 +1137,141 @@ class GIS extends Component {
   }
 
   render() {
-    var {
-      selectedlayers,
-      datasets,
-      parameters,
-      datasetparameters,
-      loading,
-      datetime,
-      depth,
-      basemap,
-      zoom,
-      center,
-      timestep,
-      mindatetime,
-      maxdatetime,
-      mindepth,
-      maxdepth,
-      modal,
-      modaltext,
-      modaldetail,
-      lakejson,
-    } = this.state;
-    document.title = "Map Viewer - Datalakes";
+    var { menu } = this.state;
+    var hidelayerbutton = false;
+    if (this.props.hidelayerbutton) hidelayerbutton = true;
     return (
-      <React.Fragment>
-        <h1>Map Viewer</h1>
-        <ErrorModal
-          visible={modal}
-          text={modaltext}
-          details={modaldetail}
-          closeModal={this.closeModal}
-        />
-        <GISMap
-          datetime={datetime}
-          depth={depth}
-          zoom={zoom}
-          center={center}
-          selectedlayers={selectedlayers}
-          datasets={datasets}
-          legend={<Legend selectedlayers={selectedlayers} open={true} />}
-          basemap={basemap}
-          lakejson={lakejson}
-          updateLocation={this.updateLocation}
-          updateState={this.updateState}
-          timeselector={
-            <DatetimeDepthSelector
-              selectedlayers={selectedlayers}
-              mindatetime={mindatetime}
-              maxdatetime={maxdatetime}
-              mindepth={mindepth}
-              maxdepth={maxdepth}
-              datetime={datetime}
-              depth={depth}
-              timestep={timestep}
-              onChangeDatetime={this.onChangeDatetime}
-              onChangeDepth={this.onChangeDepth}
-              onChangeTimestep={this.onChangeTimestep}
+      <div className="gis">
+        <div
+          className={menu ? "sidebar" : "sidebar min"}
+          onClick={!menu ? this.showMenu : () => {}}
+        >
+          <div className="boundary" />
+          <div
+            className={menu ? "siderbar-mini hide" : "siderbar-mini"}
+            title="Click to open menu."
+          >
+            &#9776;
+            <div className="rotate">
+              {this.siderbarMinDatetime(this.state.datetime)}
+            </div>
+          </div>
+          <div className={menu ? "sidebar-inner" : "sidebar-inner hide"}>
+            <SidebarDatetime
+              datetime={this.state.datetime}
+              depth={this.state.depth}
+              showDateModal={this.showDateModal}
+              showTimeDepthModal={this.showTimeDepthModal}
             />
-          }
-          loading={loading}
-          sidebar={
-            <SidebarGIS
-              selectedlayers={selectedlayers}
-              datasets={datasets}
-              parameters={parameters}
-              datasetparameters={datasetparameters}
-              basemap={basemap}
-              updateBaseMap={this.updateBaseMap}
-              setSelected={this.setSelected}
-              removeSelected={this.removeSelected}
-              toggleLayerView={this.toggleLayerView}
-              updateMapLayers={this.updateMapLayers}
+            {this.state.selectedlayers.length === 0 ? (
+              <LayerGroups
+                setLayerGroup={this.updateState}
+                showLayers={this.showLayersModal}
+              />
+            ) : (
+              <MapLayers
+                selectedlayers={this.state.selectedlayers}
+                setSelected={this.setSelected}
+                removeSelected={this.removeSelected}
+                toggleLayerView={this.toggleLayerView}
+                updateMapLayers={this.updateMapLayers}
+              />
+            )}
+          </div>
+          <div className={menu ? "sidebar-buttons" : "sidebar-buttons hide"}>
+            <button className="hidemenu" onClick={this.hideMenu}>
+              Hide Menu
+            </button>
+            {!hidelayerbutton && (
+              <button className="addlayers" onClick={this.showLayersModal}>
+                Add Layers
+              </button>
+            )}
+          </div>
+        </div>
+        <div className={menu ? "map" : "map min"}>
+          <Legend selectedlayers={this.state.selectedlayers} open={false} />
+          <Basemap
+            selectedlayers={this.state.selectedlayers}
+            basemap={this.state.basemap}
+            loading={this.state.loading}
+            datasets={this.state.datasets}
+            depth={this.state.depth}
+            datetime={this.state.datetime}
+            center={this.state.center}
+            zoom={this.state.zoom}
+            updateLocation={this.updateLocation}
+            lakejson={this.state.lakejson}
+            setZoomIn={this.setZoomIn}
+            setZoomOut={this.setZoomOut}
+          />
+          <DatetimeDepthSelector
+            selectedlayers={this.state.selectedlayers}
+            mindatetime={this.state.mindatetime}
+            maxdatetime={this.state.maxdatetime}
+            mindepth={this.state.mindepth}
+            maxdepth={this.state.maxdepth}
+            datetime={this.state.datetime}
+            depth={this.state.depth}
+            timestep={this.state.timestep}
+            onChangeDatetime={this.onChangeDatetime}
+            onChangeDepth={this.onChangeDepth}
+            onChangeTimestep={this.onChangeTimestep}
+          />
+          <BasemapSelector
+            center={this.state.center}
+            zoom={this.state.zoom}
+            basemaps={basemaps}
+            basemap={this.state.basemap}
+            onChangeBasemap={this.onChangeBasemap}
+          />
+          {this.state.loading && (
+            <div className="map-loading">
+              <div className="map-loading-inner">
+                <Loading />
+                Loading Layers
+              </div>
+            </div>
+          )}
+        </div>
+        <Modal
+          title="Select layers"
+          visible={this.state.layersModal}
+          hide={this.hideLayersModal}
+          content={
+            <AddLayers
+              datasets={this.state.datasets}
+              parameters={this.state.parameters}
+              datasetparameters={this.state.datasetparameters}
               addSelected={this.addSelected}
             />
           }
         />
-        <div className="printheader">
-          <div>Map Viewer Print</div>
-          <div>
-            {datetime.toString()} @ {depth}m
-          </div>
-        </div>
-        <div className="printlegend">
-          <PrintLegend selectedlayers={selectedlayers} />
-        </div>
-      </React.Fragment>
+        <Modal
+          title="Edit date"
+          visible={this.state.dateModal}
+          hide={this.hideDateModal}
+          content={
+            <Calendar
+              onChange={this.onChangeDatetime}
+              value={this.state.datetime}
+            />
+          }
+        />
+        <Modal
+          title="Edit time and depth"
+          visible={this.state.timeDepthModal}
+          hide={this.hideTimeDepthModal}
+          content={
+            <TimeDepth
+              datetime={this.state.datetime}
+              depth={this.state.depth}
+              onChangeDatetime={this.onChangeDatetime}
+              onChangeDepth={this.onChangeDepth}
+            />
+          }
+        />
+      </div>
     );
   }
 }

@@ -8,6 +8,8 @@ _/ __ \ \__  \  \ \/ \/ /\__  \    /  ___/
 
 /* ------------------- General --------------------------- */
 
+@import url("https://fonts.googleapis.com/css2?family=Lato&family=Roboto:wght@100;500&display=swap");
+
 @font-face {
   font-family: "The Serif Bold";
   src: url("./font/theserifbold.woff") format("woff");
@@ -22,6 +24,7 @@ body {
   font-family: Arial, sans-serif;
   font-size: 14px;
   margin: 0;
+  background-color: rgb(249, 249, 249);
 }
 
 h1,
@@ -34,16 +37,23 @@ h6 {
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 60px;
   font-weight: 500;
-  line-height: 30px;
+  margin: 15px 0;
+  padding: 0 10px;
+  text-size-adjust: 100%;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 500;
   margin: 15px 0;
   padding: 0 10px;
   text-size-adjust: 100%;
 }
 
 h3 {
-  font-size: 15px;
+  font-size: 21px;
   font-weight: 500;
 }
 
@@ -64,13 +74,14 @@ main {
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 10px;
-  min-height: calc(100vh - 240px);
+  margin-top: 70px;
+  min-height: calc(100vh - 205px);
 }
 
 @media screen and (max-width: 500px) {
   main {
     margin-bottom: 70px;
+    margin-top: 40px;
     min-height: calc(100vh - 120px);
   }
 }
@@ -79,9 +90,45 @@ main {
   overflow: hidden;
 }
 
-
 .inline {
   display: inline-block;
+}
+
+/* Swagger */
+
+.swagger-ui .opblock.opblock-get {
+  border-color: #102a43 !important;
+  background-color: transparent !important;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+  min-width: 80px;
+}
+
+.swagger-ui .opblock-tag small {
+  min-width: 80px;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background-color: #102a43 !important;
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: #627d98 !important;
+  background-color: transparent !important;
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background-color: #627d98 !important;
+}
+
+.swagger-ui .btn.authorize {
+  border-color: #38bec9 !important;
+  color: #38bec9 !important;
+}
+
+.swagger-ui .btn.authorize svg {
+  fill: #38bec9 !important;
 }
 
 /* Scrollbar */
