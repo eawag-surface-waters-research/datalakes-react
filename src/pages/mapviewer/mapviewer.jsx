@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import GIS from "../../graphs/leaflet/datalakesgis";
+import GIS from "../../graphs/leaflet/gis";
 import "./mapviewer.css";
 
 class MapViewer extends Component {

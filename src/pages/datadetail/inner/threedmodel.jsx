@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import GIS from "../../../graphs/leaflet/datalakesgis";
+import GIS from "../../../graphs/leaflet/gis";
 import "../css/datadetail.css";
 import "../css/threed.css";
 
