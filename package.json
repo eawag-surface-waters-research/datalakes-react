@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.21.1",
-    "canvas-heatmap": "^1.2.26",
+    "canvas-heatmap": "^1.2.27",
     "d3": "^6.7.0",
     "d3-contour": "^1.3.2",
     "date-fns": "^2.5.1",
