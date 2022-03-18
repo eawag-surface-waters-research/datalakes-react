@@ -20,6 +20,7 @@ import LocationMap from "./inner/locationmap";
 import Plot from "./inner/plot";
 import isArray from "lodash/isArray";
 import "./css/datadetail.css";
+import Simstrat from "./inner/simstrat";
 
 class DataDetail extends Component {
   state = {
@@ -598,6 +599,15 @@ class DataDetail extends Component {
         step: "ch2018",
         allowedStep: ["ch2018", "ch2018download", "external"],
       });
+    } else if (mapplotfunction === "simstrat") {
+      this.setState({
+        dataset,
+        datasetparameters,
+        dropdown,
+        files,
+        step: "simstrat",
+        allowedStep: ["simstrat", "external", "webgis"],
+      });
     } else {
       this.setState({
         dataset,
@@ -893,6 +903,27 @@ class DataDetail extends Component {
             />
             <div className="datadetail-padding">
               <RemoteSensing
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
+          </React.Fragment>
+        );
+      case "simstrat":
+        return (
+          <React.Fragment>
+            {title}
+            <DataSubMenu
+              step={step}
+              allowedStep={allowedStep}
+              updateSelectedState={this.updateSelectedState}
+              link={link}
+            />
+            <div className="datadetail-padding">
+              <Simstrat
                 dataset={dataset}
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}

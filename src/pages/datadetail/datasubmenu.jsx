@@ -63,6 +63,21 @@ class DataSubMenu extends Component {
             <div className="subnav-text">Download</div>
           </div>
           <div
+            title="Interact with Simstrat data"
+            className={
+              this.active("simstrat", step)
+                ? "subnav-item active"
+                : "subnav-item"
+            }
+            style={{
+              display: this.hide("simstrat", allowedStep) && "none",
+            }}
+            onClick={() => updateSelectedState("simstrat")}
+          >
+            <img src={td} className="subnav-img" alt="3D" />
+            <div className="subnav-text">Map</div>
+          </div>
+          <div
             title="Interact with remote sensing data"
             className={
               this.active("remotesensing", step)

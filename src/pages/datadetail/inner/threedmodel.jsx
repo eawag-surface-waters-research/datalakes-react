@@ -33,6 +33,14 @@ class ThreeDModel extends Component {
         center: [47.351, 8.682],
         zoom: 14,
       },
+      17: {
+        selected: [
+          [17, 25],
+          [17, 5],
+        ],
+        center: [46.409, 6.532],
+        zoom: 11,
+      },
     };
 
     return (
