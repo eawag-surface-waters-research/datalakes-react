@@ -533,7 +533,14 @@ class DataPortal extends Component {
     );
   };
 
+  focusSearchBar = (e) => {
+    if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
+      document.getElementById("dataportalsearchbar").focus();
+    }
+  };
+
   async componentDidMount() {
+    window.addEventListener("keydown", this.focusSearchBar);
     const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
     var { data: datasets, status: dstatus } = await axios.get(
       apiUrl + "/datasets"
@@ -581,6 +588,10 @@ class DataPortal extends Component {
     var fuse_datasets = JSON.parse(JSON.stringify(datasets));
     const fuse = new Fuse(fuse_datasets, options);
     this.setState({ datasets, parameters, dropdown, fuse, loading: false });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("keydown", this.focusSearchBar);
   }
 
   render() {
@@ -637,6 +648,7 @@ class DataPortal extends Component {
         <h1>Data Portal</h1>
         <div className="search">
           <input
+            id="dataportalsearchbar"
             onChange={this.searchDatasets}
             className="SearchBar"
             placeholder="Search using keywords e.g. ctd or geneva or salinity"
