@@ -40,6 +40,7 @@ class ThreeDModel extends Component {
         ],
         center: [46.409, 6.532],
         zoom: 11,
+        datetime: new Date(1625443165000),
       },
     };
 
