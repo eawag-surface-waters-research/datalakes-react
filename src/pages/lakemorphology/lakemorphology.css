@@ -10,14 +10,14 @@
   box-sizing: border-box;
 }
 
-.left {
+.morphology .left {
   width: calc(100vw - 420px);
   height: 100%;
   display: inline-block;
   vertical-align: top;
 }
 
-.right {
+.morphology .right {
   height: 100%;
   z-index: 999;
   background-color: white;
@@ -33,7 +33,7 @@
   position: relative;
 }
 
-.lakes-map {
+.morphology .lakes-map {
   height: calc(100% - 510px);
   min-height: 300px;
   margin-top: 10px;
@@ -46,15 +46,15 @@
   border: solid 1px rgb(169, 169, 169);
 }
 
-.lakes-map #map {
+.morphology .lakes-map #map {
   border-radius: 5px;
 }
 
-.lakes-map.full {
+.morphology .lakes-map.full {
   height: calc(100% - 60px);
 }
 
-.lake-morphology {
+.morphology .lake-morphology {
   height: 500px;
   width: 100%;
   background-color: white;
@@ -65,26 +65,26 @@
   border-radius: 5px;
 }
 
-.lake-morphology.short {
+.morphology .lake-morphology.short {
   height: 50px;
   padding: 10px;
 }
 
-.lake-morphology .lakes-graph-short {
+.morphology .lake-morphology .lakes-graph-short {
   width: 100%;
   height: calc(100% - 90px);
 }
 
-.lake-morphology .banner {
+.morphology .lake-morphology .banner {
   text-align: center;
   font-size: 22px;
 }
 
-.right .lake-list-header {
+.morphology .right .lake-list-header {
   height: 85px;
 }
 
-.right .lake-list-header input {
+.morphology .right .lake-list-header input {
   width: calc(100% - 5px);
   border: solid 1px rgb(169, 169, 169);
   box-sizing: border-box;
@@ -96,16 +96,16 @@
   margin-left: 5px;
 }
 
-.right .lake-list-header table th {
+.morphology .right .lake-list-header table th {
   cursor: pointer;
   border-bottom: 1px solid white;
 }
 
-.right .lake-list-header table th:hover {
+.morphology .right .lake-list-header table th:hover {
   border-bottom: 1px solid black;
 }
 
-.right .lake-list-body {
+.morphology .right .lake-list-body {
   height: calc(100% - 70px);
   overflow-y: auto;
 }
@@ -192,10 +192,10 @@
 }
 
 @media screen and (max-width: 1000px) {
-  .right {
+  .morphology .right {
     display: none;
   }
-  .left {
+  .morphology .left {
     width: 100%;
   }
 }
