@@ -71,7 +71,10 @@ class LakeMorphologyGraph extends Component {
       var x = [];
       var y = [];
       for (var i = 0; i < morphology["Interpolated"].values.length; i++) {
-        if (!morphology["Interpolated"].values[i]) {
+        if (
+          !morphology["Interpolated"].values[i] ||
+          morphology["Interpolated"].values[i] === "false"
+        ) {
           x.push(morphology[xlabel].values[i]);
           y.push(morphology[ylabel].values[i]);
         }
