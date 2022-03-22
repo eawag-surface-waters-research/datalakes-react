@@ -10,8 +10,6 @@ import External from "./inner/external";
 import Preview from "./inner/preview";
 import DataSubMenu from "./datasubmenu";
 import Loading from "../../components/loading/loading";
-import ThreeDModel from "./inner/threedmodel";
-import RemoteSensing from "./inner/remotesensing";
 import ThreeDModelDownload from "./inner/threedmodeldownload";
 import Ch2018Graph from "./inner/ch2018graph";
 import Ch2018Download from "./inner/ch2018download";
@@ -19,8 +17,8 @@ import RemoteSensingDownload from "./inner/remotesensingdownload";
 import LocationMap from "./inner/locationmap";
 import Plot from "./inner/plot";
 import isArray from "lodash/isArray";
+import MapComponent from "./inner/mapcomponent";
 import "./css/datadetail.css";
-import Simstrat from "./inner/simstrat";
 
 class DataDetail extends Component {
   state = {
@@ -839,7 +837,7 @@ class DataDetail extends Component {
               link={link}
             />
             <div className="datadetail-padding">
-              <ThreeDModel
+              <MapComponent
                 dataset={dataset}
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}
@@ -902,7 +900,7 @@ class DataDetail extends Component {
               link={link}
             />
             <div className="datadetail-padding">
-              <RemoteSensing
+              <MapComponent
                 dataset={dataset}
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}
@@ -923,7 +921,7 @@ class DataDetail extends Component {
               link={link}
             />
             <div className="datadetail-padding">
-              <Simstrat
+              <MapComponent
                 dataset={dataset}
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}

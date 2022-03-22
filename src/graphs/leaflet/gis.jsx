@@ -342,22 +342,6 @@ class GIS extends Component {
     this.setState({ basemap: event.target.value });
   };
 
-  meteoSwissMarkersMinMax = (layer) => {
-    var array = layer.map((x) => x.v);
-    array = array.filter((x) => x !== 9999);
-    var max = this.getMax(array);
-    var min = this.getMin(array);
-    return { filemin: min, filemax: max, filearray: array };
-  };
-
-  foenMarkersMinMax = (layer) => {
-    var array = layer.map((x) => x.v);
-    array = array.filter((x) => x !== 9999);
-    var max = this.getMax(array);
-    var min = this.getMin(array);
-    return { filemin: min, filemax: max, filearray: array };
-  };
-
   simstratMinMax = (array) => {
     var filearray;
     if (Object.keys(array).includes("time")) {
@@ -420,7 +404,6 @@ class GIS extends Component {
     var min = Infinity;
     var max = -Infinity;
     var array = [];
-
     var filemin, filemax;
     var filearray = [];
 
@@ -430,9 +413,6 @@ class GIS extends Component {
         parameters_id,
         datasetparameters
       ));
-    }
-    if (mapplotfunction === "meteoSwissMarkers") {
-      ({ filemin, filemax, filearray } = this.meteoSwissMarkersMinMax(data));
     }
     if (mapplotfunction === "simstrat") {
       ({ filemin, filemax, filearray } = this.simstratMinMax(data));
@@ -452,14 +432,9 @@ class GIS extends Component {
       }
     }
 
-    if (mapplotfunction === "foenMarkers") {
-      ({ filemin, filemax, filearray } = this.foenMarkersMinMax(data));
-    }
-
     if (filemin < min) min = filemin;
     if (filemax > max) max = filemax;
     array = array.concat(filearray);
-
     return { min, max, array };
   };
 

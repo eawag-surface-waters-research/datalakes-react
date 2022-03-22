@@ -193,8 +193,7 @@
     max-width: 500px;
     height: calc(100vh - 220px);
     overflow-y: auto;
-    padding: 5px;
-    padding-bottom: 100px;
+    padding: 5px 5px 160px;
   }
 
   .sidebarlayout .leftcontainer {
