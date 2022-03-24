@@ -4,6 +4,7 @@ import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./lakemorphology.css";
 import D3LineGraph from "../../graphs/d3/linegraph/linegraph";
+import Loading from "../../components/loading/loading";
 
 class LakeMorphologyGraph extends Component {
   state = {
@@ -108,7 +109,7 @@ class LakeMorphologyGraph extends Component {
       );
 
       var xlabel = xlabels[0];
-      if (xlabels.includes("Volume")) xlabel = "Volume";
+      if (xlabels.includes("Isobath Area")) xlabel = "Isobath Area";
 
       var { data, xunits, yunits } = this.prepareGraph(
         xlabel,
@@ -211,6 +212,7 @@ class LakeMorphology extends Component {
     sort: "name",
     sortDir: true,
     text: "",
+    loading: true,
   };
   urlSafe = (str) => {
     var clean = [
@@ -307,12 +309,12 @@ class LakeMorphology extends Component {
     geojson.features = geojson.features.filter((f) =>
       ids.includes(f.properties.id)
     );
-    this.setState({ lakes, geojson });
+    this.setState({ lakes, geojson, loading: false });
   }
   render() {
     document.title = "Lake Morphology - Datalakes";
     let { search } = this.props.location;
-    var { lakes, geojson, sort, text } = this.state;
+    var { lakes, geojson, sort, text, loading } = this.state;
     var list = this.filter(text, lakes);
     this.sort(sort, list);
 
@@ -351,6 +353,11 @@ class LakeMorphology extends Component {
               </div>
             )}
             <div className={lake ? "lakes-map" : "lakes-map full"}>
+              {loading && (
+                <div className="morphology-loading">
+                  <Loading />
+                </div>
+              )}
               <Basemap
                 basemap="datalakesmap"
                 geojson={geojson}

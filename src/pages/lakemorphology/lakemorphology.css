@@ -54,6 +54,13 @@
   height: calc(100% - 60px);
 }
 
+.morphology .lakes-map .morphology-loading {
+  position: absolute;
+  z-index: 999;
+  width: 100%;
+  margin-top: calc(50% - 50px);
+}
+
 .morphology .lake-morphology {
   height: 500px;
   width: 100%;
