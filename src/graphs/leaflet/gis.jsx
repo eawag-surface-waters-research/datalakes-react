@@ -342,13 +342,15 @@ class GIS extends Component {
     this.setState({ basemap: event.target.value });
   };
 
-  simstratMinMax = (array) => {
+  simstratMinMax = (array, parameters_id) => {
+    var type = "surface";
+    if (parameters_id === 56) type = "bottom";
     var filearray;
     if (Object.keys(array).includes("time")) {
       filearray = [];
       for (var key in array) {
         if (key !== "time") {
-          filearray = filearray.concat(array[key]);
+          filearray = filearray.concat(array[key][type]);
         }
       }
     } else {
@@ -415,7 +417,10 @@ class GIS extends Component {
       ));
     }
     if (mapplotfunction === "simstrat") {
-      ({ filemin, filemax, filearray } = this.simstratMinMax(data));
+      ({ filemin, filemax, filearray } = this.simstratMinMax(
+        data,
+        parameters_id
+      ));
     }
     if (mapplotfunction === "remoteSensing") {
       ({ filemin, filemax, filearray } = this.remoteSensingMinMax(data));

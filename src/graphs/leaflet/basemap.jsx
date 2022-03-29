@@ -248,10 +248,14 @@ class Basemap extends Component {
       outdate = new Date(data["time"][di] * 1000);
       var value, name, latlng;
       layerData = [];
+      var type = "surface";
+      if (layer.parameters_id === 56) {
+        type = "bottom";
+      }
       for (var key in data) {
         var lakefeature = this.findFeature(lakejson.features, key);
         if (typeof lakefeature !== "undefined") {
-          value = data[key][di];
+          value = data[key][type][di];
           name = lakefeature.properties.Name;
           latlng = this.swapCoord(lakefeature.geometry.coordinates[0]);
           layerData.push({ value, name, latlng });
