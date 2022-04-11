@@ -198,6 +198,7 @@ class D3LineGraph extends Component {
     var { graphid, fontSize } = this.state;
     try {
       d3.select("#svg" + graphid).remove();
+      d3.select("#legend_" + graphid).remove();
     } catch (e) {}
     if (this.props.data) {
       try {
@@ -866,30 +867,22 @@ class D3LineGraph extends Component {
 
             // Add legend
             if (legend && legend.length > 1) {
-              var legendblock = svg
-                .append("g")
-                .attr("id", "legendbox")
-                .attr("pointer-events", "none");
-
-              // Add one dot in the legend for each name.
-              legendblock
-                .selectAll("legendtext")
-                .data(legend)
-                .enter()
-                .append("text")
-                .attr("x", width)
-                .attr("y", function (d, i) {
-                  return height - 10 - i * 18;
-                })
-                .style("fill", function (d) {
-                  return d.color;
-                })
-                .text(function (d) {
-                  return "--- " + d.text;
-                })
-                .attr("text-anchor", "end")
-                .style("font-size", `${fontSize}px`)
-                .style("alignment-baseline", "middle");
+              var rows = "";
+              for (var l of legend) {
+                rows =
+                  rows +
+                  `<tr style="color:${l.color};"><td>&#9473;</td><td>${l.text}</td></tr>`;
+                console.log(l);
+              }
+              var html = `<table><tbody>${rows}</tbody></table>`;
+              d3.select("#vis" + graphid)
+                .append("div")
+                .attr("id", "legend_" + graphid)
+                .attr("class", "linegraph-legend")
+                .style("bottom", (margin.bottom + 10) + "px")
+                .style("font-size", fontSize + "px")
+                .attr("pointer-events", "none")
+                .html(html);
             }
 
             // Add cursor catcher

@@ -15,9 +15,8 @@ import FilterBox from "../../../components/filterbox/filterbox";
 import colorlist from "../../../components/colorramp/colors";
 import isArray from "lodash/isArray";
 import isInteger from "lodash/isInteger";
-import ReportIssue from '../../../components/reportissue/reportissue';
+import ReportIssue from "../../../components/reportissue/reportissue";
 import Bafu from "./bafu";
-
 
 class Graph extends Component {
   render() {
@@ -130,8 +129,8 @@ class Sidebar extends Component {
       <React.Fragment>
         <AxisSelect
           graph={this.props.graph}
-          xaxis={this.props.xaxis}
-          yaxis={this.props.yaxis}
+          xaxis={this.props.xaxis[0]}
+          yaxis={this.props.yaxis[0]}
           zaxis={this.props.zaxis}
           xoptions={this.props.xoptions}
           yoptions={this.props.yoptions}
@@ -751,8 +750,8 @@ class DisplayOptions extends Component {
 class Plot extends Component {
   state = {
     plotdata: [],
-    xaxis: "x",
-    yaxis: "y",
+    xaxis: ["x"],
+    yaxis: ["y"],
     zaxis: "z",
     xoptions: [],
     yoptions: [],
@@ -955,8 +954,8 @@ class Plot extends Component {
     var yoptions = [];
     var zoptions = [];
     var graph = "linegraph";
-    var xdp = datasetparameters.find((dp) => dp.axis === xaxis);
-    var ydp = datasetparameters.find((dp) => dp.axis === yaxis);
+    var xdp = datasetparameters.find((dp) => dp.axis === xaxis[0]);
+    var ydp = datasetparameters.find((dp) => dp.axis === yaxis[0]);
     var yReverse = false;
     var xReverse = false;
     if ([2, 18, 43].includes(xdp.parameters_id)) xReverse = true;
@@ -1007,8 +1006,8 @@ class Plot extends Component {
   };
 
   getAxisLabels = (datasetparameters, xaxis, yaxis, zaxis) => {
-    var xdp = datasetparameters.find((dp) => dp.axis === xaxis);
-    var ydp = datasetparameters.find((dp) => dp.axis === yaxis);
+    var xdp = datasetparameters.find((dp) => dp.axis === xaxis[0]);
+    var ydp = datasetparameters.find((dp) => dp.axis === yaxis[0]);
     var zdp = datasetparameters.find((dp) => dp.axis === zaxis);
 
     var xlabel = xdp ? xdp.name : "";
@@ -1026,8 +1025,8 @@ class Plot extends Component {
     var { datasetparameters, data } = this.props;
     var { xaxis, yaxis, zaxis, timeaxis, lowerY, lowerX, upperY, upperX } =
       this.state;
-    if (event.value.includes("x")) xaxis = event.value;
-    if (event.value.includes("y")) yaxis = event.value;
+    if (event.value.includes("x")) xaxis = [event.value];
+    if (event.value.includes("y")) yaxis = [event.value];
     if (event.value.includes("z")) zaxis = event.value;
     var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
       this.setAxisOptions(datasetparameters, xaxis, yaxis);
@@ -1112,66 +1111,59 @@ class Plot extends Component {
     }
   };
 
-  selectAxisAndMask = (files, data, file, xaxis, yaxis, zaxis, dp, mask) => {
-    var plotdata;
-
-    // Looks for mask variables
-
-    var mxaxis = false;
-    var myaxis = false;
-    var mzaxis = false;
-
-    var xp = dp.find((p) => p.axis === xaxis);
-    var yp = dp.find((p) => p.axis === yaxis);
-    var zp = dp.find((p) => p.axis === zaxis);
-
-    if (xp && dp.find((dp) => dp.link === xp.id && dp.parameters_id === 27)) {
-      mxaxis = dp.find((dp) => dp.link === xp.id && dp.parameters_id === 27)[
-        "axis"
-      ];
+  selectAxisAndMask = (data, files, file, xaxis, yaxis, zaxis, dp, mask) => {
+    var plotdata = [];
+    var maskaxis = [];
+    var axis = [].concat.apply([], [xaxis, yaxis, zaxis]);
+    const findaxis = (dp, ax) => {
+      return dp.find((p) => p.axis === ax);
+    };
+    const findmask = (dp, axp) => {
+      return dp.find((dp) => dp.link === axp.id && dp.parameters_id === 27);
+    };
+    for (var ax of axis) {
+      var axp = findaxis(dp, ax);
+      if (axp && findmask(dp, axp)) {
+        maskaxis.push(findmask(dp, axp)["axis"]);
+      } else {
+        maskaxis.push(false);
+      }
     }
-
-    if (yp && dp.find((dp) => dp.link === yp.id && dp.parameters_id === 27)) {
-      myaxis = dp.find((dp) => dp.link === yp.id && dp.parameters_id === 27)[
-        "axis"
-      ];
-    }
-
-    if (zp && dp.find((dp) => dp.link === zp.id && dp.parameters_id === 27)) {
-      mzaxis = dp.find((dp) => dp.link === zp.id && dp.parameters_id === 27)[
-        "axis"
-      ];
-    }
-
-    // Case 1: Join
-    if (files[file[0]].connect === "join") {
-      plotdata = [];
-      for (var k = 0; k < data.length; k++) {
-        if (data[k] !== 0) {
-          plotdata.push({
-            x: this.maskArray(data[k][xaxis], data[k][mxaxis], mask),
-            y: this.maskArray(data[k][yaxis], data[k][myaxis], mask),
-            z: this.maskArray(data[k][zaxis], data[k][mzaxis], mask),
-          });
+    var pd, i, j;
+    if (files[file[0]].connect === "ind") {
+      for (i = 0; i < file.length; i++) {
+        pd = {};
+        for (j = 0; j < axis.length; j++) {
+          if (maskaxis) {
+            pd[axis[j]] = this.maskArray(
+              data[file[i]][axis[j]],
+              data[file[i]][maskaxis[j]],
+              mask
+            );
+          } else {
+            pd[axis[j]] = data[file[i]][axis[j]];
+          }
+        }
+        plotdata.push(pd);
+      }
+    } else {
+      for (i = 0; i < data.length; i++) {
+        if (data[i] !== 0) {
+          pd = {};
+          for (j = 0; j < axis.length; j++) {
+            if (maskaxis) {
+              pd[axis[j]] = this.maskArray(
+                data[i][axis[j]],
+                data[i][maskaxis[j]],
+                mask
+              );
+            } else {
+              pd[axis[j]] = data[i][axis[j]];
+            }
+          }
+          plotdata.push(pd);
         }
       }
-      // Case 2: Individual
-    } else if (files[file[0]].connect === "ind") {
-      plotdata = [];
-      for (var j = 0; j < file.length; j++) {
-        plotdata.push({
-          x: this.maskArray(data[file[j]][xaxis], data[file[j]][mxaxis], mask),
-          y: this.maskArray(data[file[j]][yaxis], data[file[j]][myaxis], mask),
-          z: this.maskArray(data[file[j]][zaxis], data[file[j]][mzaxis], mask),
-        });
-      }
-      // Case 3: Single file
-    } else {
-      plotdata = {
-        x: this.maskArray(data[0][xaxis], data[0][mxaxis], mask),
-        y: this.maskArray(data[0][yaxis], data[0][myaxis], mask),
-        z: this.maskArray(data[0][zaxis], data[0][mzaxis], mask),
-      };
     }
     return plotdata;
   };
@@ -1201,65 +1193,130 @@ class Plot extends Component {
     return plotdata;
   };
 
-  joinData = (plotdata, graph, connect, timeaxis) => {
-    if (graph === "linegraph" && isArray(plotdata) && connect === "join") {
-      var data = [];
-      for (var i = 0; i < plotdata.length; i++) {
-        for (var j = 0; j < plotdata[i].x.length; j++) {
-          data.push({ x: plotdata[i].x[j], y: plotdata[i].y[j] });
-        }
+  joinData = (plotdata, graph, xaxis, yaxis, zaxis, connect, timeaxis) => {
+    if (graph === "linegraph") {
+      if (isArray(plotdata) && connect === "join") {
+        plotdata = this.joinLinegraphData(plotdata, xaxis, yaxis, timeaxis);
       }
-      if (timeaxis === "x") {
-        data.sort((a, b) => (a.x > b.x ? 1 : b.x > a.x ? -1 : 0));
-      } else if (timeaxis === "y") {
-        data.sort((a, b) => (a.y > b.y ? 1 : b.y > a.y ? -1 : 0));
+      if ((xaxis.length > 1 || yaxis.length > 1) && plotdata.length === 1) {
+        plotdata = this.reorderMultipleLines(plotdata, xaxis, yaxis);
       }
-
-      var x = [];
-      var y = [];
-      for (var k = 0; k < data.length; k++) {
-        x.push(data[k].x);
-        y.push(data[k].y);
+    } else if (graph === "heatmap") {
+      if (isArray(plotdata) && connect === "join") {
+        plotdata = this.joinHeatmapData(plotdata, xaxis, yaxis, zaxis);
       }
-      return { x, y, z: undefined };
-    } else if (graph === "heatmap" && isArray(plotdata) && connect === "join") {
-      return this.joinHeatmapData(plotdata);
-    } else {
-      return plotdata;
     }
+    return this.relabelDataObject(plotdata);
   };
 
-  joinHeatmapData(data) {
+  reorderMultipleLines = (plotdata, xaxis, yaxis) => {
+    var lines = [];
+    var ax;
+    if (xaxis.length > 1) {
+      for (ax of xaxis) {
+        lines.push({
+          x: plotdata[0][ax],
+          y: plotdata[0][yaxis[0]],
+          z: undefined,
+        });
+      }
+    } else if (yaxis.length > 1) {
+      for (ax of yaxis) {
+        lines.push({
+          y: plotdata[0][ax],
+          x: plotdata[0][xaxis[0]],
+          z: undefined,
+        });
+      }
+    }
+    return lines;
+  };
+
+  relabelDataObject = (plotdata) => {
+    var data = [];
+    for (var i = 0; i < plotdata.length; i++) {
+      var keys = Object.keys(plotdata[i]);
+      data.push({
+        x: plotdata[i][keys.filter((k) => k.includes("x"))[0]],
+        y: plotdata[i][keys.filter((k) => k.includes("y"))[0]],
+        z: plotdata[i][keys.filter((k) => k.includes("z"))[0]],
+      });
+    }
+    return data;
+  };
+
+  joinLinegraphData(plotdata, xaxis, yaxis, timeaxis) {
+    var ax;
+    var data = [];
+    var axis = [].concat.apply([], [xaxis, yaxis]);
+    for (var i = 0; i < plotdata.length; i++) {
+      for (var j = 0; j < plotdata[i].x.length; j++) {
+        var pd = {};
+        for (ax of axis) {
+          pd[ax] = plotdata[i][ax][j];
+        }
+        data.push(pd);
+      }
+    }
+    if (timeaxis === "x") {
+      data.sort((a, b) =>
+        a[xaxis[0]] > b[xaxis[0]] ? 1 : b[xaxis[0]] > a[xaxis[0]] ? -1 : 0
+      );
+    } else if (timeaxis === "y") {
+      data.sort((a, b) =>
+        a[yaxis[0]] > b[yaxis[0]] ? 1 : b[yaxis[0]] > a[yaxis[0]] ? -1 : 0
+      );
+    }
+    var out = { z: undefined };
+    for (ax of axis) {
+      out[ax] = [];
+    }
+    for (var k = 0; k < data.length; k++) {
+      for (ax of axis) {
+        out[ax].push(data[k][ax]);
+      }
+    }
+    return [out];
+  }
+
+  joinHeatmapData(data, xaxis, yaxis, zaxis) {
     if (data.length > 1) {
       if (
-        data.every((d) => JSON.stringify(d.y) === JSON.stringify(data[0].y))
+        data.every(
+          (d) =>
+            JSON.stringify(d[yaxis[0]]) === JSON.stringify(data[0][yaxis[0]])
+        )
       ) {
         var dataJoined = JSON.parse(JSON.stringify(data[0]));
         for (let i = 1; i < data.length; i++) {
           if (
-            data[i].x.length === data[i].z[0].length &&
-            data[i].y.length === data[i].z.length
+            data[i][xaxis[0]].length === data[i][zaxis[0]][0].length &&
+            data[i][yaxis[0]].length === data[i][zaxis[0]].length
           ) {
-            let minB = Math.min(...data[i - 1].x);
-            let maxB = Math.max(...data[i - 1].x);
-            let minA = Math.min(...data[i].x);
-            let maxA = Math.max(...data[i].x);
+            let minB = Math.min(...data[i - 1][xaxis[0]]);
+            let maxB = Math.max(...data[i - 1][xaxis[0]]);
+            let minA = Math.min(...data[i][xaxis[0]]);
+            let maxA = Math.max(...data[i][xaxis[0]]);
             if (minA > maxB) {
-              dataJoined.x = dataJoined.x.concat(data[i].x);
-              dataJoined.z = dataJoined.z.map((d, index) =>
-                d.concat(data[i].z[index])
+              dataJoined[xaxis[0]] = dataJoined[xaxis[0]].concat(
+                data[i][xaxis[0]]
+              );
+              dataJoined[zaxis[0]] = dataJoined[zaxis[0]].map((d, index) =>
+                d.concat(data[i][zaxis[0]][index])
               );
             } else if (minB > maxA) {
-              dataJoined.x = data[i].x.concat(dataJoined.x);
-              dataJoined.z = data[i].z.map((d, index) =>
-                d.concat(dataJoined.z[index])
+              dataJoined[xaxis[0]] = data[i][xaxis[0]].concat(
+                dataJoined[xaxis[0]]
+              );
+              dataJoined[zaxis[0]] = data[i][zaxis[0]].map((d, index) =>
+                d.concat(dataJoined[zaxis[0]][index])
               );
             } else {
               return data;
             }
           }
         }
-        return dataJoined;
+        return [dataJoined];
       }
     }
     return data;
@@ -1730,9 +1787,10 @@ class Plot extends Component {
   ) => {
     var { mask, gap } = this.state;
     var { data, files, file } = this.props;
+
     var plotdata = this.selectAxisAndMask(
-      files,
       data,
+      files,
       file,
       xaxis,
       yaxis,
@@ -1743,7 +1801,15 @@ class Plot extends Component {
 
     var { minZ: lowerZ, maxZ: upperZ } = this.getZBounds(plotdata);
 
-    plotdata = this.joinData(plotdata, graph, files[file[0]].connect, timeaxis);
+    plotdata = this.joinData(
+      plotdata,
+      graph,
+      xaxis,
+      yaxis,
+      zaxis,
+      files[file[0]].connect,
+      timeaxis
+    );
 
     try {
       plotdata = this.sliceData(
@@ -1769,7 +1835,12 @@ class Plot extends Component {
       console.error(e);
     }
     try {
-      plotdata = this.formatTime(plotdata, datasetparameters, xaxis, yaxis);
+      plotdata = this.formatTime(
+        plotdata,
+        datasetparameters,
+        xaxis[0],
+        yaxis[0]
+      );
       try {
         plotdata = this.averageData(plotdata, timeaxis, average, graph, {
           lowerX,
@@ -1809,33 +1880,51 @@ class Plot extends Component {
     return obj;
   };
 
-  getInitialBounds = (dataset, data, file, xaxis, yaxis) => {
+  getInitialBounds = (dataset, data, file, xaxis, yaxis, zaxis) => {
     var { maxdatetime, mindatetime, datasetparameters } = this.props;
 
-    var timeaxis = "";
-    const xparam = datasetparameters.find((x) => x.axis === xaxis);
-    const yparam = datasetparameters.find((y) => y.axis === yaxis);
-    if (xparam.parameters_id === 1) timeaxis = "x";
-    if (yparam.parameters_id === 1) timeaxis = "y";
+    var timeaxis = "x";
+    if (
+      datasetparameters
+        .filter((dp) => dp.axis.includes("y"))
+        .map((d) => d.parameters_id)
+        .includes(1)
+    )
+      timeaxis = "y";
     if (datasetparameters.map((d) => d.axis).includes("M")) timeaxis = "M";
 
     const title = dataset.title;
     var colors = this.parseColor(dataset.plotproperties.colors);
+
     var zdomain = d3.extent(
-      [].concat.apply([], data[file[0]].z).filter((f) => {
+      [].concat.apply([], data[file[0]][zaxis]).filter((f) => {
         return !isNaN(parseFloat(f)) && isFinite(f);
       })
     );
-    var ydomain = d3.extent(
-      [].concat.apply([], data[file[0]].y).filter((f) => {
-        return !isNaN(parseFloat(f)) && isFinite(f);
-      })
-    );
-    var xdomain = d3.extent(
-      [].concat.apply([], data[file[0]].x).filter((f) => {
-        return !isNaN(parseFloat(f)) && isFinite(f);
-      })
-    );
+
+    var yextents = [];
+    for (var ya of yaxis) {
+      yextents = yextents.concat(
+        d3.extent(
+          [].concat.apply([], data[file[0]][ya]).filter((f) => {
+            return !isNaN(parseFloat(f)) && isFinite(f);
+          })
+        )
+      );
+    }
+    var ydomain = d3.extent(yextents);
+
+    var xextents = [];
+    for (var xa of xaxis) {
+      xextents = xextents.concat(
+        d3.extent(
+          [].concat.apply([], data[file[0]][xa]).filter((f) => {
+            return !isNaN(parseFloat(f)) && isFinite(f);
+          })
+        )
+      );
+    }
+    var xdomain = d3.extent(xextents);
 
     var minZ = zdomain[0] || 0;
     var maxZ = zdomain[1] || 1;
@@ -1941,14 +2030,18 @@ class Plot extends Component {
     for (let s of search) {
       if (s.includes("axis")) {
         try {
+          var xxaxis = [];
+          var yyaxis = [];
           let axis = s.replace("axis:[", "").replace("]", "").split(",");
           for (let a of axis) {
             if (validAxis.includes(a)) {
-              if (a.includes("x")) xaxis = a;
-              if (a.includes("y")) yaxis = a;
+              if (a.includes("x")) xxaxis.push(a);
+              if (a.includes("y")) yyaxis.push(a);
               if (a.includes("z")) zaxis = a;
             }
           }
+          xaxis = xxaxis;
+          yaxis = yyaxis;
         } catch (e) {
           console.error("Failed to parse axis from url");
         }
@@ -1977,6 +2070,8 @@ class Plot extends Component {
       zaxis
     ));
 
+    console.log(xaxis, yaxis);
+
     var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
       this.setAxisOptions(datasetparameters, xaxis, yaxis);
 
@@ -2001,7 +2096,7 @@ class Plot extends Component {
       lowerX,
       upperX,
       timeaxis,
-    } = this.getInitialBounds(dataset, data, file, xaxis, yaxis);
+    } = this.getInitialBounds(dataset, data, file, xaxis, yaxis, zaxis);
 
     ({ lowerX, upperX } = this.processUrlBounds(
       this.props.search,
@@ -2154,7 +2249,7 @@ class Plot extends Component {
             <Loading />
             Downloading extra files.
           </div>
-          <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX}/>
+          <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX} />
         </React.Fragment>
       );
     } else {

@@ -18,6 +18,15 @@
   height: 100%;
 }
 
+.linegraph-graph .linegraph-legend {
+  position: absolute;
+  right: 30px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+}
+
 .linegraph-main table.vis-data {
   text-align: center;
   margin-left: 10px;
