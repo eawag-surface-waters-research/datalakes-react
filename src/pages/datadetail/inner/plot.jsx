@@ -44,8 +44,11 @@ class Graph extends Component {
       yReverse,
       file,
       files,
+      xaxis,
+      yaxis,
       xScale,
       yScale,
+      datasetparameters,
     } = this.props;
     switch (graph) {
       default:
@@ -89,12 +92,33 @@ class Graph extends Component {
         if (timeaxis === "x") xScale = "Time";
         if (timeaxis === "y") yScale = "Time";
         var legend = [];
-        for (var i = 0; i < file.length; i++) {
-          var value = new Date(files[file[i]].ave);
-          var text = value.toDateString() + " " + value.toLocaleTimeString();
-          var color = lcolor[i];
-          legend.push({ id: i, color, text, value });
+        if (xaxis.length > 1) {
+          xlabel = "";
+          for (let i = 0; i < xaxis.length; i++) {
+            legend.push({
+              id: i,
+              color: lcolor[i],
+              text: datasetparameters.find((d) => d.axis === xaxis[i]).name,
+            });
+          }
+        } else if (yaxis.length > 1) {
+          ylabel = "";
+          for (let i = 0; i < yaxis.length; i++) {
+            legend.push({
+              id: i,
+              color: lcolor[i],
+              text: datasetparameters.find((d) => d.axis === yaxis[i]).name,
+            });
+          }
+        } else {
+          for (let i = 0; i < file.length; i++) {
+            var value = new Date(files[file[i]].ave);
+            var text = value.toDateString() + " " + value.toLocaleTimeString();
+            var color = lcolor[i];
+            legend.push({ id: i, color, text, value });
+          }
         }
+
         return (
           <React.Fragment>
             <D3LineGraph
@@ -768,7 +792,7 @@ class Plot extends Component {
       { color: "#ff0000", point: 1 },
     ],
     title: "",
-    bcolor: "#ffffff",
+    bcolor: false,
     lcolor: [
       "#000000",
       "#e6194B",
@@ -2069,8 +2093,6 @@ class Plot extends Component {
       yaxis,
       zaxis
     ));
-
-    console.log(xaxis, yaxis);
 
     var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
       this.setAxisOptions(datasetparameters, xaxis, yaxis);
