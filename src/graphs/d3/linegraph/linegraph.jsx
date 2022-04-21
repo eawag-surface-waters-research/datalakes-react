@@ -201,6 +201,10 @@ class D3LineGraph extends Component {
       xunits,
       ylabel,
       yunits,
+      x2label,
+      x2units,
+      y2label,
+      y2units,
       xscale,
       yscale,
       bcolor,
@@ -223,10 +227,13 @@ class D3LineGraph extends Component {
       data[i]["lineColor"] = lcolor[i] ? lcolor[i] : "black";
       data[i]["lineWeight"] = lweight[i] ? lweight[i] : 1;
       data[i]["name"] = legend && legend[i] ? legend[i].text : "";
+      data[i]["xaxis"] = legend && legend[i] ? legend[i].xaxis : "x";
+      data[i]["yaxis"] = legend && legend[i] ? legend[i].yaxis : "y";
       data[i]["upper"] =
         confidence && confidence[i] ? confidence[i].CI_upper : "";
       data[i]["lower"] =
         confidence && confidence[i] ? confidence[i].CI_lower : "";
+      data[i]["confidenceAxis"] = confidence && confidence[i] ? "y" : "";
       data[i]["confidenceAxis"] = confidence && confidence[i] ? "y" : "";
     }
     var options = {
@@ -234,12 +241,16 @@ class D3LineGraph extends Component {
       backgroundColor: bcolor,
       xLog: xscale === "Log",
       yLog: yscale === "Log",
-      xLabel: xlabel,
       border: box,
       grid,
+      xLabel: xlabel,
       yLabel: ylabel,
       xUnit: xunits,
       yUnit: yunits,
+      x2Label: x2label,
+      y2Label: y2label,
+      x2Unit: x2units,
+      y2Unit: y2units,
       title: title,
       zoom: !simple,
       yReverse,

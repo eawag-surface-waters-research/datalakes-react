@@ -91,31 +91,62 @@ class Graph extends Component {
       case "linegraph":
         if (timeaxis === "x") xScale = "Time";
         if (timeaxis === "y") yScale = "Time";
+        var x2label = "";
+        var x2units = "";
+        var y2label = "";
+        var y2units = "";
+
         var legend = [];
-        if (xaxis.length > 1) {
+        if (xaxis.length > 1 && file.length < 2) {
           xlabel = "";
           for (let i = 0; i < xaxis.length; i++) {
+            let dp = datasetparameters.find((d) => d.axis === xaxis[i]);
+            let axis = "x";
+            if (i > 0 && legend[0].unit !== dp.unit) {
+              axis = "x2";
+              xlabel = this.props.xlabel;
+              x2label = dp.name;
+              x2units = dp.unit;
+            }
             legend.push({
               id: i,
               color: lcolor[i],
-              text: datasetparameters.find((d) => d.axis === xaxis[i]).name,
+              text: dp.name + (dp.detail === "none" ? "" : ` (${dp.detail})`),
+              unit: dp.unit,
+              xaxis: axis,
+              yaxis: "y",
             });
           }
-        } else if (yaxis.length > 1) {
+          if (legend.filter((l) => l.xaxis === "x").length > 1) xlabel = "";
+          if (legend.filter((l) => l.xaxis === "x").length > 1) x2label = "";
+        } else if (yaxis.length > 1 && file.length < 2) {
           ylabel = "";
           for (let i = 0; i < yaxis.length; i++) {
+            let dp = datasetparameters.find((d) => d.axis === yaxis[i]);
+            let axis = "y";
+            if (i > 0 && legend[0].unit !== dp.unit) {
+              axis = "y2";
+              ylabel = this.props.ylabel;
+              y2label = dp.name;
+              y2units = dp.unit;
+            }
             legend.push({
               id: i,
               color: lcolor[i],
-              text: datasetparameters.find((d) => d.axis === yaxis[i]).name,
+              text: dp.name + (dp.detail === "none" ? "" : ` (${dp.detail})`),
+              unit: dp.unit,
+              yaxis: axis,
+              xaxis: "x",
             });
           }
+          if (legend.filter((l) => l.yaxis === "y2").length > 1) y2label = "";
+          if (legend.filter((l) => l.yaxis === "y").length > 1) ylabel = "";
         } else {
           for (let i = 0; i < file.length; i++) {
             var value = new Date(files[file[i]].ave);
             var text = value.toDateString() + " " + value.toLocaleTimeString();
             var color = lcolor[i];
-            legend.push({ id: i, color, text, value });
+            legend.push({ id: i, color, text, value, yaxis: "y", xaxis: "x" });
           }
         }
 
@@ -130,6 +161,10 @@ class Graph extends Component {
               ylabel={ylabel}
               xunits={xunits}
               yunits={yunits}
+              x2label={x2label}
+              y2label={y2label}
+              x2units={x2units}
+              y2units={y2units}
               lcolor={lcolor}
               lweight={lweight}
               bcolor={bcolor}
@@ -160,6 +195,7 @@ class Sidebar extends Component {
           yoptions={this.props.yoptions}
           zoptions={this.props.zoptions}
           handleAxisSelect={this.props.handleAxisSelect}
+          handleAxisAppend={this.props.handleAxisAppend}
         />
         <Range {...this.props} />
         <DisplayOptions {...this.props} />
@@ -181,58 +217,85 @@ class AxisSelect extends Component {
       handleAxisSelect,
     } = this.props;
     return (
-      <FilterBox
-        title="Axis"
-        preopen="true"
-        content={
-          <div>
-            {xaxis && (
-              <div>
-                x:{" "}
-                <div className="axis-select">
-                  <DataSelect
-                    value="value"
-                    label="label"
-                    dataList={xoptions}
-                    defaultValue={xaxis}
-                    onChange={handleAxisSelect}
-                  />
+      <React.Fragment>
+        <FilterBox
+          title="Axis"
+          preopen="true"
+          content={
+            <div>
+              {xaxis && (
+                <div>
+                  x:{" "}
+                  <div className="axis-select">
+                    <DataSelect
+                      value="value"
+                      label="label"
+                      dataList={xoptions}
+                      defaultValue={xaxis}
+                      onChange={handleAxisSelect}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            {yaxis && (
-              <div>
-                y:{" "}
-                <div className="axis-select">
-                  <DataSelect
-                    value="value"
-                    label="label"
-                    dataList={yoptions}
-                    defaultValue={yaxis}
-                    onChange={handleAxisSelect}
-                  />
+              )}
+              {yaxis && (
+                <div>
+                  y:{" "}
+                  <div className="axis-select">
+                    <DataSelect
+                      value="value"
+                      label="label"
+                      dataList={yoptions}
+                      defaultValue={yaxis}
+                      onChange={handleAxisSelect}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            {zaxis && (
-              <div>
-                z:{" "}
-                <div className="axis-select">
-                  <DataSelect
-                    value="value"
-                    label="label"
-                    dataList={zoptions}
-                    defaultValue={zaxis}
-                    disabled={graph === "linegraph"}
-                    onChange={handleAxisSelect}
-                  />
+              )}
+              {zaxis && (
+                <div>
+                  z:{" "}
+                  <div className="axis-select">
+                    <DataSelect
+                      value="value"
+                      label="label"
+                      dataList={zoptions}
+                      defaultValue={zaxis}
+                      disabled={graph === "linegraph"}
+                      onChange={handleAxisSelect}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        }
-      />
+              )}
+            </div>
+          }
+        />
+        {graph === "linegraph" && (
+          <FilterBox
+            title="Compare"
+            preopen="false"
+            content={<Compare {...this.props} />}
+          />
+        )}
+      </React.Fragment>
     );
+  }
+}
+
+class Compare extends Component {
+  state = {};
+  render() {
+    var {
+      graph,
+      xaxis,
+      yaxis,
+      zaxis,
+      xoptions,
+      yoptions,
+      zoptions,
+      handleAxisAppend,
+    } = this.props;
+    console.log(this.props);
+    return <div>{yoptions.map(o => <div onClick={() => handleAxisAppend(o.value)}>{o.label}</div>)}</div>;
   }
 }
 
@@ -1045,13 +1108,24 @@ class Plot extends Component {
     return { xlabel, ylabel, zlabel, xunits, yunits, zunits };
   };
 
+  handleAxisAppend = (event) => {
+    var { xaxis, yaxis, zaxis } = this.state;
+    if (event.includes("x")) xaxis.push(event);
+    if (event.includes("y")) yaxis.push(event);
+    this.axisEdit(xaxis, yaxis, zaxis);
+  };
+
   handleAxisSelect = (event) => {
-    var { datasetparameters, data } = this.props;
-    var { xaxis, yaxis, zaxis, timeaxis, lowerY, lowerX, upperY, upperX } =
-      this.state;
+    var { xaxis, yaxis, zaxis } = this.state;
     if (event.value.includes("x")) xaxis = [event.value];
     if (event.value.includes("y")) yaxis = [event.value];
     if (event.value.includes("z")) zaxis = event.value;
+    this.axisEdit(xaxis, yaxis, zaxis);
+  };
+
+  axisEdit = (xaxis, yaxis, zaxis) => {
+    var { datasetparameters, data } = this.props;
+    var { timeaxis, lowerY, lowerX, upperY, upperX } = this.state;
     var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
       this.setAxisOptions(datasetparameters, xaxis, yaxis);
     if (zoptions.length > 0 && !zoptions.map((z) => z.value).includes(zaxis))
@@ -2304,6 +2378,7 @@ class Plot extends Component {
                 onChangeY={this.onChangeY}
                 toggleAddNewFile={this.toggleAddNewFile}
                 handleAxisSelect={this.handleAxisSelect}
+                handleAxisAppend={this.handleAxisAppend}
               />
             }
           />

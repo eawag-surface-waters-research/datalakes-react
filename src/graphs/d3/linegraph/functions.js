@@ -1,11 +1,12 @@
-export const closest = (data, hoverX, hoverY, ax, ay) => {
+export const closest = (data, hoverX, hoverY, xAxis, yAxis) => {
   var idx = 0;
   var idy = 0;
   var distance = Infinity;
   for (var i = 0; i < data.length; i++) {
     for (var j = 0; j < data[i].x.length; j++) {
       let d =
-        ((hoverX - ax(data[i].x[j])) ** 2 + (hoverY - ay(data[i].y[j])) ** 2) **
+        ((hoverX - xAxis[data[i].xaxis].ax(data[i].x[j])) ** 2 +
+          (hoverY - yAxis[data[i].yaxis].ax(data[i].y[j])) ** 2) **
         0.5;
       if (d < distance) {
         idx = i;
