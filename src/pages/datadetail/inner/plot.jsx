@@ -409,7 +409,7 @@ class Range extends Component {
   };
 
   render() {
-    var { timeaxis, graph, files, file } = this.props;
+    var { timeaxis, graph, files, file, xaxis, yaxis } = this.props;
     var { minX, maxX, minY, maxY, lowerX, upperX, lowerY, upperY } = this.props;
     var { data, downloadData, xunits, yunits, xlabel, ylabel } = this.props;
     var { onChangeFile, toggleAddNewFile, removeFile, lcolor } = this.props;
@@ -506,7 +506,7 @@ class Range extends Component {
             preopen={true}
           />
         )}
-        {timeaxis !== "x" && (
+        {timeaxis !== "x" && xaxis.length === 1 && (
           <FilterBox
             title={xlabel + " Range"}
             content={
@@ -525,7 +525,7 @@ class Range extends Component {
             preopen={false}
           />
         )}
-        {timeaxis !== "y" && (
+        {timeaxis !== "y" && yaxis.length === 1 && (
           <FilterBox
             title={ylabel + " Range"}
             content={
