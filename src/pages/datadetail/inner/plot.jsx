@@ -188,8 +188,8 @@ class Sidebar extends Component {
       <React.Fragment>
         <AxisSelect
           graph={this.props.graph}
-          xaxis={this.props.xaxis[0]}
-          yaxis={this.props.yaxis[0]}
+          xaxis={this.props.xaxis}
+          yaxis={this.props.yaxis}
           zaxis={this.props.zaxis}
           xoptions={this.props.xoptions}
           yoptions={this.props.yoptions}
@@ -231,7 +231,7 @@ class AxisSelect extends Component {
                       value="value"
                       label="label"
                       dataList={xoptions}
-                      defaultValue={xaxis}
+                      defaultValue={xaxis[0]}
                       onChange={handleAxisSelect}
                     />
                   </div>
@@ -245,7 +245,7 @@ class AxisSelect extends Component {
                       value="value"
                       label="label"
                       dataList={yoptions}
-                      defaultValue={yaxis}
+                      defaultValue={yaxis[0]}
                       onChange={handleAxisSelect}
                     />
                   </div>
@@ -284,18 +284,61 @@ class AxisSelect extends Component {
 class Compare extends Component {
   state = {};
   render() {
-    var {
-      graph,
-      xaxis,
-      yaxis,
-      zaxis,
-      xoptions,
-      yoptions,
-      zoptions,
-      handleAxisAppend,
-    } = this.props;
-    console.log(this.props);
-    return <div>{yoptions.map(o => <div onClick={() => handleAxisAppend(o.value)}>{o.label}</div>)}</div>;
+    var { xaxis, yaxis, xoptions, yoptions, handleAxisAppend } = this.props;
+    var units = [];
+    var selected = [];
+    var selectable = [];
+    var options = xoptions.concat(yoptions);
+    if (xaxis.length > 1) {
+      for (let i = 0; i < xaxis.length; i++) {
+        units.push(xoptions.find((x) => x.value === xaxis[i]).unit);
+        if (i !== 0) selected.push(xoptions.find((x) => x.value === xaxis[i]));
+      }
+      units = [...new Set(units)];
+    } else if (yaxis.length > 1) {
+      for (let i = 0; i < yaxis.length; i++) {
+        units.push(yoptions.find((y) => y.value === yaxis[i]).unit);
+        if (i !== 0) selected.push(yoptions.find((y) => y.value === yaxis[i]));
+      }
+      units = [...new Set(units)];
+    }
+    if (units.length < 2) units = options.map((o) => o.unit);
+    for (let i = 0; i < options.length; i++) {
+      if (
+        ![1, 2, 18].includes(options[i].id) &&
+        units.includes(options[i].unit) &&
+        !xaxis.includes(options[i].value) &&
+        !yaxis.includes(options[i].value)
+      ) {
+        selectable.push(options[i]);
+      }
+    }
+    return (
+      <div className="axis-compare">
+        <div className="axis-compare-selected">
+          {selected.map((o) => (
+            <div
+              className="axis-compare-selected-object"
+              key={"selected_" + o.value}
+              onClick={() => handleAxisAppend(o.value)}
+            >
+              {o.label}
+            </div>
+          ))}
+        </div>
+        <div className="axis-compare-selectable">
+          {selectable.map((o) => (
+            <div
+              className="axis-compare-selectable-object"
+              key={"selectable_" + o.value}
+              onClick={() => handleAxisAppend(o.value)}
+            >
+              {o.label}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 }
 
@@ -1066,6 +1109,8 @@ class Plot extends Component {
         xoptions.push({
           value: datasetparameters[j]["axis"],
           label: datasetparameters[j]["name"] + extra,
+          id: datasetparameters[j]["parameters_id"],
+          unit: datasetparameters[j]["unit"],
         });
       } else if (
         datasetparameters[j]["axis"].includes("y") &&
@@ -1074,6 +1119,8 @@ class Plot extends Component {
         yoptions.push({
           value: datasetparameters[j]["axis"],
           label: datasetparameters[j]["name"] + extra,
+          id: datasetparameters[j]["parameters_id"],
+          unit: datasetparameters[j]["unit"],
         });
       } else if (datasetparameters[j]["axis"].includes("z")) {
         if (
@@ -1110,8 +1157,20 @@ class Plot extends Component {
 
   handleAxisAppend = (event) => {
     var { xaxis, yaxis, zaxis } = this.state;
-    if (event.includes("x")) xaxis.push(event);
-    if (event.includes("y")) yaxis.push(event);
+    if (event.includes("x")) {
+      if (xaxis.includes(event)) {
+        xaxis = xaxis.filter((x) => x !== event);
+      } else {
+        xaxis.push(event);
+      }
+    }
+    if (event.includes("y")) {
+      if (yaxis.includes(event)) {
+        yaxis = yaxis.filter((y) => y !== event);
+      } else {
+        yaxis.push(event);
+      }
+    }
     this.axisEdit(xaxis, yaxis, zaxis);
   };
 

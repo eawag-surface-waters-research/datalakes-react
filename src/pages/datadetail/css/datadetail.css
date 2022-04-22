@@ -482,6 +482,10 @@
   margin-top: 15px;
 }
 
+.axis-compare .axis-compare-selected .axis-compare-selected-object {
+  color: red;
+}
+
 .raster-calculator {
   text-align: center;
   position: fixed;
