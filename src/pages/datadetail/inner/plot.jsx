@@ -15,9 +15,8 @@ import FilterBox from "../../../components/filterbox/filterbox";
 import colorlist from "../../../components/colorramp/colors";
 import isArray from "lodash/isArray";
 import isInteger from "lodash/isInteger";
-import ReportIssue from '../../../components/reportissue/reportissue';
+import ReportIssue from "../../../components/reportissue/reportissue";
 import Bafu from "./bafu";
-
 
 class Graph extends Component {
   render() {
@@ -45,8 +44,11 @@ class Graph extends Component {
       yReverse,
       file,
       files,
+      xaxis,
+      yaxis,
       xScale,
       yScale,
+      datasetparameters,
     } = this.props;
     switch (graph) {
       default:
@@ -89,13 +91,65 @@ class Graph extends Component {
       case "linegraph":
         if (timeaxis === "x") xScale = "Time";
         if (timeaxis === "y") yScale = "Time";
+        var x2label = "";
+        var x2units = "";
+        var y2label = "";
+        var y2units = "";
+
         var legend = [];
-        for (var i = 0; i < file.length; i++) {
-          var value = new Date(files[file[i]].ave);
-          var text = value.toDateString() + " " + value.toLocaleTimeString();
-          var color = lcolor[i];
-          legend.push({ id: i, color, text, value });
+        if (xaxis.length > 1 && file.length < 2) {
+          xlabel = "";
+          for (let i = 0; i < xaxis.length; i++) {
+            let dp = datasetparameters.find((d) => d.axis === xaxis[i]);
+            let axis = "x";
+            if (i > 0 && legend[0].unit !== dp.unit) {
+              axis = "x2";
+              xlabel = this.props.xlabel;
+              x2label = dp.name;
+              x2units = dp.unit;
+            }
+            legend.push({
+              id: i,
+              color: lcolor[i],
+              text: dp.name + (dp.detail === "none" ? "" : ` (${dp.detail})`),
+              unit: dp.unit,
+              xaxis: axis,
+              yaxis: "y",
+            });
+          }
+          if (legend.filter((l) => l.xaxis === "x").length > 1) xlabel = "";
+          if (legend.filter((l) => l.xaxis === "x").length > 1) x2label = "";
+        } else if (yaxis.length > 1 && file.length < 2) {
+          ylabel = "";
+          for (let i = 0; i < yaxis.length; i++) {
+            let dp = datasetparameters.find((d) => d.axis === yaxis[i]);
+            let axis = "y";
+            if (i > 0 && legend[0].unit !== dp.unit) {
+              axis = "y2";
+              ylabel = this.props.ylabel;
+              y2label = dp.name;
+              y2units = dp.unit;
+            }
+            legend.push({
+              id: i,
+              color: lcolor[i],
+              text: dp.name + (dp.detail === "none" ? "" : ` (${dp.detail})`),
+              unit: dp.unit,
+              yaxis: axis,
+              xaxis: "x",
+            });
+          }
+          if (legend.filter((l) => l.yaxis === "y2").length > 1) y2label = "";
+          if (legend.filter((l) => l.yaxis === "y").length > 1) ylabel = "";
+        } else {
+          for (let i = 0; i < file.length; i++) {
+            var value = new Date(files[file[i]].ave);
+            var text = value.toDateString() + " " + value.toLocaleTimeString();
+            var color = lcolor[i];
+            legend.push({ id: i, color, text, value, yaxis: "y", xaxis: "x" });
+          }
         }
+
         return (
           <React.Fragment>
             <D3LineGraph
@@ -107,6 +161,10 @@ class Graph extends Component {
               ylabel={ylabel}
               xunits={xunits}
               yunits={yunits}
+              x2label={x2label}
+              y2label={y2label}
+              x2units={x2units}
+              y2units={y2units}
               lcolor={lcolor}
               lweight={lweight}
               bcolor={bcolor}
@@ -133,10 +191,12 @@ class Sidebar extends Component {
           xaxis={this.props.xaxis}
           yaxis={this.props.yaxis}
           zaxis={this.props.zaxis}
+          addNewFiles={this.props.addNewFiles}
           xoptions={this.props.xoptions}
           yoptions={this.props.yoptions}
           zoptions={this.props.zoptions}
           handleAxisSelect={this.props.handleAxisSelect}
+          handleAxisAppend={this.props.handleAxisAppend}
         />
         <Range {...this.props} />
         <DisplayOptions {...this.props} />
@@ -155,60 +215,140 @@ class AxisSelect extends Component {
       xoptions,
       yoptions,
       zoptions,
+      addNewFiles,
       handleAxisSelect,
     } = this.props;
     return (
-      <FilterBox
-        title="Axis"
-        preopen="true"
-        content={
-          <div>
-            {xaxis && (
-              <div>
-                x:{" "}
-                <div className="axis-select">
-                  <DataSelect
-                    value="value"
-                    label="label"
-                    dataList={xoptions}
-                    defaultValue={xaxis}
-                    onChange={handleAxisSelect}
-                  />
+      <React.Fragment>
+        <FilterBox
+          title="Axis"
+          preopen="true"
+          content={
+            <div>
+              {xaxis && (
+                <div>
+                  x:{" "}
+                  <div className="axis-select">
+                    <DataSelect
+                      value="value"
+                      label="label"
+                      dataList={xoptions}
+                      defaultValue={xaxis[0]}
+                      onChange={handleAxisSelect}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            {yaxis && (
-              <div>
-                y:{" "}
-                <div className="axis-select">
-                  <DataSelect
-                    value="value"
-                    label="label"
-                    dataList={yoptions}
-                    defaultValue={yaxis}
-                    onChange={handleAxisSelect}
-                  />
+              )}
+              {yaxis && (
+                <div>
+                  y:{" "}
+                  <div className="axis-select">
+                    <DataSelect
+                      value="value"
+                      label="label"
+                      dataList={yoptions}
+                      defaultValue={yaxis[0]}
+                      onChange={handleAxisSelect}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            {zaxis && (
-              <div>
-                z:{" "}
-                <div className="axis-select">
-                  <DataSelect
-                    value="value"
-                    label="label"
-                    dataList={zoptions}
-                    defaultValue={zaxis}
-                    disabled={graph === "linegraph"}
-                    onChange={handleAxisSelect}
-                  />
+              )}
+              {zaxis && (
+                <div>
+                  z:{" "}
+                  <div className="axis-select">
+                    <DataSelect
+                      value="value"
+                      label="label"
+                      dataList={zoptions}
+                      defaultValue={zaxis}
+                      disabled={graph === "linegraph"}
+                      onChange={handleAxisSelect}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          }
+        />
+        {graph === "linegraph" && !addNewFiles && (
+          <FilterBox
+            title="Compare"
+            newFeature="true"
+            preopen="false"
+            content={<Compare {...this.props} />}
+          />
+        )}
+      </React.Fragment>
+    );
+  }
+}
+
+class Compare extends Component {
+  state = {};
+  render() {
+    var { xaxis, yaxis, xoptions, yoptions, handleAxisAppend } = this.props;
+    var units = [];
+    var selected = [];
+    var selectable = [];
+    var options = xoptions.concat(yoptions);
+    if (xaxis.length > 1) {
+      for (let i = 0; i < xaxis.length; i++) {
+        units.push(xoptions.find((x) => x.value === xaxis[i]).unit);
+        if (i !== 0) selected.push(xoptions.find((x) => x.value === xaxis[i]));
+      }
+      units = [...new Set(units)];
+    } else if (yaxis.length > 1) {
+      for (let i = 0; i < yaxis.length; i++) {
+        units.push(yoptions.find((y) => y.value === yaxis[i]).unit);
+        if (i !== 0) selected.push(yoptions.find((y) => y.value === yaxis[i]));
+      }
+      units = [...new Set(units)];
+    }
+    if (units.length < 2) units = options.map((o) => o.unit);
+    for (let i = 0; i < options.length; i++) {
+      if (
+        ![1, 2, 18].includes(options[i].id) &&
+        units.includes(options[i].unit) &&
+        !xaxis.includes(options[i].value) &&
+        !yaxis.includes(options[i].value)
+      ) {
+        selectable.push(options[i]);
+      }
+    }
+    return (
+      <div className="axis-compare">
+        <div className="axis-compare-selected">
+          {selected.map((o) => (
+            <div
+              className="axis-compare-selected-object"
+              key={"selected_" + o.value}
+              onClick={() => handleAxisAppend(o.value)}
+              title="Click to remove parameter"
+            >
+              {o.label}
+              <span className="close">&#215;</span>
+            </div>
+          ))}
+        </div>
+        {selectable.length > 0 && (
+          <div className="axis-compare-title">
+            Add Additional Parameter
+            <div className="axis-compare-selectable">
+              {selectable.map((o) => (
+                <div
+                  className="axis-compare-selectable-object"
+                  key={"selectable_" + o.value}
+                  onClick={() => handleAxisAppend(o.value)}
+                  title="Click to add parameter"
+                >
+                  {o.label}
+                </div>
+              ))}
+            </div>
           </div>
-        }
-      />
+        )}
+      </div>
     );
   }
 }
@@ -269,7 +409,7 @@ class Range extends Component {
   };
 
   render() {
-    var { timeaxis, graph, files, file } = this.props;
+    var { timeaxis, graph, files, file, xaxis, yaxis } = this.props;
     var { minX, maxX, minY, maxY, lowerX, upperX, lowerY, upperY } = this.props;
     var { data, downloadData, xunits, yunits, xlabel, ylabel } = this.props;
     var { onChangeFile, toggleAddNewFile, removeFile, lcolor } = this.props;
@@ -366,7 +506,7 @@ class Range extends Component {
             preopen={true}
           />
         )}
-        {timeaxis !== "x" && (
+        {timeaxis !== "x" && xaxis.length === 1 && (
           <FilterBox
             title={xlabel + " Range"}
             content={
@@ -385,7 +525,7 @@ class Range extends Component {
             preopen={false}
           />
         )}
-        {timeaxis !== "y" && (
+        {timeaxis !== "y" && yaxis.length === 1 && (
           <FilterBox
             title={ylabel + " Range"}
             content={
@@ -751,8 +891,8 @@ class DisplayOptions extends Component {
 class Plot extends Component {
   state = {
     plotdata: [],
-    xaxis: "x",
-    yaxis: "y",
+    xaxis: ["x"],
+    yaxis: ["y"],
     zaxis: "z",
     xoptions: [],
     yoptions: [],
@@ -769,7 +909,7 @@ class Plot extends Component {
       { color: "#ff0000", point: 1 },
     ],
     title: "",
-    bcolor: "#ffffff",
+    bcolor: false,
     lcolor: [
       "#000000",
       "#e6194B",
@@ -955,8 +1095,8 @@ class Plot extends Component {
     var yoptions = [];
     var zoptions = [];
     var graph = "linegraph";
-    var xdp = datasetparameters.find((dp) => dp.axis === xaxis);
-    var ydp = datasetparameters.find((dp) => dp.axis === yaxis);
+    var xdp = datasetparameters.find((dp) => dp.axis === xaxis[0]);
+    var ydp = datasetparameters.find((dp) => dp.axis === yaxis[0]);
     var yReverse = false;
     var xReverse = false;
     if ([2, 18, 43].includes(xdp.parameters_id)) xReverse = true;
@@ -980,6 +1120,8 @@ class Plot extends Component {
         xoptions.push({
           value: datasetparameters[j]["axis"],
           label: datasetparameters[j]["name"] + extra,
+          id: datasetparameters[j]["parameters_id"],
+          unit: datasetparameters[j]["unit"],
         });
       } else if (
         datasetparameters[j]["axis"].includes("y") &&
@@ -988,6 +1130,8 @@ class Plot extends Component {
         yoptions.push({
           value: datasetparameters[j]["axis"],
           label: datasetparameters[j]["name"] + extra,
+          id: datasetparameters[j]["parameters_id"],
+          unit: datasetparameters[j]["unit"],
         });
       } else if (datasetparameters[j]["axis"].includes("z")) {
         if (
@@ -1007,8 +1151,8 @@ class Plot extends Component {
   };
 
   getAxisLabels = (datasetparameters, xaxis, yaxis, zaxis) => {
-    var xdp = datasetparameters.find((dp) => dp.axis === xaxis);
-    var ydp = datasetparameters.find((dp) => dp.axis === yaxis);
+    var xdp = datasetparameters.find((dp) => dp.axis === xaxis[0]);
+    var ydp = datasetparameters.find((dp) => dp.axis === yaxis[0]);
     var zdp = datasetparameters.find((dp) => dp.axis === zaxis);
 
     var xlabel = xdp ? xdp.name : "";
@@ -1022,13 +1166,36 @@ class Plot extends Component {
     return { xlabel, ylabel, zlabel, xunits, yunits, zunits };
   };
 
+  handleAxisAppend = (event) => {
+    var { xaxis, yaxis, zaxis } = this.state;
+    if (event.includes("x")) {
+      if (xaxis.includes(event)) {
+        xaxis = xaxis.filter((x) => x !== event);
+      } else {
+        xaxis.push(event);
+      }
+    }
+    if (event.includes("y")) {
+      if (yaxis.includes(event)) {
+        yaxis = yaxis.filter((y) => y !== event);
+      } else {
+        yaxis.push(event);
+      }
+    }
+    this.axisEdit(xaxis, yaxis, zaxis);
+  };
+
   handleAxisSelect = (event) => {
-    var { datasetparameters, data } = this.props;
-    var { xaxis, yaxis, zaxis, timeaxis, lowerY, lowerX, upperY, upperX } =
-      this.state;
-    if (event.value.includes("x")) xaxis = event.value;
-    if (event.value.includes("y")) yaxis = event.value;
+    var { xaxis, yaxis, zaxis } = this.state;
+    if (event.value.includes("x")) xaxis = [event.value];
+    if (event.value.includes("y")) yaxis = [event.value];
     if (event.value.includes("z")) zaxis = event.value;
+    this.axisEdit(xaxis, yaxis, zaxis);
+  };
+
+  axisEdit = (xaxis, yaxis, zaxis) => {
+    var { datasetparameters, data } = this.props;
+    var { timeaxis, lowerY, lowerX, upperY, upperX } = this.state;
     var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
       this.setAxisOptions(datasetparameters, xaxis, yaxis);
     if (zoptions.length > 0 && !zoptions.map((z) => z.value).includes(zaxis))
@@ -1112,66 +1279,59 @@ class Plot extends Component {
     }
   };
 
-  selectAxisAndMask = (files, data, file, xaxis, yaxis, zaxis, dp, mask) => {
-    var plotdata;
-
-    // Looks for mask variables
-
-    var mxaxis = false;
-    var myaxis = false;
-    var mzaxis = false;
-
-    var xp = dp.find((p) => p.axis === xaxis);
-    var yp = dp.find((p) => p.axis === yaxis);
-    var zp = dp.find((p) => p.axis === zaxis);
-
-    if (xp && dp.find((dp) => dp.link === xp.id && dp.parameters_id === 27)) {
-      mxaxis = dp.find((dp) => dp.link === xp.id && dp.parameters_id === 27)[
-        "axis"
-      ];
+  selectAxisAndMask = (data, files, file, xaxis, yaxis, zaxis, dp, mask) => {
+    var plotdata = [];
+    var maskaxis = [];
+    var axis = [].concat.apply([], [xaxis, yaxis, zaxis]);
+    const findaxis = (dp, ax) => {
+      return dp.find((p) => p.axis === ax);
+    };
+    const findmask = (dp, axp) => {
+      return dp.find((dp) => dp.link === axp.id && dp.parameters_id === 27);
+    };
+    for (var ax of axis) {
+      var axp = findaxis(dp, ax);
+      if (axp && findmask(dp, axp)) {
+        maskaxis.push(findmask(dp, axp)["axis"]);
+      } else {
+        maskaxis.push(false);
+      }
     }
-
-    if (yp && dp.find((dp) => dp.link === yp.id && dp.parameters_id === 27)) {
-      myaxis = dp.find((dp) => dp.link === yp.id && dp.parameters_id === 27)[
-        "axis"
-      ];
-    }
-
-    if (zp && dp.find((dp) => dp.link === zp.id && dp.parameters_id === 27)) {
-      mzaxis = dp.find((dp) => dp.link === zp.id && dp.parameters_id === 27)[
-        "axis"
-      ];
-    }
-
-    // Case 1: Join
-    if (files[file[0]].connect === "join") {
-      plotdata = [];
-      for (var k = 0; k < data.length; k++) {
-        if (data[k] !== 0) {
-          plotdata.push({
-            x: this.maskArray(data[k][xaxis], data[k][mxaxis], mask),
-            y: this.maskArray(data[k][yaxis], data[k][myaxis], mask),
-            z: this.maskArray(data[k][zaxis], data[k][mzaxis], mask),
-          });
+    var pd, i, j;
+    if (files[file[0]].connect === "ind") {
+      for (i = 0; i < file.length; i++) {
+        pd = {};
+        for (j = 0; j < axis.length; j++) {
+          if (maskaxis) {
+            pd[axis[j]] = this.maskArray(
+              data[file[i]][axis[j]],
+              data[file[i]][maskaxis[j]],
+              mask
+            );
+          } else {
+            pd[axis[j]] = data[file[i]][axis[j]];
+          }
+        }
+        plotdata.push(pd);
+      }
+    } else {
+      for (i = 0; i < data.length; i++) {
+        if (data[i] !== 0) {
+          pd = {};
+          for (j = 0; j < axis.length; j++) {
+            if (maskaxis) {
+              pd[axis[j]] = this.maskArray(
+                data[i][axis[j]],
+                data[i][maskaxis[j]],
+                mask
+              );
+            } else {
+              pd[axis[j]] = data[i][axis[j]];
+            }
+          }
+          plotdata.push(pd);
         }
       }
-      // Case 2: Individual
-    } else if (files[file[0]].connect === "ind") {
-      plotdata = [];
-      for (var j = 0; j < file.length; j++) {
-        plotdata.push({
-          x: this.maskArray(data[file[j]][xaxis], data[file[j]][mxaxis], mask),
-          y: this.maskArray(data[file[j]][yaxis], data[file[j]][myaxis], mask),
-          z: this.maskArray(data[file[j]][zaxis], data[file[j]][mzaxis], mask),
-        });
-      }
-      // Case 3: Single file
-    } else {
-      plotdata = {
-        x: this.maskArray(data[0][xaxis], data[0][mxaxis], mask),
-        y: this.maskArray(data[0][yaxis], data[0][myaxis], mask),
-        z: this.maskArray(data[0][zaxis], data[0][mzaxis], mask),
-      };
     }
     return plotdata;
   };
@@ -1201,65 +1361,130 @@ class Plot extends Component {
     return plotdata;
   };
 
-  joinData = (plotdata, graph, connect, timeaxis) => {
-    if (graph === "linegraph" && isArray(plotdata) && connect === "join") {
-      var data = [];
-      for (var i = 0; i < plotdata.length; i++) {
-        for (var j = 0; j < plotdata[i].x.length; j++) {
-          data.push({ x: plotdata[i].x[j], y: plotdata[i].y[j] });
-        }
+  joinData = (plotdata, graph, xaxis, yaxis, zaxis, connect, timeaxis) => {
+    if (graph === "linegraph") {
+      if (isArray(plotdata) && connect === "join") {
+        plotdata = this.joinLinegraphData(plotdata, xaxis, yaxis, timeaxis);
       }
-      if (timeaxis === "x") {
-        data.sort((a, b) => (a.x > b.x ? 1 : b.x > a.x ? -1 : 0));
-      } else if (timeaxis === "y") {
-        data.sort((a, b) => (a.y > b.y ? 1 : b.y > a.y ? -1 : 0));
+      if ((xaxis.length > 1 || yaxis.length > 1) && plotdata.length === 1) {
+        plotdata = this.reorderMultipleLines(plotdata, xaxis, yaxis);
       }
-
-      var x = [];
-      var y = [];
-      for (var k = 0; k < data.length; k++) {
-        x.push(data[k].x);
-        y.push(data[k].y);
+    } else if (graph === "heatmap") {
+      if (isArray(plotdata) && connect === "join") {
+        plotdata = this.joinHeatmapData(plotdata, xaxis, yaxis, zaxis);
       }
-      return { x, y, z: undefined };
-    } else if (graph === "heatmap" && isArray(plotdata) && connect === "join") {
-      return this.joinHeatmapData(plotdata);
-    } else {
-      return plotdata;
     }
+    return this.relabelDataObject(plotdata);
   };
 
-  joinHeatmapData(data) {
+  reorderMultipleLines = (plotdata, xaxis, yaxis) => {
+    var lines = [];
+    var ax;
+    if (xaxis.length > 1) {
+      for (ax of xaxis) {
+        lines.push({
+          x: plotdata[0][ax],
+          y: plotdata[0][yaxis[0]],
+          z: undefined,
+        });
+      }
+    } else if (yaxis.length > 1) {
+      for (ax of yaxis) {
+        lines.push({
+          y: plotdata[0][ax],
+          x: plotdata[0][xaxis[0]],
+          z: undefined,
+        });
+      }
+    }
+    return lines;
+  };
+
+  relabelDataObject = (plotdata) => {
+    var data = [];
+    for (var i = 0; i < plotdata.length; i++) {
+      var keys = Object.keys(plotdata[i]);
+      data.push({
+        x: plotdata[i][keys.filter((k) => k.includes("x"))[0]],
+        y: plotdata[i][keys.filter((k) => k.includes("y"))[0]],
+        z: plotdata[i][keys.filter((k) => k.includes("z"))[0]],
+      });
+    }
+    return data;
+  };
+
+  joinLinegraphData(plotdata, xaxis, yaxis, timeaxis) {
+    var ax;
+    var data = [];
+    var axis = [].concat.apply([], [xaxis, yaxis]);
+    for (var i = 0; i < plotdata.length; i++) {
+      for (var j = 0; j < plotdata[i].x.length; j++) {
+        var pd = {};
+        for (ax of axis) {
+          pd[ax] = plotdata[i][ax][j];
+        }
+        data.push(pd);
+      }
+    }
+    if (timeaxis === "x") {
+      data.sort((a, b) =>
+        a[xaxis[0]] > b[xaxis[0]] ? 1 : b[xaxis[0]] > a[xaxis[0]] ? -1 : 0
+      );
+    } else if (timeaxis === "y") {
+      data.sort((a, b) =>
+        a[yaxis[0]] > b[yaxis[0]] ? 1 : b[yaxis[0]] > a[yaxis[0]] ? -1 : 0
+      );
+    }
+    var out = { z: undefined };
+    for (ax of axis) {
+      out[ax] = [];
+    }
+    for (var k = 0; k < data.length; k++) {
+      for (ax of axis) {
+        out[ax].push(data[k][ax]);
+      }
+    }
+    return [out];
+  }
+
+  joinHeatmapData(data, xaxis, yaxis, zaxis) {
     if (data.length > 1) {
       if (
-        data.every((d) => JSON.stringify(d.y) === JSON.stringify(data[0].y))
+        data.every(
+          (d) =>
+            JSON.stringify(d[yaxis[0]]) === JSON.stringify(data[0][yaxis[0]])
+        )
       ) {
         var dataJoined = JSON.parse(JSON.stringify(data[0]));
         for (let i = 1; i < data.length; i++) {
           if (
-            data[i].x.length === data[i].z[0].length &&
-            data[i].y.length === data[i].z.length
+            data[i][xaxis[0]].length === data[i][zaxis[0]][0].length &&
+            data[i][yaxis[0]].length === data[i][zaxis[0]].length
           ) {
-            let minB = Math.min(...data[i - 1].x);
-            let maxB = Math.max(...data[i - 1].x);
-            let minA = Math.min(...data[i].x);
-            let maxA = Math.max(...data[i].x);
+            let minB = Math.min(...data[i - 1][xaxis[0]]);
+            let maxB = Math.max(...data[i - 1][xaxis[0]]);
+            let minA = Math.min(...data[i][xaxis[0]]);
+            let maxA = Math.max(...data[i][xaxis[0]]);
             if (minA > maxB) {
-              dataJoined.x = dataJoined.x.concat(data[i].x);
-              dataJoined.z = dataJoined.z.map((d, index) =>
-                d.concat(data[i].z[index])
+              dataJoined[xaxis[0]] = dataJoined[xaxis[0]].concat(
+                data[i][xaxis[0]]
+              );
+              dataJoined[zaxis[0]] = dataJoined[zaxis[0]].map((d, index) =>
+                d.concat(data[i][zaxis[0]][index])
               );
             } else if (minB > maxA) {
-              dataJoined.x = data[i].x.concat(dataJoined.x);
-              dataJoined.z = data[i].z.map((d, index) =>
-                d.concat(dataJoined.z[index])
+              dataJoined[xaxis[0]] = data[i][xaxis[0]].concat(
+                dataJoined[xaxis[0]]
+              );
+              dataJoined[zaxis[0]] = data[i][zaxis[0]].map((d, index) =>
+                d.concat(dataJoined[zaxis[0]][index])
               );
             } else {
               return data;
             }
           }
         }
-        return dataJoined;
+        return [dataJoined];
       }
     }
     return data;
@@ -1730,9 +1955,10 @@ class Plot extends Component {
   ) => {
     var { mask, gap } = this.state;
     var { data, files, file } = this.props;
+
     var plotdata = this.selectAxisAndMask(
-      files,
       data,
+      files,
       file,
       xaxis,
       yaxis,
@@ -1743,7 +1969,15 @@ class Plot extends Component {
 
     var { minZ: lowerZ, maxZ: upperZ } = this.getZBounds(plotdata);
 
-    plotdata = this.joinData(plotdata, graph, files[file[0]].connect, timeaxis);
+    plotdata = this.joinData(
+      plotdata,
+      graph,
+      xaxis,
+      yaxis,
+      zaxis,
+      files[file[0]].connect,
+      timeaxis
+    );
 
     try {
       plotdata = this.sliceData(
@@ -1769,7 +2003,12 @@ class Plot extends Component {
       console.error(e);
     }
     try {
-      plotdata = this.formatTime(plotdata, datasetparameters, xaxis, yaxis);
+      plotdata = this.formatTime(
+        plotdata,
+        datasetparameters,
+        xaxis[0],
+        yaxis[0]
+      );
       try {
         plotdata = this.averageData(plotdata, timeaxis, average, graph, {
           lowerX,
@@ -1809,33 +2048,51 @@ class Plot extends Component {
     return obj;
   };
 
-  getInitialBounds = (dataset, data, file, xaxis, yaxis) => {
+  getInitialBounds = (dataset, data, file, xaxis, yaxis, zaxis) => {
     var { maxdatetime, mindatetime, datasetparameters } = this.props;
 
-    var timeaxis = "";
-    const xparam = datasetparameters.find((x) => x.axis === xaxis);
-    const yparam = datasetparameters.find((y) => y.axis === yaxis);
-    if (xparam.parameters_id === 1) timeaxis = "x";
-    if (yparam.parameters_id === 1) timeaxis = "y";
+    var timeaxis = "x";
+    if (
+      datasetparameters
+        .filter((dp) => dp.axis.includes("y"))
+        .map((d) => d.parameters_id)
+        .includes(1)
+    )
+      timeaxis = "y";
     if (datasetparameters.map((d) => d.axis).includes("M")) timeaxis = "M";
 
     const title = dataset.title;
     var colors = this.parseColor(dataset.plotproperties.colors);
+
     var zdomain = d3.extent(
-      [].concat.apply([], data[file[0]].z).filter((f) => {
+      [].concat.apply([], data[file[0]][zaxis]).filter((f) => {
         return !isNaN(parseFloat(f)) && isFinite(f);
       })
     );
-    var ydomain = d3.extent(
-      [].concat.apply([], data[file[0]].y).filter((f) => {
-        return !isNaN(parseFloat(f)) && isFinite(f);
-      })
-    );
-    var xdomain = d3.extent(
-      [].concat.apply([], data[file[0]].x).filter((f) => {
-        return !isNaN(parseFloat(f)) && isFinite(f);
-      })
-    );
+
+    var yextents = [];
+    for (var ya of yaxis) {
+      yextents = yextents.concat(
+        d3.extent(
+          [].concat.apply([], data[file[0]][ya]).filter((f) => {
+            return !isNaN(parseFloat(f)) && isFinite(f);
+          })
+        )
+      );
+    }
+    var ydomain = d3.extent(yextents);
+
+    var xextents = [];
+    for (var xa of xaxis) {
+      xextents = xextents.concat(
+        d3.extent(
+          [].concat.apply([], data[file[0]][xa]).filter((f) => {
+            return !isNaN(parseFloat(f)) && isFinite(f);
+          })
+        )
+      );
+    }
+    var xdomain = d3.extent(xextents);
 
     var minZ = zdomain[0] || 0;
     var maxZ = zdomain[1] || 1;
@@ -1941,14 +2198,18 @@ class Plot extends Component {
     for (let s of search) {
       if (s.includes("axis")) {
         try {
+          var xxaxis = [];
+          var yyaxis = [];
           let axis = s.replace("axis:[", "").replace("]", "").split(",");
           for (let a of axis) {
             if (validAxis.includes(a)) {
-              if (a.includes("x")) xaxis = a;
-              if (a.includes("y")) yaxis = a;
+              if (a.includes("x")) xxaxis.push(a);
+              if (a.includes("y")) yyaxis.push(a);
               if (a.includes("z")) zaxis = a;
             }
           }
+          xaxis = xxaxis;
+          yaxis = yyaxis;
         } catch (e) {
           console.error("Failed to parse axis from url");
         }
@@ -2001,7 +2262,7 @@ class Plot extends Component {
       lowerX,
       upperX,
       timeaxis,
-    } = this.getInitialBounds(dataset, data, file, xaxis, yaxis);
+    } = this.getInitialBounds(dataset, data, file, xaxis, yaxis, zaxis);
 
     ({ lowerX, upperX } = this.processUrlBounds(
       this.props.search,
@@ -2154,7 +2415,7 @@ class Plot extends Component {
             <Loading />
             Downloading extra files.
           </div>
-          <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX}/>
+          <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX} />
         </React.Fragment>
       );
     } else {
@@ -2187,6 +2448,7 @@ class Plot extends Component {
                 onChangeY={this.onChangeY}
                 toggleAddNewFile={this.toggleAddNewFile}
                 handleAxisSelect={this.handleAxisSelect}
+                handleAxisAppend={this.handleAxisAppend}
               />
             }
           />

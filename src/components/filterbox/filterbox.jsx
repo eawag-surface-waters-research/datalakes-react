@@ -25,13 +25,15 @@ class FilterBox extends Component {
   }
 
   render() {
-    const { content, title, inner } = this.props;
+    const { content, title, inner, newFeature } = this.props;
     const { open } = this.state;
 
     return (
       <div className={inner ? "filterbox inner" : "filterbox"}>
         <div className="toprow" onClick={this.toggle}>
-          <div className="title">{title}</div>
+          <div className="title">
+            {title} {newFeature === "true" && <div className="new">NEW!</div>}
+          </div>
           <span className="symbol">{open ? "-" : "+"}</span>
         </div>
         <div className={open ? "content" : "content hide"}>{content}</div>

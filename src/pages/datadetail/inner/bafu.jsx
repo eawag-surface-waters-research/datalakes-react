@@ -37,7 +37,6 @@ class Bafu extends Component {
       maxX,
       lowerX,
       upperX,
-      file,
       files,
       onChangeX,
       dropdown,
@@ -130,16 +129,32 @@ class Bafu extends Component {
           </div>
         );
       case "linegraph":
-        var legend = [];
-        for (var i = 0; i < file.length; i++) {
-          var value = new Date(files[file[i]].ave);
-          var text = value.toDateString() + " " + value.toLocaleTimeString();
-          var color = lcolor[i];
-          legend.push({ id: i, color, text, value });
-        }
         lcolor[0] = "#FF0000";
-        lcolor[1] = "#FF0000";
+        lcolor[1] = "#0E18EB";
         lweight[0] = 2;
+        lweight[1] = 2;
+        var legend = [];
+        if (plotdata.length > 1) {
+          ylabel = "Wassertemperatur";
+          legend = [
+            {
+              id: 1,
+              color: lcolor[1],
+              text: "Grundtemperatur",
+              value: "",
+              xaxis: "x",
+              yaxis: "y",
+            },
+            {
+              id: 0,
+              color: lcolor[0],
+              text: "Oberflächentemperatur",
+              value: "",
+              xaxis: "x",
+              yaxis: "y",
+            },
+          ];
+        }
         return (
           <div className="bafu">
             <div className="graph">

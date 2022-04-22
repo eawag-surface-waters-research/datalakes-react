@@ -357,9 +357,9 @@ class D3HeatMap extends Component {
                     yunits={yunits}
                     xReverse={false}
                     yReverse={yReverse}
-                    lcolor={"black"}
-                    lweight={1}
-                    bcolor={"white"}
+                    lcolor={["black"]}
+                    lweight={[1]}
+                    bcolor={["white"]}
                     simple={true}
                     xscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                     yscale={TimeLabels.includes(ylabel) ? "Time" : ""}
@@ -378,9 +378,9 @@ class D3HeatMap extends Component {
                   yunits={zunits}
                   xReverse={xReverse}
                   yReverse={false}
-                  lcolor={"black"}
-                  lweight={1}
-                  bcolor={"white"}
+                  lcolor={["black"]}
+                  lweight={[1]}
+                  bcolor={["white"]}
                   xscale={TimeLabels.includes(xlabel) ? "Time" : ""}
                   yscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                   simple={true}

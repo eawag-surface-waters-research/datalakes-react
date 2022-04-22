@@ -11,11 +11,53 @@
 
 .linegraph-main .linegraph-graph {
   display: table-row;
+  position: relative;
 }
 
 .linegraph-graph {
   width: 100%;
   height: 100%;
+}
+
+.linegraph-graph .tooltip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 7px 29px 0 rgb(100 100 111 / 20%);
+  -webkit-transition: all 0.15s;
+  -moz-transition: all 0.15s;
+  -ms-transition: all 0.15s;
+  -o-transition: all 0.15s;
+  transition: all 0.15s;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.linegraph-graph .tooltip:after {
+  content: " ";
+  position: absolute;
+  left: -10px;
+  top: 10px;
+  border-top: 10px solid transparent;
+  border-right: 10px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 7px 29px 0 rgb(100 100 111 / 20%);
+  border-left: none;
+  border-bottom: 10px solid transparent;
+}
+
+.linegraph-graph .tooltip tr {
+  height: 1px;
+}
+
+.linegraph-graph .linegraph-legend {
+  position: absolute;
+  right: 30px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
 }
 
 .linegraph-main table.vis-data {
