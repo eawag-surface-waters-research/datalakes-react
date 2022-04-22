@@ -35,6 +35,7 @@ class DataDetail extends Component {
     files: [],
     data: "",
     step: "",
+    lang: "en",
     allowedStep: ["plot", "download", "pipeline", "information", "webgis"],
     file: [0],
     innerLoading: false,
@@ -409,6 +410,11 @@ class DataDetail extends Component {
 
     var search = this.props.location.search;
     var iframe = this.props.location.search.includes("iframe");
+    var lang = "en";
+    var searchArr = search.split("&");
+    if (searchArr.includes("de") || searchArr.includes("DE")) lang = "de";
+    if (searchArr.includes("fr") || searchArr.includes("FR")) lang = "fr";
+    if (searchArr.includes("it") || searchArr.includes("IT")) lang = "es";
 
     let server = await Promise.all([
       axios.get(apiUrl + "/datasets/" + dataset_id),
@@ -542,6 +548,7 @@ class DataDetail extends Component {
         scripts,
         iframe,
         search,
+        lang,
       });
       //} else if (datasource === "Meteolakes") {
     } else if (mapplotfunction === "meteolakes") {
@@ -550,6 +557,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         loading: false,
         step: "threedmodel",
         allowedStep: [
@@ -565,6 +573,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         loading: false,
         step: "threedmodel",
         allowedStep: [
@@ -580,6 +589,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "remotesensing",
         allowedStep: [
           "remotesensing",
@@ -594,6 +604,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "ch2018",
         allowedStep: ["ch2018", "ch2018download", "external"],
       });
@@ -603,6 +614,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "simstrat",
         allowedStep: ["simstrat", "external", "webgis"],
       });
@@ -612,6 +624,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "external",
         allowedStep: ["external", "webgis"],
       });
@@ -637,6 +650,7 @@ class DataDetail extends Component {
       scripts,
       iframe,
       search,
+      lang,
       dropdown,
     } = this.state;
     document.title = dataset.title
@@ -694,6 +708,7 @@ class DataDetail extends Component {
                 data={data}
                 files={files}
                 file={file}
+                lang={lang}
                 fileChange={JSON.stringify(file)}
                 maxdatetime={maxdatetime}
                 mindatetime={mindatetime}

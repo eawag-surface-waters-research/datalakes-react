@@ -40,6 +40,7 @@ class Bafu extends Component {
       files,
       onChangeX,
       dropdown,
+      lang,
     } = this.props;
     // Overwrite defaults
     /*colors = [
@@ -64,13 +65,12 @@ class Bafu extends Component {
     minZ = 0;
     maxZ = 30;*/
     thresholdStep = 50;
-    var language = "de";
 
-    if (ylabel !== "") {
+    if (ylabel !== "" && lang === "de") {
       var ylabel_info = dropdown.parameters.find((f) => f.name === ylabel);
       if (ylabel_info.german) ylabel = ylabel_info.german;
     }
-    if (zlabel !== "")
+    if (zlabel !== "" && lang === "de")
       zlabel = dropdown.parameters.find((f) => f.name === zlabel).german;
 
     switch (graph) {
@@ -109,7 +109,7 @@ class Bafu extends Component {
                 xReverse={xReverse}
                 display={"contour"}
                 header={false}
-                language={language}
+                language={lang}
                 levels={true}
               />
             </div>
@@ -123,7 +123,7 @@ class Bafu extends Component {
                 lower={lowerX}
                 upper={upperX}
                 files={files}
-                language={language}
+                language={lang}
               />
             </div>
           </div>
@@ -136,11 +136,28 @@ class Bafu extends Component {
         var legend = [];
         if (plotdata.length > 1) {
           ylabel = "Wassertemperatur";
+          let bt = "Grundtemperatur";
+          let st = "Oberflächentemperatur";
+          if (lang === "en") {
+            ylabel = "Water Temperature";
+            bt = "Bottom Temperature";
+            st = "Surface Temperature";
+          }
+          if (lang === "fr") {
+            ylabel = "Température de l'eau";
+            bt = "Température de Fond";
+            st = "Température de Surface";
+          }
+          if (lang === "es") {
+            ylabel = "Temperatura dell'acqua";
+            bt = "Temperatura Inferiore";
+            st = "Temperatura Superficiale";
+          }
           legend = [
             {
               id: 0,
               color: lcolor[0],
-              text: "Oberflächentemperatur",
+              text: st,
               value: "",
               xaxis: "x",
               yaxis: "y",
@@ -148,7 +165,7 @@ class Bafu extends Component {
             {
               id: 1,
               color: lcolor[1],
-              text: "Grundtemperatur",
+              text: bt,
               value: "",
               xaxis: "x",
               yaxis: "y",
@@ -180,7 +197,7 @@ class Bafu extends Component {
                 grid={true}
                 header={false}
                 fontSize={14}
-                language={language}
+                language={lang}
                 border={true}
               />
             </div>
@@ -194,7 +211,7 @@ class Bafu extends Component {
                 lower={lowerX}
                 upper={upperX}
                 files={files}
-                language={language}
+                language={lang}
               />
             </div>
           </div>
