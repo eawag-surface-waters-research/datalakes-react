@@ -138,17 +138,17 @@ class Bafu extends Component {
           ylabel = "Wassertemperatur";
           legend = [
             {
-              id: 1,
-              color: lcolor[1],
-              text: "Grundtemperatur",
+              id: 0,
+              color: lcolor[0],
+              text: "Oberflächentemperatur",
               value: "",
               xaxis: "x",
               yaxis: "y",
             },
             {
-              id: 0,
-              color: lcolor[0],
-              text: "Oberflächentemperatur",
+              id: 1,
+              color: lcolor[1],
+              text: "Grundtemperatur",
               value: "",
               xaxis: "x",
               yaxis: "y",
