@@ -191,6 +191,7 @@ class Sidebar extends Component {
           xaxis={this.props.xaxis}
           yaxis={this.props.yaxis}
           zaxis={this.props.zaxis}
+          addNewFiles={this.props.addNewFiles}
           xoptions={this.props.xoptions}
           yoptions={this.props.yoptions}
           zoptions={this.props.zoptions}
@@ -214,6 +215,7 @@ class AxisSelect extends Component {
       xoptions,
       yoptions,
       zoptions,
+      addNewFiles,
       handleAxisSelect,
     } = this.props;
     return (
@@ -269,9 +271,10 @@ class AxisSelect extends Component {
             </div>
           }
         />
-        {graph === "linegraph" && (
+        {graph === "linegraph" && !addNewFiles && (
           <FilterBox
             title="Compare"
+            newFeature="true"
             preopen="false"
             content={<Compare {...this.props} />}
           />
@@ -321,22 +324,30 @@ class Compare extends Component {
               className="axis-compare-selected-object"
               key={"selected_" + o.value}
               onClick={() => handleAxisAppend(o.value)}
+              title="Click to remove parameter"
             >
               {o.label}
+              <span className="close">&#215;</span>
             </div>
           ))}
         </div>
-        <div className="axis-compare-selectable">
-          {selectable.map((o) => (
-            <div
-              className="axis-compare-selectable-object"
-              key={"selectable_" + o.value}
-              onClick={() => handleAxisAppend(o.value)}
-            >
-              {o.label}
+        {selectable.length > 0 && (
+          <div className="axis-compare-title">
+            Add Additional Parameter
+            <div className="axis-compare-selectable">
+              {selectable.map((o) => (
+                <div
+                  className="axis-compare-selectable-object"
+                  key={"selectable_" + o.value}
+                  onClick={() => handleAxisAppend(o.value)}
+                  title="Click to add parameter"
+                >
+                  {o.label}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     );
   }
