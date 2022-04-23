@@ -16,10 +16,13 @@ import { Calendar } from "react-calendar";
 
 class Modal extends Component {
   state = {};
+  preventClose = (event) => {
+    event.stopPropagation();
+  };
   render() {
     var { title, content, visible, hide } = this.props;
     return (
-      <div className={visible ? "layers" : "layers hide"}>
+      <div className={visible ? "layers" : "layers hide"} onClick={hide}>
         <div className="layers-modal">
           <div className="layers-modal-header">
             {title}
@@ -27,7 +30,9 @@ class Modal extends Component {
               &times;
             </div>
           </div>
-          <div className="layers-modal-content">{content}</div>
+          <div className="layers-modal-content" onClick={this.preventClose}>
+            {content}
+          </div>
         </div>
       </div>
     );
@@ -1085,6 +1090,7 @@ class GIS extends Component {
       axios.get(apiUrl + "/selectiontables/parameters"),
       axios.get(apiUrl + "/datasets"),
       axios.get(apiUrl + "/datasetparameters"),
+      axios.get(apiUrl + "/selectiontables/lakes"),
     ]).catch((error) => {
       console.log(error);
     });
@@ -1135,6 +1141,7 @@ class GIS extends Component {
       maxdepth,
       lakejson,
       timestep,
+      lakes: server[3].data,
     });
   }
 
@@ -1243,6 +1250,7 @@ class GIS extends Component {
           content={
             <AddLayers
               datasets={this.state.datasets}
+              lakes={this.state.lakes}
               parameters={this.state.parameters}
               datasetparameters={this.state.datasetparameters}
               addSelected={this.addSelected}

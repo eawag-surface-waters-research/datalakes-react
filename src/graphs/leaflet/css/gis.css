@@ -154,14 +154,12 @@
 }
 
 .gis .layers .layers-modal {
-  width: 500px;
+  width: 700px;
   margin: auto;
   margin-top: 15vh;
   background-color: white;
   border-radius: 5px;
   box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
-  max-height: 70vh;
-  overflow-y: auto;
   max-width: 100%;
   max-width: 90%;
 }
@@ -180,6 +178,8 @@
 .gis .layers .layers-modal .layers-modal-content {
   padding: 20px;
   font-size: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .gis .react-calendar {
