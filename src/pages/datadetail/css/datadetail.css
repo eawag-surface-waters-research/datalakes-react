@@ -10,6 +10,10 @@
   vertical-align: middle;
 }
 
+.extraspace {
+  height: 20px;
+}
+
 .swagger-ui .opblock-tag {
   font-size: 18px;
   color: black;

@@ -160,6 +160,7 @@ input.SearchBar::placeholder {
   box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
   font-size: 12px;
   transition: all 0.2s ease-in-out;
+  margin-bottom: 20px;
 }
 
 table.time-selector {
@@ -356,7 +357,7 @@ table.sortbar-table td {
 
 .popup {
   width: 100%;
-  padding-bottom: 20px;
+  padding-right: 1px;
   border: 1px solid rgb(169, 169, 169);
   box-sizing: border-box;
   display: block;
@@ -365,6 +366,12 @@ table.sortbar-table td {
   border-radius: 5px;
   background-color: white;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+}
+
+.mapselecttitle {
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
 }
 
 .hidepopup {

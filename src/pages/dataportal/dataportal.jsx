@@ -728,6 +728,7 @@ class DataPortal extends Component {
                 className={map ? "popup" : "hidepopup"}
                 title="Hold ctrl and drag with your mouse to select custom area"
               >
+                <div className="mapselecttitle">Hold ctrl, click and drag to select a custom area</div>
                 <MapSelect
                   datasets={fDatasets}
                   selectPoints={this.mapAddFilter}
