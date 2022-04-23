@@ -10,10 +10,6 @@
   vertical-align: middle;
 }
 
-.extraspace {
-  height: 20px;
-}
-
 .swagger-ui .opblock-tag {
   font-size: 18px;
   color: black;
@@ -612,9 +608,7 @@
     top: 8px;
     z-index: 9999999;
   }
-  .extraspace {
-    height: 150px;
-  }
+
   .info-contact {
     width: 100%;
   }

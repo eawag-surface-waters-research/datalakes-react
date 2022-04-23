@@ -122,6 +122,10 @@
   padding-right: 15px;
 }
 
+.extraspace {
+  height: 20px;
+}
+
 /* Media Queries */
 
 @media screen and (max-width: 960px) {
@@ -131,6 +135,10 @@
 }
 
 @media screen and (max-width: 500px) {
+  .extraspace {
+    height: 150px;
+  }
+
   .sidebarlayout.wide {
     width: calc(100% - 10px);
     margin-left: 5px;

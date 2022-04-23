@@ -200,7 +200,6 @@ class Sidebar extends Component {
         />
         <Range {...this.props} />
         <DisplayOptions {...this.props} />
-        <div className="extraspace" />
       </React.Fragment>
     );
   }

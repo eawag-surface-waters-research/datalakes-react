@@ -37,6 +37,7 @@ class SidebarLayout extends Component {
             {"right" in this.props && (
               <div className="scroll">{this.props.right}</div>
             )}
+            <div className="extraspace" />
           </div>
         </div>
       </div>
