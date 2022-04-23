@@ -30,7 +30,7 @@ class SidebarLayout extends Component {
             onClick={() => this.toggle()}
           >
             <div className="sidebartitle">{this.props.sidebartitle}</div>{" "}
-            <span> > </span>
+            {open ? <span>&#215;</span> : <span>{">"}</span>}
           </div>
           <div className="rightcontent">
             {"rightNoScroll" in this.props && this.props.rightNoScroll}

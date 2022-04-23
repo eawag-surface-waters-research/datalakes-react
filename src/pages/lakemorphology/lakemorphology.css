@@ -209,7 +209,7 @@
 
 @media screen and (max-width: 500px) {
   .morphology {
-    height: calc(100% - 180px);
+    height: calc(100% - 150px);
     bottom: 70px;
     overflow-y: auto;
   }
@@ -218,6 +218,9 @@
   }
   .lakes-map {
     margin-bottom: 70px;
+  }
+  .morphology .lake-morphology.short {
+    padding: 0 10px;
   }
   .morphology .lake-morphology .banner {
     font-size: 14px;

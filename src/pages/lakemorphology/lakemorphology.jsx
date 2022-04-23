@@ -330,7 +330,7 @@ class LakeMorphology extends Component {
     return (
       <React.Fragment>
         {lake ? (
-          <h2>Lake Morphology - {lake.name}</h2>
+          <h2>{lake.name}</h2>
         ) : (
           <h2>Lake Morphology</h2>
         )}

@@ -30,7 +30,7 @@ class FilterBox extends Component {
 
     return (
       <div className={inner ? "filterbox inner" : "filterbox"}>
-        <div className="toprow" onClick={this.toggle}>
+        <div className="toprow" onClick={this.toggle} title={open ? "Click to hide" : "Click to open"}>
           <div className="title">
             {title} {newFeature === "true" && <div className="new">NEW!</div>}
           </div>

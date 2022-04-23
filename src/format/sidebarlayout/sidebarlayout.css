@@ -37,6 +37,10 @@
   border-radius: 5px 5px 0 0;
 }
 
+.sidebarlayout .rightcontainer .righthead:hover {
+  background-color: hsl(0, 0%, 95%);
+}
+
 .sidebarlayout .rightcontainer.hide .righthead {
   padding: 10px 8px;
   background-color: transparent;
@@ -50,7 +54,7 @@
 
 .sidebarlayout .rightcontainer .righthead span {
   float: right;
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .sidebarlayout .rightcontainer .rightcontent {
@@ -144,6 +148,7 @@
     left: unset;
     right: 5px;
     border-radius: 30px;
+    z-index: 999;
   }
 
   .sidebarlayout .rightcontainer {
@@ -163,13 +168,15 @@
     writing-mode: unset;
     min-height: unset;
     margin-bottom: 0;
+    font-size: 15px;
   }
 
   .sidebarlayout .rightcontainer .righthead {
     width: 100%;
     box-sizing: border-box;
     border-radius: 0;
-    border: 2px solid black;
+    font-size: 20px;
+    padding: 20px;
   }
 
   .sidebarlayout .rightcontainer .righthead .sidebartitle {
@@ -178,11 +185,12 @@
   }
 
   .sidebarlayout .rightcontainer .righthead span {
-    transform: rotate(-90deg);
+    font-size: 35px;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead span {
-    transform: rotate(90deg);
+    transform: rotate(-90deg);
+    font-size: 15px;
   }
 
   .sidebarlayout .rightcontainer .rightcontent .scroll {
@@ -193,7 +201,7 @@
     max-width: 500px;
     height: calc(100vh - 220px);
     overflow-y: auto;
-    padding: 5px 5px 160px;
+    padding: 5px 20px 160px;
   }
 
   .sidebarlayout .leftcontainer {

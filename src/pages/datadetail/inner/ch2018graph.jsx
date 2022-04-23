@@ -251,9 +251,13 @@ class Ch2018Graph extends Component {
                 <td>Surface/ Bottom</td>
                 <td>Time Period</td>
                 <td>Smoothing</td>
-                <td>Altitude</td>
-                <td>Area</td>
-                <td>Volume</td>
+                {window.innerWidth > 500 && (
+                  <React.Fragment>
+                    <td>Altitude</td>
+                    <td>Area</td>
+                    <td>Volume</td>
+                  </React.Fragment>
+                )}
               </tr>
               <tr>
                 <td>
@@ -284,9 +288,13 @@ class Ch2018Graph extends Component {
                     <option value="10">10Yr Moving Ave</option>
                   </select>
                 </td>
-                <td>{altitude} m a.s.l.</td>
-                <td>{area} km&sup2;</td>
-                <td>{volume} km&sup3;</td>
+                {window.innerWidth > 500 && (
+                  <React.Fragment>
+                    <td>{altitude} m a.s.l.</td>
+                    <td>{area} km&sup2;</td>
+                    <td>{volume} km&sup3;</td>
+                  </React.Fragment>
+                )}
               </tr>
             </tbody>
           </table>
