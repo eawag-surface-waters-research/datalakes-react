@@ -602,6 +602,15 @@
 }
 
 @media screen and (max-width: 500px) {
+  .title-live {
+    position: fixed;
+    right: 10px;
+    top: 8px;
+    z-index: 9999999;
+  }
+  .extraspace {
+    height: 150px;
+  }
   .info-contact {
     width: 100%;
   }
@@ -626,7 +635,7 @@
     border-color: white;
   }
   .data-subnav {
-    padding: 0 5px 8px 5px;
+    padding: 5px;
     margin: 0;
     width: 100%;
     box-sizing: border-box;
