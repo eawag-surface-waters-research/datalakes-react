@@ -16,22 +16,58 @@ class DatetimeDepthSelector extends Component {
     modal: false,
     play: false,
   };
+
   skipForwards = () => {
-    var { datetime, timestep, onChangeDatetime } = this.props;
-    onChangeDatetime(new Date(datetime.getTime() + timestep * 60 * 1000));
+    var { datetime, timestep, onChangeDatetime, selectedlayers } = this.props;
+    if (timestep === "Next") {
+      var files = [];
+      var unix = datetime.getTime();
+      for (let sl of selectedlayers) {
+        files = files.concat(
+          sl.files.map((f) => new Date(f.mindatetime).getTime())
+        );
+      }
+      files = files.filter((f) => f > unix);
+      files.sort(function (a, b) {
+        return a - b;
+      });
+      if (files.length < 1) {
+        return;
+      } else {
+        onChangeDatetime(new Date(files[0]));
+      }
+    } else {
+      onChangeDatetime(new Date(datetime.getTime() + timestep * 60 * 1000));
+    }
   };
+
   skipBackwards = () => {
-    var { datetime, timestep, onChangeDatetime } = this.props;
-    onChangeDatetime(new Date(datetime.getTime() - timestep * 60 * 1000));
+    var { datetime, timestep, onChangeDatetime, selectedlayers } = this.props;
+    if (timestep === "Next") {
+      var files = [];
+      var unix = datetime.getTime();
+      for (let sl of selectedlayers) {
+        files = files.concat(
+          sl.files.map((f) => new Date(f.mindatetime).getTime())
+        );
+      }
+      files = files.filter((f) => f < unix);
+      files.sort(function (a, b) {
+        return a - b;
+      });
+      if (files.length < 1) {
+        return;
+      } else {
+        onChangeDatetime(new Date(files[files.length - 1]));
+      }
+    } else {
+      onChangeDatetime(new Date(datetime.getTime() - timestep * 60 * 1000));
+    }
   };
+
   moveOneTimestep = async () => {
-    var {
-      datetime,
-      timestep,
-      maxdatetime,
-      mindatetime,
-      onChangeDatetime,
-    } = this.props;
+    var { datetime, timestep, maxdatetime, mindatetime, onChangeDatetime } =
+      this.props;
     if (
       datetime.getTime() >= mindatetime.getTime() &&
       datetime.getTime() <= maxdatetime.getTime()
@@ -58,6 +94,7 @@ class DatetimeDepthSelector extends Component {
     }
     this.setState({ play: !play });
   };
+
   toggleModal = (modal) => {
     if (this.state.modal) {
       this.setState({ modal: false });
@@ -65,6 +102,7 @@ class DatetimeDepthSelector extends Component {
       this.setState({ modal });
     }
   };
+
   lableTimestep = (mins) => {
     if (Number.isInteger(mins / (60 * 24 * 7))) {
       var weeks = mins / (60 * 24 * 7);
@@ -87,8 +125,10 @@ class DatetimeDepthSelector extends Component {
       } else {
         return hours + " hours";
       }
-    } else {
+    } else if (Number.isInteger(mins)) {
       return mins + " mins";
+    } else {
+      return mins;
     }
   };
 

@@ -175,7 +175,7 @@ class TimestepModal extends Component {
   render() {
     var { lableTimestep, timestep, toggleModal } = this.props;
     var timesteps = [
-      5,
+      "Next",
       10,
       20,
       30,

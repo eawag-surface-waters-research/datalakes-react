@@ -21,11 +21,14 @@ class MapComponent extends Component {
     var zoom = 8;
     if (["meteolakes", "datalakes"].includes(dataset.mapplotfunction))
       zoom = 11;
+    var timestep = 180;
+    if (dataset.mapplotfunction === "remoteSensing") timestep = "Next";
     var defaults = {
       selected: p.map((param) => [dataset.id, param.parameters_id]),
       center: [dataset.latitude, dataset.longitude],
       datetime: new Date(dataset.maxdatetime),
-      zoom: zoom,
+      zoom,
+      timestep,
     };
     return (
       <div className="threed">

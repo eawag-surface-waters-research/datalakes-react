@@ -1022,7 +1022,7 @@ class GIS extends Component {
   };
 
   setDefaults = () => {
-    var { selected, hidden, datetime, depth, zoom, center, basemap } =
+    var { selected, hidden, datetime, depth, zoom, center, basemap, timestep } =
       this.state;
     var { defaults } = this.props;
     if ("selected" in defaults) selected = defaults.selected;
@@ -1032,14 +1032,32 @@ class GIS extends Component {
     if ("zoom" in defaults) zoom = defaults.zoom;
     if ("center" in defaults) center = defaults.center;
     if ("basemap" in defaults) basemap = defaults.basemap;
-    return { selected, hidden, datetime, depth, zoom, center, basemap };
+    if ("timestep" in defaults) timestep = defaults.timestep;
+    return {
+      selected,
+      hidden,
+      datetime,
+      depth,
+      zoom,
+      center,
+      basemap,
+      timestep,
+    };
   };
 
   componentDidUpdate() {
     var { setDefaults } = this.props;
     if (setDefaults) {
-      var { selected, hidden, datetime, depth, zoom, center, basemap } =
-        this.state;
+      var {
+        selected,
+        hidden,
+        datetime,
+        depth,
+        zoom,
+        center,
+        basemap,
+        timestep,
+      } = this.state;
       var defaults = {
         selected,
         hidden,
@@ -1048,6 +1066,7 @@ class GIS extends Component {
         zoom,
         center,
         basemap,
+        timestep,
       };
       setDefaults(defaults);
     }
@@ -1056,8 +1075,10 @@ class GIS extends Component {
   async componentDidMount() {
     // Defaults
     var { lakejson } = this.state;
-    var { selected, hidden, datetime, depth, zoom, center, basemap } =
+    var { selected, hidden, datetime, depth, zoom, center, basemap, timestep } =
       this.setDefaults();
+
+    if ("timestep" in this.props) timestep = this.props.timestep;
 
     // Get data
     let server = await Promise.all([
@@ -1113,6 +1134,7 @@ class GIS extends Component {
       mindepth,
       maxdepth,
       lakejson,
+      timestep,
     });
   }
 
