@@ -17,6 +17,7 @@ import {
 
 import {
   closest,
+  checkHeight,
   formatDate,
   formatNumber,
   isNumeric,
@@ -169,9 +170,12 @@ const processOptions = (div, data, userOptions) => {
     },
     {
       name: "height",
-      default: select("#" + div)
-        .node()
-        .getBoundingClientRect().height,
+      default: checkHeight(
+        window.screen.height,
+        select("#" + div)
+          .node()
+          .getBoundingClientRect().height
+      ),
       verify: verifyNumber,
     },
   ];
