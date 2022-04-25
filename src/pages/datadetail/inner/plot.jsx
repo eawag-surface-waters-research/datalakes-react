@@ -1418,7 +1418,7 @@ class Plot extends Component {
     var data = [];
     var axis = [].concat.apply([], [xaxis, yaxis]);
     for (var i = 0; i < plotdata.length; i++) {
-      for (var j = 0; j < plotdata[i].x.length; j++) {
+      for (var j = 0; j < plotdata[i][xaxis[0]].length; j++) {
         var pd = {};
         for (ax of axis) {
           pd[ax] = plotdata[i][ax][j];

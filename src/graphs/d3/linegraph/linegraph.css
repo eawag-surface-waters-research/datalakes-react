@@ -1,17 +1,21 @@
 .linegraph-main {
   height: 100%;
   width: 100%;
-  display: table;
 }
 
 .linegraph-main .linegraph-header {
-  display: table-row;
   width: 100%;
+  height: 30px;
 }
 
 .linegraph-main .linegraph-graph {
-  display: table-row;
   position: relative;
+  height: calc(100% - 30px);
+}
+
+.linegraph-main .linegraph-graph.full {
+  position: relative;
+  height: 100%;
 }
 
 .linegraph-graph {

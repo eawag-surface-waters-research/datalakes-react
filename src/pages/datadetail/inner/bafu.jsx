@@ -173,7 +173,7 @@ class Bafu extends Component {
           ];
         }
         return (
-          <div className="bafu">
+          <div className="bafu" id="bafu">
             <div className="graph">
               <D3LineGraph
                 data={plotdata}

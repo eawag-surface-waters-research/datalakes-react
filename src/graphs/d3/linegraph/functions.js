@@ -39,17 +39,6 @@ export const indexOfClosest = (num, arr) => {
   return index;
 };
 
-export const checkHeight = (screenHeight, divHeight) => {
-  if (divHeight > screenHeight * 1.2) {
-    console.error(
-      "Div height larger than screen height, suspected firefox error. Reduce to 50% height."
-    );
-    return divHeight / 2;
-  } else {
-    return divHeight;
-  }
-};
-
 export const getFileIndex = (scales, p) => {
   for (var i = 0; i < scales.length; i++) {
     if (p >= Math.min(...scales[i]) && p <= Math.max(...scales[i])) {

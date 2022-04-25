@@ -296,7 +296,7 @@ class D3LineGraph extends Component {
       <div className="linegraph-graph" id={"vis" + graphid} />
     ) : (
       <div className={fullscreen ? "vis-main full" : "vis-main"}>
-        <div className="linegraph-main">
+        <div className="linegraph-main" id="lm">
           {this.props.header !== false && (
             <div className="linegraph-header">
               <GraphHeader
@@ -313,7 +313,14 @@ class D3LineGraph extends Component {
               />
             </div>
           )}
-          <div className="linegraph-graph" id={"vis" + graphid} />
+          <div
+            className={
+              this.props.header !== false
+                ? "linegraph-graph"
+                : "linegraph-graph full"
+            }
+            id={"vis" + graphid}
+          />
         </div>
       </div>
     );
