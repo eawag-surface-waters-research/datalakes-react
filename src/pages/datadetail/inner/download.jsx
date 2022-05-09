@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import SliderDouble from "../../../components/sliders/sliderdouble";
+import Loading from "../../../components/loading/loading";
 import axios from "axios";
 import "../css/datadetail.css";
 
@@ -7,6 +8,7 @@ class Download extends Component {
   state = {
     upper: this.props.max,
     lower: this.props.min,
+    loading: false,
   };
 
   onChangeTime = (values) => {
@@ -47,50 +49,56 @@ class Download extends Component {
   };
 
   downloadFiles = (filetype, apiUrl, arr, title) => {
-    arr = this.fileIdSelect(arr, filetype);
-    var { embargo } = this.props.dataset;
-    var { upper } = this.state;
-    var embargoDate =
-      new Date().getTime() - embargo * 30.4167 * 24 * 60 * 60 * 1000;
-    var datasetpassword = "";
-    if (upper * 1000 > embargoDate) {
-      datasetpassword = prompt(
-        "Selection contains embargoed data. (after " +
-          new Date(embargoDate) +
-          ") Please enter the password to download data."
-      );
-    }
-    var url;
-    if (filetype === "csv") {
-      url = `${apiUrl}/download/csv?password=${datasetpassword}`;
-    } else {
-      url = `${apiUrl}/download?password=${datasetpassword}`;
-    }
-    var name =
-      title.replace(/\s/g, "").toLowerCase() + "_datalakesdownload.zip";
-    axios({
-      method: "post",
-      url: url,
-      responseType: "blob",
-      data: { ids: arr },
-    })
-      .then(({ data }) => {
-        const downloadUrl = window.URL.createObjectURL(new Blob([data]));
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.setAttribute("download", name);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+    this.setState({ loading: true }, () => {
+      arr = this.fileIdSelect(arr, filetype);
+      var { embargo } = this.props.dataset;
+      var { upper } = this.state;
+      var embargoDate =
+        new Date().getTime() - embargo * 30.4167 * 24 * 60 * 60 * 1000;
+      var datasetpassword = "";
+      if (upper * 1000 > embargoDate) {
+        datasetpassword = prompt(
+          "Selection contains embargoed data. (after " +
+            new Date(embargoDate) +
+            ") Please enter the password to download data."
+        );
+      }
+      var url;
+      if (filetype === "csv") {
+        url = `${apiUrl}/download/csv?password=${datasetpassword}`;
+      } else {
+        url = `${apiUrl}/download?password=${datasetpassword}`;
+      }
+      var name =
+        title.replace(/\s/g, "").toLowerCase() + "_datalakesdownload.zip";
+      axios({
+        method: "post",
+        url: url,
+        responseType: "blob",
+        data: { ids: arr },
       })
-      .catch((error) => {
-        console.error(error);
-        if (error.response.status === 403) {
-          alert("Incorrect password provided");
-        } else {
-          alert("Failed to download files");
-        }
-      });
+        .then(({ data }) => {
+          const downloadUrl = window.URL.createObjectURL(new Blob([data]));
+          const link = document.createElement("a");
+          link.href = downloadUrl;
+          link.setAttribute("download", name);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          this.setState({ loading: false });
+        })
+        .catch((error) => {
+          console.error(error);
+          this.setState({ loading: false });
+          if (error.response !== undefined && error.response.status === 403) {
+            alert("Incorrect password provided");
+          } else {
+            alert(
+              "Failed to download files, please select fewer files or access data directly from the git repository (a link can be found under the information tab)."
+            );
+          }
+        });
+    });
   };
 
   render() {
@@ -104,17 +112,20 @@ class Download extends Component {
       selectedFiles,
       datasetparameters,
     } = this.props;
-    var { upper, lower } = this.state;
+    var { upper, lower, loading } = this.state;
     var csv =
       !/\d/.test(datasetparameters.map((dp) => dp.axis).join("")) ||
-      !datasetparameters.map((dp) => dp.axis).join("").includes("z");
+      !datasetparameters
+        .map((dp) => dp.axis)
+        .join("")
+        .includes("z");
     var selectedArray = [0];
     if (files.length > 1) {
       selectedArray = selectedFiles(upper, lower, files, "download");
     }
 
     return (
-      <div className="datadetail-padding">
+      <div className="download">
         <div className="info-title">Licence</div>
         <a
           href={getLabel("licenses", dataset.licenses_id, "link")}
@@ -143,6 +154,12 @@ class Download extends Component {
               <div className="subheading">
                 Select time period for downloads.
               </div>
+              {loading && (
+                <div className="download-loading">
+                  Sending download request...
+                  <Loading />
+                </div>
+              )}
               <SliderDouble
                 onChange={this.onChangeTime}
                 onChangeLower={this.onChangeLower}

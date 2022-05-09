@@ -13,8 +13,15 @@ class SliderSelect extends Component {
 
   plotSliderSelect = async () => {
     var { graphid } = this.state;
-    var { type, upper, lower, value, data: availability } = this.props;
-
+    var {
+      type,
+      upper,
+      lower,
+      value,
+      language,
+      data: availability,
+    } = this.props;
+    if (language === undefined) language = "en";
     var options = {
       type,
       min: this.domain[0],
@@ -22,6 +29,7 @@ class SliderSelect extends Component {
       availability,
       onChange: this.onChange,
       onZoom: this.updateDomain,
+      language,
     };
 
     if (type === "single") {
@@ -58,7 +66,6 @@ class SliderSelect extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log();
     if (prevProps.min !== this.props.min && prevProps.min === 0)
       this.domain[0] = this.props.min;
     if (prevProps.max !== this.props.max && prevProps.max === 1)

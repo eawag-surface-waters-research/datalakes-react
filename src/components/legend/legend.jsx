@@ -78,9 +78,9 @@ class Legend extends Component {
         );
       }
     }
-    return (
-      <div className={open ? "legend" : "legend hide"}>
-        {inner.length > 0 && (
+    if (inner.length > 0) {
+      return (
+        <div className={open ? "legend" : "legend hide"}>
           <div
             className="legend-title"
             onClick={this.toggle}
@@ -88,12 +88,15 @@ class Legend extends Component {
           >
             <div className="legend-title-text">Legend</div>
           </div>
-        )}
-        <div className={open ? "legend-content" : "legend-content hide"}>
-          {inner}
+
+          <div className={open ? "legend-content" : "legend-content hide"}>
+            {inner}
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return <div></div>;
+    }
   }
 }
 

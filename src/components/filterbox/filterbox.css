@@ -12,12 +12,22 @@
   display: inline-block;
   font-size: 14px;
   font-weight: bold;
+  color: #102a43;
+}
+
+.filterbox .new {
+  display: inline-block;
+  font-size: 12px;
+  color: white;
+  background-color: rgb(206, 56, 56);
+  padding: 0 4px;
+  margin-left: 2px;
 }
 
 .filterbox .symbol {
   float: right;
   font-size: 22px;
-  transform: none!important;
+  transform: none !important;
 }
 
 .filterbox .content {

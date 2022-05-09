@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import EditSettings from "./editsettings";
 import { sortableHandle } from "react-sortable-hoc";
+import settings_img from "./img/settings.svg";
 import "./maplayers.css";
 
 const DragHandle = sortableHandle(({ inner }) => (
@@ -35,51 +36,69 @@ class LayerObject extends Component {
     } = this.props;
     return (
       <div className="maplayers-dropdown">
-        <table className="maplayers-dropdown-table">
-          <tbody>
-            <tr className="maplayers-dropdown-title">
-              <td
-                className="maplayers-symbol"
-                onClick={this.toggleOpen}
-                style={{ width: "10px" }}
-                title={open ? "Hide layer legend" : "Show layer legend"}
-              >
-                {open ? "▿" : "▹"}
-              </td>
-              <td className="maplayers-check">
-                {" "}
-                <input
-                  className="maplayers-checkbox"
-                  type="checkbox"
-                  title={display.visible ? "Hide layer" : "Show layer"}
-                  onChange={() => toggleLayerView(id)}
-                  checked={display.visible}
-                />
-              </td>
-              <td style={{ width: "100%" }} onClick={this.toggleOpen}>
-                <DragHandle inner={title} />
-                <div className="maplayers-parameter" style={{ color: color }}>
-                  {parameter_name}
-                </div>
-              </td>
-              {allowSettings && (
+        <div className="maplayers-dropdown-table">
+          <table>
+            <tbody>
+              <tr className="maplayers-dropdown-title">
                 <td
-                  onClick={this.toggleSettings}
+                  className="maplayers-symbol"
+                  onClick={this.toggleOpen}
                   style={{ width: "10px" }}
-                  className="maplayers-settings"
-                  title="Layer display settings"
+                  title={open ? "Hide layer legend" : "Show layer legend"}
                 >
-                  &#9881;
+                  {open ? "▿" : "▹"}
                 </td>
-              )}
-            </tr>
-          </tbody>
-        </table>
+                <td className="maplayers-check">
+                  {" "}
+                  <input
+                    className="maplayers-checkbox"
+                    type="checkbox"
+                    title={display.visible ? "Hide layer" : "Show layer"}
+                    onChange={() => toggleLayerView(id)}
+                    checked={display.visible}
+                  />
+                </td>
+                <td style={{ width: "100%" }} onClick={this.toggleOpen}>
+                  <DragHandle inner={title} />
+                  <div className="maplayers-parameter" style={{ color: color }}>
+                    {parameter_name}
+                  </div>
+                </td>
+                {allowSettings && (
+                  <td
+                    onClick={this.toggleSettings}
+                    style={{ width: "10px" }}
+                    className="maplayers-settings"
+                    title="Layer display settings"
+                  >
+                    <img
+                      src={settings_img}
+                      alt="settings"
+                      className={
+                        settings ? "settings-img grey" : "settings-img"
+                      }
+                    />
+                  </td>
+                )}
+              </tr>
+            </tbody>
+          </table>
+          <div
+            className={
+              open
+                ? "maplayers-dropdown-content"
+                : "maplayers-dropdown-content hide"
+            }
+          >
+            {content}
+          </div>
+        </div>
+
         <div
           className={
             settings
-              ? "maplayers-dropdown-content"
-              : "maplayers-dropdown-content hide"
+              ? "maplayers-dropdown-settings"
+              : "maplayers-dropdown-settings hide"
           }
         >
           <EditSettings
@@ -89,15 +108,6 @@ class LayerObject extends Component {
             removeSelected={removeSelected}
             onUpdate={onUpdate}
           />
-        </div>
-        <div
-          className={
-            open
-              ? "maplayers-dropdown-content"
-              : "maplayers-dropdown-content hide"
-          }
-        >
-          {content}
         </div>
       </div>
     );

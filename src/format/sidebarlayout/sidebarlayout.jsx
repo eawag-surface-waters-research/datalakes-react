@@ -17,8 +17,9 @@ class SidebarLayout extends Component {
 
   render() {
     const { open } = this.state;
+    const { wide } = this.props;
     return (
-      <div className="sidebarlayout">
+      <div className={"sidebarlayout" + (wide ? " wide" : "")}>
         <div className={open ? "leftcontainer" : "leftcontainer full"}>
           {this.props.left}
         </div>
@@ -29,13 +30,14 @@ class SidebarLayout extends Component {
             onClick={() => this.toggle()}
           >
             <div className="sidebartitle">{this.props.sidebartitle}</div>{" "}
-            <span> > </span>
+            {open ? <span>&#215;</span> : <span>{">"}</span>}
           </div>
           <div className="rightcontent">
             {"rightNoScroll" in this.props && this.props.rightNoScroll}
             {"right" in this.props && (
               <div className="scroll">{this.props.right}</div>
             )}
+            <div className="extraspace" />
           </div>
         </div>
       </div>

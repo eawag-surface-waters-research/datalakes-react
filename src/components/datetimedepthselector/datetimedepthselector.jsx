@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { setIntervalAsync } from "set-interval-async/dynamic";
 import { clearIntervalAsync } from "set-interval-async";
-//import * as d3 from "d3";
 import "./datetimedepthselector.css";
 import pauseicon from "./img/pause.svg";
 import playicon from "./img/play.svg";
@@ -17,22 +16,58 @@ class DatetimeDepthSelector extends Component {
     modal: false,
     play: false,
   };
+
   skipForwards = () => {
-    var { datetime, timestep, onChangeDatetime } = this.props;
-    onChangeDatetime(new Date(datetime.getTime() + timestep * 60 * 1000));
+    var { datetime, timestep, onChangeDatetime, selectedlayers } = this.props;
+    if (timestep === "Next") {
+      var files = [];
+      var unix = datetime.getTime();
+      for (let sl of selectedlayers) {
+        files = files.concat(
+          sl.files.map((f) => new Date(f.mindatetime).getTime())
+        );
+      }
+      files = files.filter((f) => f > unix);
+      files.sort(function (a, b) {
+        return a - b;
+      });
+      if (files.length < 1) {
+        return;
+      } else {
+        onChangeDatetime(new Date(files[0]));
+      }
+    } else {
+      onChangeDatetime(new Date(datetime.getTime() + timestep * 60 * 1000));
+    }
   };
+
   skipBackwards = () => {
-    var { datetime, timestep, onChangeDatetime } = this.props;
-    onChangeDatetime(new Date(datetime.getTime() - timestep * 60 * 1000));
+    var { datetime, timestep, onChangeDatetime, selectedlayers } = this.props;
+    if (timestep === "Next") {
+      var files = [];
+      var unix = datetime.getTime();
+      for (let sl of selectedlayers) {
+        files = files.concat(
+          sl.files.map((f) => new Date(f.mindatetime).getTime())
+        );
+      }
+      files = files.filter((f) => f < unix);
+      files.sort(function (a, b) {
+        return a - b;
+      });
+      if (files.length < 1) {
+        return;
+      } else {
+        onChangeDatetime(new Date(files[files.length - 1]));
+      }
+    } else {
+      onChangeDatetime(new Date(datetime.getTime() - timestep * 60 * 1000));
+    }
   };
+
   moveOneTimestep = async () => {
-    var {
-      datetime,
-      timestep,
-      maxdatetime,
-      mindatetime,
-      onChangeDatetime,
-    } = this.props;
+    var { datetime, timestep, maxdatetime, mindatetime, onChangeDatetime } =
+      this.props;
     if (
       datetime.getTime() >= mindatetime.getTime() &&
       datetime.getTime() <= maxdatetime.getTime()
@@ -59,6 +94,7 @@ class DatetimeDepthSelector extends Component {
     }
     this.setState({ play: !play });
   };
+
   toggleModal = (modal) => {
     if (this.state.modal) {
       this.setState({ modal: false });
@@ -66,6 +102,7 @@ class DatetimeDepthSelector extends Component {
       this.setState({ modal });
     }
   };
+
   lableTimestep = (mins) => {
     if (Number.isInteger(mins / (60 * 24 * 7))) {
       var weeks = mins / (60 * 24 * 7);
@@ -88,8 +125,10 @@ class DatetimeDepthSelector extends Component {
       } else {
         return hours + " hours";
       }
-    } else {
+    } else if (Number.isInteger(mins)) {
       return mins + " mins";
+    } else {
+      return mins;
     }
   };
 
@@ -108,20 +147,6 @@ class DatetimeDepthSelector extends Component {
       selectedlayers,
     } = this.props;
     var { modal, play } = this.state;
-    var months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
     return (
       <React.Fragment>
         <div className="shading" />
@@ -159,25 +184,6 @@ class DatetimeDepthSelector extends Component {
               <div className="timestep-text right">
                 {this.lableTimestep(timestep)}
               </div>
-            </div>
-            <div className="datetime">
-              <div
-                className="time text"
-                title="Edit time"
-                onClick={() => this.toggleModal("time")}
-              >
-                {datetime.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-              <div
-                className="date text"
-                title="Edit date"
-                onClick={() => this.toggleModal("date")}
-              >{`${datetime.getDate()} ${
-                months[datetime.getMonth()]
-              } ${datetime.getFullYear()}`}</div>
             </div>
             <div className="depthtimestep">
               <div

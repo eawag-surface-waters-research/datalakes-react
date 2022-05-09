@@ -1,33 +1,22 @@
 /* -------------- Header -------------------------  */
 
 header {
-  position: relative;
-  margin-top: 40px;
-  width: 100%;
-  padding: 5px 0;
-  z-index: 9999;
-  background-color: rgba(255,255,255,0.7);
-}
-
-.headerscroll {
   position: fixed;
   background-color: white;
   margin-top: 0;
-  padding-top: 10px;
   top: 0;
   width: 100%;
+  z-index: 9999999;
+  border-bottom: solid 10px #f9f9f9;
 }
 
 @media screen and (max-width: 500px) {
   header {
-    margin-top: 10px;
+    box-shadow: none;
   }
 }
 
 header .header-inner {
-  padding: 0 10px;
-  width: 960px;
-  margin: auto;
   max-width: 100%;
   box-sizing: border-box;
   height: 100%;
@@ -37,7 +26,15 @@ header .header-inner {
 
 header .logo {
   display: inline-block;
-  height: 35px;
+  height: 22px;
+  padding-top: 8px;
+  margin-left: 20px;
+  opacity: 0.4;
+}
+
+header .logo:hover {
+  opacity: 1;
+  transition: opacity 200ms linear;
 }
 
 header .logo img {
@@ -77,6 +74,10 @@ header .mobile-nav a {
 header .mobile-nav img {
   width: 60px;
   margin: 5px 2px;
+}
+
+header .mobile-nav .imgactive {
+  background-color: rgb(249, 249, 249);
 }
 
 header .mobile-nav .imgactive img {
@@ -133,21 +134,42 @@ header .desktop-nav .desktop-navbar .links {
   display: inline-block;
 }
 
-header .desktop-nav a {
-  padding: 10px 0 10px 40px;
-  color: #000;
+header .desktop-nav .desktop-navbar .links img {
+  height: 16px;
+  margin-right: 15px;
+  opacity: 0.5;
+  padding-bottom: 4px;
+  vertical-align: middle;
+}
+
+header .desktop-nav a.header-item {
+  padding: 12px 50px 8px;
+  color: #a29e9e;
   text-decoration: none;
   font-size: 16px;
-  font-family: The Serif Bold, serif;
+  font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
   display: inline-block;
-}
-
-header .active {
   font-weight: 700;
 }
 
-header .header-item:hover {
-  font-weight: 700;
+header .desktop-nav a.header-item.active {
+  color: #102a43;
+  background-color: rgb(249, 249, 249);
+}
+
+header .desktop-nav a.header-item.active img {
+  opacity: 1;
+}
+
+header .desktop-nav a.header-item:hover img {
+  opacity: 1;
+}
+
+header .desktop-nav a.header-item:hover {
+  color: black;
+  background-color: rgb(249, 249, 249);
+  transition: background-color 200ms linear;
+  transition: color 200ms linear;
 }
 
 header .desktop-nav .desktop-menu {
@@ -169,32 +191,24 @@ header .desktop-nav .midscreen {
   display: none;
 }
 
-@media screen and (max-width: 500px) {
-  header .desktop-nav {
-    display: none;
+@media screen and (max-width: 1100px) {
+  header .desktop-nav a.header-item {
+    padding: 9px 20px 9px 20px;
   }
 }
 
 @media screen and (max-width: 800px) {
-  header .desktop-nav .desktop-navbar .links {
+  header .desktop-nav a.header-item {
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+  header .desktop-nav .desktop-navbar .links img {
     display: none;
   }
-  header .desktop-nav .midscreen {
-    display: block;
-  }
+}
 
-  header .desktop-nav a {
-    padding: 10px 25px 10px 0;
-    display: block;
-    text-align: right;
-  }
-
-  header .desktop-nav .desktop-menu.show {
-    background-color: white;
-    padding: 0 0 0 25px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    position: absolute;
-    width: 200px;
-    right: 0;
+@media screen and (max-width: 500px) {
+  header .desktop-nav {
+    display: none;
   }
 }

@@ -1,8 +1,13 @@
 ul.maplayers-list {
   list-style-type: none;
-  padding: 0;
   margin: 0;
   cursor: pointer;
+  background-color: white;
+  padding: 10px;
+  height: calc(100% - 290px);
+  box-shadow: 1px 1px 10px #c4bbbb inset;
+  border-radius: 5px;
+  overflow-y: auto;
 }
 
 .maplayers-list li {
@@ -10,17 +15,29 @@ ul.maplayers-list {
   z-index: 99999;
 }
 
-
 .maplayers-contents {
   margin-bottom: 15px;
 }
 
 .maplayers-dropdown {
-  margin: 2px 0 5px 0;
+  margin: 5px 0 20px 0;
+}
+
+.maplayers-dropdown-title {
+  font-size: 16px;
+}
+
+.maplayers-dropdown-content {
+  margin-left: 20px;
+  margin-top: 5px;
 }
 
 .maplayers-dropdown .maplayers-dropdown-table {
   width: 100%;
+  background-color: #f2f5f7;
+  padding: 5px;
+  box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  box-sizing: border-box;
 }
 
 .maplayers-dropdown .maplayers-check {
@@ -42,16 +59,30 @@ ul.maplayers-list {
   font-size: 16px;
 }
 
-.maplayers-dropdown-content {
-  margin-left: 12px;
+.maplayers-dropdown .maplayers-settings img {
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.maplayers-dropdown .maplayers-settings img.grey {
+  opacity: 1;
+}
+
+.maplayers-dropdown .maplayers-settings img:hover {
+  opacity: 1;
 }
 
 .maplayers-dropdown-content.hide {
   display: none;
 }
 
+.maplayers-dropdown-settings.hide {
+  display: none;
+}
+
 .maplayers-parameter {
-  font-size: 12px;
+  font-size: 14px;
   font-style: italic;
 }
 
@@ -66,10 +97,12 @@ ul.maplayers-list {
 }
 
 .editsettings {
-  background-color: rgb(240, 240, 240);
-  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
-  padding: 5px;
+  background-color: white;
+  box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  padding: 15px;
   margin-bottom: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
 }
 
 .editsettings-title {
@@ -105,4 +138,18 @@ ul.maplayers-list {
 
 .editsettings table.min-max input {
   width: 100%;
+}
+
+@media screen and (max-height: 800px) {
+  ul.maplayers-list {
+    height: calc(100% - 250px);
+  }
+}
+
+@media screen and (max-width: 500px) {
+  ul.maplayers-list {
+    height: calc(100% - 180px);
+    padding-bottom: 65px;
+    box-sizing: border-box;
+  }
 }

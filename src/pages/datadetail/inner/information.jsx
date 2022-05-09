@@ -1,160 +1,132 @@
 import React, { Component } from "react";
+import mail from "../img/mail.svg";
+import calendar from "../img/calendar.svg";
+import location from "../img/location.svg";
+import git from "../img/git.svg";
+import depth from "../img/depth.svg";
+import download from "../img/download.svg";
+import citation from "../img/citation.svg";
+import licence from "../img/licence.svg";
 import "../css/datadetail.css";
 
 class Information extends Component {
   state = {};
+
+  parseDate = (input) => {
+    var months = [
+      "Jan ",
+      "Feb ",
+      "Mar ",
+      "Apr ",
+      "May ",
+      "Jun ",
+      "Jul ",
+      "Aug ",
+      "Sept ",
+      "Oct ",
+      "Nov ",
+      "Dec ",
+    ];
+    var date = new Date(input);
+    return months[date.getMonth()] + date.getFullYear();
+  };
+
   render() {
     const { dataset, datasetparameters, getLabel } = this.props;
 
     // Parameter Table
     var rows = [];
     for (var row of datasetparameters) {
-      rows.push(
-        <tr key={row.id}>
-          <td>{row.name}</td>
-          <td>{row.axis}</td>
-          <td>{row.unit}</td>
-          <td>
-            <a
-              href={getLabel("sensors", row.sensors_id, "link")}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={getLabel("sensors", row.sensors_id, "manufacturer")}
-            >
-              {getLabel("sensors", row.sensors_id, "name")}
-            </a>
-          </td>
-        </tr>
-      );
+      if (![27].includes(row.parameters_id)) {
+        rows.push(
+          <div className="rows" key={row.id}>
+            {row.name} {row.detail !== "none" && `(${row.detail})`}
+            <div className="unit">{row.unit}</div>
+          </div>
+        );
+      }
     }
-
     return (
-      <div className="datadetail-padding">
-        {dataset.description}
-        <div className="info-width">
-          <div className="info-head">Parameters</div>
-          <table>
-            <tbody>
-              <tr>
-                <th>Parameter</th>
-                <th>Axis</th>
-                <th>Units</th>
-                <th>Sensor</th>
-              </tr>
-              {rows}
-            </tbody>
-          </table>
-        </div>
-        <div className="info-inner">
-          <div className="info-head">Properties</div>
-          <table>
-            <tbody>
-              <tr>
-                <th>Git</th>
-                <td>
-                  <a
-                    href={dataset.datasourcelink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Link to Git Repository
-                  </a>
-                </td>
-              </tr>
-              <tr>
-                <th>Start</th>
-                <td>
-                  {new Date(dataset.mindatetime).toDateString() +
-                    " " +
-                    new Date(dataset.mindatetime).toLocaleTimeString()}
-                </td>
-              </tr>
-              <tr>
-                <th>End</th>
-                <td>
-                  {new Date(dataset.maxdatetime).toDateString() +
-                    " " +
-                    new Date(dataset.maxdatetime).toLocaleTimeString()}
-                </td>
-              </tr>
-              <tr>
-                <th>Latitude</th>
-                <td>{dataset.latitude}</td>
-              </tr>
-              <tr>
-                <th>Longitude</th>
-                <td>{dataset.longitude}</td>
-              </tr>
-              <tr>
-                <th>Min Depth (m)</th>
-                <td>
-                  {dataset.mindepth === "-9999" ? "Variable" : dataset.mindepth}
-                </td>
-              </tr>
-              <tr>
-                <th>Max Depth (m)</th>
-                <td>
-                  {dataset.maxdepth === "-9999" ? "Variable" : dataset.maxdepth}
-                </td>
-              </tr>
-              <tr>
-                <th>Lake</th>
-                <td>{getLabel("lakes", dataset.lakes_id, "name")}</td>
-              </tr>
-              <tr>
-                <th>Downloads</th>
-                <td>{dataset.downloads}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="info-inner">
-          <div className="info-head">Contact</div>
-          <table>
-            <tbody>
-              <tr>
-                <th>Name</th>
-                <td>{getLabel("persons", dataset.persons_id, "name")}</td>
-              </tr>
-              <tr>
-                <th>Email</th>
-                <td>{getLabel("persons", dataset.persons_id, "email")}</td>
-              </tr>
-              <tr>
-                <th>Organisation</th>
-                <td>
+      <React.Fragment>
+        <div className="info-mation">
+          <div className="info-contact">
+            <div className="contact-header">Questions about the dataset?</div>
+            <div className="contact-inner">
+              <div className="contact-icon">
+                <img src={mail} alt="mail" />
+              </div>
+              <div className="contact-text">
+                <div className="contact-name">
+                  {getLabel("persons", dataset.persons_id, "name")}
+                </div>
+                <div className="contact-email">
+                  {getLabel("persons", dataset.persons_id, "email")}
+                </div>
+                <div className="contact-job">
+                  {getLabel("projects", dataset.projects_id, "name")},{" "}
                   {getLabel("organisations", dataset.organisations_id, "name")}
-                </td>
-              </tr>
-              <tr>
-                <th>Project</th>
-                <td>{getLabel("projects", dataset.projects_id, "name")}</td>
-              </tr>
-              <tr>
-                <th>License</th>
-                <td>
-                  <a
-                    href={getLabel("licenses", dataset.licenses_id, "link")}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={getLabel(
-                      "licenses",
-                      dataset.licenses_id,
-                      "description"
-                    )}
-                  >
-                    {getLabel("licenses", dataset.licenses_id, "name")}
-                  </a>
-                </td>
-              </tr>
-              <tr>
-                <th>Citation</th>
-                <td>{dataset.citation}</td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="description">
+            <div className="desc-title">{dataset.description}</div>
+            <div className="data-row">
+              <img src={calendar} alt="calendar" />{" "}
+              {this.parseDate(dataset.mindatetime)} to{" "}
+              {this.parseDate(dataset.maxdatetime)}
+            </div>
+            <div className="data-row">
+              <img src={location} alt="location" />
+              <a
+                href={`https://www.google.com/maps/search/${dataset.latitude},${dataset.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {getLabel("lakes", dataset.lakes_id, "name")} [
+                {dataset.latitude}, {dataset.longitude}]
+              </a>
+            </div>
+            <div className="data-row">
+              <img src={git} alt="git" />
+              <a
+                href={dataset.datasourcelink.split("/-/blob")[0]}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Link to Git Repository
+              </a>
+            </div>
+            {dataset.mindepth !== "-9999" && (
+              <div className="data-row">
+                <img src={depth} alt="depth" />
+                {`${dataset.mindepth}m to ${dataset.maxdepth}m`}
+              </div>
+            )}
+
+            <div className="data-row">
+              <img src={download} alt="download" /> {dataset.downloads}{" "}
+              downloads
+            </div>
+            <div className="data-row">
+              <img src={licence} alt="licence"/>
+              <a
+                href={getLabel("licenses", dataset.licenses_id, "link")}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={getLabel("licenses", dataset.licenses_id, "description")}
+              >
+                {getLabel("licenses", dataset.licenses_id, "name")}
+              </a>
+            </div>
+            <div className="data-row">
+              <img src={citation} alt="citation" />
+              {dataset.citation}
+            </div>
+            <div className="parameters">{rows}</div>
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

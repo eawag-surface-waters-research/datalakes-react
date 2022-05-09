@@ -35,14 +35,12 @@ class Bafu extends Component {
       yScale,
       minX,
       maxX,
-      minZ,
-      maxZ,
       lowerX,
       upperX,
-      file,
       files,
       onChangeX,
       dropdown,
+      lang,
     } = this.props;
     // Overwrite defaults
     /*colors = [
@@ -63,17 +61,16 @@ class Bafu extends Component {
 
       { color: "#9d3543", point: 0.833 },
       { color: "#9d3543", point: 1 },
-    ];*/
+    ];
     minZ = 0;
-    maxZ = 30;
+    maxZ = 30;*/
     thresholdStep = 50;
-    var language = "de";
 
-    if (ylabel !== "") {
+    if (ylabel !== "" && lang === "de") {
       var ylabel_info = dropdown.parameters.find((f) => f.name === ylabel);
       if (ylabel_info.german) ylabel = ylabel_info.german;
     }
-    if (zlabel !== "")
+    if (zlabel !== "" && lang === "de")
       zlabel = dropdown.parameters.find((f) => f.name === zlabel).german;
 
     switch (graph) {
@@ -108,13 +105,12 @@ class Bafu extends Component {
                 bcolor={bcolor}
                 colors={colors}
                 thresholdStep={thresholdStep}
-                minvalue={minZ}
-                maxvalue={maxZ}
                 yReverse={yReverse}
                 xReverse={xReverse}
                 display={"contour"}
                 header={false}
-                language={language}
+                language={lang}
+                levels={true}
               />
             </div>
             <div className="selector">
@@ -127,24 +123,57 @@ class Bafu extends Component {
                 lower={lowerX}
                 upper={upperX}
                 files={files}
-                language={language}
+                language={lang}
               />
             </div>
           </div>
         );
       case "linegraph":
-        var legend = [];
-        for (var i = 0; i < file.length; i++) {
-          var value = new Date(files[file[i]].ave);
-          var text = value.toDateString() + " " + value.toLocaleTimeString();
-          var color = lcolor[i];
-          legend.push({ id: i, color, text, value });
-        }
         lcolor[0] = "#FF0000";
-        lcolor[1] = "#FF0000";
+        lcolor[1] = "#0E18EB";
         lweight[0] = 2;
+        lweight[1] = 2;
+        var legend = [];
+        if (plotdata.length > 1) {
+          ylabel = "Wassertemperatur";
+          let bt = "Grundtemperatur";
+          let st = "Oberflächentemperatur";
+          if (lang === "en") {
+            ylabel = "Water Temperature";
+            bt = "Bottom Temperature";
+            st = "Surface Temperature";
+          }
+          if (lang === "fr") {
+            ylabel = "Température de l'eau";
+            bt = "Température de Fond";
+            st = "Température de Surface";
+          }
+          if (lang === "es") {
+            ylabel = "Temperatura dell'acqua";
+            bt = "Temperatura Inferiore";
+            st = "Temperatura Superficiale";
+          }
+          legend = [
+            {
+              id: 0,
+              color: lcolor[0],
+              text: st,
+              value: "",
+              xaxis: "x",
+              yaxis: "y",
+            },
+            {
+              id: 1,
+              color: lcolor[1],
+              text: bt,
+              value: "",
+              xaxis: "x",
+              yaxis: "y",
+            },
+          ];
+        }
         return (
-          <div className="bafu">
+          <div className="bafu" id="bafu">
             <div className="graph">
               <D3LineGraph
                 data={plotdata}
@@ -168,7 +197,7 @@ class Bafu extends Component {
                 grid={true}
                 header={false}
                 fontSize={14}
-                language={language}
+                language={lang}
                 border={true}
               />
             </div>
@@ -182,7 +211,7 @@ class Bafu extends Component {
                 lower={lowerX}
                 upper={upperX}
                 files={files}
-                language={language}
+                language={lang}
               />
             </div>
           </div>

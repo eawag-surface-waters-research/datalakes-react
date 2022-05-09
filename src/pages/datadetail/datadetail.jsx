@@ -10,8 +10,6 @@ import External from "./inner/external";
 import Preview from "./inner/preview";
 import DataSubMenu from "./datasubmenu";
 import Loading from "../../components/loading/loading";
-import ThreeDModel from "./inner/threedmodel";
-import RemoteSensing from "./inner/remotesensing";
 import ThreeDModelDownload from "./inner/threedmodeldownload";
 import Ch2018Graph from "./inner/ch2018graph";
 import Ch2018Download from "./inner/ch2018download";
@@ -19,6 +17,7 @@ import RemoteSensingDownload from "./inner/remotesensingdownload";
 import LocationMap from "./inner/locationmap";
 import Plot from "./inner/plot";
 import isArray from "lodash/isArray";
+import MapComponent from "./inner/mapcomponent";
 import "./css/datadetail.css";
 
 class DataDetail extends Component {
@@ -36,6 +35,7 @@ class DataDetail extends Component {
     files: [],
     data: "",
     step: "",
+    lang: "en",
     allowedStep: ["plot", "download", "pipeline", "information", "webgis"],
     file: [0],
     innerLoading: false,
@@ -410,6 +410,11 @@ class DataDetail extends Component {
 
     var search = this.props.location.search;
     var iframe = this.props.location.search.includes("iframe");
+    var lang = "en";
+    var searchArr = search.split("&");
+    if (searchArr.includes("de") || searchArr.includes("DE")) lang = "de";
+    if (searchArr.includes("fr") || searchArr.includes("FR")) lang = "fr";
+    if (searchArr.includes("it") || searchArr.includes("IT")) lang = "es";
 
     let server = await Promise.all([
       axios.get(apiUrl + "/datasets/" + dataset_id),
@@ -543,6 +548,7 @@ class DataDetail extends Component {
         scripts,
         iframe,
         search,
+        lang,
       });
       //} else if (datasource === "Meteolakes") {
     } else if (mapplotfunction === "meteolakes") {
@@ -551,6 +557,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         loading: false,
         step: "threedmodel",
         allowedStep: [
@@ -566,6 +573,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         loading: false,
         step: "threedmodel",
         allowedStep: [
@@ -581,6 +589,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "remotesensing",
         allowedStep: [
           "remotesensing",
@@ -595,8 +604,19 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "ch2018",
         allowedStep: ["ch2018", "ch2018download", "external"],
+      });
+    } else if (mapplotfunction === "simstrat") {
+      this.setState({
+        dataset,
+        datasetparameters,
+        dropdown,
+        files,
+        lang,
+        step: "simstrat",
+        allowedStep: ["simstrat", "external", "webgis"],
       });
     } else {
       this.setState({
@@ -604,6 +624,7 @@ class DataDetail extends Component {
         datasetparameters,
         dropdown,
         files,
+        lang,
         step: "external",
         allowedStep: ["external", "webgis"],
       });
@@ -629,6 +650,7 @@ class DataDetail extends Component {
       scripts,
       iframe,
       search,
+      lang,
       dropdown,
     } = this.state;
     document.title = dataset.title
@@ -643,9 +665,9 @@ class DataDetail extends Component {
     var monitor = Number.isInteger(dataset.monitor);
     if (iframe && step !== "") step = "plot";
     var title = (
-      <h1>
+      <h2>
         {dataset.title} {monitor && <div className="title-live">LIVE</div>}
-      </h1>
+      </h2>
     );
 
     switch (step) {
@@ -678,21 +700,24 @@ class DataDetail extends Component {
                 />
               </React.Fragment>
             )}
-            <Plot
-              datasetparameters={datasetparameters}
-              dropdown={dropdown}
-              dataset={dataset}
-              data={data}
-              files={files}
-              file={file}
-              fileChange={JSON.stringify(file)}
-              maxdatetime={maxdatetime}
-              mindatetime={mindatetime}
-              removeFile={this.removeFile}
-              downloadMultipleFiles={this.downloadMultipleFiles}
-              iframe={iframe}
-              search={search}
-            />
+            <div className="datadetail-padding">
+              <Plot
+                datasetparameters={datasetparameters}
+                dropdown={dropdown}
+                dataset={dataset}
+                data={data}
+                files={files}
+                file={file}
+                lang={lang}
+                fileChange={JSON.stringify(file)}
+                maxdatetime={maxdatetime}
+                mindatetime={mindatetime}
+                removeFile={this.removeFile}
+                downloadMultipleFiles={this.downloadMultipleFiles}
+                iframe={iframe}
+                search={search}
+              />
+            </div>
           </React.Fragment>
         );
       case "locationmap":
@@ -705,16 +730,18 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <LocationMap
-              dataset={dataset}
-              file={file}
-              files={files}
-              min={mindatetime}
-              max={maxdatetime}
-              onChangeFileInt={this.onChangeFileInt}
-              removeFile={this.removeFile}
-              selectFilesDatetime={this.selectFilesDatetime}
-            />
+            <div className="datadetail-padding">
+              <LocationMap
+                dataset={dataset}
+                file={file}
+                files={files}
+                min={mindatetime}
+                max={maxdatetime}
+                onChangeFileInt={this.onChangeFileInt}
+                removeFile={this.removeFile}
+                selectFilesDatetime={this.selectFilesDatetime}
+              />
+            </div>
           </React.Fragment>
         );
       case "preview":
@@ -727,11 +754,13 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Preview
-              data={data}
-              getLabel={this.getLabel}
-              datasetparameters={datasetparameters}
-            />
+            <div className="datadetail-padding">
+              <Preview
+                data={data}
+                getLabel={this.getLabel}
+                datasetparameters={datasetparameters}
+              />
+            </div>
           </React.Fragment>
         );
       case "download":
@@ -744,16 +773,18 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Download
-              dataset={dataset}
-              files={files}
-              datasetparameters={datasetparameters}
-              selectedFiles={this.selectedFiles}
-              getLabel={this.getLabel}
-              max={maxdatetime}
-              min={mindatetime}
-              apiUrl={apiUrl}
-            />
+            <div className="datadetail-padding">
+              <Download
+                dataset={dataset}
+                files={files}
+                datasetparameters={datasetparameters}
+                selectedFiles={this.selectedFiles}
+                getLabel={this.getLabel}
+                max={maxdatetime}
+                min={mindatetime}
+                apiUrl={apiUrl}
+              />
+            </div>
           </React.Fragment>
         );
       case "pipeline":
@@ -766,7 +797,9 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Pipeline dataset={dataset} renku={renku} scripts={scripts} />
+            <div className="datadetail-padding">
+              <Pipeline dataset={dataset} renku={renku} scripts={scripts} />
+            </div>
           </React.Fragment>
         );
       case "information":
@@ -779,11 +812,13 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Information
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-            />
+            <div className="datadetail-padding">
+              <Information
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+              />
+            </div>
           </React.Fragment>
         );
       case "external":
@@ -796,12 +831,14 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <External
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <External
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "threedmodel":
@@ -814,13 +851,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <ThreeDModel
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <MapComponent
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "threedmodeldownload":
@@ -833,13 +872,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <ThreeDModelDownload
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <ThreeDModelDownload
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "remotesensingdownload":
@@ -852,13 +893,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <RemoteSensingDownload
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <RemoteSensingDownload
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "remotesensing":
@@ -871,13 +914,36 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <RemoteSensing
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
+            <div className="datadetail-padding">
+              <MapComponent
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
+          </React.Fragment>
+        );
+      case "simstrat":
+        return (
+          <React.Fragment>
+            {title}
+            <DataSubMenu
+              step={step}
+              allowedStep={allowedStep}
+              updateSelectedState={this.updateSelectedState}
               link={link}
             />
+            <div className="datadetail-padding">
+              <MapComponent
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "ch2018":
@@ -890,14 +956,16 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Ch2018Graph
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-              search={this.props.location.search}
-            />
+            <div className="datadetail-padding">
+              <Ch2018Graph
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+                search={this.props.location.search}
+              />
+            </div>
           </React.Fragment>
         );
       case "ch2018download":
@@ -910,13 +978,15 @@ class DataDetail extends Component {
               updateSelectedState={this.updateSelectedState}
               link={link}
             />
-            <Ch2018Download
-              dataset={dataset}
-              datasetparameters={datasetparameters}
-              getLabel={this.getLabel}
-              files={files}
-              link={link}
-            />
+            <div className="datadetail-padding">
+              <Ch2018Download
+                dataset={dataset}
+                datasetparameters={datasetparameters}
+                getLabel={this.getLabel}
+                files={files}
+                link={link}
+              />
+            </div>
           </React.Fragment>
         );
       case "error":

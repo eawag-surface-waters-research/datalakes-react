@@ -1,0 +1,16 @@
+.mapviewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  padding-top: 50px;
+  box-sizing: border-box;
+}
+
+@media screen and (max-width: 500px) { 
+
+.mapviewer { 
+  padding-bottom: 60px;
+}}

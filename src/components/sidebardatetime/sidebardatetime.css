@@ -1,0 +1,82 @@
+.siderbar-datetime {
+  width: 100%;
+  text-align: center;
+  color: #102a43;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+.siderbar-datetime table {
+  margin: auto;
+  transition: all 0.1s ease-in-out;
+}
+
+.siderbar-datetime table:hover {
+  transform: scale(1.02);
+}
+
+.siderbar-datetime table td.day {
+  font-size: 110px;
+}
+
+.siderbar-datetime table td.month {
+  font-size: 40px;
+  vertical-align: bottom;
+}
+
+.siderbar-datetime table td.year {
+  font-size: 40px;
+  vertical-align: top;
+}
+
+.siderbar-datetime .time {
+  font-size: 30px;
+  margin-top: -16px;
+  transition: all 0.1s ease-in-out;
+}
+
+.siderbar-datetime .time:hover {
+  transform: scale(1.02);
+}
+
+@media screen and (max-height: 800px) {
+  .siderbar-datetime {
+    margin-bottom: 10px;
+    margin-top: -20px;
+  }
+  .siderbar-datetime table td.day {
+    font-size: 80px;
+  }
+  .siderbar-datetime table td.month {
+    font-size: 28px;
+  }
+
+  .siderbar-datetime table td.year {
+    font-size: 28px;
+  }
+
+  .siderbar-datetime .time {
+    font-size: 22px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .siderbar-datetime {
+    margin-bottom: 10px;
+    margin-top: -20px;
+  }
+  .siderbar-datetime table td.day {
+    font-size: 80px;
+  }
+  .siderbar-datetime table td.month {
+    font-size: 28px;
+  }
+
+  .siderbar-datetime table td.year {
+    font-size: 28px;
+  }
+
+  .siderbar-datetime .time {
+    font-size: 22px;
+  }
+}

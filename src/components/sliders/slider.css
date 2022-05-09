@@ -20,6 +20,7 @@
 
 .react-datetime-picker__calendar {
   width: 300px;
+  z-index: 9;
 }
 
 .single-value {

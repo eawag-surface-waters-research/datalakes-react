@@ -1,17 +1,24 @@
-.addlayers-box .addlayers-layer {
-  border: 1px solid rgb(169, 169, 169);
-  padding: 4px 6px;
-  margin: 2px 0;
+.addlayers .filterbox.inner .title {
+  font-size: 22px;
+  padding: 10px 0;
+}
+
+.addlayers .addlayers-box {
+  border: 1px solid grey;
+}
+
+.addlayers-titlebar {
+  padding: 12px 10px;
+  cursor: pointer;
+}
+
+.addlayers-titlebar:hover {
+  background-color: rgba(222, 235, 255);
 }
 
 .addlayers-title {
   display: inline-block;
   max-width: calc(100% - 50px);
-  cursor: pointer;
-}
-
-.addlayers-title:hover {
-  font-weight: bold;
 }
 
 .addlayers-symbol {
@@ -23,17 +30,26 @@
 }
 
 .addlayers-detail {
-    cursor: pointer;
-    cursor: pointer;
-    padding: 3px 5px;
-    border: 1px solid rgb(169, 169, 169);
-    margin: 2px 0;
+  cursor: pointer;
+  position: relative;
+  background-color: #f2f5f7;
+  border-radius: 5px;
+  padding: 5px;
+  box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  box-sizing: border-box;
+  margin: 10px;
 }
 
 .addlayers-detail:hover {
-    background-color: rgb(220, 220, 220);
+  box-shadow: rgb(0 0 0 / 44%) 0px 3px 8px;
 }
 
-.addlayers-content {
-    margin-top: 10px;
+.addlayers-detail table {
+  width: 100%;
+  table-layout: fixed;
+  text-align: center;
+}
+
+.addlayers-detail table td {
+  width: 33%;
 }

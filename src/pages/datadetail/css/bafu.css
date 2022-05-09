@@ -1,13 +1,14 @@
 .bafu {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   left: 0;
   top: 0;
   position: fixed;
+  background-color: white;
 }
 
 .bafu .graph {
-  height: calc(100% - 100px);
+  height: calc(100% - 130px);
   width: 100%;
 }
 

@@ -1,18 +1,24 @@
 /* -------------- Side Bar -------------------------  */
 
+.sidebarlayout.wide {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding-left: 30px;
+}
+
 /* Right Side */
 
 .sidebarlayout .rightcontainer {
   width: 318px;
-  padding-left: 10px;
-  padding-right: 10px;
-  vertical-align: top;
   max-width: 100%;
   box-sizing: border-box;
   display: inline-block;
   position: relative;
   background-color: white;
   min-height: 500px;
+  border: solid 1px rgb(169, 169, 169);
+  border-radius: 5px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
 }
 
 .sidebarlayout .rightcontainer.hide {
@@ -27,6 +33,19 @@
   font-weight: 500;
   line-height: 20px;
   font-family: "The Serif Bold", Arial, sans-serif;
+  padding: 10px 15px;
+  border-radius: 5px 5px 0 0;
+}
+
+.sidebarlayout .rightcontainer .righthead:hover {
+  background-color: hsl(0, 0%, 95%);
+}
+
+.sidebarlayout .rightcontainer.hide .righthead {
+  padding: 10px 8px;
+  background-color: transparent;
+  border: none;
+  min-height: 500px;
 }
 
 .sidebarlayout .rightcontainer .righthead .sidebartitle {
@@ -35,13 +54,14 @@
 
 .sidebarlayout .rightcontainer .righthead span {
   float: right;
-  font-size: 18px;
+  font-size: 22px;
 }
 
 .sidebarlayout .rightcontainer .rightcontent {
   max-width: 300px;
   margin: auto;
   height: inherit;
+  padding: 0 15px;
 }
 
 .sidebarlayout .rightcontainer .rightcontent .scroll {
@@ -84,52 +104,87 @@
   display: inline-block;
 }
 
+.sidebarlayout.wide .leftcontainer {
+  width: calc(100vw - 390px);
+}
+
 .sidebarlayout .leftcontainer.full {
-  width: -webkit-calc(100% - 50px);
-  width: -moz-calc(100% - 50px);
-  width: calc(100% - 50px);
+  width: -webkit-calc(100% - 45px);
+  width: -moz-calc(100% - 45px);
+  width: calc(100% - 45px);
   padding-right: 15px;
+}
+
+.sidebarlayout.wide .leftcontainer.full {
+  width: -webkit-calc(100% - 110px);
+  width: -moz-calc(100% - 110px);
+  width: calc(100% - 110px);
+  padding-right: 15px;
+}
+
+.extraspace {
+  height: 20px;
 }
 
 /* Media Queries */
 
 @media screen and (max-width: 960px) {
-  .sidebarlayout .rightcontainer.hide {
-    right: 10px;
-    height: auto;
-  }
-
   .sidebarlayout .leftcontainer {
     width: calc(100vw - 323px);
   }
 }
 
 @media screen and (max-width: 500px) {
+  .extraspace {
+    height: 150px;
+  }
+
+  .sidebarlayout.wide {
+    width: calc(100% - 10px);
+    margin-left: 5px;
+    padding: 0;
+  }
   .sidebarlayout .rightcontainer.hide {
-    right: 0;
-    width: 100%;
+    width: 150px;
     min-height: 0;
     padding: 2px 5px;
+    margin-bottom: 10px;
+    margin-top: -10px;
+    position: fixed;
+    bottom: 65px;
+    top: unset;
+    left: unset;
+    right: 5px;
+    border-radius: 30px;
+    z-index: 999;
   }
 
   .sidebarlayout .rightcontainer {
-    right: 0;
+    left: 0;
     width: 100%;
     min-height: 0;
-    padding: 2px 5px;
     order: 1;
+    position: fixed;
+    top: 41px;
+    border-radius: 0;
+    border: none;
+    padding-bottom: 10px;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead {
     -ms-writing-mode: unset;
     writing-mode: unset;
+    min-height: unset;
+    margin-bottom: 0;
+    font-size: 15px;
   }
 
   .sidebarlayout .rightcontainer .righthead {
     width: 100%;
-    border: 1px solid rgb(169, 169, 169);
-    padding: 4px 5px;
     box-sizing: border-box;
+    border-radius: 0;
+    font-size: 20px;
+    padding: 20px;
   }
 
   .sidebarlayout .rightcontainer .righthead .sidebartitle {
@@ -138,11 +193,12 @@
   }
 
   .sidebarlayout .rightcontainer .righthead span {
-    transform: rotate(-90deg);
+    font-size: 35px;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead span {
-    transform: rotate(90deg);
+    transform: rotate(-90deg);
+    font-size: 15px;
   }
 
   .sidebarlayout .rightcontainer .rightcontent .scroll {
@@ -150,9 +206,10 @@
   }
 
   .sidebarlayout .rightcontainer .rightcontent {
-    padding: 0 5px;
-    margin-bottom: 60px;
     max-width: 500px;
+    height: calc(100vh - 220px);
+    overflow-y: auto;
+    padding: 5px 20px 160px;
   }
 
   .sidebarlayout .leftcontainer {
@@ -162,6 +219,11 @@
   }
 
   .sidebarlayout .leftcontainer.full {
+    width: 100%;
+    padding: 0;
+  }
+
+  .sidebarlayout.wide .leftcontainer.full {
     width: 100%;
     padding: 0;
   }

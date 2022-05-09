@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import "./slider.css";
 import SliderSelect from "../SliderSelect/SliderSelect";
 
-
 class DateSliderDouble extends Component {
   state = {
     upper: this.props.upper,
@@ -31,6 +30,18 @@ class DateSliderDouble extends Component {
     }
   };
 
+  onChangeLower = (event) => {
+    if (event instanceof Date) {
+      this.props.onChangeLower(event);
+    }
+  };
+
+  onChangeUpper = (event) => {
+    if (event instanceof Date) {
+      this.props.onChangeUpper(event);
+    }
+  };
+
   onChange = (event) => {
     var lower = event[0];
     var upper = event[1];
@@ -41,8 +52,16 @@ class DateSliderDouble extends Component {
   };
 
   render() {
-    var { min, max, lower, upper, onChangeLower, onChangeUpper, files, language } =
-      this.props;
+    var {
+      min,
+      max,
+      lower,
+      upper,
+      onChangeLower,
+      onChangeUpper,
+      files,
+      language,
+    } = this.props;
     min = this.formatDate(min);
     max = this.formatDate(max);
     lower = this.formatDate(lower);
@@ -58,7 +77,7 @@ class DateSliderDouble extends Component {
           <div className="datetime-picker">
             <div className="datetime-value" style={{ float: "left" }}>
               <DateTimePicker
-                onChange={onChangeLower}
+                onChange={this.onChangeLower}
                 value={lower}
                 clearIcon={null}
                 calendarIcon={null}
@@ -72,7 +91,7 @@ class DateSliderDouble extends Component {
             <div className="datetime-value">{">"}</div>
             <div className="datetime-value" style={{ float: "right" }}>
               <DateTimePicker
-                onChange={onChangeUpper}
+                onChange={this.onChangeUpper}
                 value={upper}
                 clearIcon={null}
                 calendarIcon={null}

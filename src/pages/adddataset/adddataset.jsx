@@ -466,7 +466,7 @@ class AddDataset extends Component {
     var search = fuse.search(match);
     var defaultValue = "";
     if (search.length !== 0) {
-      defaultValue = search[0].id;
+      defaultValue = search[0].item.id;
     }
     // Fix common match errors of pressure and temperature
     if (defaultValue === 10 && !find.toLowerCase().includes("air")) {
@@ -571,7 +571,7 @@ class AddDataset extends Component {
   };
 
   setDatasetParameters = (fileInformation, dropdown) => {
-    const { parameters, sensors } = dropdown;
+    const { parameters } = dropdown;
     const { variables, attributes } = fileInformation;
 
     // Initial data parse and auto field matching
@@ -618,7 +618,7 @@ class AddDataset extends Component {
         defaultParameter = 27;
       }
 
-      var defaultSensor = this.fuseSearch(["name"], sensors, parseSensor);
+      var defaultSensor = 1;
 
       // Fallback to parameter units if none provided in nc file
       var defaultUnit;

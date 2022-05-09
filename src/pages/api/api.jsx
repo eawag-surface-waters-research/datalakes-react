@@ -10,18 +10,18 @@ class API extends Component {
     return (
       <React.Fragment>
         <h1>Datalakes API</h1>
-        <div className="doc-desc">
-          Documentation for the Datalakes API is generated automatically using {" "}
-          <a
-            href="https://swagger.io/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Swagger.
-          </a>
-          <p>[ Base URL: https://api.datalakes-eawag.ch ]</p>
-        </div>
         <div className="api-container">
+          <div className="doc-desc">
+            Documentation for the Datalakes API is generated automatically using{" "}
+            <a
+              href="https://swagger.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Swagger.
+            </a>
+            <p>[ Base URL: https://api.datalakes-eawag.ch ]</p>
+          </div>
           <SwaggerUI url={apiUrl + "/docs"} docExpansion="list" />
         </div>
       </React.Fragment>

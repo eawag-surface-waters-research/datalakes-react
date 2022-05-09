@@ -7,7 +7,7 @@ import "leaflet-streamlines";
 import "./leaflet_vectorField";
 import "./leaflet_customcontrol";
 import "./leaflet_colorpicker";
-
+import { basemaps } from "../../config.json";
 import { getColor } from "../../components/gradients/gradients";
 import "./css/leaflet.css";
 
@@ -56,207 +56,6 @@ class Basemap extends Component {
     lng = (lng * 100) / 36;
 
     return [lat, lng];
-  };
-
-  meteoSwissMarkers = async (layer, file) => {
-    function getValueFromID(id, data) {
-      var index = data.findIndex((d) => d.id === id);
-      return data[index].v;
-    }
-    function getDirFromID(id, data) {
-      var index = data.findIndex((d) => d.id === id);
-      return data[index].d;
-    }
-    var { datetime, templates } = this.props;
-    var {
-      markerLabel,
-      markerSymbol,
-      markerFixedSize,
-      markerSize,
-      min,
-      max,
-      unit,
-      colors,
-      data,
-    } = layer;
-    var arr = file.filelink.split("/");
-    var source = arr[arr.length - 3];
-    var parameter = arr[arr.length - 2];
-
-    // Merge template and data
-    var template = JSON.parse(JSON.stringify(templates[source][parameter]));
-    var inputData = JSON.parse(JSON.stringify(data));
-    var ids = inputData.map((fd) => fd.id);
-    var layerData = template.features;
-    layerData = layerData.filter((t) => ids.includes(t.id));
-    for (var i = 0; i < layerData.length; i++) {
-      layerData[i].properties.value = getValueFromID(
-        layerData[i].id,
-        inputData
-      );
-      if (parameter === "wind") {
-        layerData[i].properties.wind_direction_radian = getDirFromID(
-          layerData[i].id,
-          inputData
-        );
-      }
-    }
-
-    var coeff = 1000 * 60 * 10;
-    datetime = new Date(Math.round(datetime.getTime() / coeff) * coeff);
-
-    var minSize = 5;
-    var maxSize = 30;
-    var markerGroup = L.layerGroup().addTo(this.map);
-
-    var marker, value, color, size, latlng, valuestring;
-    var rotation = 0;
-    for (var j = 0; j < layerData.length; j++) {
-      value = layerData[j].properties.value;
-      valuestring = String(value) + String(unit);
-      color = getColor(value, min, max, colors);
-      if (markerFixedSize) {
-        size = markerSize;
-      } else {
-        size = ((value - min) / (max - min)) * (maxSize - minSize) + minSize;
-      }
-      if ("wind_direction_radian" in layerData[j].properties)
-        rotation = layerData[j].properties.wind_direction_radian + Math.PI;
-      latlng = this.CHtoWGSlatlng(layerData[j].geometry.coordinates);
-      marker = new L.marker(latlng, {
-        icon: L.divIcon({
-          className: "map-marker",
-          html:
-            `<div style="padding:10px;transform:translate(-12px, -12px);position: absolute;">` +
-            `<div class="${markerSymbol}" style="background-color:${color};height:${size}px;width:${size}px;transform: rotate(${rotation}rad)">` +
-            `</div></div> `,
-        }),
-      })
-        .bindTooltip(valuestring, {
-          permanent: markerLabel,
-          direction: "top",
-        })
-        .addTo(markerGroup);
-      marker.bindPopup(
-        "<table><tbody>" +
-          '<tr><td colSpan="2"><strong>' +
-          layer.title +
-          "</strong></td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Station</strong></td><td>" +
-          layerData[j].properties.station_name +
-          "</td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Station Altitude</strong></td><td>" +
-          layerData[j].properties.altitude +
-          "</td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Data Owner</strong></td><td>MeteoSwiss</td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Datetime</strong></td><td>" +
-          datetime.toLocaleString() +
-          "</td></tr>" +
-          "<tr><td><strong>Value at point:</strong></td><td>" +
-          String(value) +
-          String(unit) +
-          '</td></tr><tr><td class=\'text-nowrap\'><strong>Link</strong></td><td><a target="_blank" href="' +
-          layerData[j].properties.link +
-          '">More information</a></td></tr>' +
-          "</td></tr>" +
-          "</tbody></table>"
-      );
-    }
-    this.marker.push(markerGroup);
-  };
-
-  foenMarkers = async (layer, file) => {
-    function getValueFromID(id, data) {
-      var index = data.findIndex((d) => d.id === id);
-      return data[index].v;
-    }
-    var {
-      markerLabel,
-      markerSymbol,
-      markerFixedSize,
-      markerSize,
-      min,
-      max,
-      unit,
-      colors,
-      data,
-    } = layer;
-    var { datetime, templates } = this.props;
-    var arr = file.filelink.split("/");
-    var source = arr[arr.length - 3];
-    var parameter = arr[arr.length - 2];
-
-    var coeff = 1000 * 60 * 10;
-    datetime = new Date(Math.round(datetime.getTime() / coeff) * coeff);
-
-    // Merge template and data
-    var template = JSON.parse(JSON.stringify(templates[source][parameter]));
-    var inputData = JSON.parse(JSON.stringify(data));
-    var ids = inputData.map((fd) => fd.id);
-    var layerData = template.features;
-    layerData = layerData.filter((t) => ids.includes(t.id));
-    for (var i = 0; i < layerData.length; i++) {
-      layerData[i].properties.value = getValueFromID(
-        layerData[i].id,
-        inputData
-      );
-    }
-
-    var minSize = 5;
-    var maxSize = 30;
-    var markerGroup = L.layerGroup().addTo(this.map);
-
-    var marker, value, color, size, latlng, valuestring;
-    var rotation = 0;
-    for (var j = 0; j < layerData.length; j++) {
-      value = layerData[j].properties.value;
-      valuestring = String(value) + String(unit);
-      color = getColor(value, min, max, colors);
-      if (markerFixedSize) {
-        size = markerSize;
-      } else {
-        size = ((value - min) / (max - min)) * (maxSize - minSize) + minSize;
-      }
-      latlng = this.CHtoWGSlatlng(layerData[j].geometry.coordinates);
-      marker = new L.marker(latlng, {
-        icon: L.divIcon({
-          className: "map-marker",
-          html:
-            `<div style="padding:10px;transform:translate(-12px, -12px);position: absolute;">` +
-            `<div class="${markerSymbol}" style="background-color:${color};height:${size}px;width:${size}px;transform: rotate(${rotation}deg)">` +
-            `</div></div> `,
-        }),
-      })
-        .bindTooltip(valuestring, {
-          permanent: markerLabel,
-          direction: "top",
-        })
-        .addTo(markerGroup);
-      marker.bindPopup(
-        "<table><tbody>" +
-          '<tr><td colSpan="2"><strong>' +
-          layer.title +
-          "</strong></td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Station</strong></td><td>" +
-          layerData[j].properties.name +
-          "</td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Station Type</strong></td><td>" +
-          layerData[j].properties["w-typ"] +
-          "</td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Data Owner</strong></td><td>FOEN</td></tr>" +
-          "<tr><td class='text-nowrap'><strong>Datetime</strong></td><td>" +
-          datetime.toLocaleString() +
-          "</td></tr>" +
-          "<tr><td><strong>Value at point:</strong></td><td>" +
-          String(value) +
-          String(unit) +
-          "</td></tr><tr><td class='text-nowrap'><strong>Link</strong></td><td>" +
-          layerData[j].properties.description +
-          "</td></tr>" +
-          "</tbody></table>"
-      );
-    }
-    this.marker.push(markerGroup);
   };
 
   movingAverage = (data, size) => {
@@ -449,10 +248,14 @@ class Basemap extends Component {
       outdate = new Date(data["time"][di] * 1000);
       var value, name, latlng;
       layerData = [];
+      var type = "surface";
+      if (layer.parameters_id === 56) {
+        type = "bottom";
+      }
       for (var key in data) {
         var lakefeature = this.findFeature(lakejson.features, key);
         if (typeof lakefeature !== "undefined") {
-          value = data[key][di];
+          value = data[key][type][di];
           name = lakefeature.properties.Name;
           latlng = this.swapCoord(lakefeature.geometry.coordinates[0]);
           layerData.push({ value, name, latlng });
@@ -1343,9 +1146,6 @@ class Basemap extends Component {
         var { fileid, files, mapplotfunction } = layer;
         var file = this.findDataset(fileid, files);
         mapplotfunction === "gitPlot" && this.gitPlot(layer, file);
-        mapplotfunction === "foenMarkers" && this.foenMarkers(layer, file);
-        mapplotfunction === "meteoSwissMarkers" &&
-          this.meteoSwissMarkers(layer, file);
         mapplotfunction === "remoteSensing" && this.remoteSensing(layer, file);
         mapplotfunction === "simstrat" && this.simstrat(layer, file);
         mapplotfunction === "meteolakes" &&
@@ -1479,55 +1279,17 @@ class Basemap extends Component {
       zoom = this.props.zoom;
     }
 
-    var datalakesmap = L.tileLayer(
-      "https://api.mapbox.com/styles/v1/jamesrunnalls/ck96x8fhp6h2i1ik5q9xz0iqn/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-      {
-        attribution:
-          'swisstopo DV 5704 000 000 | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://www.mapbox.com/">mapbox</a>',
-      }
-    );
-    var datalakesmapgrey = L.tileLayer(
-      "https://api.mapbox.com/styles/v1/jamesrunnalls/ckfs3ngtw0fx519o5oinhc5mh/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-      {
-        attribution:
-          'swisstopo DV 5704 000 000 | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://www.mapbox.com/">mapbox</a>',
-      }
-    );
-    var swisstopo = L.tileLayer(
-      "https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg",
-      {
-        attribution:
-          '<a title="Swiss Federal Office of Topography" href="https://www.swisstopo.admin.ch/">swisstopo</a>',
-      }
-    );
-    var satellite = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution:
-          "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-      }
-    );
-
-    var dark = L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      }
-    );
+    this.baseMaps = {};
+    for (var layer of Object.keys(basemaps)) {
+      this.baseMaps[layer] = L.tileLayer(basemaps[layer]["url"], {
+        attribution: basemaps[layer]["attribution"],
+      });
+    }
 
     var topolink =
       "https://api.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ";
 
-    this.baseMaps = {
-      datalakesmap,
-      datalakesmapgrey,
-      swisstopo,
-      satellite,
-      dark,
-    };
-
-    this.layer = datalakesmap;
+    this.layer = this.baseMaps["datalakesmap"];
     if ("basemap" in this.props) {
       this.layer = this.baseMaps[this.props.basemap];
     }

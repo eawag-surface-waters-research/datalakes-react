@@ -34,14 +34,20 @@ class SliderSingle extends Component {
         <div>
           <div
             className="slider-arrow"
-            onClick={() => onChangeFileInt(parseInt(currentfile) + 1)}
+            onClick={() =>
+              onChangeFileInt(
+                Math.min(files.length - 1, parseInt(currentfile) + 1)
+              )
+            }
           >
             &#60;
           </div>
           <div className="single-value">{valueStr}</div>
           <div
             className="slider-arrow"
-            onClick={() => onChangeFileInt(parseInt(currentfile) - 1)}
+            onClick={() =>
+              onChangeFileInt(Math.max(0, parseInt(currentfile) - 1))
+            }
           >
             &#62;
           </div>

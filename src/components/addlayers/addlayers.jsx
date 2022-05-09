@@ -9,37 +9,31 @@ class AddLayersInnerInner extends Component {
   toggle = () => {
     this.setState({ open: !this.state.open });
   };
+  getLake = (id) => {
+    var { lakes } = this.props;
+    return lakes.find((l) => l.id === id).name;
+  };
+  formatDate = (datetime) => {
+    var a = new Date(datetime);
+    var year = a.getFullYear();
+    var month = a.getMonth() + 1;
+    var date = a.getDate();
+    return `${date < 10 ? "0" + date : date}.${
+      month < 10 ? "0" + month : month
+    }.${String(year).slice(-2)}`;
+  };
   render() {
     var { open } = this.state;
-    var {
-      parameters_id,
-      parameters,
-      datasets_ids,
-      datasets,
-      addSelected,
-    } = this.props;
+    var { parameters_id, parameters, datasets_ids, datasets, addSelected } =
+      this.props;
     var parameter = parameters.find((p) => p.id === parameters_id);
     var subdatasets = datasets.filter((d) => datasets_ids.includes(d.id));
-    var datasetslink = subdatasets.map((s) => ({
-      datasets_id: s.id,
-      parameters_id,
-    }));
 
     return (
       <div key={parameters_id} className="addlayers-layer">
-        <div className="addlayers-titlebar">
-          <div
-            className="addlayers-title"
-            onClick={() => addSelected(datasetslink)}
-            title="Add layer group"
-          >
-            {parameter.name}
-          </div>
-          <div
-            className="addlayers-symbol"
-            title="See individual layers"
-            onClick={this.toggle}
-          >
+        <div className="addlayers-titlebar" onClick={this.toggle}>
+          <div className="addlayers-title">{parameter.name}</div>
+          <div className="addlayers-symbol" title="See individual layers">
             {open ? "-" : "+"}
           </div>
         </div>
@@ -56,7 +50,18 @@ class AddLayersInnerInner extends Component {
                   key={sd.id}
                   title="Add layer"
                 >
-                  {sd.title}
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>{sd.title}</td>
+                        <td>{this.getLake(sd.lakes_id)}</td>
+                        <td>
+                          {this.formatDate(sd.mindatetime)} :{" "}
+                          {this.formatDate(sd.maxdatetime)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               );
             })}
@@ -69,20 +74,16 @@ class AddLayersInnerInner extends Component {
 
 class AddLayersInner extends Component {
   render() {
-    var {
-      datasets,
-      parameters,
-      datasetparameters,
-      addSelected,
-      type,
-    } = this.props;
+    var { datasets, parameters, datasetparameters, addSelected, type } =
+      this.props;
 
     var subdatasets = datasets.filter((d) => d.origin === type);
     var ids = subdatasets.map((s) => s.id);
 
     var subparameters = datasetparameters.filter(
       (p) =>
-        ids.includes(p.datasets_id) && ![1, 2, 3, 4, 27, 28, 29, 30].includes(p.parameters_id)
+        ids.includes(p.datasets_id) &&
+        ![1, 2, 3, 4, 27, 28, 29, 30].includes(p.parameters_id)
     );
 
     function filterparam(pid, params) {
@@ -117,6 +118,7 @@ class AddLayersInner extends Component {
             parameters={parameters}
             datasets={datasets}
             addSelected={addSelected}
+            lakes={this.props.lakes}
           />
         ))}
       </div>
@@ -129,7 +131,7 @@ class AddLayers extends Component {
   render() {
     var { datasets, parameters, datasetparameters, addSelected } = this.props;
     return (
-      <React.Fragment>
+      <div className="addlayers">
         <FilterBox
           title="Measured Values"
           inner="true"
@@ -139,6 +141,7 @@ class AddLayers extends Component {
               parameters={parameters}
               datasetparameters={datasetparameters}
               addSelected={addSelected}
+              lakes={this.props.lakes}
               type="measurement"
             />
           }
@@ -152,6 +155,7 @@ class AddLayers extends Component {
               parameters={parameters}
               datasetparameters={datasetparameters}
               addSelected={addSelected}
+              lakes={this.props.lakes}
               type="satellite"
             />
           }
@@ -165,11 +169,12 @@ class AddLayers extends Component {
               parameters={parameters}
               datasetparameters={datasetparameters}
               addSelected={addSelected}
+              lakes={this.props.lakes}
               type="model"
             />
           }
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

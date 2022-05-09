@@ -96,7 +96,7 @@ class RemoteSensingDownload extends Component {
     var swagger = url + "api";
 
     return (
-      <div className="datadetail-padding">
+      <div className="download">
         <div className="info-title">Licence</div>
         <a
           href={getLabel("licenses", dataset.licenses_id, "link")}

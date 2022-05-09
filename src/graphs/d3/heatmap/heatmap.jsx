@@ -208,6 +208,7 @@ class D3HeatMap extends Component {
           xReverse,
           thresholdStep,
           language,
+          levels,
         } = this.props;
 
         var options = {
@@ -231,6 +232,7 @@ class D3HeatMap extends Component {
           contour: display === "contour",
           hover: this.hover,
           setDownloadGraphDiv: "png" + graphid,
+          levels,
         };
         heatmap("vis" + graphid, data, options);
       } catch (e) {
@@ -355,9 +357,9 @@ class D3HeatMap extends Component {
                     yunits={yunits}
                     xReverse={false}
                     yReverse={yReverse}
-                    lcolor={"black"}
-                    lweight={1}
-                    bcolor={"white"}
+                    lcolor={["black"]}
+                    lweight={[1]}
+                    bcolor={["white"]}
                     simple={true}
                     xscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                     yscale={TimeLabels.includes(ylabel) ? "Time" : ""}
@@ -376,9 +378,9 @@ class D3HeatMap extends Component {
                   yunits={zunits}
                   xReverse={xReverse}
                   yReverse={false}
-                  lcolor={"black"}
-                  lweight={1}
-                  bcolor={"white"}
+                  lcolor={["black"]}
+                  lweight={[1]}
+                  bcolor={["white"]}
                   xscale={TimeLabels.includes(xlabel) ? "Time" : ""}
                   yscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                   simple={true}

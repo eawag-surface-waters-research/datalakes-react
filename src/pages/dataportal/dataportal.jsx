@@ -1,12 +1,18 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Fuse from "fuse.js";
 import { apiUrl } from "../../../src/config.json";
 import SidebarLayout from "../../format/sidebarlayout/sidebarlayout";
 import FilterBox from "../../components/filterbox/filterbox";
 import MapSelect from "../../graphs/leaflet/mapselect.jsx";
-import "./dataportal.css";
 import Loading from "../../components/loading/loading.jsx";
+import calendar from "./img/calendar.svg";
+import location from "./img/location.svg";
+import model from "./img/model.svg";
+import satellite from "./img/satellite.svg";
+import measurement from "./img/measurement.svg";
+import "./dataportal.css";
 
 class DatasetList extends Component {
   render() {
@@ -61,11 +67,22 @@ class Dataset extends Component {
   };
 
   parseDate = (input) => {
+    var months = [
+      "Jan ",
+      "Feb ",
+      "Mar ",
+      "Apr ",
+      "May ",
+      "Jun ",
+      "Jul ",
+      "Aug ",
+      "Sept ",
+      "Oct ",
+      "Nov ",
+      "Dec ",
+    ];
     var date = new Date(input);
-    let day = ("0" + date.getDate()).slice(-2);
-    let month = ("0" + (date.getMonth() + 1)).slice(-2);
-    let year = date.getFullYear();
-    return day + "/" + month + "/" + year;
+    return months[date.getMonth()] + date.getFullYear();
   };
 
   render() {
@@ -82,58 +99,80 @@ class Dataset extends Component {
     );
     var param_names = params.map((p) => p.name);
     param_names = [...new Set(param_names)];
-    var check = "checkbox unchecked";
     var lake = getLabel("lakes", dataset.lakes_id);
     if (lake === "Multiple") {
-      lake = "Covers multiple lakes | ";
-    } else {
-      lake = lake + " | ";
+      lake = "Switzerland";
     }
-    if (selected.includes(dataset)) check = "checkbox checked";
+    var typeimg = model;
+    var typetext = "Model Results";
+    if (dataset.origin === "measurement") {
+      typeimg = measurement;
+      typetext = "Measurements";
+    } else if (dataset.origin === "satellite") {
+      typeimg = satellite;
+      typetext = "Satellite Data";
+    }
     return (
-      <div key={dataset.id} className="dataset">
-        <div
-          title="Select and download multiple datasets"
-          className={check}
-          type="checkbox"
-          name={dataset.id}
-          value={dataset.id}
-          onClick={() => onSelectDataset(dataset)}
-        >
-          <div className="checkmark"></div>
-        </div>
-        <Link
-          to={url}
-          title="Click to explore plots, lineage, downloads and metadata"
-          className="text"
-        >
-          <div className="text-title">{dataset.title}</div>
-          {Number.isInteger(dataset.monitor) && (
-            <div className="text-live">LIVE</div>
-          )}
-          <div>
-            <div className="innerdatasetleft">
+      <table className="dataset">
+        <tbody>
+          <tr>
+            <td className="dataset-top">
+              <div className="dataset-title">{dataset.title}</div>
+              {Number.isInteger(dataset.monitor) && (
+                <div className="dataset-live">LIVE</div>
+              )}
               <div>{dataset.description}</div>
-            </div>
-            <div className="innerdatasetright">
-              <div className="parameters-highlight">
-                {param_names.map((param) => (
-                  <div key={param}>{param}</div>
-                ))}{" "}
+              <div className="buttons">
+                <Link
+                  to={url}
+                  key={dataset.id}
+                  title="Click to explore plots, lineage, downloads and metadata"
+                  className="text"
+                >
+                  <div className="button-main">View Dataset</div>
+                </Link>
+                {dataset.mapplot !== "other" && (
+                  <div
+                    className={
+                      selected.includes(dataset)
+                        ? "button-sub grey"
+                        : "button-sub"
+                    }
+                    onClick={() => onSelectDataset(dataset)}
+                  >
+                    {selected.includes(dataset) ? "Deselect" : "Select"}
+                  </div>
+                )}
+              </div>
+            </td>
+            <td rowSpan={2} className="dataset-right">
+              {param_names.map((param) => (
+                <div className="params" key={param}>
+                  {param}
+                </div>
+              ))}
+            </td>
+          </tr>
+          <tr>
+            <td className="dataset-bottom">
+              <div className="date-highlight">
+                <img className="icon" src={location} alt="location" /> {lake}
               </div>
               <div className="date-highlight">
+                <img className="icon" src={calendar} alt="calendar" />
                 {this.parseDate(dataset.mindatetime)} to{" "}
                 {this.parseDate(dataset.maxdatetime)}
               </div>
-            </div>
-            <div className="footer-highlight">
-              {lake}
-              {getLabel("licenses", dataset.licenses_id)} | Downloads:{" "}
-              {dataset.downloads}
-            </div>
-          </div>
-        </Link>
-      </div>
+              <img
+                className="type"
+                alt={typetext}
+                title={typetext}
+                src={typeimg}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
     );
   }
 }
@@ -240,6 +279,15 @@ class DataPortal extends Component {
 
   getLabel = (input, id) => {
     const { dropdown } = this.state;
+    try {
+      return dropdown[input].find((x) => x.id === id).name;
+    } catch (e) {
+      console.log(e);
+      return "NA";
+    }
+  };
+
+  getLabelInitial = (input, id, dropdown) => {
     try {
       return dropdown[input].find((x) => x.id === id).name;
     } catch (e) {
@@ -485,8 +533,14 @@ class DataPortal extends Component {
     );
   };
 
+  focusSearchBar = (e) => {
+    if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
+      document.getElementById("dataportalsearchbar").focus();
+    }
+  };
+
   async componentDidMount() {
-    this.refs.search.focus();
+    window.addEventListener("keydown", this.focusSearchBar);
     const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
     var { data: datasets, status: dstatus } = await axios.get(
       apiUrl + "/datasets"
@@ -500,35 +554,50 @@ class DataPortal extends Component {
     } else {
       // Add parameter details
       var details;
+      var dict = {};
       for (var x in parameters) {
         try {
           details = this.parameterDetails(dropdown, parameters, x);
           parameters[x]["name"] = details.name;
           parameters[x]["characteristic"] = details.characteristic;
+          if (parameters[x]["datasets_id"] in dict) {
+            dict[parameters[x]["datasets_id"]].push(details.name);
+          } else {
+            dict[parameters[x]["datasets_id"]] = [details.name];
+          }
         } catch (err) {
           parameters[x]["name"] = null;
           parameters[x]["characteristic"] = null;
         }
       }
     }
-    
-    var url = "https://www.internal.eawag.ch/de/sitemap";
-    var win = window.open(url, "_blank");
-    if (win) {
-      //Browser has allowed it to be opened
-      win.focus();
-    } else {
-      //Broswer has blocked it
-      alert("Please allow popups for this site");
+    for (var dataset of datasets) {
+      dataset["parameters"] = dict[dataset["id"]];
+      dataset["lake_name"] = this.getLabelInitial(
+        "lakes",
+        dataset["lakes_id"],
+        dropdown
+      );
     }
-    console.log(win);
+    const options = {
+      shouldSort: true,
+      threshold: 0.6,
+      useExtendedSearch: true,
+      keys: ["title", "description", "parameters", "lake_name"],
+    };
+    var fuse_datasets = JSON.parse(JSON.stringify(datasets));
+    const fuse = new Fuse(fuse_datasets, options);
+    this.setState({ datasets, parameters, dropdown, fuse, loading: false });
+  }
 
-    this.setState({ datasets, parameters, dropdown, loading: false });
+  componentWillUnmount() {
+    window.removeEventListener("keydown", this.focusSearchBar);
   }
 
   render() {
     document.title = "Data Portal - Datalakes";
     const {
+      fuse,
       search,
       filters,
       datasets,
@@ -545,12 +614,9 @@ class DataPortal extends Component {
     var fDatasets = this.filterDataSet(datasets, filters, parameters);
 
     // Filter by search
-    var lowercasedSearch = search.toLowerCase();
-    fDatasets = fDatasets.filter((item) => {
-      return String(Object.values(item))
-        .toLowerCase()
-        .includes(lowercasedSearch);
-    });
+    if (search !== "") {
+      fDatasets = fuse.search(search).map((f) => f.item);
+    }
 
     // Parameter filtering
     var fParams = this.filterParameters(fDatasets, parameters);
@@ -559,19 +625,15 @@ class DataPortal extends Component {
       parameters
     );
     const dataL = this.filterDataSet(datasets, filters, parameters, "lakes_id");
-    const dataC = this.filterParameters(
-      this.filterDataSet(datasets, filters, parameters, "characteristic"),
-      parameters
-    );
 
     var dParams = this.filterList(dataP, "parameters_id", "parameters", 1);
     var dLake = this.filterList(dataL, "lakes_id", "lakes");
-    var dChar = this.filterList(dataC, "characteristic", "characterstic");
-    var dSource = this.filterList(datasets, "datasource", "NA");
     var dOrigin = this.filterList(datasets, "origin", "NA");
 
     // Sort by
-    fDatasets = this.sortDatasets(fDatasets, sortby);
+    if (search === "") {
+      fDatasets = this.sortDatasets(fDatasets, sortby);
+    }
 
     // Selected link
     var sids = selected.map((x) => x.id);
@@ -584,6 +646,16 @@ class DataPortal extends Component {
     return (
       <React.Fragment>
         <h1>Data Portal</h1>
+        <div className="search">
+          <input
+            id="dataportalsearchbar"
+            onChange={this.searchDatasets}
+            className="SearchBar"
+            placeholder="Search using keywords e.g. ctd or geneva or salinity"
+            type="search"
+            ref="search"
+          />
+        </div>
         <SidebarLayout
           sidebartitle="Filters"
           left={
@@ -612,16 +684,17 @@ class DataPortal extends Component {
                     </tr>
                   </tbody>
                 </table>
-
-                <select
-                  title="Sort by"
-                  onChange={this.setSelect}
-                  defaultValue={sortby}
-                >
-                  <option value="az">A-Z</option>
-                  <option value="recent">Recent</option>
-                  <option value="downloads">Downloads</option>
-                </select>
+                {search === "" && (
+                  <select
+                    title="Sort by"
+                    onChange={this.setSelect}
+                    defaultValue={sortby}
+                  >
+                    <option value="az">A-Z</option>
+                    <option value="recent">Recent</option>
+                    <option value="downloads">Downloads</option>
+                  </select>
+                )}
               </div>
               <FilterBar filters={filters} removeFilter={this.removeFilter} />
 
@@ -632,17 +705,18 @@ class DataPortal extends Component {
                     <div>
                       <div className="download-selected">
                         {selected.map((s) => {
-                          return <div key={s.title}>{"- " + s.title}</div>;
+                          return (
+                            <div key={s.title} className="download-item">
+                              {s.title}
+                            </div>
+                          );
                         })}
                       </div>
                       <Link to={link}>
                         <button title="See datasets on web GIS">
-                          Map Viewer
+                          Plot datasets in the Map Viewer
                         </button>
                       </Link>
-                      <button title="Not currently available please download individually">
-                        Download Datasets
-                      </button>
                     </div>
                   ) : (
                     <div>No datasets selected</div>
@@ -654,6 +728,7 @@ class DataPortal extends Component {
                 className={map ? "popup" : "hidepopup"}
                 title="Hold ctrl and drag with your mouse to select custom area"
               >
+                <div className="mapselecttitle">Hold ctrl, click and drag to select a custom area</div>
                 <MapSelect
                   datasets={fDatasets}
                   selectPoints={this.mapAddFilter}
@@ -675,22 +750,23 @@ class DataPortal extends Component {
           }
           rightNoScroll={
             <React.Fragment>
-              <input
-                onChange={this.searchDatasets}
-                className="SearchBar"
-                placeholder="Search for a dataset"
-                type="search"
-                ref="search"
-              ></input>
-              <div className="characteristics">
-                <FilterBoxInner
-                  checkbox={this.checkboxAddFilter}
-                  cat="characteristic"
-                  params={dChar}
-                  filters={filters}
-                  table="parameters"
-                />
-              </div>
+              <table className="time-selector">
+                <tbody>
+                  <tr>
+                    <td>From</td>
+                    <td>Until</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="date" onChange={this.startTimeAddFilter} />
+                    </td>
+                    <td>
+                      <input type="date" onChange={this.endTimeAddFilter} />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <PopupBox title="Location" fun={this.mapToggle} state={map} />
               <FilterBox
                 title="Origin"
                 content={
@@ -705,12 +781,12 @@ class DataPortal extends Component {
                 preopen="true"
               />
               <FilterBox
-                title="Data Source"
+                title="Lake"
                 content={
                   <FilterBoxInner
                     checkbox={this.checkboxAddFilter}
-                    cat="datasource"
-                    params={dSource}
+                    cat="lakes_id"
+                    params={dLake}
                     filters={filters}
                     table="datasets"
                   />
@@ -729,64 +805,6 @@ class DataPortal extends Component {
                   />
                 }
                 preopen="true"
-              />
-              <FilterBox
-                title="Time"
-                content={
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>Show Data After</td>
-                        <td>Show Data Before</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <input
-                            type="date"
-                            onChange={this.startTimeAddFilter}
-                          />
-                        </td>
-                        <td>
-                          <input type="date" onChange={this.endTimeAddFilter} />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                }
-              />
-              {/*<FilterBox
-                title="Depth"
-                content={
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>Min</td>
-                        <td>
-                          <input type="number" placeholder="Depth in meters" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Max</td>
-                        <td>
-                          <input type="number" placeholder="Depth in meters" />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                }
-              />*/}
-              <PopupBox title="Location" fun={this.mapToggle} state={map} />
-              <FilterBox
-                title="Lake"
-                content={
-                  <FilterBoxInner
-                    checkbox={this.checkboxAddFilter}
-                    cat="lakes_id"
-                    params={dLake}
-                    filters={filters}
-                    table="datasets"
-                  />
-                }
               />
             </React.Fragment>
           }
