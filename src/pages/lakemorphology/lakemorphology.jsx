@@ -329,11 +329,7 @@ class LakeMorphology extends Component {
     }
     return (
       <React.Fragment>
-        {lake ? (
-          <h2>{lake.name}</h2>
-        ) : (
-          <h2>Lake Morphology</h2>
-        )}
+        {lake ? <h2>{lake.name}</h2> : <h2>Lake Morphology</h2>}
         <div className="morphology">
           <div className="left">
             {lake ? (
@@ -369,7 +365,7 @@ class LakeMorphology extends Component {
           <div className="right">
             <div className="lake-list-header">
               <input
-                placeholder="Search for lake"
+                placeholder={`Search from ${list.length} available lakes`}
                 value={text}
                 onChange={this.setText}
                 type="search"
