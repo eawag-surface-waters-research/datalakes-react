@@ -504,6 +504,7 @@ class Publish extends Component {
     archives: [
       "ERIC Internal- Eawag Research Data (Only Eawag)",
       "ERIC OPEN - Eawag Research Data (Public)",
+      "Zenodo - CERN's Open Data Archive",
     ],
     archive: 0,
     error: "",
@@ -760,13 +761,27 @@ class Publish extends Component {
   };
 
   afterLoading = async () => {
-    var { metadata } = this.state;
+    var { metadata, archive } = this.state;
+    console.log(archive);
     try {
-      var { data: link } = await axios.post(
-        "https://api.meteolakes.ch/api/eric",
-        metadata
-      );
-      window.location.href = link;
+      if (archive < 2) {
+        var { data: link } = await axios.post(
+          "https://api.meteolakes.ch/api/eric",
+          metadata
+        );
+      } else if (parseInt(archive) === 2) {
+        var { data: link } = await axios.post(
+          apiUrl + "/publish/zenodo",
+          metadata
+        );
+      } else {
+        console.error("Underfined archive function.");
+        link = "";
+      }
+      this.setState({
+        loading: false,
+      });
+      //window.location.href = link;
     } catch (error) {
       console.error(error.response);
       this.setState({

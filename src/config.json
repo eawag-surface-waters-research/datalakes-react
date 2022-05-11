@@ -1,5 +1,6 @@
 {
-    "apiUrl": "https://api.datalakes-eawag.ch",
+    "apiUrls": "https://api.datalakes-eawag.ch",
+    "apiUrl": "http://localhost:5000",
     "password": "downloadprivatefiles",
     "basemaps": {
         "datalakesmap": {
