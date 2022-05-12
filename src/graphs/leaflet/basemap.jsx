@@ -292,6 +292,7 @@ class Basemap extends Component {
               "<tr><td><strong>Surface water temperature</strong></td><td>" +
               layerData[i].value +
               "°C</td></tr>" +
+              '<tr><td colSpan="2"><strong><a href="https://simstrat.eawag.ch/lakes">View data on the Simstrat Website</a></strong></td></tr>' +
               "</tbody></table>"
           )
           .bindTooltip(valuestring, {
