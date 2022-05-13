@@ -461,25 +461,29 @@ class AddDataset extends Component {
       maxPatternLength: 32,
       minMatchCharLength: 1,
     };
-    var fuse = new Fuse(list, options);
-    var match = find.split("_").join(" ");
-    var search = fuse.search(match);
-    var defaultValue = "";
-    if (search.length !== 0) {
-      defaultValue = search[0].item.id;
+    var defaultValue = 5;
+    if (find !== undefined) {
+      var fuse = new Fuse(list, options);
+      var match = find.split("_").join(" ");
+      var search = fuse.search(match);
+
+      if (search.length !== 0) {
+        defaultValue = search[0].item.id;
+      }
+      // Fix common match errors of pressure and temperature
+      if (defaultValue === 10 && !find.toLowerCase().includes("air")) {
+        defaultValue = 18;
+      } else if (defaultValue === 6 && !find.toLowerCase().includes("air")) {
+        defaultValue = 5;
+      } else if (defaultValue === 18 && !find.toLowerCase().includes("press")) {
+        defaultValue = search[1].id;
+      } else if (defaultValue === 2 && !find.toLowerCase().includes("depth")) {
+        defaultValue = search[1].id;
+      } else if (defaultValue === 22 && find.toLowerCase().includes("do")) {
+        defaultValue = 12;
+      }
     }
-    // Fix common match errors of pressure and temperature
-    if (defaultValue === 10 && !find.toLowerCase().includes("air")) {
-      defaultValue = 18;
-    } else if (defaultValue === 6 && !find.toLowerCase().includes("air")) {
-      defaultValue = 5;
-    } else if (defaultValue === 18 && !find.toLowerCase().includes("press")) {
-      defaultValue = search[1].id;
-    } else if (defaultValue === 2 && !find.toLowerCase().includes("depth")) {
-      defaultValue = search[1].id;
-    } else if (defaultValue === 22 && find.toLowerCase().includes("do")) {
-      defaultValue = 12;
-    }
+
     return defaultValue;
   };
 
@@ -570,6 +574,16 @@ class AddDataset extends Component {
     return dp;
   };
 
+  checkNested = (obj, args) => {
+    for (var i = 0; i < args.length; i++) {
+      if (!obj || !obj.hasOwnProperty(args[i])) {
+        return false;
+      }
+      obj = obj[args[i]];
+    }
+    return true;
+  };
+
   setDatasetParameters = (fileInformation, dropdown) => {
     const { parameters } = dropdown;
     const { variables, attributes } = fileInformation;
@@ -591,16 +605,16 @@ class AddDataset extends Component {
       variableAttributes = variables[key].attributes;
 
       // Look for names in nc file.
-      if ("units" in variableAttributes) {
+      if (this.checkNested(variableAttributes, ["units", "value"])) {
         parseUnit = variableAttributes["units"].value;
       }
-      if ("standard_name" in variableAttributes) {
+      if (this.checkNested(variableAttributes, ["standard_name", "value"])) {
         parseparameter = variableAttributes["standard_name"].value;
       }
-      if ("long_name" in variableAttributes) {
+      if (this.checkNested(variableAttributes, ["long_name", "value"])) {
         parseparameter = variableAttributes["long_name"].value;
       }
-      if ("sensor" in attributes) {
+      if (this.checkNested(attributes, ["sensor", "value"])) {
         parseSensor = attributes["sensor"].value;
       }
 
