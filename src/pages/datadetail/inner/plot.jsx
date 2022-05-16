@@ -1458,8 +1458,8 @@ class Plot extends Component {
         var dataJoined = JSON.parse(JSON.stringify(data[0]));
         for (let i = 1; i < data.length; i++) {
           if (
-            data[i][xaxis[0]].length === data[i][zaxis[0]][0].length &&
-            data[i][yaxis[0]].length === data[i][zaxis[0]].length
+            data[i][xaxis[0]].length === data[i][zaxis][0].length &&
+            data[i][yaxis[0]].length === data[i][zaxis].length
           ) {
             let minB = Math.min(...data[i - 1][xaxis[0]]);
             let maxB = Math.max(...data[i - 1][xaxis[0]]);
@@ -1469,15 +1469,15 @@ class Plot extends Component {
               dataJoined[xaxis[0]] = dataJoined[xaxis[0]].concat(
                 data[i][xaxis[0]]
               );
-              dataJoined[zaxis[0]] = dataJoined[zaxis[0]].map((d, index) =>
-                d.concat(data[i][zaxis[0]][index])
+              dataJoined[zaxis] = dataJoined[zaxis].map((d, index) =>
+                d.concat(data[i][zaxis][index])
               );
             } else if (minB > maxA) {
               dataJoined[xaxis[0]] = data[i][xaxis[0]].concat(
                 dataJoined[xaxis[0]]
               );
-              dataJoined[zaxis[0]] = data[i][zaxis[0]].map((d, index) =>
-                d.concat(dataJoined[zaxis[0]][index])
+              dataJoined[zaxis] = data[i][zaxis].map((d, index) =>
+                d.concat(dataJoined[zaxis][index])
               );
             } else {
               return data;
