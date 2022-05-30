@@ -198,7 +198,9 @@ class LakeMorphologyGraph extends Component {
         <div className="reference">
           {"Source" in morphology
             ? morphology["Source"]
-            : "Please contact Isabel Kiefer (isabel.kiefer@epfl.ch) at EPFL for more information on this dataset."}
+            : "Data sourced from Isabel Kiefer at EPFL."}{" "}
+          Please contact Fabian Bärenbold (fabian.baerenbold@eawag.ch) for more
+          information on this dataset.
         </div>
       </React.Fragment>
     );
