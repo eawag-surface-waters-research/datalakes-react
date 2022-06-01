@@ -22,5 +22,88 @@
             "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>",
             "title": "Dark Theme"
         }
-    }
+    },
+    "groups": [
+        {
+          "name": "Lake Geneva Whiting 22.05.22",
+          "description": "Some description",
+          "data": {
+            "selected": [[25, 110]],
+            "center": [46.405, 6.578],
+            "zoom": 11,
+            "datetime": 1653775200
+          }
+        },
+        {
+          "name": "Lake Geneva Whiting 14.05.22",
+          "description": "Some description",
+          "data": {
+            "selected": [[25, 110]],
+            "center": [46.405, 6.578],
+            "zoom": 11,
+            "datetime": 1652479200
+          }
+        },
+        {
+          "name": "Lake Geneva Algal Bloom 06.09.21",
+          "description": "Some description",
+          "data": {
+            "selected": [
+              [20, 15],
+              [14, 25]
+            ],
+            "center": [46.405, 6.578],
+            "zoom": 11,
+            "datetime": 1630937100
+          }
+        },
+        {
+          "name": "Lake Zurich 3D Model",
+          "description": "Some description",
+          "data": {
+            "selected": [
+              [11, 5],
+              [11, 25]
+            ],
+            "center": [47.282, 8.729],
+            "zoom": 12
+          }
+        },
+        {
+          "name": "Lake Geneva 3D Model",
+          "description": "Some description",
+          "data": {
+            "selected": [
+              [14, 5],
+              [14, 25]
+            ],
+            "center": [46.405, 6.578],
+            "zoom": 11
+          }
+        },
+        {
+          "name": "Lake Greifen 3D Model",
+          "description": "Some description",
+          "data": {
+            "selected": [
+              [15, 5],
+              [15, 25]
+            ],
+            "center": [47.347, 8.683],
+            "zoom": 13
+          }
+        },
+        {
+          "name": "Lake Geneva Chlorophyll",
+          "description": "Some description",
+          "data": {
+            "selected": [
+              [20, 15],
+              [14, 25]
+            ],
+            "center": [46.405, 6.578],
+            "zoom": 11
+          }
+        }
+      ]
 }
