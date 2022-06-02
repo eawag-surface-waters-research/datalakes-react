@@ -7,9 +7,14 @@ import "leaflet-streamlines";
 import "./leaflet_vectorField";
 import "./leaflet_customcontrol";
 import "./leaflet_colorpicker";
+import "leaflet.markercluster";
+import "./css/markercluster.css";
+import "./css/markerclusterdefault.css";
 import { basemaps } from "../../config.json";
 import { getColor } from "../../components/gradients/gradients";
 import "./css/leaflet.css";
+import measurement from "../../img/measurement.svg";
+import model from "../../img/model.svg";
 
 class Basemap extends Component {
   isInt = (value) => {
@@ -952,6 +957,110 @@ class Basemap extends Component {
     this.marker.push(markerGroup);
   };
 
+  parseMonth = (input) => {
+    var months = [
+      "Jan ",
+      "Feb ",
+      "Mar ",
+      "Apr ",
+      "May ",
+      "Jun ",
+      "Jul ",
+      "Aug ",
+      "Sept ",
+      "Oct ",
+      "Nov ",
+      "Dec ",
+    ];
+    var date = new Date(input);
+    return months[date.getMonth()] + date.getFullYear();
+  };
+
+  plotDatasets = () => {
+    var { datasets, datasetparameters } = this.props;
+    var addSelectedLayer = this.addSelectedLayer;
+    var measurementIcon = L.icon({
+      iconUrl: measurement,
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -24],
+      className: "leaflet-custom-icon",
+    });
+    var modelIcon = L.icon({
+      iconUrl: model,
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -24],
+      className: "leaflet-custom-icon",
+    });
+    var markerGroup = L.markerClusterGroup().addTo(this.map);
+    var marker;
+    var id;
+    for (var dataset of datasets) {
+      if (["gitPlot", "meteolakes"].includes(dataset.mapplotfunction)) {
+        var icon = measurementIcon;
+        if (dataset.origin === "model") {
+          icon = modelIcon;
+        }
+        marker = new L.marker([dataset.latitude, dataset.longitude], {
+          icon: icon,
+        })
+          .bindTooltip(dataset.title, {
+            direction: "bottom",
+            offset: [0, 25],
+            opacity: 1,
+          })
+          .addTo(markerGroup);
+        let buttons = "";
+        let d_id = dataset.id
+        let ids = [];
+        for (var dp of datasetparameters.filter(
+          (dp) =>
+            dp.datasets_id === d_id &&
+            ![1, 2, 3, 4, 27, 28, 29, 30].includes(dp.parameters_id)
+        )) {
+          id = `${dataset.id}_${dp.parameters_id}`;
+          ids.push({
+            id,
+            datasets_id: dataset.id,
+            parameters_id: dp.parameters_id,
+          });
+          buttons = buttons + `<button id="${id}">${dp.name}</button>`;
+        }
+        marker
+          .bindPopup(
+            `<div><div>${dataset.title}</div><div>${
+              dataset.description
+            }</div><div>${this.parseMonth(
+              dataset.mindatetime
+            )} to ${this.parseMonth(dataset.maxdatetime)}</div>${buttons}</div>`
+          )
+          .on("popupopen", function (popup) {
+            for (var select_id of ids) {
+              document
+                .getElementById(select_id.id)
+                .addEventListener("click", addSelectedLayer);
+            }
+          });
+      }
+    }
+    this.datasets.push(markerGroup);
+  };
+
+  addSelectedLayer = (event) => {
+    var ids = event.target.id.split("_");
+    this.props.addSelected([
+      { datasets_id: parseInt(ids[0]), parameters_id: parseInt(ids[1]) },
+    ]);
+  };
+
+  removeDatasets = () => {
+    this.datasets.forEach((layer) => {
+      this.map.removeLayer(layer);
+    });
+    this.datasets = [];
+  };
+
   parseDate = (input) => {
     var date = new Date(input);
     let day = ("0" + date.getDate()).slice(-2);
@@ -1201,6 +1310,16 @@ class Basemap extends Component {
       }, 0);
     }
 
+    if (
+      !this.props.loading &&
+      this.props.plotDatasets &&
+      this.datasets.length === 0
+    ) {
+      this.plotDatasets();
+    } else if (!this.props.plotDatasets) {
+      this.removeDatasets();
+    }
+
     if (prevProps.basemap !== this.props.basemap) {
       this.map.removeLayer(this.layer);
       this.layer = this.baseMaps[this.props.basemap];
@@ -1371,6 +1490,7 @@ class Basemap extends Component {
 
     this.marker = [];
     this.raster = [];
+    this.datasets = [];
     this.vectorfieldanim = {};
     this.vectorfieldtime = this.props.datetime;
     this.zoomedtolayer = false;

@@ -1,5 +1,10 @@
 /* required styles */
 
+.leaflet-custom-icon:hover {
+  width: 40px!important;
+  height: 40px!important;
+}
+
 .leaflet-pane,
 .leaflet-tile,
 .leaflet-marker-icon,
