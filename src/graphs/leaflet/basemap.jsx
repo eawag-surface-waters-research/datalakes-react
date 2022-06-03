@@ -15,6 +15,7 @@ import { getColor } from "../../components/gradients/gradients";
 import "./css/leaflet.css";
 import measurement from "../../img/measurement.svg";
 import model from "../../img/model.svg";
+import satellite from "../../img/satellite.svg";
 
 class Basemap extends Component {
   isInt = (value) => {
@@ -836,12 +837,13 @@ class Basemap extends Component {
     );
     var { datetime, depth } = this.props;
     var type = datasetparameters.map((dp) => dp.axis + "&" + dp.parameters_id);
-    var index, value, indexx, indexy;
-    var size, marker, dt;
+    var index, indexx, indexy, size, marker;
     var minSize = 5;
     var maxSize = 30;
     var markerGroup = L.layerGroup().addTo(this.map);
-    var dd = "<tr><td><strong>Depth</strong></td><td>";
+    var dt = datetime;
+    var dd = depth;
+    var value = "NA";
 
     if (type.includes("M&1") && type.includes("y&2")) {
       // Profiler vs depth
@@ -850,7 +852,7 @@ class Basemap extends Component {
       index = this.indexClosest(depth, data.y);
       value = this.numberformat(parseFloat(data[datasetparameter.axis][index]));
       dt = new Date(data[dp2.axis][index] * 1000);
-      dd = dd + data[dp3.axis][index] + "m";
+      dd = data[dp3.axis][index] + "m";
     } else if (type.includes("M&1") && type.includes("y&18")) {
       // Profiler vs pressure
       let dp2 = datasetparameters.find((dp) => dp.parameters_id === 1);
@@ -858,7 +860,7 @@ class Basemap extends Component {
       index = this.indexClosest(depth, data.y);
       value = this.numberformat(parseFloat(data[datasetparameter.axis][index]));
       dt = new Date(data[dp2.axis][index] * 1000);
-      dd = dd + data[dp3.axis][index] + "m";
+      dd = data[dp3.axis][index] + "m";
     } else if (
       type.join(",").includes("z&") &&
       type.includes("x&1") &&
@@ -869,17 +871,7 @@ class Basemap extends Component {
       indexy = this.indexClosest(depth, data["y"]);
       value = this.numberformat(data[datasetparameter.axis][indexy][indexx]);
       dt = new Date(data["x"][indexx] * 1000);
-      dd = dd + data["y"][indexy] + "m";
-    } else if (
-      type.includes("x&1") &&
-      type.includes("y&") &&
-      !type.join(",").includes("z&")
-    ) {
-      // 1D Parameter Time Dataset
-      index = this.indexClosest(datetime.getTime() / 1000, data["x"]);
-      value = this.numberformat(data[datasetparameter.axis][index]);
-      dt = new Date(data["x"][index] * 1000);
-      dd = dd + maxdepth + "m";
+      dd = data["y"][indexy] + "m";
     } else if (
       type.includes("x&1") &&
       !type.includes("y&2") &&
@@ -899,20 +891,17 @@ class Basemap extends Component {
       } else {
         value = this.numberformat(data[datasetparameter.axis][0][indexx]);
         dt = new Date(data["x"][indexx] * 1000);
-        dd = `<tr><td><strong>${this.capitalize(
-          param.parseparameter
-        )}</strong></td><td>${data["y"][0]} ${param.unit}`;
+        dd = `${data["y"][0]} ${param.unit}`;
       }
+    } else if (type.includes("x&1") && type.join(",").includes("y&")) {
+      // 1D Parameter Time Dataset
+      index = this.indexClosest(datetime.getTime() / 1000, data["x"]);
+      value = this.numberformat(data[datasetparameter.axis][index]);
+      dt = new Date(data["x"][index] * 1000);
+      dd = maxdepth + "m";
     } else {
-      alert("No plotting function defined");
+      console.error("No plotting function defined");
     }
-
-    var valuestring =
-      String(value) +
-      " " +
-      String(datasetparameter.unit) +
-      "<br>" +
-      this.parseDate(dt);
     var color = getColor(value, min, max, colors);
     var shape = markerSymbol;
     if (markerFixedSize) {
@@ -920,60 +909,49 @@ class Basemap extends Component {
     } else {
       size = ((value - min) / (max - min)) * (maxSize - minSize) + minSize;
     }
+    let url = "https://www.datalakes-eawag.ch/datadetail/" + datasets_id;
     marker = new L.marker([latitude, longitude], {
       icon: L.divIcon({
         className: "map-marker",
+        popupAnchor: [-(size / 2 + 19), 0],
+        tooltipAnchor: [-size / 2, -size],
         html:
           `<div style="padding:10px;transform:translate(-12px, -12px);position: absolute;">` +
           `<div class="${shape}" style="background-color:${color};height:${size}px;width:${size}px">` +
           `</div></div> `,
       }),
     })
-      .bindTooltip(valuestring, {
-        permanent: markerLabel,
-        direction: "top",
-      })
+      .bindTooltip(
+        `<div><div class="tooltip-date">${this.parseDatetime(
+          dt
+        )}<div>${dd}</div></div><div class="tooltip-values"><div class="tooltip-value">${value}</div><div class="tooltip-unit">${unit}</div><div class="tooltip-param">${
+          datasetparameter.name
+        }</div></div></div>`,
+        {
+          permanent: markerLabel,
+          direction: "top",
+          className: "gitTooltip",
+        }
+      )
       .addTo(markerGroup);
     marker.bindPopup(
-      "<table><tbody>" +
-        '<tr><td colSpan="2"><strong>' +
-        layer.title +
-        "</strong></td></tr>" +
-        "<tr><td class='text-nowrap'><strong>Datetime</strong></td><td>" +
-        dt +
-        "</td></tr>" +
-        "<tr><td><strong>Value</strong></td><td>" +
-        String(value) +
-        String(unit) +
-        "</td></tr>" +
-        dd +
-        "</td></tr>" +
-        '<tr><td class=\'text-nowrap\'><strong>Link</strong></td><td><a target="_blank" href="/datadetail/' +
-        datasets_id +
-        '">More information</a></td></tr>' +
-        "</tbody></table>"
+      `<div><div class="popup-title">${
+        layer.title
+      }</div><div class="popup-desc">${
+        layer.description
+      }</div><div class="popup-detail"><a href="${url}" target="_blank" rel="noopener noreferrer"><button>View Dataset</button></a></div><div class="popup-date">${this.parseDatetime(
+        dt
+      )}</div><div class="popup-values"><div class="popup-value">${String(
+        value
+      )}</div><div class="popup-unit">${String(
+        unit
+      )}</div><div class="popup-param">${
+        datasetparameter.name
+      }</div><div></div>`,
+      { className: "datasetsPopup" }
     );
 
     this.marker.push(markerGroup);
-  };
-
-  parseMonth = (input) => {
-    var months = [
-      "Jan ",
-      "Feb ",
-      "Mar ",
-      "Apr ",
-      "May ",
-      "Jun ",
-      "Jul ",
-      "Aug ",
-      "Sept ",
-      "Oct ",
-      "Nov ",
-      "Dec ",
-    ];
-    var date = new Date(input);
-    return months[date.getMonth()] + date.getFullYear();
   };
 
   plotDatasets = () => {
@@ -993,14 +971,27 @@ class Basemap extends Component {
       popupAnchor: [0, -24],
       className: "leaflet-custom-icon",
     });
+    var satelliteIcon = L.icon({
+      iconUrl: satellite,
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -24],
+      className: "leaflet-custom-icon",
+    });
     var markerGroup = L.markerClusterGroup().addTo(this.map);
     var marker;
     var id;
     for (var dataset of datasets) {
-      if (["gitPlot", "meteolakes"].includes(dataset.mapplotfunction)) {
+      if (
+        ["gitPlot", "meteolakes", "remoteSensing"].includes(
+          dataset.mapplotfunction
+        )
+      ) {
         var icon = measurementIcon;
         if (dataset.origin === "model") {
           icon = modelIcon;
+        } else if (dataset.origin === "satellite") {
+          icon = satelliteIcon;
         }
         marker = new L.marker([dataset.latitude, dataset.longitude], {
           icon: icon,
@@ -1012,7 +1003,7 @@ class Basemap extends Component {
           })
           .addTo(markerGroup);
         let buttons = "";
-        let d_id = dataset.id
+        let d_id = dataset.id;
         let ids = [];
         for (var dp of datasetparameters.filter(
           (dp) =>
@@ -1027,13 +1018,19 @@ class Basemap extends Component {
           });
           buttons = buttons + `<button id="${id}">${dp.name}</button>`;
         }
+        let url = "https://www.datalakes-eawag.ch/datadetail/" + dataset.id;
         marker
           .bindPopup(
-            `<div><div>${dataset.title}</div><div>${
+            `<div><div class="popup-title">${
+              dataset.title
+            }</div><div class="popup-desc">${
               dataset.description
-            }</div><div>${this.parseMonth(
+            }</div><div class="popup-detail"><a href="${url}" target="_blank" rel="noopener noreferrer"><button>View Dataset</button></a></div><div class="popup-date">${this.parseMonth(
               dataset.mindatetime
-            )} to ${this.parseMonth(dataset.maxdatetime)}</div>${buttons}</div>`
+            )} to ${this.parseMonth(
+              dataset.maxdatetime
+            )}</div><div class="popup-buttons"><div class="popup-layer">Add parameter to map</div>${buttons}<div></div>`,
+            { className: "datasetsPopup" }
           )
           .on("popupopen", function (popup) {
             for (var select_id of ids) {
@@ -1049,6 +1046,7 @@ class Basemap extends Component {
 
   addSelectedLayer = (event) => {
     var ids = event.target.id.split("_");
+    document.getElementById("map").click();
     this.props.addSelected([
       { datasets_id: parseInt(ids[0]), parameters_id: parseInt(ids[1]) },
     ]);
@@ -1067,6 +1065,48 @@ class Basemap extends Component {
     let month = ("0" + (date.getMonth() + 1)).slice(-2);
     let year = date.getFullYear();
     return day + "/" + month + "/" + year;
+  };
+
+  parseDatetime = (input) => {
+    var months = [
+      "Jan ",
+      "Feb ",
+      "Mar ",
+      "Apr ",
+      "May ",
+      "Jun ",
+      "Jul ",
+      "Aug ",
+      "Sept ",
+      "Oct ",
+      "Nov ",
+      "Dec ",
+    ];
+    var date = new Date(input);
+    return `${("0" + date.getHours()).slice(-2)}:${(
+      "0" + date.getSeconds()
+    ).slice(-2)} ${date.getDate()} ${
+      months[date.getMonth()]
+    } ${date.getFullYear()}`;
+  };
+
+  parseMonth = (input) => {
+    var months = [
+      "Jan ",
+      "Feb ",
+      "Mar ",
+      "Apr ",
+      "May ",
+      "Jun ",
+      "Jul ",
+      "Aug ",
+      "Sept ",
+      "Oct ",
+      "Nov ",
+      "Dec ",
+    ];
+    var date = new Date(input);
+    return months[date.getMonth()] + date.getFullYear();
   };
 
   parseVectorData = (data, radius) => {

@@ -1205,11 +1205,23 @@ class GIS extends Component {
             <button className="hidemenu" onClick={this.hideMenu}>
               Hide Menu
             </button>
-            <button onClick={this.togglePlotDataset}>Test</button>
             {!hidelayerbutton && (
-              <button className="addlayers" onClick={this.showLayersModal}>
-                Add Layers
-              </button>
+              <React.Fragment>
+                <button className="addlayers" onClick={this.showLayersModal}>
+                  Add Layers
+                </button>
+                <div className="gis-slider">
+                  Available Datasets
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      onChange={this.togglePlotDataset}
+                      checked={this.state.plotDatasets}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+              </React.Fragment>
             )}
           </div>
         </div>

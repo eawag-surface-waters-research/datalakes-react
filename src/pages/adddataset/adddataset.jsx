@@ -32,7 +32,7 @@ class AddDataset extends Component {
         markerLabel: true,
         markerSymbol: "circle",
         markerFixedSize: true,
-        markerSize: 10,
+        markerSize: 20,
         vectorMagnitude: false,
         vectorArrows: false,
         vectorFlow: false,
