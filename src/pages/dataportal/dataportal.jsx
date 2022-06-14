@@ -614,7 +614,7 @@ class DataPortal extends Component {
     var fDatasets = this.filterDataSet(datasets, filters, parameters);
 
     // Filter by search
-    if (search !== "") {
+    if (search !== "" && !loading) {
       fDatasets = fuse.search(search).map((f) => f.item);
     }
 

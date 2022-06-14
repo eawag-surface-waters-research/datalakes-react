@@ -410,7 +410,7 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
     data.sort((a, b) => (a.dist > b.dist ? 1 : -1));
     let u = null;
     let v = null;
-    if (data[0].dist < 100) {
+    if (data[0].dist < 300) {
       u = data[0].data[3];
       v = data[0].data[4];
     }

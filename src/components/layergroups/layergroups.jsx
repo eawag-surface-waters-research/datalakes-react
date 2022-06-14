@@ -17,7 +17,7 @@ class Group extends Component {
   render() {
     var { name, img } = this.props.properties;
     return (
-      <div className="layergroups-item" onClick={this.clickOnGroup}>
+      <div className="layergroups-item" onClick={this.clickOnGroup} title={`Add to map`}>
         <img src={img} alt={name} />
         <div>{name}</div>
       </div>
@@ -42,20 +42,22 @@ class LayerGroups extends Component {
           Select an example package or add a layer to start building your own
           custom map.
         </div>
-        <Group
-          key={"Add Layers"}
-          properties={{
-            name: "Add Layers",
-            description: "Click here to add a new layers.",
-            img: drawing,
-            data: { selected: [] },
-          }}
-          setLayerGroup={setLayerGroup}
-          onClick={this.props.showLayers}
-        />
-        {lgroups.map((g) => (
-          <Group key={g.name} properties={g} setLayerGroup={setLayerGroup} />
-        ))}
+        <div className="layergroups-content">
+          <Group
+            key={"Add Layers"}
+            properties={{
+              name: "Add Layers",
+              description: "Click here to add a new layers.",
+              img: drawing,
+              data: { selected: [] },
+            }}
+            setLayerGroup={setLayerGroup}
+            onClick={this.props.showLayers}
+          />
+          {lgroups.map((g) => (
+            <Group key={g.name} properties={g} setLayerGroup={setLayerGroup} />
+          ))}
+        </div>
       </div>
     );
   }

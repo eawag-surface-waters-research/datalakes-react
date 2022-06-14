@@ -120,6 +120,11 @@ class GIS extends Component {
     modaltext: "",
     modaldetail: "",
     lakejson: false,
+    plotDatasets: false,
+  };
+
+  togglePlotDataset = () => {
+    this.setState({ plotDatasets: !this.state.plotDatasets });
   };
 
   hideMenu = () => {
@@ -208,7 +213,7 @@ class GIS extends Component {
         newState["datasets"] = datasets;
       }
       newState["loading"] = false;
-      this.setState({ mindatetime, maxdatetime, mindepth, maxdepth, lakejson });
+      this.setState({ mindatetime, maxdatetime, mindepth, maxdepth, lakejson, plotDatasets: false });
       this.setState(newState);
     });
   };
@@ -1079,7 +1084,7 @@ class GIS extends Component {
 
   async componentDidMount() {
     // Defaults
-    var { lakejson } = this.state;
+    var { lakejson, plotDatasets } = this.state;
     var { selected, hidden, datetime, depth, zoom, center, basemap, timestep } =
       this.setDefaults();
 
@@ -1098,6 +1103,12 @@ class GIS extends Component {
     var parameters = server[0].data;
     var datasets = server[1].data;
     var datasetparameters = server[2].data;
+
+    datasetparameters.map((dp) => {
+      let param = parameters.find((p) => p.id === dp.parameters_id);
+      dp.name = param.name;
+      return dp;
+    });
 
     var selectedlayers = [];
     for (var i = selected.length - 1; i > -1; i--) {
@@ -1122,6 +1133,8 @@ class GIS extends Component {
     var { mindatetime, maxdatetime, mindepth, maxdepth } =
       this.getSliderParameters(selectedlayers);
 
+    if (selectedlayers.length === 0) plotDatasets = true;
+
     this.setState({
       selectedlayers,
       parameters,
@@ -1142,6 +1155,7 @@ class GIS extends Component {
       lakejson,
       timestep,
       lakes: server[3].data,
+      plotDatasets,
     });
   }
 
@@ -1192,9 +1206,22 @@ class GIS extends Component {
               Hide Menu
             </button>
             {!hidelayerbutton && (
-              <button className="addlayers" onClick={this.showLayersModal}>
-                Add Layers
-              </button>
+              <React.Fragment>
+                <button className="addlayers" onClick={this.showLayersModal}>
+                  Add Layers
+                </button>
+                <div className="gis-slider">
+                  Available Datasets
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      onChange={this.togglePlotDataset}
+                      checked={this.state.plotDatasets}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+              </React.Fragment>
             )}
           </div>
         </div>
@@ -1205,6 +1232,7 @@ class GIS extends Component {
             basemap={this.state.basemap}
             loading={this.state.loading}
             datasets={this.state.datasets}
+            datasetparameters={this.state.datasetparameters}
             depth={this.state.depth}
             datetime={this.state.datetime}
             center={this.state.center}
@@ -1213,6 +1241,8 @@ class GIS extends Component {
             lakejson={this.state.lakejson}
             setZoomIn={this.setZoomIn}
             setZoomOut={this.setZoomOut}
+            plotDatasets={this.state.plotDatasets}
+            addSelected={this.addSelected}
           />
           <DatetimeDepthSelector
             selectedlayers={this.state.selectedlayers}

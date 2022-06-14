@@ -1,3 +1,197 @@
+/* Custom styling */
+
+.leaflet-custom-icon:hover {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.leaflet-tooltip.gitTooltip {
+  opacity: 1 !important;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.leaflet-tooltip.gitTooltip .tooltip-date {
+  background-color: #f2f5f7;
+  color: #102a43;
+  border-radius: 10px 10px 0 0;
+  padding: 5px 10px 0;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 16px;
+}
+
+.leaflet-tooltip.basic-tooltip {
+  color: #f2f5f7;
+  background-color: #102a43;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+.leaflet-tooltip.gitTooltip .tooltip-values {
+  color: white;
+  background-color: #102a43;
+  border-radius: 0 0 10px 10px;
+  text-align: center;
+}
+
+.leaflet-tooltip.gitTooltip .tooltip-values .tooltip-value {
+  display: inline-block;
+  font-size: 22px;
+
+}
+
+.leaflet-tooltip.gitTooltip .tooltip-values .tooltip-unit {
+  display: inline-block;
+  margin-left: 3px;
+}
+
+.leaflet-tooltip.gitTooltip .tooltip-values .tooltip-param {
+  font-size: 10px;
+  margin-top: -4px;
+  padding-bottom: 2px;
+}
+
+.leaflet-popup.datasetsPopup {
+  margin-left: 19px;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-tip-container {
+  margin-top: -1px;
+  display: none;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-container a.leaflet-popup-close-button {
+  font-size: 18px;
+  padding: 8px 8px 0 0;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .leaflet-popup-content {
+  margin: 0;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 14px rgb(0 0 0 / 40%);
+  color: #102a43;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-title {
+  font-size: 20px;
+  margin-bottom: 5px;
+  padding: 10px 20px 0 20px;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-desc {
+  padding: 0px 20px;
+  margin-bottom: 5px;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-detail {
+  text-align: center;
+}
+
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-detail
+  button {
+  padding: 6px 12px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: 0;
+}
+
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-detail
+  button:hover {
+  transform: scale(1.01);
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-date {
+  font-size: 16px;
+  background-color: #f2f5f7;
+  padding: 5px 0px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-buttons {
+  background-color: #102a43;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 0 0 10px 10px;
+}
+
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-buttons
+  button {
+  color: white;
+  border-radius: 10px;
+  border: 1px solid white;
+}
+
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-buttons
+  button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-values {
+  background-color: #102a43;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 0 0 10px 10px;
+  text-align: center;
+}
+
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-values
+  .popup-value {
+  color: white;
+  font-size: 36px;
+  display: inline-block;
+}
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-values
+  .popup-unit {
+  color: white;
+  font-size: 16px;
+  display: inline-block;
+  margin-left: 3px;
+}
+.leaflet-popup.datasetsPopup
+  .leaflet-popup-content-wrapper
+  .popup-values
+  .popup-param {
+  color: white;
+}
+
+.leaflet-popup.datasetsPopup .leaflet-popup-content-wrapper .popup-layer {
+  color: white;
+  font-size: 18px;
+  text-align: center;
+}
+
 /* required styles */
 
 .leaflet-pane,
@@ -538,12 +732,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
   position: absolute;
   top: 0;
   right: 0;
-  padding: 4px 4px 0 0;
+  padding: 5px 7px 0 0;
   border: none;
   text-align: center;
   width: 18px;
   height: 14px;
-  font: 16px/14px Tahoma, Verdana, sans-serif;
+  font: 26px/24px Tahoma, Verdana, sans-serif;
   color: #c3c3c3;
   text-decoration: none;
   font-weight: bold;

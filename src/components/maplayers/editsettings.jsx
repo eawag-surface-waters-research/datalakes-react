@@ -122,6 +122,8 @@ class EditSettings extends Component {
     var type = datasetparameters.map((dp) => dp.axis + "&" + dp.parameters_id);
     if (!yselectindex) yselectindex = 0;
     var yselectparam = datasetparameters.find((dp) => dp.axis === "y");
+    var vpe = "";
+    if ("vpe" in data) vpe = data.vpe;
     return (
       <div className="editsettings">
         <div>
@@ -385,6 +387,9 @@ class EditSettings extends Component {
                     />
                   </td>
                 </tr>
+                <tr>
+                  <td style={{fontSize: "10px"}}>{vpe}</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -405,6 +410,7 @@ class EditSettings extends Component {
           <button
             type="button"
             title="Update mapplot settings"
+            className="update-plot"
             onClick={this.updateDisplay}
           >
             Update Plot
@@ -413,6 +419,7 @@ class EditSettings extends Component {
             <button
               type="button"
               title="Delete layer"
+              className="delete-layer"
               onClick={() => removeSelected(id)}
             >
               Delete Layer
