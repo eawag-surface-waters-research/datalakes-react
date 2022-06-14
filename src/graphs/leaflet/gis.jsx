@@ -213,7 +213,7 @@ class GIS extends Component {
         newState["datasets"] = datasets;
       }
       newState["loading"] = false;
-      this.setState({ mindatetime, maxdatetime, mindepth, maxdepth, lakejson });
+      this.setState({ mindatetime, maxdatetime, mindepth, maxdepth, lakejson, plotDatasets: false });
       this.setState(newState);
     });
   };

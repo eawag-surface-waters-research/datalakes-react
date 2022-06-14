@@ -92,18 +92,6 @@
             "center": [47.347, 8.683],
             "zoom": 13
           }
-        },
-        {
-          "name": "Lake Geneva Chlorophyll",
-          "description": "Some description",
-          "data": {
-            "selected": [
-              [20, 15],
-              [14, 25]
-            ],
-            "center": [46.405, 6.578],
-            "zoom": 11
-          }
         }
       ]
 }
