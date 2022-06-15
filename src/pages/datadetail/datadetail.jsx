@@ -414,7 +414,7 @@ class DataDetail extends Component {
     var searchArr = search.split("&");
     if (searchArr.includes("de") || searchArr.includes("DE")) lang = "de";
     if (searchArr.includes("fr") || searchArr.includes("FR")) lang = "fr";
-    if (searchArr.includes("it") || searchArr.includes("IT")) lang = "es";
+    if (searchArr.includes("it") || searchArr.includes("IT")) lang = "it";
 
     let server = await Promise.all([
       axios.get(apiUrl + "/datasets/" + dataset_id),

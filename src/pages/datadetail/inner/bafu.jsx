@@ -42,28 +42,6 @@ class Bafu extends Component {
       dropdown,
       lang,
     } = this.props;
-    // Overwrite defaults
-    /*colors = [
-      { color: "#0069a6", point: 0.0 },
-      { color: "#0069a6", point: 0.167 },
-
-      { color: "#00a2e8", point: 0.167 },
-      { color: "#00a2e8", point: 0.333 },
-
-      { color: "#98d4e1", point: 0.333 },
-      { color: "#98d4e1", point: 0.5 },
-
-      { color: "#ecad87", point: 0.5 },
-      { color: "#ecad87", point: 0.667 },
-
-      { color: "#dd6355", point: 0.667 },
-      { color: "#dd6355", point: 0.833 },
-
-      { color: "#9d3543", point: 0.833 },
-      { color: "#9d3543", point: 1 },
-    ];
-    minZ = 0;
-    maxZ = 30;*/
     thresholdStep = 50;
 
     if (ylabel !== "" && lang === "de") {
@@ -129,8 +107,8 @@ class Bafu extends Component {
           </div>
         );
       case "linegraph":
-        lcolor[0] = "#FF0000";
-        lcolor[1] = "#0E18EB";
+        lcolor[0] = "#0E18EB";
+        lcolor[1] = "#FF0000";
         lweight[0] = 2;
         lweight[1] = 2;
         var legend = [];
@@ -139,25 +117,25 @@ class Bafu extends Component {
           let bt = "Grundtemperatur";
           let st = "Oberflächentemperatur";
           if (lang === "en") {
-            ylabel = "Water Temperature";
-            bt = "Bottom Temperature";
-            st = "Surface Temperature";
+            ylabel = "Water temperature";
+            bt = "Bottom temperature";
+            st = "Surface temperature";
           }
           if (lang === "fr") {
             ylabel = "Température de l'eau";
-            bt = "Température de Fond";
-            st = "Température de Surface";
+            bt = "Température de fond";
+            st = "Température de surface";
           }
-          if (lang === "es") {
+          if (lang === "it") {
             ylabel = "Temperatura dell'acqua";
-            bt = "Temperatura Inferiore";
-            st = "Temperatura Superficiale";
+            bt = "Temperatura inferiore";
+            st = "Temperatura superficiale";
           }
           legend = [
             {
               id: 0,
               color: lcolor[0],
-              text: st,
+              text: bt,
               value: "",
               xaxis: "x",
               yaxis: "y",
@@ -165,7 +143,7 @@ class Bafu extends Component {
             {
               id: 1,
               color: lcolor[1],
-              text: bt,
+              text: st,
               value: "",
               xaxis: "x",
               yaxis: "y",
