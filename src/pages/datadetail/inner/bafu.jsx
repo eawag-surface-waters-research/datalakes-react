@@ -44,12 +44,19 @@ class Bafu extends Component {
     } = this.props;
     thresholdStep = 50;
 
-    if (ylabel !== "" && lang === "de") {
+    var lang_map = { en: "name", de: "german", fr: "french", it: "italian" };
+
+    if (ylabel !== "") {
       var ylabel_info = dropdown.parameters.find((f) => f.name === ylabel);
-      if (ylabel_info.german) ylabel = ylabel_info.german;
+      if (ylabel_info[lang_map[lang]] !== null)
+        ylabel = ylabel_info[lang_map[lang]];
     }
-    if (zlabel !== "" && lang === "de")
-      zlabel = dropdown.parameters.find((f) => f.name === zlabel).german;
+
+    if (zlabel !== "") {
+      var zlabel_info = dropdown.parameters.find((f) => f.name === zlabel);
+      if (zlabel_info[lang_map[lang]] !== null)
+        zlabel = zlabel_info[lang_map[lang]];
+    }
 
     switch (graph) {
       default:
@@ -113,29 +120,25 @@ class Bafu extends Component {
         lweight[1] = 2;
         var legend = [];
         if (plotdata.length > 1) {
-          ylabel = "Wassertemperatur";
-          let bt = "Grundtemperatur";
-          let st = "Oberflächentemperatur";
-          if (lang === "en") {
-            ylabel = "Water temperature";
-            bt = "Bottom temperature";
-            st = "Surface temperature";
-          }
-          if (lang === "fr") {
-            ylabel = "Température de l'eau";
-            bt = "Température de fond";
-            st = "Température de surface";
-          }
-          if (lang === "it") {
-            ylabel = "Temperatura dell'acqua";
-            bt = "Temperatura inferiore";
-            st = "Temperatura superficiale";
-          }
+          var yi = dropdown.parameters.find((f) => f.id === 5);
+          var yaxis_dict = {
+            en: "name",
+            de: "german",
+            it: "italian",
+            fr: "french",
+          };
+          ylabel = yi[yaxis_dict[lang]];
           legend = [
             {
               id: 0,
               color: lcolor[0],
-              text: bt,
+              text: dropdown.parameters.find(
+                (f) =>
+                  f.id ===
+                  this.props.datasetparameters.find(
+                    (d) => d.axis === this.props.yaxis[0]
+                  ).parameters_id
+              )[yaxis_dict[lang]],
               value: "",
               xaxis: "x",
               yaxis: "y",
@@ -143,7 +146,13 @@ class Bafu extends Component {
             {
               id: 1,
               color: lcolor[1],
-              text: st,
+              text: dropdown.parameters.find(
+                (f) =>
+                  f.id ===
+                  this.props.datasetparameters.find(
+                    (d) => d.axis === this.props.yaxis[1]
+                  ).parameters_id
+              )[yaxis_dict[lang]],
               value: "",
               xaxis: "x",
               yaxis: "y",
