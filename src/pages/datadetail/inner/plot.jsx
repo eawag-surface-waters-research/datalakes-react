@@ -2208,7 +2208,6 @@ class Plot extends Component {
             .replace(")", "")
             .replace("%5D", "")
             .split(",");
-          console.log(axis)
           for (let a of axis) {
             if (validAxis.includes(a)) {
               if (a.includes("x")) xxaxis.push(a);
@@ -2223,7 +2222,6 @@ class Plot extends Component {
         }
       }
     }
-    console.log(xaxis, yaxis, zaxis)
     return { xaxis, yaxis, zaxis };
   };
 
