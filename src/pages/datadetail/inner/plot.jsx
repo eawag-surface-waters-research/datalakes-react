@@ -2200,7 +2200,15 @@ class Plot extends Component {
         try {
           var xxaxis = [];
           var yyaxis = [];
-          let axis = s.replace("axis:[", "").replace("]", "").split(",");
+          let axis = s
+            .replace("axis:[", "")
+            .replace("axis:(", "")
+            .replace("axis:%5B", "")
+            .replace("]", "")
+            .replace(")", "")
+            .replace("%5D", "")
+            .split(",");
+          console.log(axis)
           for (let a of axis) {
             if (validAxis.includes(a)) {
               if (a.includes("x")) xxaxis.push(a);
@@ -2215,6 +2223,7 @@ class Plot extends Component {
         }
       }
     }
+    console.log(xaxis, yaxis, zaxis)
     return { xaxis, yaxis, zaxis };
   };
 
