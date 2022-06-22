@@ -26,7 +26,11 @@ class MapViewer extends Component {
   };
 
   fixedEncodeURI = (str) => {
-    return str.replace(/%5b/g, "[").replace(/%5d/g, "]");
+    return str
+      .replace(/%5b/g, "[")
+      .replace(/%5d/g, "]")
+      .replace(/%5B/g, "[")
+      .replace(/%5D/g, "]");
   };
 
   searchLocation = (defaults) => {

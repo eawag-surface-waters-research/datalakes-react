@@ -213,7 +213,14 @@ class GIS extends Component {
         newState["datasets"] = datasets;
       }
       newState["loading"] = false;
-      this.setState({ mindatetime, maxdatetime, mindepth, maxdepth, lakejson, plotDatasets: false });
+      this.setState({
+        mindatetime,
+        maxdatetime,
+        mindepth,
+        maxdepth,
+        lakejson,
+        plotDatasets: false,
+      });
       this.setState(newState);
     });
   };
@@ -327,14 +334,14 @@ class GIS extends Component {
     this.setState({ loading: true }, () => {
       var { selectedlayers, hidden } = this.state;
       var index = selectedlayers.findIndex((x) => x.id === id);
-      selectedlayers[index].visible = !selectedlayers[index].visible;
+      var visible = !selectedlayers[index].visible;
+      selectedlayers[index].visible = visible;
       var idArr = id.split("&");
       var idParse = [parseInt(idArr[0]), parseInt(idArr[1])];
-      var h_fil = hidden.filter(
-        (h) => h[0] !== idParse[0] && h[1] !== idParse[1]
-      );
-      if (h_fil.length !== hidden.length) {
-        hidden = h_fil;
+      if (visible) {
+        hidden = hidden.filter(
+          (h) => h[0] !== idParse[0] && h[1] !== idParse[1]
+        );
       } else {
         hidden.push(idParse);
       }
