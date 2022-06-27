@@ -25,6 +25,7 @@ class DatasetList extends Component {
       datalistclass,
       getLabel,
       loading,
+      editUrl,
     } = this.props;
     if (list.length > 0) {
       return (
@@ -39,6 +40,7 @@ class DatasetList extends Component {
                 dropdown={dropdown}
                 parameters={parameters}
                 getLabel={getLabel}
+                editUrl={editUrl}
               />
             ))}
           </div>
@@ -86,7 +88,8 @@ class Dataset extends Component {
   };
 
   render() {
-    const { dataset, selected, onSelectDataset, getLabel } = this.props;
+    const { dataset, selected, onSelectDataset, getLabel, editUrl } =
+      this.props;
     var url;
     if (dataset.id === 1) {
       url = "/lakemorphology";
@@ -128,6 +131,7 @@ class Dataset extends Component {
                   key={dataset.id}
                   title="Click to explore plots, lineage, downloads and metadata"
                   className="text"
+                  onClick={editUrl}
                 >
                   <div className="button-main">View Dataset</div>
                 </Link>
@@ -316,6 +320,7 @@ class DataPortal extends Component {
   };
 
   searchDatasets = (event) => {
+    if (event.target.value === "") this.clearUrl();
     this.setState({ search: event.target.value });
   };
 
@@ -539,8 +544,37 @@ class DataPortal extends Component {
     }
   };
 
+  editUrl = () => {
+    if (this.state.search === "") {
+      let { pathname } = this.props.location;
+      this.props.history.push({
+        pathname: pathname,
+        search: "",
+      });
+    } else {
+      var new_search = "?search=" + this.state.search.replaceAll(" ", "+");
+      let { search, pathname } = this.props.location;
+      if (new_search !== search) {
+        this.props.history.push({
+          pathname: pathname,
+          search: new_search,
+        });
+      }
+    }
+  };
+
+  clearUrl = () => {
+    let { pathname } = this.props.location;
+    this.props.history.push({
+      pathname: pathname,
+      search: "",
+    });
+  };
+
   async componentDidMount() {
     window.addEventListener("keydown", this.focusSearchBar);
+    var { search: location_search } = this.props.location;
+    var { search } = this.state;
     const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
     var { data: datasets, status: dstatus } = await axios.get(
       apiUrl + "/datasets"
@@ -587,7 +621,20 @@ class DataPortal extends Component {
     };
     var fuse_datasets = JSON.parse(JSON.stringify(datasets));
     const fuse = new Fuse(fuse_datasets, options);
-    this.setState({ datasets, parameters, dropdown, fuse, loading: false });
+    var search_arr = location_search
+      .replace("?", "")
+      .split("&")
+      .filter((s) => s.includes("search"));
+    if (search_arr.length === 1)
+      search = search_arr[0].split("=")[1].replaceAll("+", " ");
+    this.setState({
+      datasets,
+      parameters,
+      dropdown,
+      fuse,
+      search,
+      loading: false,
+    });
   }
 
   componentWillUnmount() {
@@ -614,7 +661,7 @@ class DataPortal extends Component {
     var fDatasets = this.filterDataSet(datasets, filters, parameters);
 
     // Filter by search
-    if (search !== "" && !loading) {
+    if (search !== "" && search !== undefined && !loading) {
       fDatasets = fuse.search(search).map((f) => f.item);
     }
 
@@ -654,6 +701,7 @@ class DataPortal extends Component {
             placeholder="Search using keywords e.g. ctd or geneva or salinity"
             type="search"
             ref="search"
+            value={search}
           />
         </div>
         <SidebarLayout
@@ -728,7 +776,9 @@ class DataPortal extends Component {
                 className={map ? "popup" : "hidepopup"}
                 title="Hold ctrl and drag with your mouse to select custom area"
               >
-                <div className="mapselecttitle">Hold ctrl, click and drag to select a custom area</div>
+                <div className="mapselecttitle">
+                  Hold ctrl, click and drag to select a custom area
+                </div>
                 <MapSelect
                   datasets={fDatasets}
                   selectPoints={this.mapAddFilter}
@@ -745,6 +795,7 @@ class DataPortal extends Component {
                 dropdown={dropdown}
                 getLabel={this.getLabel}
                 loading={loading}
+                editUrl={this.editUrl}
               />
             </React.Fragment>
           }
