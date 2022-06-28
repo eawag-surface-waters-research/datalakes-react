@@ -2386,7 +2386,7 @@ class Plot extends Component {
       );
 
       if (refresh !== "z") {
-        if (minZ === lowerZ && maxZ === upperZ) {
+        if (minZ === lowerZ || maxZ === upperZ) {
           ({ minZ, maxZ } = this.getZBounds(plotdata));
           upperZ = maxZ;
           lowerZ = minZ;
