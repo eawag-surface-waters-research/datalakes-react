@@ -2204,9 +2204,11 @@ class Plot extends Component {
             .replace("axis:[", "")
             .replace("axis:(", "")
             .replace("axis:%5B", "")
+            .replace("axis:%5b", "")
             .replace("]", "")
             .replace(")", "")
             .replace("%5D", "")
+            .replace("%5d", "")
             .split(",");
           for (let a of axis) {
             if (validAxis.includes(a)) {
