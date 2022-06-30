@@ -5,6 +5,14 @@ import {
   scaleTime,
   scaleLog,
   scaleLinear,
+  timeFormat,
+  timeSecond,
+  timeMinute,
+  timeHour,
+  timeDay,
+  timeMonth,
+  timeYear,
+  timeWeek,
   axisBottom,
   axisLeft,
   axisRight,
@@ -347,6 +355,9 @@ const addBottonAxis = (svg, xDomain, options) => {
   var ref = ax.copy();
   var base = ax.copy();
   var axis = axisBottom(ax).ticks(5);
+  if (options.xTime) {
+    axis.tickFormat(multiFormat);
+  }
 
   if (options.grid) axis.tickSize(-options.canvasHeight);
 
@@ -408,6 +419,9 @@ const addTopAxis = (svg, x2Domain, options) => {
   var ref = ax.copy();
   var base = ax.copy();
   var axis = axisTop(ax).ticks(5);
+  if (options.xTime) {
+    axis.tickFormat(multiFormat);
+  }
 
   var g = svg
     .append("g")
@@ -468,6 +482,9 @@ const addLeftAxis = (svg, yDomain, options) => {
   var ref = ax.copy();
   var base = ax.copy();
   var axis = axisLeft(ax).ticks(5);
+  if (options.yTime) {
+    axis.tickFormat(multiFormat);
+  }
 
   if (options.grid) axis.tickSize(-options.canvasWidth);
 
@@ -521,6 +538,9 @@ const addRightAxis = (svg, y2Domain, options) => {
   var ref = ax.copy();
   var base = ax.copy();
   var axis = axisRight(ax).ticks(5);
+  if (options.yTime) {
+    axis.tickFormat(multiFormat);
+  }
 
   var g = svg
     .append("g")
@@ -1124,6 +1144,34 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
   if (options.dualaxis === "x2") zoomboxx2.on("dblclick.zoom", null);
   if (options.dualaxis === "y2") zoomboxy2.on("dblclick.zoom", null);
   return { zoombox };
+};
+
+const multiFormat = (date) => {
+  var formatMillisecond = timeFormat(".%L"),
+    formatSecond = timeFormat(":%S"),
+    formatMinute = timeFormat("%H:%M"),
+    formatHour = timeFormat("%H:%M"),
+    formatDay = timeFormat("%a %d"),
+    formatWeek = timeFormat("%b %d"),
+    formatMonth = timeFormat("%B"),
+    formatYear = timeFormat("%Y");
+  return (
+    timeSecond(date) < date
+      ? formatMillisecond
+      : timeMinute(date) < date
+      ? formatSecond
+      : timeHour(date) < date
+      ? formatMinute
+      : timeDay(date) < date
+      ? formatHour
+      : timeMonth(date) < date
+      ? timeWeek(date) < date
+        ? formatDay
+        : formatWeek
+      : timeYear(date) < date
+      ? formatMonth
+      : formatYear
+  )(date);
 };
 
 export default plotlinegraph;

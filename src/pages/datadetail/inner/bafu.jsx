@@ -128,17 +128,20 @@ class Bafu extends Component {
             fr: "french",
           };
           ylabel = yi[yaxis_dict[lang]];
+          var dp1 = this.props.datasetparameters.find(
+            (d) => d.axis === this.props.yaxis[0]
+          );
+          var dp2 = this.props.datasetparameters.find(
+            (d) => d.axis === this.props.yaxis[1]
+          );
           legend = [
             {
               id: 0,
               color: lcolor[0],
-              text: dropdown.parameters.find(
-                (f) =>
-                  f.id ===
-                  this.props.datasetparameters.find(
-                    (d) => d.axis === this.props.yaxis[0]
-                  ).parameters_id
-              )[yaxis_dict[lang]],
+              text:
+                dropdown.parameters.find((f) => f.id === dp1.parameters_id)[
+                  yaxis_dict[lang]
+                ] + (dp1.detail === "none" ? "" : ` (${dp1.detail})`),
               value: "",
               xaxis: "x",
               yaxis: "y",
@@ -146,13 +149,10 @@ class Bafu extends Component {
             {
               id: 1,
               color: lcolor[1],
-              text: dropdown.parameters.find(
-                (f) =>
-                  f.id ===
-                  this.props.datasetparameters.find(
-                    (d) => d.axis === this.props.yaxis[1]
-                  ).parameters_id
-              )[yaxis_dict[lang]],
+              text:
+                dropdown.parameters.find((f) => f.id === dp2.parameters_id)[
+                  yaxis_dict[lang]
+                ] + (dp2.detail === "none" ? "" : ` (${dp2.detail})`),
               value: "",
               xaxis: "x",
               yaxis: "y",

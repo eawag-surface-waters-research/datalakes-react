@@ -65,7 +65,7 @@ export const formatNumber = (num) => {
   if (num > 9999 || (num < 0.01 && num > -0.01) || num < -9999) {
     num = num.toExponential(3);
   } else {
-    num = Math.round(num * 10000) / 10000;
+    num = Math.round(num * 1000) / 1000;
   }
   return num;
 };
