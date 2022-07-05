@@ -1,7 +1,7 @@
 .bafu {
   width: 100%;
   height: 100%;
-  min-height: 400px;
+  overflow: auto;
   left: 0;
   top: 0;
   position: fixed;
@@ -11,6 +11,7 @@
 .bafu .graph {
   height: calc(100% - 90px);
   width: 100%;
+  min-height: 180px;
 }
 
 .bafu .selector {
@@ -19,7 +20,7 @@
   padding: 10px;
   margin: -20px 10px 0 10px;
   box-sizing: border-box;
-  box-shadow: 0 3px 8px rgb(0 0 0 / 24%);
+  box-shadow: rgb(0 0 0 / 12%) 0px 1px 4px;
   position: relative;
 }
 
