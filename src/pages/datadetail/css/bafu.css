@@ -1,6 +1,7 @@
 .bafu {
   width: 100%;
   height: 100%;
+  min-height: 400px;
   left: 0;
   top: 0;
   position: fixed;
@@ -8,13 +9,25 @@
 }
 
 .bafu .graph {
-  height: calc(100% - 130px);
+  height: calc(100% - 90px);
   width: 100%;
 }
 
 .bafu .selector {
   height: 100px;
-  width: 100%;
-  padding: 0 20px;
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: -20px 10px 0 10px;
   box-sizing: border-box;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 24%);
+  position: relative;
+}
+
+.bafu .selector .datetime-selector .datetime-picker {
+  position: absolute;
+  width: calc(100% - 20px);
+}
+
+.bafu .datetime-selector {
+  margin-top: 0;
 }
