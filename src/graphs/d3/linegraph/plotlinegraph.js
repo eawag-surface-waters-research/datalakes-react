@@ -589,7 +589,10 @@ const addLegend = (svg, div, data, options) => {
       .attr("id", "legend_" + div)
       .attr("pointer-events", "none");
 
-    var legendbackground = legendblock.append("rect").style("fill", "white");
+    var legendbackground = legendblock
+      .append("rect")
+      .style("fill", "white")
+      .style("opacity", 0.6);
 
     var x = options.canvasWidth - 10;
     var textAnchor = "end";
@@ -620,7 +623,7 @@ const addLegend = (svg, div, data, options) => {
         return d.lineColor;
       })
       .text(function (d) {
-        return "- " + d.name;
+        return d.name;
       })
       .attr("text-anchor", textAnchor)
       .style("font-size", `${options.fontSize}px`)
@@ -1151,8 +1154,8 @@ const multiFormat = (date) => {
     formatSecond = timeFormat(":%S"),
     formatMinute = timeFormat("%H:%M"),
     formatHour = timeFormat("%H:%M"),
-    formatDay = timeFormat("%a %d"),
-    formatWeek = timeFormat("%b %d"),
+    formatDay = timeFormat("%d.%m"),
+    formatWeek = timeFormat("%d.%m"),
     formatMonth = timeFormat("%B"),
     formatYear = timeFormat("%Y");
   return (
