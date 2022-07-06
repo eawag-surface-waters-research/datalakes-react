@@ -1,6 +1,6 @@
 {
     "apiUrl": "https://api.datalakes-eawag.ch",
-    "serverlessUrl": "https://1qwxwl3d2c.execute-api.us-east-1.amazonaws.com/dev",
+    "serverlessUrl": "https://serverless.datalakes-eawag.ch",
     "password": "downloadprivatefiles",
     "basemaps": {
         "datalakesmap": {
