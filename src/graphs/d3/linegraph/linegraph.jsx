@@ -222,6 +222,7 @@ class D3LineGraph extends Component {
       language,
     } = this.props;
     var { graphid, fontSize } = this.state;
+    if (this.props.header !== false) fontSize = this.props.fontSize;
 
     for (var i = 0; i < data.length; i++) {
       data[i]["lineColor"] = lcolor[i] ? lcolor[i] : "black";

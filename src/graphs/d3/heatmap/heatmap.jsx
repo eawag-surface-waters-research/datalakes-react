@@ -355,6 +355,7 @@ class D3HeatMap extends Component {
                     ylabel={ylabel}
                     xunits={zunits}
                     yunits={yunits}
+                    fontSize={fontSize}
                     xReverse={false}
                     yReverse={yReverse}
                     lcolor={["black"]}
@@ -376,6 +377,7 @@ class D3HeatMap extends Component {
                   ylabel={zlabel}
                   xunits={xunits}
                   yunits={zunits}
+                  fontSize={fontSize}
                   xReverse={xReverse}
                   yReverse={false}
                   lcolor={["black"]}
