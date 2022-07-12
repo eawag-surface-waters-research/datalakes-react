@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { apiUrl } from "../../../src/config.json";
+import { apiUrl, serverlessUrl } from "../../../src/config.json";
 import axios from "axios";
 import * as d3 from "d3";
 import Download from "./inner/download";
@@ -247,14 +247,6 @@ class DataDetail extends Component {
   };
 
   // Get data from API
-
-  getDropdowns = async () => {
-    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
-    this.setState({
-      dropdown,
-    });
-  };
-
   getLabel = (input, id, prop) => {
     const { dropdown } = this.state;
     try {
@@ -417,10 +409,10 @@ class DataDetail extends Component {
     if (searchArr.includes("it") || searchArr.includes("IT")) lang = "it";
 
     let server = await Promise.all([
-      axios.get(apiUrl + "/datasets/" + dataset_id),
-      axios.get(apiUrl + "/files?datasets_id=" + dataset_id),
-      axios.get(apiUrl + "/datasetparameters?datasets_id=" + dataset_id),
-      axios.get(apiUrl + "/selectiontables"),
+      axios.get(serverlessUrl + "/datasets/" + dataset_id),
+      axios.get(serverlessUrl + "/files?datasets_id=" + dataset_id),
+      axios.get(serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id),
+      axios.get(serverlessUrl + "/selectiontables"),
     ]).catch((error) => {
       this.setState({ step: "error" });
     });
@@ -514,20 +506,26 @@ class DataDetail extends Component {
       var scripts = [];
       if (dataset.renku === 0) {
         try {
-          ({ data: renku } = await axios.post(apiUrl + "/renku", {
-            url: dataset.datasourcelink,
-          }));
+          ({ data: renku } = await axios.post(
+            apiUrl + "/renku",
+            {
+              url: dataset.datasourcelink,
+            },
+            { timeout: 500 }
+          ));
         } catch (e) {
-          console.error(e);
+          console.error("Failed to fetch Renku data.");
           renku = false;
         }
       }
       try {
-        ({ data: scripts } = await axios.get(
-          apiUrl + "/pipeline/scripts/" + dataset_id
-        ));
+        ({ data: scripts } = await axios({
+          method: "get",
+          url: apiUrl + "/pipeline/scripts/" + dataset_id,
+          timeout: 2000,
+        }));
       } catch (e) {
-        console.error(e);
+        console.error("Failed to collect scripts.");
       }
 
       this.setState({
@@ -550,7 +548,6 @@ class DataDetail extends Component {
         search,
         lang,
       });
-      //} else if (datasource === "Meteolakes") {
     } else if (mapplotfunction === "meteolakes") {
       this.setState({
         dataset,

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Fuse from "fuse.js";
-import { apiUrl } from "../../../src/config.json";
+import { serverlessUrl } from "../../../src/config.json";
 import SidebarLayout from "../../format/sidebarlayout/sidebarlayout";
 import FilterBox from "../../components/filterbox/filterbox";
 import MapSelect from "../../graphs/leaflet/mapselect.jsx";
@@ -312,13 +312,6 @@ class DataPortal extends Component {
     this.setState({ map: !this.state.map });
   };
 
-  getDropdowns = async () => {
-    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
-    this.setState({
-      dropdown,
-    });
-  };
-
   searchDatasets = (event) => {
     if (event.target.value === "") this.clearUrl();
     this.setState({ search: event.target.value });
@@ -575,12 +568,12 @@ class DataPortal extends Component {
     window.addEventListener("keydown", this.focusSearchBar);
     var { search: location_search } = this.props.location;
     var { search } = this.state;
-    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
+    const { data: dropdown } = await axios.get(serverlessUrl + "/selectiontables");
     var { data: datasets, status: dstatus } = await axios.get(
-      apiUrl + "/datasets"
+      serverlessUrl + "/datasets"
     );
     var { data: parameters, status: pstatus } = await axios.get(
-      apiUrl + "/datasetparameters"
+      serverlessUrl + "/datasetparameters"
     );
     if (dstatus !== 200) datasets = [];
     if (pstatus !== 200) {
