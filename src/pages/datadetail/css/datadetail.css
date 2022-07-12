@@ -353,7 +353,7 @@
 }
 
 .detailgraph {
-  height: calc(100vh - 370px);
+  height: calc(100vh - 380px);
   max-height: 100vh;
   min-height: 500px;
   padding: 25px 15px 5px 10px;
