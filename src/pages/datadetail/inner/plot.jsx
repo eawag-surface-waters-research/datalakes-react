@@ -34,6 +34,7 @@ class Graph extends Component {
       colors,
       plotdots,
       thresholdStep,
+      display,
       lowerZ,
       upperZ,
       confidence,
@@ -85,6 +86,7 @@ class Graph extends Component {
               maxvalue={upperZ}
               yReverse={yReverse}
               xReverse={xReverse}
+              display={display}
             />
           </React.Fragment>
         );
@@ -933,6 +935,7 @@ class Plot extends Component {
       "#000075",
     ],
     thresholdStep: 20,
+    display: "heatmap",
     lweight: Array.from({ length: 20 }).map((x) => "1"),
     decimate: 1,
     average: "None",
@@ -2237,7 +2240,8 @@ class Plot extends Component {
 
   componentDidMount() {
     var { datasetparameters, dataset, file, data } = this.props;
-    var { xaxis, yaxis, zaxis, decimate, average } = this.state;
+    var { xaxis, yaxis, zaxis, decimate, average, display, thresholdStep } =
+      this.state;
 
     ({ xaxis, yaxis, zaxis } = this.processUrlAxis(
       this.props.search,
@@ -2299,6 +2303,11 @@ class Plot extends Component {
       this.state.interpolate
     );
 
+    if ("display" in dataset.plotproperties)
+      display = dataset.plotproperties.display;
+    if ("thresholdStep" in dataset.plotproperties)
+      thresholdStep = dataset.plotproperties.thresholdStep;
+
     this.setState({
       plotdata,
       xaxis,
@@ -2331,6 +2340,8 @@ class Plot extends Component {
       lowerZ,
       upperZ,
       timeaxis,
+      display,
+      thresholdStep,
     });
   }
 
