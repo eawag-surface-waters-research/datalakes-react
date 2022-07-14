@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl, basemaps, bucket, s3files } from "../../config.json";
+import { apiUrl, serverlessUrl, basemaps, bucket, s3files } from "../../config.json";
 import Basemap from "./basemap";
 import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
 import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
@@ -689,7 +689,7 @@ class GIS extends Component {
     } else {
       var data, realdatetime, realdepth;
       if (source === "internal") {
-        let fileurl = apiUrl + "/files/" + fileid + "?get=raw";
+        let fileurl = serverlessUrl + "/files/" + fileid + "?get=raw";
         if (s3files) fileurl = bucket + "/" + filelink;
         ({ data } = await axios.get(fileurl));
         ({ realdatetime, realdepth } = this.getInternalDatetimeAndDepth(
@@ -832,7 +832,7 @@ class GIS extends Component {
       if (dataset && parameter) {
         // Get file list for dataset
         var { data: files } = await axios.get(
-          apiUrl + "/files?datasets_id=" + datasets_id + "&type=json"
+          serverlessUrl + "/files?datasets_id=" + datasets_id + "&type=json"
         );
 
         // Find closest file to datetime and depth
@@ -1101,10 +1101,10 @@ class GIS extends Component {
 
     // Get data
     let server = await Promise.all([
-      axios.get(apiUrl + "/selectiontables/parameters"),
-      axios.get(apiUrl + "/datasets"),
-      axios.get(apiUrl + "/datasetparameters"),
-      axios.get(apiUrl + "/selectiontables/lakes"),
+      axios.get(serverlessUrl + "/selectiontables/parameters"),
+      axios.get(serverlessUrl + "/datasets"),
+      axios.get(serverlessUrl + "/datasetparameters"),
+      axios.get(serverlessUrl + "/selectiontables/lakes"),
     ]).catch((error) => {
       console.log(error);
     });
