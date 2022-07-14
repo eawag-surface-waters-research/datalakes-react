@@ -1,7 +1,8 @@
 {
     "apiUrl": "https://api.datalakes-eawag.ch",
     "serverlessUrl": "https://serverless.datalakes-eawag.ch",
-    "serverlessUrls": "http://localhost:3000/dev",
+    "bucket": "https://datalakes-eawag.s3.eu-central-1.amazonaws.com",
+    "s3files": true,
     "password": "downloadprivatefiles",
     "basemaps": {
         "datalakesmap": {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl, basemaps } from "../../config.json";
+import { apiUrl, basemaps, bucket, s3files } from "../../config.json";
 import Basemap from "./basemap";
 import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
 import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
@@ -689,7 +689,9 @@ class GIS extends Component {
     } else {
       var data, realdatetime, realdepth;
       if (source === "internal") {
-        ({ data } = await axios.get(apiUrl + "/files/" + fileid + "?get=raw"));
+        let fileurl = apiUrl + "/files/" + fileid + "?get=raw";
+        if (s3files) fileurl = bucket + "/" + filelink;
+        ({ data } = await axios.get(fileurl));
         ({ realdatetime, realdepth } = this.getInternalDatetimeAndDepth(
           data,
           datasetparameters,

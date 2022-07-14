@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { apiUrl, serverlessUrl } from "../../../src/config.json";
+import { apiUrl, serverlessUrl, bucket, s3files } from "../../../src/config.json";
 import axios from "axios";
 import * as d3 from "d3";
 import Download from "./inner/download";
@@ -51,11 +51,11 @@ class DataDetail extends Component {
     var { data: dataArray, files } = this.state;
     for (var j = 0; j < files.length; j++) {
       if (dataArray[j] === 0) {
-        var { data } = await axios
-          .get(apiUrl + "/files/" + files[j].id + "?get=raw")
-          .catch((error) => {
-            this.setState({ error: true });
-          });
+        let fileurl = apiUrl + "/files/" + files[j].id + "?get=raw";
+        if (s3files) fileurl = bucket + "/" + files[j].filelink;
+        var { data } = await axios.get(fileurl).catch((error) => {
+          this.setState({ error: true });
+        });
         dataArray[j] = data;
         if (this._isMounted) {
           this.setState({
@@ -70,11 +70,11 @@ class DataDetail extends Component {
 
   downloadFile = async (index) => {
     var { data: dataArray, files } = this.state;
-    var { data } = await axios
-      .get(apiUrl + "/files/" + files[index].id + "?get=raw")
-      .catch((error) => {
-        this.setState({ error: true });
-      });
+    let fileurl = apiUrl + "/files/" + files[index].id + "?get=raw";
+    if (s3files) fileurl = bucket + "/" + files[index].filelink;
+    var { data } = await axios.get(fileurl).catch((error) => {
+      this.setState({ error: true });
+    });
     dataArray[index] = data;
     if (this._isMounted) {
       this.setState({
@@ -97,11 +97,12 @@ class DataDetail extends Component {
     var { data: dataArray, files, file } = this.state;
     for (var j = 0; j < arr.length; j++) {
       if (dataArray[arr[j]] === 0) {
-        var { data } = await axios
-          .get(apiUrl + "/files/" + files[arr[j]].id + "?get=raw")
-          .catch((error) => {
-            this.setState({ error: true });
-          });
+        let fileurl = apiUrl + "/files/" + files[arr[j]].id + "?get=raw";
+        if (s3files)
+          fileurl = bucket + "/" + files[arr[j]].filelink;
+        var { data } = await axios.get(fileurl).catch((error) => {
+          this.setState({ error: true });
+        });
         dataArray[arr[j]] = this.cleanData(data);
       }
     }
@@ -487,11 +488,11 @@ class DataDetail extends Component {
       }
 
       var dataArray = new Array(files.length).fill(0);
-      var { data } = await axios
-        .get(apiUrl + "/files/" + files[0].id + "?get=raw")
-        .catch((error) => {
-          this.setState({ step: "error" });
-        });
+      let fileurl = apiUrl + "/files/" + files[0].id + "?get=raw";
+      if (s3files) fileurl = bucket + "/" + files[0].filelink;
+      var { data } = await axios.get(fileurl).catch((error) => {
+        this.setState({ step: "error" });
+      });
       dataArray[0] = data;
       var { lower, upper } = this.dataBounds(dataArray);
 
