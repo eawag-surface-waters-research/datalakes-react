@@ -1,0 +1,325 @@
+.sandbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  padding-top: 50px;
+  box-sizing: border-box;
+}
+
+.sandbox .siderbar-mini.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.sandbox .sidebar-inner.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.sandbox .sidebar-buttons.hide {
+  visibility: hidden;
+  position: absolute;
+}
+
+.sandbox .sidebar {
+  width: 400px;
+  height: 100%;
+  background-color: rgb(249, 249, 249);
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  max-width: 100%;
+  z-index: 999;
+}
+
+.sandbox .sidebar.min {
+  width: 40px;
+  cursor: pointer;
+}
+
+.sandbox .sidebar .sidebar-inner {
+  width: 100%;
+  padding: 10px 20px 20px 20px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.sandbox .sidebar .sidebar-buttons {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 400px;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  text-align: right;
+  background-color: #f2f5f7;
+  max-width: 100vw;
+}
+
+.sandbox .sidebar .sidebar-buttons button.addlayers {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: 0;
+}
+
+.sandbox .sidebar .sidebar-buttons button.addlayers:hover {
+  transform: scale(1.05);
+}
+
+.sandbox .sidebar .sidebar-buttons button.hidemenu {
+  cursor: pointer;
+  border: 1px solid #38bec9;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 16px;
+  margin-left: 16px;
+  color: #38bec9;
+  font-size: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 0 20px 0 0;
+}
+
+.sandbox .sidebar .boundary {
+  height: 100%;
+  background-image: linear-gradient(90deg, rgba(25, 25, 25, 0.4), transparent);
+  width: 15px;
+  position: absolute;
+  right: -15px;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.sandbox .siderbar-mini {
+  cursor: pointer;
+  font-size: 24px;
+  color: #102a43;
+  padding: 0 0 0 9px;
+}
+
+.sandbox .siderbar-mini .rotate {
+  transform: rotate(90deg);
+  transform-origin: left;
+  width: 500px;
+  padding-bottom: 20px;
+  font-size: 18px;
+}
+
+.sandbox .plot {
+  height: 100%;
+  width: calc(100% - 400px);
+  display: inline-block;
+  min-height: 300px;
+  position: relative;
+  background-color: white;
+}
+
+.sandbox .plot .empty {
+  top: calc(50% - 76px);
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  color: #102a43;
+}
+
+.sandbox .plot .empty img {
+  width: 50px;
+}
+
+.sandbox .plot .plot-loading {
+  z-index: 9999;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  height: 100%;
+}
+
+.sandbox .plot .plot-loading .plot-loading-inner {
+  top: calc(50% - 76px);
+  position: absolute;
+  width: 100%;
+}
+
+.sandbox .plot.min {
+  width: calc(100% - 40px);
+}
+
+.sandbox .layers {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.6);
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+}
+
+.sandbox .layers.hide {
+  visibility: hidden;
+}
+
+.sandbox .layers .layers-modal {
+  width: 700px;
+  margin: auto;
+  margin-top: 15vh;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
+  max-width: 100%;
+  max-width: 90%;
+}
+
+.sandbox .layers .layers-modal .layers-modal-header {
+  background-color: #f2f5f7;
+  padding: 20px 30px;
+  border-radius: 5px 5px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: #102a43;
+  position: relative;
+}
+
+.sandbox .layers .layers-modal .layers-modal-content {
+  padding: 20px;
+  font-size: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sandbox .react-calendar {
+  margin: auto;
+  border: none;
+}
+
+.sandbox .timedepth {
+  font-size: 22px;
+  text-align: center;
+}
+
+.sandbox .timedepth .input-depth {
+  font-size: 50px;
+  width: 150px;
+  text-align: right;
+  border: none;
+  margin: 10px 0;
+}
+
+.sandbox .timedepth .input-time {
+  font-size: 34px;
+  border: none;
+  margin: 10px 0;
+}
+
+.sandbox .timedepth button {
+  display: block;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background-color: #38bec9;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: white;
+  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  margin: auto;
+  margin-top: 30px;
+}
+
+.sandbox .timedepth button:hover {
+  transform: scale(1.05);
+}
+
+.sandbox .sandbox-slider {
+  font-size: 18px;
+  color: #102a43;
+  margin-top: 12px;
+}
+
+.sandbox .sandbox-slider .switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+  margin-left: 10px;
+}
+
+.sandbox .sandbox-slider .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.sandbox .sandbox-slider .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.sandbox .sandbox-slider .slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.sandbox .sandbox-slider input:checked + .slider {
+  background-color: #38bec9;
+}
+
+.sandbox .sandbox-slider input:focus + .slider {
+  box-shadow: 0 0 1px #38bec9;
+}
+
+.sandbox .sandbox-slider input:checked + .slider:before {
+  -webkit-transform: translateX(16px);
+  -ms-transform: translateX(16px);
+  transform: translateX(16px);
+}
+
+.sandbox .sandbox-slider .slider.round {
+  border-radius: 34px;
+}
+
+.sandbox .sandbox-slider .slider.round:before {
+  border-radius: 50%;
+}
+
+@media screen and (max-height: 800px) {
+  .sandbox .sidebar .sidebar-buttons {
+    padding: 15px 20px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .sandbox .sidebar .sidebar-buttons {
+    padding: 15px 20px;
+  }
+}

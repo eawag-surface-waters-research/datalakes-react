@@ -685,7 +685,6 @@ class DataPortal extends Component {
 
     return (
       <React.Fragment>
-        <h1>Data Portal</h1>
         <div className="search">
           <input
             id="dataportalsearchbar"

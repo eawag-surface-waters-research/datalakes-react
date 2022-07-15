@@ -10,6 +10,7 @@ import NotFound from "./pages/notfound/notfound";
 import DataPortal from "./pages/dataportal/dataportal";
 import AddDataset from "./pages/adddataset/adddataset";
 import Monitor from "./pages/monitor/monitor";
+import Sandbox from "./pages/sandbox/sandbox";
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
 import "./index.css";
 import MapViewer from "./pages/mapviewer/mapviewer";
@@ -63,6 +64,15 @@ class App extends Component {
               render={(props) => (
                 <ErrorBoundary {...props}>
                   <LakeMorphology {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/sandbox"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <Sandbox {...props} />
                 </ErrorBoundary>
               )}
             />

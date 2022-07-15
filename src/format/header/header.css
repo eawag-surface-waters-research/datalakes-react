@@ -10,7 +10,7 @@ header {
   border-bottom: solid 10px #f9f9f9;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 650px) {
   header {
     box-shadow: none;
   }
@@ -41,7 +41,7 @@ header .logo img {
   height: 100%;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 650px) {
   header .logo {
     height: 20px;
   }
@@ -67,7 +67,7 @@ header .mobile-nav .mobile-navbar {
 
 header .mobile-nav a {
   color: black;
-  padding: 0 10px;
+  padding: 0 5px;
   text-decoration: none;
 }
 
@@ -105,7 +105,7 @@ header .mobile-nav .mobile-menu.show {
   display: block;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 650px) {
   header .mobile-nav {
     display: block;
   }
@@ -191,13 +191,7 @@ header .desktop-nav .midscreen {
   display: none;
 }
 
-@media screen and (max-width: 1100px) {
-  header .desktop-nav a.header-item {
-    padding: 9px 20px 9px 20px;
-  }
-}
-
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1200px) {
   header .desktop-nav a.header-item {
     padding: 8px 10px;
     font-size: 16px;
@@ -207,7 +201,7 @@ header .desktop-nav .midscreen {
   }
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 650px) {
   header .desktop-nav {
     display: none;
   }

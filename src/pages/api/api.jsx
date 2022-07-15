@@ -9,7 +9,6 @@ class API extends Component {
     document.title = "API - Datalakes";
     return (
       <React.Fragment>
-        <h1>Datalakes API</h1>
         <div className="api-container">
           <div className="doc-desc">
             Documentation for the Datalakes API is generated automatically using{" "}

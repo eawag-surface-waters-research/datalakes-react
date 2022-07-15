@@ -5,7 +5,8 @@ import map from "./img/map.svg";
 import data from "./img/data.svg";
 import home from "./img/home.svg";
 import about from "./img/about.svg";
-
+import sandbox from "./img/sandbox.svg";
+import sandbox_2 from "./img/sandbox_2.svg";
 import map_2 from "./img/map_2.svg";
 import data_2 from "./img/data_2.svg";
 import api_2 from "./img/api_2.svg";
@@ -49,6 +50,14 @@ class Header extends Component {
                   <NavLink
                     activeClassName="active"
                     className="header-item"
+                    to="/sandbox"
+                  >
+                    <img alt="Sandbox" src={sandbox_2} />
+                    Sandbox
+                  </NavLink>
+                  <NavLink
+                    activeClassName="active"
+                    className="header-item"
                     to="/api"
                   >
                     <img alt="API" src={api_2} />
@@ -73,6 +82,9 @@ class Header extends Component {
                   </NavLink>
                   <NavLink activeClassName="imgactive" to="/data">
                     <img alt="Data Portal" src={data} />
+                  </NavLink>
+                  <NavLink activeClassName="imgactive" to="/sandbox">
+                    <img alt="Sandbox" src={sandbox} />
                   </NavLink>
                   <NavLink to="/?about">
                     <img alt="About" src={about} />
