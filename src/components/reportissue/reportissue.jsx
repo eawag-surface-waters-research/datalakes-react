@@ -30,13 +30,13 @@ class ReportIssue extends Component {
     var { dataset } = this.props;
     var content = {
       from: {
-        email: "james.runnalls@eawag.ch",
+        email: "runnalls.james@gmail.com",
       },
       personalizations: [
         {
           to: [
             {
-              email: "runnalls.james@gmail.com",
+              email: "james.runnalls@eawag.ch",
             },
           ],
           dynamic_template_data: {
