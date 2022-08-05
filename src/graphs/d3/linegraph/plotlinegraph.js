@@ -20,6 +20,7 @@ import {
   line,
   zoomIdentity,
   zoom as d3zoom,
+  format,
   timeFormatDefaultLocale,
 } from "d3";
 
@@ -29,6 +30,7 @@ import {
   formatNumber,
   isNumeric,
   languageOptions,
+  scientificNotation
 } from "./functions";
 
 import {
@@ -357,6 +359,8 @@ const addBottonAxis = (svg, xDomain, options) => {
   var axis = axisBottom(ax).ticks(5);
   if (options.xTime) {
     axis.tickFormat(multiFormat);
+  } else if (scientificNotation(xDomain[0], xDomain[1])) {
+    axis.tickFormat(format(".1e"));
   }
 
   if (options.grid) axis.tickSize(-options.canvasHeight);
@@ -421,6 +425,8 @@ const addTopAxis = (svg, x2Domain, options) => {
   var axis = axisTop(ax).ticks(5);
   if (options.xTime) {
     axis.tickFormat(multiFormat);
+  } else if (scientificNotation(x2Domain[0], x2Domain[1])) {
+    axis.tickFormat(format(".1e"));
   }
 
   var g = svg
@@ -484,6 +490,8 @@ const addLeftAxis = (svg, yDomain, options) => {
   var axis = axisLeft(ax).ticks(5);
   if (options.yTime) {
     axis.tickFormat(multiFormat);
+  } else if (scientificNotation(yDomain[0], yDomain[1])) {
+    axis.tickFormat(format(".1e"));
   }
 
   if (options.grid) axis.tickSize(-options.canvasWidth);
@@ -540,6 +548,8 @@ const addRightAxis = (svg, y2Domain, options) => {
   var axis = axisRight(ax).ticks(5);
   if (options.yTime) {
     axis.tickFormat(multiFormat);
+  } else if (scientificNotation(y2Domain[0], y2Domain[1])) {
+    axis.tickFormat(format(".1e"));
   }
 
   var g = svg
