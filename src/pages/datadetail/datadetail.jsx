@@ -392,7 +392,7 @@ class DataDetail extends Component {
 
   async componentDidMount() {
     this._isMounted = true;
-    var { step, allowedStep } = this.state;
+    var { step, allowedStep, lower, upper } = this.state;
     var dataset_id;
     if ("id" in this.props) {
       dataset_id = this.props.id;
@@ -408,14 +408,32 @@ class DataDetail extends Component {
     if (searchArr.includes("fr") || searchArr.includes("FR")) lang = "fr";
     if (searchArr.includes("it") || searchArr.includes("IT")) lang = "it";
 
-    let server = await Promise.all([
-      axios.get(serverlessUrl + "/datasets/" + dataset_id),
-      axios.get(serverlessUrl + "/files?datasets_id=" + dataset_id),
-      axios.get(serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id),
-      axios.get(serverlessUrl + "/selectiontables"),
-    ]).catch((error) => {
-      this.setState({ step: "error" });
-    });
+    var server;
+    const timeout = 1000;
+    try {
+      server = await Promise.all([
+        axios.get(apiUrl + "/datasets/" + dataset_id, { timeout: timeout }),
+        axios.get(apiUrl + "/files?datasets_id=" + dataset_id, {
+          timeout: timeout,
+        }),
+        axios.get(apiUrl + "/datasetparameters?datasets_id=" + dataset_id, {
+          timeout: timeout,
+        }),
+        axios.get(apiUrl + "/selectiontables", { timeout: timeout }),
+      ]);
+    } catch (error) {
+      console.error("NodeJS API error switching to serverless API");
+      server = await Promise.all([
+        axios.get(serverlessUrl + "/datasets/" + dataset_id),
+        axios.get(serverlessUrl + "/files?datasets_id=" + dataset_id),
+        axios.get(
+          serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id
+        ),
+        axios.get(serverlessUrl + "/selectiontables"),
+      ]).catch((error) => {
+        this.setState({ step: "error" });
+      });
+    }
 
     var dataset = server[0].data;
     var { mapplotfunction } = dataset;
@@ -487,19 +505,26 @@ class DataDetail extends Component {
       }
 
       var dataArray = new Array(files.length).fill(0);
-      var { data } = await axios
-        .get(apiUrl + "/files/" + files[0].id + "?get=raw")
-        .catch((error) => {
-          this.setState({ step: "error" });
-        });
-      dataArray[0] = data;
-      var { lower, upper } = this.dataBounds(dataArray);
+      var data = false;
+      try {
+        ({ data } = await axios.get(
+          apiUrl + "/files/" + files[0].id + "?get=raw"
+        ));
+      } catch {
+        console.error("Unable to collect data from the server.");
+      }
 
-      // Add dataset length to datasetparameters
-      datasetparameters = datasetparameters.map((d) => {
-        d.shape = this.getShape(data[d.axis]);
-        return d;
-      });
+      dataArray[0] = data;
+
+      if (data) {
+        ({ lower, upper } = this.dataBounds(dataArray));
+
+        // Add dataset length to datasetparameters
+        datasetparameters = datasetparameters.map((d) => {
+          d.shape = this.getShape(data[d.axis]);
+          return d;
+        });
+      }
 
       // Get Pipeline Data
       var renku = false;
@@ -994,8 +1019,7 @@ class DataDetail extends Component {
                 <tr>
                   <td>
                     <h3>
-                      Error. Either the connection to the server failed or that
-                      dataset could not be found.
+                      Sorry we cannot locate that dataset, it may have moved to a new location.
                     </h3>
                     <Link to="/data">
                       <h2>Head back to the data portal</h2>

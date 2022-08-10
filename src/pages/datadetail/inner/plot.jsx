@@ -16,6 +16,7 @@ import colorlist from "../../../components/colorramp/colors";
 import isArray from "lodash/isArray";
 import isInteger from "lodash/isInteger";
 import ReportIssue from "../../../components/reportissue/reportissue";
+import Connect from "../img/connect.svg";
 import Bafu from "./bafu";
 
 class Graph extends Component {
@@ -968,6 +969,7 @@ class Plot extends Component {
     timeaxis: "",
     refresh: false,
     addNewFiles: false,
+    failed: false,
   };
 
   closest = (num, arr) => {
@@ -2243,106 +2245,106 @@ class Plot extends Component {
     var { xaxis, yaxis, zaxis, decimate, average, display, thresholdStep } =
       this.state;
 
-    ({ xaxis, yaxis, zaxis } = this.processUrlAxis(
-      this.props.search,
-      datasetparameters,
-      xaxis,
-      yaxis,
-      zaxis
-    ));
+    if (data[0] === false) {
+      this.setState({ failed: true });
+    } else {
+      ({ xaxis, yaxis, zaxis } = this.processUrlAxis(
+        this.props.search,
+        datasetparameters,
+        xaxis,
+        yaxis,
+        zaxis
+      ));
 
-    var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
-      this.setAxisOptions(datasetparameters, xaxis, yaxis);
+      var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
+        this.setAxisOptions(datasetparameters, xaxis, yaxis);
 
-    var { xlabel, ylabel, zlabel, xunits, yunits, zunits } = this.getAxisLabels(
-      datasetparameters,
-      xaxis,
-      yaxis,
-      zaxis
-    );
+      var { xlabel, ylabel, zlabel, xunits, yunits, zunits } =
+        this.getAxisLabels(datasetparameters, xaxis, yaxis, zaxis);
 
-    var {
-      title,
-      colors,
-      minY,
-      maxY,
-      minX,
-      maxX,
-      minZ,
-      maxZ,
-      lowerY,
-      upperY,
-      lowerX,
-      upperX,
-      timeaxis,
-    } = this.getInitialBounds(dataset, data, file, xaxis, yaxis, zaxis);
+      var {
+        title,
+        colors,
+        minY,
+        maxY,
+        minX,
+        maxX,
+        minZ,
+        maxZ,
+        lowerY,
+        upperY,
+        lowerX,
+        upperX,
+        timeaxis,
+      } = this.getInitialBounds(dataset, data, file, xaxis, yaxis, zaxis);
 
-    ({ lowerX, upperX } = this.processUrlBounds(
-      this.props.search,
-      lowerX,
-      upperX
-    ));
+      ({ lowerX, upperX } = this.processUrlBounds(
+        this.props.search,
+        lowerX,
+        upperX
+      ));
 
-    var { plotdata, lowerZ, upperZ } = this.processPlotData(
-      xaxis,
-      yaxis,
-      zaxis,
-      upperY,
-      lowerY,
-      maxY,
-      minY,
-      upperX,
-      lowerX,
-      minX,
-      maxX,
-      decimate,
-      average,
-      datasetparameters,
-      timeaxis,
-      graph,
-      this.state.interpolate
-    );
+      var { plotdata, lowerZ, upperZ } = this.processPlotData(
+        xaxis,
+        yaxis,
+        zaxis,
+        upperY,
+        lowerY,
+        maxY,
+        minY,
+        upperX,
+        lowerX,
+        minX,
+        maxX,
+        decimate,
+        average,
+        datasetparameters,
+        timeaxis,
+        graph,
+        this.state.interpolate
+      );
 
-    if ("display" in dataset.plotproperties)
-      display = dataset.plotproperties.display;
-    if ("thresholdStep" in dataset.plotproperties)
-      thresholdStep = dataset.plotproperties.thresholdStep;
+      if ("display" in dataset.plotproperties)
+        display = dataset.plotproperties.display;
+      if ("thresholdStep" in dataset.plotproperties)
+        thresholdStep = dataset.plotproperties.thresholdStep;
 
-    this.setState({
-      plotdata,
-      xaxis,
-      yaxis,
-      zaxis,
-      xoptions,
-      yoptions,
-      zoptions,
-      graph,
-      xlabel,
-      ylabel,
-      zlabel,
-      xunits,
-      yunits,
-      zunits,
-      yReverse,
-      xReverse,
-      title,
-      colors,
-      minZ,
-      maxZ,
-      minY,
-      maxY,
-      minX,
-      maxX,
-      lowerY,
-      upperY,
-      lowerX,
-      upperX,
-      lowerZ,
-      upperZ,
-      timeaxis,
-      display,
-      thresholdStep,
-    });
+      this.setState({
+        plotdata,
+        xaxis,
+        yaxis,
+        zaxis,
+        xoptions,
+        yoptions,
+        zoptions,
+        graph,
+        xlabel,
+        ylabel,
+        zlabel,
+        xunits,
+        yunits,
+        zunits,
+        yReverse,
+        xReverse,
+        title,
+        colors,
+        minZ,
+        maxZ,
+        minY,
+        maxY,
+        minX,
+        maxX,
+        lowerY,
+        upperY,
+        lowerX,
+        upperX,
+        lowerZ,
+        upperZ,
+        timeaxis,
+        display,
+        thresholdStep,
+      });
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -2428,7 +2430,15 @@ class Plot extends Component {
   }
 
   render() {
-    if (this.props.search.toLowerCase().includes("bafu")) {
+    if (this.state.failed) {
+      return (
+        <div className="failed-download">
+          <img src={Connect} alt="Disconnected" />
+          Unable to download data from the Datalakes API. 
+          <div><b>Please try refreshing the page or come back later.</b></div>
+        </div>
+      );
+    } else if (this.props.search.toLowerCase().includes("bafu")) {
       return (
         <React.Fragment>
           <div className="detailloading" id="detailloading">

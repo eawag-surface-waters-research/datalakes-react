@@ -1098,72 +1098,80 @@ class GIS extends Component {
     if ("timestep" in this.props) timestep = this.props.timestep;
 
     // Get data
-    let server = await Promise.all([
-      axios.get(apiUrl + "/selectiontables/parameters"),
-      axios.get(apiUrl + "/datasets"),
-      axios.get(apiUrl + "/datasetparameters"),
-      axios.get(apiUrl + "/selectiontables/lakes"),
-    ]).catch((error) => {
-      console.log(error);
-    });
+    try {
+      let server = await Promise.all([
+        axios.get(apiUrl + "/selectiontables/parameters"),
+        axios.get(apiUrl + "/datasets"),
+        axios.get(apiUrl + "/datasetparameters"),
+        axios.get(apiUrl + "/selectiontables/lakes"),
+      ]);
+      var parameters = server[0].data;
+      var datasets = server[1].data;
+      var datasetparameters = server[2].data;
 
-    var parameters = server[0].data;
-    var datasets = server[1].data;
-    var datasetparameters = server[2].data;
+      datasetparameters.map((dp) => {
+        let param = parameters.find((p) => p.id === dp.parameters_id);
+        dp.name = param.name;
+        return dp;
+      });
 
-    datasetparameters.map((dp) => {
-      let param = parameters.find((p) => p.id === dp.parameters_id);
-      dp.name = param.name;
-      return dp;
-    });
+      var selectedlayers = [];
+      for (var i = selected.length - 1; i > -1; i--) {
+        var datasets_id = selected[i][0];
+        var parameters_id = selected[i][1];
+        ({ selectedlayers, datasets, selected, lakejson } =
+          await this.addNewLayer(
+            selected,
+            datasets_id,
+            parameters_id,
+            datasets,
+            selectedlayers,
+            datasetparameters,
+            parameters,
+            datetime,
+            depth,
+            hidden,
+            lakejson
+          ));
+      }
 
-    var selectedlayers = [];
-    for (var i = selected.length - 1; i > -1; i--) {
-      var datasets_id = selected[i][0];
-      var parameters_id = selected[i][1];
-      ({ selectedlayers, datasets, selected, lakejson } =
-        await this.addNewLayer(
-          selected,
-          datasets_id,
-          parameters_id,
-          datasets,
-          selectedlayers,
-          datasetparameters,
-          parameters,
-          datetime,
-          depth,
-          hidden,
-          lakejson
-        ));
+      var { mindatetime, maxdatetime, mindepth, maxdepth } =
+        this.getSliderParameters(selectedlayers);
+
+      if (selectedlayers.length === 0) plotDatasets = true;
+
+      this.setState({
+        selectedlayers,
+        parameters,
+        datasets,
+        datasetparameters,
+        loading: false,
+        selected,
+        hidden,
+        datetime,
+        depth,
+        zoom,
+        center,
+        basemap,
+        mindatetime,
+        maxdatetime,
+        mindepth,
+        maxdepth,
+        lakejson,
+        timestep,
+        lakes: server[3].data,
+        plotDatasets,
+      });
+    } catch (error) {
+      console.error(error);
+      let modaltext = `Failed to retrieve data from the Datalakes API. Please try again later to see if the API is back online.`;
+      this.setState({
+        loading: false,
+        modal: true,
+        modaltext,
+        modaldetail: error.message,
+      });
     }
-
-    var { mindatetime, maxdatetime, mindepth, maxdepth } =
-      this.getSliderParameters(selectedlayers);
-
-    if (selectedlayers.length === 0) plotDatasets = true;
-
-    this.setState({
-      selectedlayers,
-      parameters,
-      datasets,
-      datasetparameters,
-      loading: false,
-      selected,
-      hidden,
-      datetime,
-      depth,
-      zoom,
-      center,
-      basemap,
-      mindatetime,
-      maxdatetime,
-      mindepth,
-      maxdepth,
-      lakejson,
-      timestep,
-      lakes: server[3].data,
-      plotDatasets,
-    });
   }
 
   render() {
@@ -1316,6 +1324,14 @@ class GIS extends Component {
               onChangeDatetime={this.onChangeDatetime}
               onChangeDepth={this.onChangeDepth}
             />
+          }
+        />
+        <Modal
+          title={this.state.modaldetail}
+          visible={this.state.modal}
+          hide={this.closeModal}
+          content={
+            <div>{this.state.modaltext}</div>
           }
         />
       </div>

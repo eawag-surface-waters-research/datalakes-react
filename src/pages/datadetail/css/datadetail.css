@@ -287,6 +287,24 @@
   border-bottom: 1px solid #c8c6bf;
 }
 
+.failed-download {
+  background-color: white;
+  padding: 40px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+  border-radius: 5px;
+  border: solid 1px rgb(169, 169, 169);
+  font-size: 21px;
+  color: gray;
+  text-align: center;
+}
+
+.failed-download img {
+  display: block;
+  margin: auto;
+  padding-bottom: 20px;
+  max-width: 100%;
+}
+
 .download {
   background-color: white;
   padding: 5px 25px 20px 25px;
