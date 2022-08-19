@@ -2053,9 +2053,22 @@ class Plot extends Component {
     return obj;
   };
 
+  filterData = (arr) => {
+    if (Array.isArray(arr)) {
+      var data = [];
+      for (let i = 0; i < arr.length; i++) {
+        if (!isNaN(parseFloat(arr[i])) && isFinite(arr[i])) {
+          data.push(arr[i]);
+        }
+      }
+      return arr;
+    } else {
+      return [];
+    }
+  };
+
   getInitialBounds = (dataset, data, file, xaxis, yaxis, zaxis) => {
     var { maxdatetime, mindatetime, datasetparameters } = this.props;
-
     var timeaxis = "x";
     if (
       datasetparameters
@@ -2068,34 +2081,17 @@ class Plot extends Component {
 
     const title = dataset.title;
     var colors = this.parseColor(dataset.plotproperties.colors);
-
-    var zdomain = d3.extent(
-      [].concat.apply([], data[file[0]][zaxis]).filter((f) => {
-        return !isNaN(parseFloat(f)) && isFinite(f);
-      })
-    );
+    var zdomain = d3.extent(this.filterData(data[file[0]][zaxis]));
 
     var yextents = [];
     for (var ya of yaxis) {
-      yextents = yextents.concat(
-        d3.extent(
-          [].concat.apply([], data[file[0]][ya]).filter((f) => {
-            return !isNaN(parseFloat(f)) && isFinite(f);
-          })
-        )
-      );
+      yextents = yextents.concat(d3.extent(this.filterData(data[file[0]][ya])));
     }
     var ydomain = d3.extent(yextents);
 
     var xextents = [];
     for (var xa of xaxis) {
-      xextents = xextents.concat(
-        d3.extent(
-          [].concat.apply([], data[file[0]][xa]).filter((f) => {
-            return !isNaN(parseFloat(f)) && isFinite(f);
-          })
-        )
-      );
+      xextents = xextents.concat(d3.extent(this.filterData(data[file[0]][xa])));
     }
     var xdomain = d3.extent(xextents);
 
@@ -2148,11 +2144,7 @@ class Plot extends Component {
       pd = [pd];
     }
     for (var i = 0; i < pd.length; i++) {
-      let zdomain = d3.extent(
-        [].concat.apply([], pd[i].z).filter((f) => {
-          return !isNaN(parseFloat(f)) && isFinite(f);
-        })
-      );
+      let zdomain = d3.extent(this.filterData(pd[i].z));
       minZ = Math.min(zdomain[0], minZ);
       maxZ = Math.max(zdomain[1], maxZ);
     }
@@ -2167,16 +2159,8 @@ class Plot extends Component {
     var maxY = -Infinity;
     for (var i = 0; i < data.length; i++) {
       if (data[i] !== 0) {
-        let xdomain = d3.extent(
-          [].concat.apply([], data[i][xaxis]).filter((f) => {
-            return !isNaN(parseFloat(f)) && isFinite(f);
-          })
-        );
-        let ydomain = d3.extent(
-          [].concat.apply([], data[i][yaxis]).filter((f) => {
-            return !isNaN(parseFloat(f)) && isFinite(f);
-          })
-        );
+        let xdomain = d3.extent(this.filterData(data[i][xaxis]));
+        let ydomain = d3.extent(this.filterData(data[i][yaxis]));
         minX = Math.min(xdomain[0], minX);
         maxX = Math.max(xdomain[1], maxX);
         minY = Math.min(ydomain[0], minY);
@@ -2434,8 +2418,10 @@ class Plot extends Component {
       return (
         <div className="failed-download">
           <img src={Connect} alt="Disconnected" />
-          Unable to download data from the Datalakes API. 
-          <div><b>Please try refreshing the page or come back later.</b></div>
+          Unable to download data from the Datalakes API.
+          <div>
+            <b>Please try refreshing the page or come back later.</b>
+          </div>
         </div>
       );
     } else if (this.props.search.toLowerCase().includes("bafu")) {
