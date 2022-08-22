@@ -807,9 +807,14 @@ class Basemap extends Component {
       // 2D Depth Time Dataset
       indexx = this.indexClosest(datetime.getTime() / 1000, data["x"]);
       indexy = this.indexClosest(depth, data["y"]);
-      value = this.numberformat(data[datasetparameter.axis][indexy][indexx]);
+      if (Array.isArray(data[datasetparameter.axis][0])) {
+        value = this.numberformat(data[datasetparameter.axis][indexy][indexx]);
+        dd = Math.round(data["y"][indexy] * 100) / 100 + "m";
+      } else {
+        value = this.numberformat(data[datasetparameter.axis][indexx]);
+        dd = "";
+      }
       dt = new Date(data["x"][indexx] * 1000);
-      dd = Math.round(data["y"][indexy] * 100) / 100 + "m";
     } else if (
       type.includes("x&1") &&
       !type.includes("y&2") &&
@@ -866,7 +871,7 @@ class Basemap extends Component {
           dt
         )}</div><div class="tooltip-values"><div class="tooltip-value">${value}</div><div class="tooltip-unit">${unit}</div><div class="tooltip-param">${
           datasetparameter.name
-        } @ ${dd}</div></div></div>`,
+        } ${dd !== "" ? "@" : ""} ${dd}</div></div></div>`,
         {
           permanent: markerLabel,
           direction: "top",
@@ -887,7 +892,7 @@ class Basemap extends Component {
         unit
       )}</div><div class="popup-param">${
         datasetparameter.name
-      } @ ${dd}</div><div></div>`,
+      } ${dd !== "" ? "@" : ""} ${dd}</div><div></div>`,
       { className: "datasetsPopup" }
     );
 
