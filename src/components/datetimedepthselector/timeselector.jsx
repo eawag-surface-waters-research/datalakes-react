@@ -217,19 +217,6 @@ class TimeSelector extends Component {
           } catch (e) {}
         }
 
-        function dataAvailable(files, datetime) {
-          var color = "red";
-          var unix = datetime.getTime();
-          for (var i = 0; i < files.length; i++) {
-            if (
-              unix >= new Date(files[i].mindatetime).getTime() &&
-              unix <= new Date(files[i].maxdatetime).getTime()
-            )
-              color = "green";
-          }
-          return color;
-        }
-
         function tooltiptext(datetime) {
           var months = [
             "January",
@@ -261,10 +248,7 @@ class TimeSelector extends Component {
             layerstring =
               layerstring +
               `<tr><td>${selectedlayers[i].title} <div style="color:${selectedlayers[i].color};display:inline-block">${selectedlayers[i].name}</div></td>` +
-              `<td style="color:${dataAvailable(
-                selectedlayers[i].files,
-                datetime
-              )}">&#9673;</td></tr>`;
+              `<td style="color:${selectedlayers[i].color}">&#9644;</td></tr>`;
           }
           layerstring = layerstring + "</tbody></table>";
           var string = datestring + layerstring + "</tbody></table>";
