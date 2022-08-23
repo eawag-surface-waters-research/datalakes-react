@@ -384,6 +384,8 @@
 .detailloading {
   display: none;
   position: absolute;
+  left: 0;
+  top: 0;
   text-align: center;
   width: 100%;
   height: 100%;

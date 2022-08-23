@@ -27,6 +27,7 @@
 .bafu .selector .datetime-selector .datetime-picker {
   position: absolute;
   width: calc(100% - 20px);
+  z-index: 9;
 }
 
 .bafu .datetime-selector {
