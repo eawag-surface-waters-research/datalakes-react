@@ -19,9 +19,16 @@ class DataSelect extends Component {
     var list = [];
     try {
       if (dataList.length > 0) {
-        list = [];
         for (var param of dataList) {
-          list.push({ value: param[value], label: param[label] });
+          let inner = {
+            value: param[value],
+            label: param[label],
+            isDisabled: false,
+          };
+          if ("isDisabled" in param) {
+            inner["isDisabled"] = param["isDisabled"];
+          }
+          list.push(inner);
         }
       }
     } catch (e) {}
@@ -38,6 +45,7 @@ class DataSelect extends Component {
           onChange={this.props.onChange}
           styles={customStyles}
           isDisabled={isDisabled}
+          isOptionDisabled={(option) => option.isDisabled}
           noOptionsMessage={
             this.props.showModal
               ? () => (

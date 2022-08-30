@@ -290,8 +290,6 @@ class AddDataset extends Component {
       latitude = this.getAve(arr_latitude);
     }
 
-    console.log(mindatetime, maxdatetime, longitude, latitude);
-
     // Logic for continuing to next step
     dataset["mindatetime"] = mindatetime;
     dataset["maxdatetime"] = maxdatetime;
@@ -524,6 +522,34 @@ class AddDataset extends Component {
     }
   };
 
+  setDisableAxis = (axis_list, axis) => {
+    for (var j = 0; j < axis_list.length; j++) {
+      axis_list[j].isDisabled = false;
+    }
+    for (var i = 0; i < axis_list.length; i++) {
+      if (axis.includes(axis_list[i].name)) {
+        axis_list[i].isDisabled = true;
+      }
+    }
+    return axis_list;
+  };
+
+  disableAxis = (dp) => {
+    for (var i = 0; i < dp.length; i++) {
+      if (dp[i].dims.length > 1) {
+        dp[i].axis_list = this.setDisableAxis(dp[i].axis_list, ["M", "x", "y"]);
+      } else if (dp[i].parameters_id === 1) {
+        dp[i].axis_list = this.setDisableAxis(dp[i].axis_list, ["z"]);
+      } else {
+        dp[i].axis_list = this.setDisableAxis(dp[i].axis_list, ["M", "z"]);
+      }
+      if (!dp[i].axis_list.filter(a => !a.isDisabled).map((a) => a.name).includes(dp[i].axis)) {
+        dp[i].axis = dp[i].axis_list.filter(a => !a.isDisabled)[0].name;
+      }
+    }
+    return dp;
+  };
+
   defaultAxis = (dp) => {
     var maxdim = Math.max(...dp.map((d) => d.dims.length));
     var params = dp.map((d) => d.parameters_id);
@@ -535,7 +561,10 @@ class AddDataset extends Component {
       params.includes(1) &&
       (params.includes(2) || params.includes(18))
     ) {
-      type = "profile";
+      let confirm_profile = window.confirm(
+        "Process this file as a single profile (NOT a timeseries)?"
+      );
+      if (confirm_profile) type = "profile";
     }
     for (var i = 0; i < dp.length; i++) {
       let defaultAxis = "y";
@@ -656,12 +685,20 @@ class AddDataset extends Component {
         sensors_id: defaultSensor,
         included: true,
         dims: variables[key].dimensions,
+        axis_list: [
+          { name: "M", isDisabled: false },
+          { name: "x", isDisabled: false },
+          { name: "y", isDisabled: false },
+          { name: "z", isDisabled: false },
+        ],
       };
       datasetparameters.push(variable);
       index++;
     }
 
     datasetparameters = this.defaultAxis(datasetparameters);
+
+    datasetparameters = this.disableAxis(datasetparameters);
 
     datasetparameters = this.addMaskLink(datasetparameters);
 
@@ -694,6 +731,7 @@ class AddDataset extends Component {
     var datasetparameters = this.state.datasetparameters;
     datasetparameters[a][b] = event.target ? event.target.value : event.value;
     if (b === "parameters_id") datasetparameters[a]["link"] = -1;
+    datasetparameters = this.disableAxis(datasetparameters);
     this.setState({ datasetparameters });
   };
 

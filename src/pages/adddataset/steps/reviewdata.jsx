@@ -95,7 +95,7 @@ class ReviewData extends Component {
       moveParameterDown,
       fileInformation,
     } = this.props;
-    const { parameters, sensors, axis } = dropdown;
+    const { parameters, sensors } = dropdown;
     var { modal, modalValue, message, loading } = this.state;
 
     // Create dynamic table
@@ -152,7 +152,7 @@ class ReviewData extends Component {
             <DataSelect
               value="name"
               label="name"
-              dataList={axis}
+              dataList={row.axis_list}
               defaultValue={row.axis}
               onChange={handleSelect(i, "axis")}
             />
