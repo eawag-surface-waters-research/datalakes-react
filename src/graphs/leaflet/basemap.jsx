@@ -783,6 +783,11 @@ class Basemap extends Component {
     var dd = Math.round(depth * 100) / 100;
     var value = "NA";
 
+    if (file.latitude !== "-9999" && file.longitude !== "-9999") {
+      latitude = file.latitude;
+      longitude = file.longitude;
+    }
+
     if (type.includes("M&1") && type.includes("y&2")) {
       // Profiler vs depth
       let dp2 = datasetparameters.find((dp) => dp.parameters_id === 1);
@@ -890,9 +895,9 @@ class Basemap extends Component {
         value
       )}</div><div class="popup-unit">${String(
         unit
-      )}</div><div class="popup-param">${
-        datasetparameter.name
-      } ${dd !== "" ? "@" : ""} ${dd}</div><div></div>`,
+      )}</div><div class="popup-param">${datasetparameter.name} ${
+        dd !== "" ? "@" : ""
+      } ${dd}</div><div></div>`,
       { className: "datasetsPopup" }
     );
 
