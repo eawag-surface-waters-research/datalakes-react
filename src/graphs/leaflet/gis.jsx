@@ -1164,7 +1164,7 @@ class GIS extends Component {
       });
     } catch (error) {
       console.error(error);
-      let modaltext = `Failed to retrieve data from the Datalakes API. Please try again later to see if the API is back online.`;
+      let modaltext = `Appologies the Datalakes API is experiencing some connectivity issues. Please wait a few minutes then try refreshing the page.`;
       this.setState({
         loading: false,
         modal: true,
@@ -1330,9 +1330,7 @@ class GIS extends Component {
           title={this.state.modaldetail}
           visible={this.state.modal}
           hide={this.closeModal}
-          content={
-            <div>{this.state.modaltext}</div>
-          }
+          content={<div>{this.state.modaltext}</div>}
         />
       </div>
     );

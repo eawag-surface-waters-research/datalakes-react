@@ -26,6 +26,7 @@ class DatasetList extends Component {
       getLabel,
       loading,
       editUrl,
+      connect,
     } = this.props;
     if (list.length > 0) {
       return (
@@ -47,17 +48,29 @@ class DatasetList extends Component {
         </React.Fragment>
       );
     } else {
-      return loading ? (
-        <div className="dataportal-loading">
-          <Loading />
-          Loading Datasets
-        </div>
-      ) : (
-        <div className="dataportal-loading">
-          Sorry no datasets match your search. Please adjust your search
-          parameters and try again.
-        </div>
-      );
+      if (loading) {
+        return (
+          <div className="dataportal-loading">
+            <Loading />
+            Loading Datasets
+          </div>
+        );
+      } else if (!connect) {
+        return (
+          <div className="dataportal-message">
+            Appologies the Datalakes API is experiencing some connectivity
+            issues. <br />
+            Please wait a few minutes then try refreshing the page.
+          </div>
+        );
+      } else {
+        return (
+          <div className="dataportal-message">
+            Sorry no datasets match your search. Please adjust your search
+            parameters and try again.
+          </div>
+        );
+      }
     }
   }
 }
@@ -273,6 +286,7 @@ class DataPortal extends Component {
     download: false,
     map: false,
     loading: true,
+    connect: true,
   };
 
   parameterDetails = (dropdown, parameters, x) => {
@@ -567,7 +581,7 @@ class DataPortal extends Component {
   async componentDidMount() {
     window.addEventListener("keydown", this.focusSearchBar);
     var { search: location_search } = this.props.location;
-    var { search } = this.state;
+    var { search, connect } = this.state;
     const timeout = 1000;
     var server;
     try {
@@ -577,19 +591,25 @@ class DataPortal extends Component {
         axios.get(apiUrl + "/datasetparameters", { timeout: timeout }),
       ]);
     } catch (error) {
-      console.error("NodeJS API error switching to serverless API");
-      server = await Promise.all([
-        axios.get(serverlessUrl + "/selectiontables"),
-        axios.get(serverlessUrl + "/datasets"),
-        axios.get(serverlessUrl + "/datasetparameters"),
-      ]);
+      try {
+        console.error("NodeJS API error switching to serverless API");
+        server = await Promise.all([
+          axios.get(serverlessUrl + "/selectiontables"),
+          axios.get(serverlessUrl + "/datasets"),
+          axios.get(serverlessUrl + "/datasetparameters"),
+        ]);
+      } catch (error) {
+        console.error("Serverless API error");
+        server = [0, 0, 0];
+      }
     }
     const dropdown = server[0].data;
     var datasets = server[1].data;
     var parameters = server[2].data;
-    if (server[1].status !== 200) datasets = [];
-    if (server[2].status !== 200) {
+    if (server[1].status !== 200 || server[2].status !== 200) {
+      datasets = [];
       parameters = [];
+      connect = false;
     } else {
       // Add parameter details
       var details;
@@ -639,6 +659,7 @@ class DataPortal extends Component {
       fuse,
       search,
       loading: false,
+      connect,
     });
   }
 
@@ -660,6 +681,7 @@ class DataPortal extends Component {
       download,
       map,
       loading,
+      connect,
     } = this.state;
 
     // Filter by filters
@@ -801,6 +823,7 @@ class DataPortal extends Component {
                 getLabel={this.getLabel}
                 loading={loading}
                 editUrl={this.editUrl}
+                connect={connect}
               />
             </React.Fragment>
           }

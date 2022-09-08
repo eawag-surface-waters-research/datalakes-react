@@ -431,7 +431,7 @@ class DataDetail extends Component {
         ),
         axios.get(serverlessUrl + "/selectiontables"),
       ]).catch((error) => {
-        this.setState({ step: "error" });
+        this.setState({ step: "database-error" });
       });
     }
 
@@ -1019,11 +1019,29 @@ class DataDetail extends Component {
                 <tr>
                   <td>
                     <h3>
-                      Sorry we cannot locate that dataset, it may have moved to a new location.
+                      Sorry we cannot locate that dataset, it may have moved to
+                      a new location.
                     </h3>
                     <Link to="/data">
                       <h2>Head back to the data portal</h2>
                     </Link>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </React.Fragment>
+        );
+      case "database-error":
+        return (
+          <React.Fragment>
+            <table className="loading-table">
+              <tbody>
+                <tr>
+                  <td>
+                    <h3>
+                      Appologies the Datalakes API is experiencing some connectivity issues. <br/>
+                      Please wait a few minutes then try refreshing the page.
+                    </h3>
                   </td>
                 </tr>
               </tbody>
