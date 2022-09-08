@@ -435,6 +435,10 @@ class DataDetail extends Component {
       });
     }
 
+    if (server === undefined) {
+      return;
+    }
+
     var dataset = server[0].data;
     var { mapplotfunction } = dataset;
     var files = server[1].data;
@@ -1039,7 +1043,8 @@ class DataDetail extends Component {
                 <tr>
                   <td>
                     <h3>
-                      Appologies the Datalakes API is experiencing some connectivity issues. <br/>
+                      Appologies the Datalakes API is experiencing some
+                      connectivity issues. <br />
                       Please wait a few minutes then try refreshing the page.
                     </h3>
                   </td>
