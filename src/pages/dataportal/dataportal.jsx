@@ -546,9 +546,11 @@ class DataPortal extends Component {
   };
 
   focusSearchBar = (e) => {
-    if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
-      document.getElementById("dataportalsearchbar").focus();
-    }
+    try {
+      if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
+        document.getElementById("dataportalsearchbar").focus();
+      }
+    } catch (e) {}
   };
 
   editUrl = () => {
