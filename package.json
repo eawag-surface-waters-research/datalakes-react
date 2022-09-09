@@ -15,7 +15,7 @@
     "leaflet": "^1.5.1",
     "leaflet-contour": "^1.0.0",
     "leaflet-draw": "^1.0.4",
-    "leaflet-streamlines": "^1.0.0",
+    "leaflet-streamlines": "^1.0.1",
     "leaflet.markercluster": "^1.4.1",
     "lodash": "^4.17.20",
     "prop-types": "^15.7.2",

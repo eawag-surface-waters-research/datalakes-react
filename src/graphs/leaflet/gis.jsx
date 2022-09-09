@@ -252,6 +252,7 @@ class GIS extends Component {
   };
 
   setSelected = (selectedlayers) => {
+    console.log("HEre");
     this.setState({ loading: true }, () => {
       var selected = [];
       for (var i = 0; i < selectedlayers.length; i++) {
@@ -279,7 +280,13 @@ class GIS extends Component {
       } = this.state;
       for (var i = 0; i < ids.length; i++) {
         var { datasets_id, parameters_id } = ids[i];
-        selected.unshift([datasets_id, parameters_id]);
+        if (
+          JSON.stringify(selected).indexOf(
+            JSON.stringify([datasets_id, parameters_id])
+          ) === -1
+        ) {
+          selected.unshift([datasets_id, parameters_id]);
+        }
         ({ selectedlayers, datasets, selected, lakejson } =
           await this.addNewLayer(
             selected,
