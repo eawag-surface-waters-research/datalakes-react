@@ -619,7 +619,6 @@ class Basemap extends Component {
           }
         });
         arrows.on("click", function (e) {
-          console.log("Firing", e);
           if (e.value !== null && e.value.u !== null) {
             let { u, v } = e.value;
             let { lat, lng } = e.latlng;
@@ -641,7 +640,6 @@ class Basemap extends Component {
             )}</div><div class="popup-values"><div class="popup-param">${lat}, ${lng}</div><div class="popup-value">${String(
               inner
             )}</div><div class="popup-param">Water Veloctiy @ ${depth}m</div><div></div>`;
-            console.log(e.latlng);
             L.popup({ className: "datasetsPopup" })
               .setLatLng(e.latlng)
               .setContent(html)
@@ -783,6 +781,11 @@ class Basemap extends Component {
     var dd = Math.round(depth * 100) / 100;
     var value = "NA";
 
+    if (file.latitude !== "-9999" && file.longitude !== "-9999") {
+      latitude = file.latitude;
+      longitude = file.longitude;
+    }
+
     if (type.includes("M&1") && type.includes("y&2")) {
       // Profiler vs depth
       let dp2 = datasetparameters.find((dp) => dp.parameters_id === 1);
@@ -890,9 +893,9 @@ class Basemap extends Component {
         value
       )}</div><div class="popup-unit">${String(
         unit
-      )}</div><div class="popup-param">${
-        datasetparameter.name
-      } ${dd !== "" ? "@" : ""} ${dd}</div><div></div>`,
+      )}</div><div class="popup-param">${datasetparameter.name} ${
+        dd !== "" ? "@" : ""
+      } ${dd}</div><div></div>`,
       { className: "datasetsPopup" }
     );
 
@@ -979,6 +982,7 @@ class Basemap extends Component {
             { className: "datasetsPopup" }
           )
           .on("popupopen", function (popup) {
+            console.log("Jere")
             for (var select_id of ids) {
               document
                 .getElementById(select_id.id)

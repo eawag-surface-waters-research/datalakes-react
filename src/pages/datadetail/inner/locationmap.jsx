@@ -42,17 +42,24 @@ class LocationMap extends Component {
     });
     plotfiles = plotfiles.filter((f) => f.mindt >= lower && f.maxdt <= upper);
     var filecontrol = [];
-    for (let i = 0; i < file.length; i++) {
-      let value = new Date(files[file[i]].ave);
-      let text = value.toDateString() + " " + value.toLocaleTimeString();
-      filecontrol.push(
-        <tr key={"file" + file[i]}>
-          <td>{text}</td>
-          <td id={i} onClick={removeFile} title="Remove" className="removefile">
-            ✕
-          </td>
-        </tr>
-      );
+    if (files.length > 0) {
+      for (let i = 0; i < file.length; i++) {
+        let value = new Date(files[file[i]].ave);
+        let text = value.toDateString() + " " + value.toLocaleTimeString();
+        filecontrol.push(
+          <tr key={"file" + file[i]}>
+            <td>{text}</td>
+            <td
+              id={i}
+              onClick={removeFile}
+              title="Remove"
+              className="removefile"
+            >
+              ✕
+            </td>
+          </tr>
+        );
+      }
     }
 
     return (

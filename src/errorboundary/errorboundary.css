@@ -1,3 +1,18 @@
 .errorboundary {
   padding: 20% 10px 10px 10px;
+  font-size: 60px;
+}
+
+.errorboundary img {
+  z-index: -1;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.errorboundary .error-inner {
+  font-size: 30px;
+  color: grey;
 }

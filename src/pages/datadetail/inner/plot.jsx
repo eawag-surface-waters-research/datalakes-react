@@ -417,7 +417,10 @@ class Range extends Component {
     var { data, downloadData, xunits, yunits, xlabel, ylabel } = this.props;
     var { onChangeFile, toggleAddNewFile, removeFile, lcolor } = this.props;
     var { mindatetime, maxdatetime, addNewFiles } = this.props;
-    var connect = files[file[0]].connect;
+    var connect;
+    if (files.length > 0) {
+      connect = files[file[0]].connect;
+    }
     if (connect === "ind") {
       var fileControl = [];
       if (file.length > 0) {
