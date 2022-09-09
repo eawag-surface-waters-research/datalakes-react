@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { apiUrl, serverlessUrl } from "../../../src/config.json";
+import config from "../../../src/config.json";
 import axios from "axios";
 import * as d3 from "d3";
 import Download from "./inner/download";
@@ -52,7 +52,7 @@ class DataDetail extends Component {
     for (var j = 0; j < files.length; j++) {
       if (dataArray[j] === 0) {
         var { data } = await axios
-          .get(apiUrl + "/files/" + files[j].id + "?get=raw")
+          .get(config.apiUrl + "/files/" + files[j].id + "?get=raw")
           .catch((error) => {
             this.setState({ error: true });
           });
@@ -71,7 +71,7 @@ class DataDetail extends Component {
   downloadFile = async (index) => {
     var { data: dataArray, files } = this.state;
     var { data } = await axios
-      .get(apiUrl + "/files/" + files[index].id + "?get=raw")
+      .get(config.apiUrl + "/files/" + files[index].id + "?get=raw")
       .catch((error) => {
         this.setState({ error: true });
       });
@@ -98,7 +98,7 @@ class DataDetail extends Component {
     for (var j = 0; j < arr.length; j++) {
       if (dataArray[arr[j]] === 0) {
         var { data } = await axios
-          .get(apiUrl + "/files/" + files[arr[j]].id + "?get=raw")
+          .get(config.apiUrl + "/files/" + files[arr[j]].id + "?get=raw")
           .catch((error) => {
             this.setState({ error: true });
           });
@@ -412,24 +412,29 @@ class DataDetail extends Component {
     const timeout = 1000;
     try {
       server = await Promise.all([
-        axios.get(apiUrl + "/datasets/" + dataset_id, { timeout: timeout }),
-        axios.get(apiUrl + "/files?datasets_id=" + dataset_id, {
+        axios.get(config.apiUrl + "/datasets/" + dataset_id, {
           timeout: timeout,
         }),
-        axios.get(apiUrl + "/datasetparameters?datasets_id=" + dataset_id, {
+        axios.get(config.apiUrl + "/files?datasets_id=" + dataset_id, {
           timeout: timeout,
         }),
-        axios.get(apiUrl + "/selectiontables", { timeout: timeout }),
+        axios.get(
+          config.apiUrl + "/datasetparameters?datasets_id=" + dataset_id,
+          {
+            timeout: timeout,
+          }
+        ),
+        axios.get(config.apiUrl + "/selectiontables", { timeout: timeout }),
       ]);
     } catch (error) {
       console.error("NodeJS API error switching to serverless API");
       server = await Promise.all([
-        axios.get(serverlessUrl + "/datasets/" + dataset_id),
-        axios.get(serverlessUrl + "/files?datasets_id=" + dataset_id),
+        axios.get(config.serverlessUrl + "/datasets/" + dataset_id),
+        axios.get(config.serverlessUrl + "/files?datasets_id=" + dataset_id),
         axios.get(
-          serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id
+          config.serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id
         ),
-        axios.get(serverlessUrl + "/selectiontables"),
+        axios.get(config.serverlessUrl + "/selectiontables"),
       ]).catch((error) => {
         this.setState({ step: "error" });
       });
@@ -508,7 +513,7 @@ class DataDetail extends Component {
       var data = false;
       try {
         ({ data } = await axios.get(
-          apiUrl + "/files/" + files[0].id + "?get=raw"
+          config.apiUrl + "/files/" + files[0].id + "?get=raw"
         ));
       } catch {
         console.error("Unable to collect data from the server.");
@@ -532,7 +537,7 @@ class DataDetail extends Component {
       if (dataset.renku === 0) {
         try {
           ({ data: renku } = await axios.post(
-            apiUrl + "/renku",
+            config.apiUrl + "/renku",
             {
               url: dataset.datasourcelink,
             },
@@ -546,7 +551,7 @@ class DataDetail extends Component {
       try {
         ({ data: scripts } = await axios({
           method: "get",
-          url: apiUrl + "/pipeline/scripts/" + dataset_id,
+          url: config.apiUrl + "/pipeline/scripts/" + dataset_id,
           timeout: 2000,
         }));
       } catch (e) {
@@ -804,7 +809,7 @@ class DataDetail extends Component {
                 getLabel={this.getLabel}
                 max={maxdatetime}
                 min={mindatetime}
-                apiUrl={apiUrl}
+                apiUrl={config.apiUrl}
               />
             </div>
           </React.Fragment>
@@ -1019,7 +1024,8 @@ class DataDetail extends Component {
                 <tr>
                   <td>
                     <h3>
-                      Sorry we cannot locate that dataset, it may have moved to a new location.
+                      Sorry we cannot locate that dataset, it may have moved to
+                      a new location.
                     </h3>
                     <Link to="/data">
                       <h2>Head back to the data portal</h2>

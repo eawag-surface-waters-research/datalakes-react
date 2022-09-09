@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Basemap from "../../graphs/leaflet/basemap";
 import axios from "axios";
-import { apiUrl } from "../../config.json";
+import config from "../../config.json";
 import "./lakemorphology.css";
 import D3LineGraph from "../../graphs/d3/linegraph/linegraph";
 import Loading from "../../components/loading/loading";
@@ -92,7 +92,7 @@ class LakeMorphologyGraph extends Component {
     var { interpolated } = this.state;
     if (lake.morphology) {
       var { data: morphology } = await axios.get(
-        `${apiUrl}/externaldata/morphology/${lake.id}`
+        `${config.apiUrl}/externaldata/morphology/${lake.id}`
       );
       for (var key of Object.keys(morphology)) {
         if (!["id", "interpolated", "source"].includes(key.toLowerCase())) {
@@ -294,8 +294,8 @@ class LakeMorphology extends Component {
 
   async componentDidMount() {
     let server = await Promise.all([
-      axios.get(apiUrl + "/selectiontables/lakes"),
-      axios.get(apiUrl + "/externaldata/lakejson"),
+      axios.get(config.apiUrl + "/selectiontables/lakes"),
+      axios.get(config.apiUrl + "/externaldata/lakejson"),
     ]).catch((error) => {
       console.error(error);
     });

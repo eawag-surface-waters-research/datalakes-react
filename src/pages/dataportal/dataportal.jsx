@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Fuse from "fuse.js";
-import { serverlessUrl, apiUrl } from "../../../src/config.json";
+import config from "../../../src/config.json";
 import SidebarLayout from "../../format/sidebarlayout/sidebarlayout";
 import FilterBox from "../../components/filterbox/filterbox";
 import MapSelect from "../../graphs/leaflet/mapselect.jsx";
@@ -572,16 +572,16 @@ class DataPortal extends Component {
     var server;
     try {
       server = await Promise.all([
-        axios.get(apiUrl + "/selectiontables", { timeout: timeout }),
-        axios.get(apiUrl + "/datasets", { timeout: timeout }),
-        axios.get(apiUrl + "/datasetparameters", { timeout: timeout }),
+        axios.get(config.apiUrl + "/selectiontables", { timeout: timeout }),
+        axios.get(config.apiUrl + "/datasets", { timeout: timeout }),
+        axios.get(config.apiUrl + "/datasetparameters", { timeout: timeout }),
       ]);
     } catch (error) {
       console.error("NodeJS API error switching to serverless API");
       server = await Promise.all([
-        axios.get(serverlessUrl + "/selectiontables"),
-        axios.get(serverlessUrl + "/datasets"),
-        axios.get(serverlessUrl + "/datasetparameters"),
+        axios.get(config.serverlessUrl + "/selectiontables"),
+        axios.get(config.serverlessUrl + "/datasets"),
+        axios.get(config.serverlessUrl + "/datasetparameters"),
       ]);
     }
     const dropdown = server[0].data;

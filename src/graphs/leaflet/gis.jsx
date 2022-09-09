@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl, basemaps } from "../../config.json";
+import config from "../../config.json";
 import Basemap from "./basemap";
 import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
 import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
@@ -689,7 +689,7 @@ class GIS extends Component {
     } else {
       var data, realdatetime, realdepth;
       if (source === "internal") {
-        ({ data } = await axios.get(apiUrl + "/files/" + fileid + "?get=raw"));
+        ({ data } = await axios.get(config.apiUrl + "/files/" + fileid + "?get=raw"));
         ({ realdatetime, realdepth } = this.getInternalDatetimeAndDepth(
           data,
           datasetparameters,
@@ -830,7 +830,7 @@ class GIS extends Component {
       if (dataset && parameter) {
         // Get file list for dataset
         var { data: files } = await axios.get(
-          apiUrl + "/files?datasets_id=" + datasets_id + "&type=json"
+          config.apiUrl + "/files?datasets_id=" + datasets_id + "&type=json"
         );
 
         // Find closest file to datetime and depth
@@ -854,7 +854,7 @@ class GIS extends Component {
         // Special case download lakejson
         if ([23].includes(datasets_id)) {
           ({ data: lakejson } = await axios.get(
-            apiUrl + "/externaldata/lakejson"
+            config.apiUrl + "/externaldata/lakejson"
           ));
         }
 
@@ -1100,10 +1100,10 @@ class GIS extends Component {
     // Get data
     try {
       let server = await Promise.all([
-        axios.get(apiUrl + "/selectiontables/parameters"),
-        axios.get(apiUrl + "/datasets"),
-        axios.get(apiUrl + "/datasetparameters"),
-        axios.get(apiUrl + "/selectiontables/lakes"),
+        axios.get(config.apiUrl + "/selectiontables/parameters"),
+        axios.get(config.apiUrl + "/datasets"),
+        axios.get(config.apiUrl + "/datasetparameters"),
+        axios.get(config.apiUrl + "/selectiontables/lakes"),
       ]);
       var parameters = server[0].data;
       var datasets = server[1].data;
@@ -1275,7 +1275,7 @@ class GIS extends Component {
           <BasemapSelector
             center={this.state.center}
             zoom={this.state.zoom}
-            basemaps={basemaps}
+            basemaps={config.basemaps}
             basemap={this.state.basemap}
             onChangeBasemap={this.onChangeBasemap}
           />

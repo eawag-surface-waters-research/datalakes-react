@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "./adddataset.css";
 import axios from "axios";
 import Fuse from "fuse.js";
-import { apiUrl } from "../../../src/config.json";
+import config from "../../../src/config.json";
 import AddData from "./steps/adddata";
 import ReviewData from "./steps/reviewdata";
 import ReviewLineage from "./steps/reviewlineage";
@@ -67,7 +67,7 @@ class AddDataset extends Component {
   // 0) Get dropdowns
 
   getDropdowns = async () => {
-    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
+    const { data: dropdown } = await axios.get(config.apiUrl + "/selectiontables");
     this.setState({
       dropdown,
     });
@@ -84,7 +84,7 @@ class AddDataset extends Component {
     if (id) post = { id };
     // Add blank row to datasets table
     var { data: data1 } = await axios
-      .post(apiUrl + "/datasets", post)
+      .post(config.apiUrl + "/datasets", post)
       .catch((error) => {
         console.error(error);
         this.setState({ allowedStep: [1, 0, 0, 0, 0] });
@@ -120,7 +120,7 @@ class AddDataset extends Component {
       setTimeout(async function monitor() {
         try {
           var { data: clonestatus } = await axios
-            .get(apiUrl + "/gitclone/status/" + clonestatus_id)
+            .get(config.apiUrl + "/gitclone/status/" + clonestatus_id)
             .catch((error) => {
               console.error(error.message);
               this.setState({ allowedStep: [1, 0, 0, 0, 0] });
@@ -139,7 +139,7 @@ class AddDataset extends Component {
               "git/" + repo_id + "/" + reqObj.dir + "/" + reqObj.file;
             if (file) {
               var { data: fileInformation } = await axios
-                .get(apiUrl + "/files/" + file.id + "?get=metadata")
+                .get(config.apiUrl + "/files/" + file.id + "?get=metadata")
                 .catch((error) => {
                   console.error(error.message);
                   internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
@@ -195,7 +195,7 @@ class AddDataset extends Component {
     var { step, datasetparameters, dataset, file, files_list } = this.state;
 
     // Clean folder
-    await axios.get(apiUrl + "/files/clean/" + dataset.id).catch((error) => {
+    await axios.get(config.apiUrl + "/files/clean/" + dataset.id).catch((error) => {
       console.error(error.message);
     });
 
@@ -212,7 +212,7 @@ class AddDataset extends Component {
     var allowedStep = [1, 2, 3, 0, 0];
     step = step + 1;
     var { data: renkuData } = await axios
-      .get(apiUrl + "/renku/" + encodeURIComponent(dataset.datasourcelink))
+      .get(config.apiUrl + "/renku/" + encodeURIComponent(dataset.datasourcelink))
       .catch((error) => {
         console.error(error.message);
       });
@@ -246,7 +246,7 @@ class AddDataset extends Component {
     if (dataset.fileconnect === "no" || dataset.fileconnect === "mix") {
       const { id } = file;
       var data = await this.convertFile(
-        apiUrl,
+        config.apiUrl,
         id,
         datasetparameters,
         dataset.fileconnect
@@ -270,7 +270,7 @@ class AddDataset extends Component {
         document.getElementById("reviewdata-message").innerHTML =
           "Processing file " + k + " of " + files_list.length;
         data = await this.convertFile(
-          apiUrl,
+          config.apiUrl,
           files_list[k].id,
           datasetparameters,
           dataset.fileconnect
@@ -354,14 +354,14 @@ class AddDataset extends Component {
   publish = async () => {
     const { dataset, datasetparameters } = this.state;
     await axios
-      .post(apiUrl + "/datasetparameters", {
+      .post(config.apiUrl + "/datasetparameters", {
         id: dataset.id,
         datasetparameters: datasetparameters,
       })
       .catch((error) => {
         throw new Error("Failed to publish please try again.");
       });
-    await axios.put(apiUrl + "/datasets", dataset).catch((error) => {
+    await axios.put(config.apiUrl + "/datasets", dataset).catch((error) => {
       throw new Error("Failed to publish please try again.");
     });
     window.location.href = "/datadetail/" + dataset.id;

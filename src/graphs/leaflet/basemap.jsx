@@ -10,7 +10,7 @@ import "./leaflet_colorpicker";
 import "leaflet.markercluster";
 import "./css/markercluster.css";
 import "./css/markerclusterdefault.css";
-import { basemaps } from "../../config.json";
+import config from "../../config.json";
 import { getColor } from "../../components/gradients/gradients";
 import "./css/leaflet.css";
 import measurement from "../../img/measurement.svg";
@@ -1391,9 +1391,9 @@ class Basemap extends Component {
     }
 
     this.baseMaps = {};
-    for (var layer of Object.keys(basemaps)) {
-      this.baseMaps[layer] = L.tileLayer(basemaps[layer]["url"], {
-        attribution: basemaps[layer]["attribution"],
+    for (var layer of Object.keys(config.basemaps)) {
+      this.baseMaps[layer] = L.tileLayer(config.basemaps[layer]["url"], {
+        attribution: config.basemaps[layer]["attribution"],
       });
     }
 

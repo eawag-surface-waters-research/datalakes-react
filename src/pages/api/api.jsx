@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { apiUrl } from "../../config.json";
+import config from "../../config.json";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 import "./api.css";
@@ -22,7 +22,7 @@ class API extends Component {
             </a>
             <p>[ Base URL: https://api.datalakes-eawag.ch ]</p>
           </div>
-          <SwaggerUI url={apiUrl + "/docs"} docExpansion="list" />
+          <SwaggerUI url={config.apiUrl + "/docs"} docExpansion="list" />
         </div>
       </React.Fragment>
     );

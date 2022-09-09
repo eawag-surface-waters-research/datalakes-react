@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import Modal from "../../components/modal/modal";
-import { apiUrl } from "../../../src/config.json";
+import config from "../../../src/config.json";
 
 class SelectCustom extends Component {
   render() {
@@ -35,7 +35,7 @@ class AddDropdownItem extends Component {
 
   submit = async e => {
     e.preventDefault();
-    await axios.post(apiUrl + "/selectiontables", {
+    await axios.post(config.apiUrl + "/selectiontables", {
       table: this.props.modalValue,
       data: this.state.values
     });
