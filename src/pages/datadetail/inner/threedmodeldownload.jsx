@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl } from "../../../config.json";
+import config from "../../../config.json";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 import "../css/datadetail.css";
@@ -72,7 +72,7 @@ class ThreeDModelDownload extends Component {
       url = "/externaldata/meteolakes/available";
     }
     var { data } = await axios
-      .get(apiUrl + url, {
+      .get(config.apiUrl + url, {
         timeout: 10000,
       })
       .catch((error) => {
@@ -138,12 +138,12 @@ class ThreeDModelDownload extends Component {
     }
     var url, swagger, git;
     if (id === 17) {
-      url = apiUrl + "/datalakesmodel";
+      url = config.apiUrl + "/datalakesmodel";
       swagger = url + "/api";
       git = "https://gitlab.com/siam-sc/spux/tree/Datalakes-Spux";
     } else {
       url = "https://api.meteolakes.ch/api/datalakes";
-      swagger = apiUrl + "/externaldata/meteolakes/api";
+      swagger = config.apiUrl + "/externaldata/meteolakes/api";
       git = "https://github.com/rkaravia/meteolakes";
     }
 

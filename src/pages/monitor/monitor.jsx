@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { apiUrl } from "../../config.json";
+import config from "../../config.json";
 import "./monitor.css";
 
 class Dataset extends Component {
@@ -42,7 +42,7 @@ class Monitor extends Component {
   };
 
   async componentDidMount() {
-    var { data } = await axios.get(apiUrl + "/monitor").catch((error) => {
+    var { data } = await axios.get(config.apiUrl + "/monitor").catch((error) => {
       console.error(error);
     });
     var now = new Date().getTime();

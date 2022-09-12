@@ -10,7 +10,7 @@ import "./leaflet_colorpicker";
 import "leaflet.markercluster";
 import "./css/markercluster.css";
 import "./css/markerclusterdefault.css";
-import { basemaps } from "../../config.json";
+import config from "../../config.json";
 import { getColor } from "../../components/gradients/gradients";
 import "./css/leaflet.css";
 import measurement from "../../img/measurement.svg";
@@ -619,7 +619,6 @@ class Basemap extends Component {
           }
         });
         arrows.on("click", function (e) {
-          console.log("Firing", e);
           if (e.value !== null && e.value.u !== null) {
             let { u, v } = e.value;
             let { lat, lng } = e.latlng;
@@ -641,7 +640,6 @@ class Basemap extends Component {
             )}</div><div class="popup-values"><div class="popup-param">${lat}, ${lng}</div><div class="popup-value">${String(
               inner
             )}</div><div class="popup-param">Water Veloctiy @ ${depth}m</div><div></div>`;
-            console.log(e.latlng);
             L.popup({ className: "datasetsPopup" })
               .setLatLng(e.latlng)
               .setContent(html)
@@ -984,6 +982,7 @@ class Basemap extends Component {
             { className: "datasetsPopup" }
           )
           .on("popupopen", function (popup) {
+            console.log("Jere")
             for (var select_id of ids) {
               document
                 .getElementById(select_id.id)
@@ -1396,9 +1395,9 @@ class Basemap extends Component {
     }
 
     this.baseMaps = {};
-    for (var layer of Object.keys(basemaps)) {
-      this.baseMaps[layer] = L.tileLayer(basemaps[layer]["url"], {
-        attribution: basemaps[layer]["attribution"],
+    for (var layer of Object.keys(config.basemaps)) {
+      this.baseMaps[layer] = L.tileLayer(config.basemaps[layer]["url"], {
+        attribution: config.basemaps[layer]["attribution"],
       });
     }
 

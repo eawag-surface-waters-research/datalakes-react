@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import editlayers from "./img/editlayers.svg";
-import { groups } from "../../config.json";
+import config from "../../config.json";
 import drawing from "./img/drawing.svg";
 import "./layergroups.css";
 
@@ -28,7 +28,7 @@ class Group extends Component {
 class LayerGroups extends Component {
   render() {
     var { setLayerGroup } = this.props;
-    var lgroups = JSON.parse(JSON.stringify(groups));
+    var lgroups = JSON.parse(JSON.stringify(config.groups));
     lgroups = lgroups.map((g) => {
       if ("datetime" in g.data) {
         g.data.datetime = new Date(g.data.datetime * 1000);

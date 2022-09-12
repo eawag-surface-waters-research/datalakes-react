@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl } from "../../../config.json";
+import config from "../../../config.json";
 import D3LineGraph from "../../../graphs/d3/linegraph/linegraph";
 import D3GroupedBarGraph from "../../../graphs/d3/groupedbargraph/groupedbargraph";
 import "../css/datadetail.css";
@@ -24,7 +24,7 @@ class Ch2018Graph extends Component {
     var lake = event.target.value;
     if (!Object.keys(data).includes(lake)) {
       var { data: lakedata } = await axios
-        .get(apiUrl + "/externaldata/ch2018/" + lake, {
+        .get(config.apiUrl + "/externaldata/ch2018/" + lake, {
           timeout: 10000,
         })
         .catch((error) => {
@@ -83,14 +83,14 @@ class Ch2018Graph extends Component {
 
   async componentDidMount() {
     var { data: lakes } = await axios
-      .get(apiUrl + "/externaldata/ch2018/lakes", {
+      .get(config.apiUrl + "/externaldata/ch2018/lakes", {
         timeout: 10000,
       })
       .catch((error) => {
         console.error(error);
       });
     var { data: lakedata } = await axios
-      .get(apiUrl + "/externaldata/ch2018/" + lakes[0].id, {
+      .get(config.apiUrl + "/externaldata/ch2018/" + lakes[0].id, {
         timeout: 10000,
       })
       .catch((error) => {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl } from "../../../config.json";
+import config from "../../../config.json";
 import "../css/datadetail.css";
 
 class Ch2018Download extends Component {
@@ -19,7 +19,7 @@ class Ch2018Download extends Component {
 
   async componentDidMount() {
     var { data: lakes } = await axios
-      .get(apiUrl + "/externaldata/ch2018/lakes", {
+      .get(config.apiUrl + "/externaldata/ch2018/lakes", {
         timeout: 10000,
       })
       .catch((error) => {
@@ -37,7 +37,7 @@ class Ch2018Download extends Component {
         {l.name}
       </option>
     ));
-    var download = apiUrl + "/externaldata/ch2018/" + lake;
+    var download = config.apiUrl + "/externaldata/ch2018/" + lake;
     return (
       <div className="download">
         <div className="info-title">Licence</div>

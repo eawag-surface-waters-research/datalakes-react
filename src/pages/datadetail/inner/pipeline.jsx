@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { apiUrl } from "../../../../src/config.json";
+import config from "../../../../src/config.json";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import github from "react-syntax-highlighter/dist/esm/styles/hljs/github";
 import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
@@ -29,7 +29,7 @@ class Pipeline extends Component {
     var { datasourcelink } = dataset;
     var gitlab = datasourcelink.split("/blob/")[0].replace("/-", "");
     var renkulab = gitlab.replace("gitlab", "projects");
-    var downloadlink = apiUrl + "/pipeline/files/" + dataset.id;
+    var downloadlink = config.apiUrl + "/pipeline/files/" + dataset.id;
     var selectedscript = scripts[scriptInt];
     var nameDict = { js: "javascript", r: "r", py: "python" };
     var scriptType = "python"; // Default
