@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta property="title" content="Datalakes - Search, visualise and download data on Swiss lakes" />
-    <meta name="description" content="Datalakes is a collaboration between a number of Swiss institutions to facilitate the visualisation and dissemination of reproducable datasets for Swiss lakes." />
+    <meta
+      property="title"
+      content="Datalakes - Search, visualise and download data on Swiss lakes"
+    />
+    <meta
+      name="description"
+      content="Datalakes is a collaboration between a number of Swiss institutions to facilitate the visualisation and dissemination of reproducable datasets for Swiss lakes."
+    />
     <meta name="author" content="James Runnalls @ Eawag" />
-    <meta name="image" property="og:image" content="https://runnalls.s3.eu-central-1.amazonaws.com/datalakes.png" />
+    <meta
+      name="image"
+      property="og:image"
+      content="https://runnalls.s3.eu-central-1.amazonaws.com/datalakes.png"
+    />
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="google-site-verification" content="" />
     <meta name="viewport" content="width=device-width, user-scalable=no" />
@@ -14,90 +24,6 @@
     />
     <script type="text/babel" src="./lander.js"></script>
     <style>
-      .fade-in {
-        animation: fadeIn ease 2s;
-        -webkit-animation: fadeIn ease 2s;
-        -moz-animation: fadeIn ease 2s;
-        -o-animation: fadeIn ease 2s;
-        -ms-animation: fadeIn ease 2s;
-      }
-      @keyframes fadeIn {
-        0% {
-          opacity: 0;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      @-moz-keyframes fadeIn {
-        0% {
-          opacity: 0;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      @-webkit-keyframes fadeIn {
-        0% {
-          opacity: 0;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      @-o-keyframes fadeIn {
-        0% {
-          opacity: 0;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      @-ms-keyframes fadeIn {
-        0% {
-          opacity: 0;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      .progress {
-        background-color: rgb(169, 169, 169);
-        justify-content: flex-start;
-        border-radius: 100px;
-        align-items: center;
-        position: relative;
-        display: flex;
-        height: 5px;
-        width: 300px;
-        margin: auto;
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-
-      .progress-value {
-        animation: load 10s normal forwards infinite;
-        box-shadow: 0 10px 40px -10px #000;
-        border-radius: 100px;
-        background: #000;
-        height: 5px;
-        width: 0;
-      }
-
-      @keyframes load {
-        0% {
-          width: 0;
-        }
-        100% {
-          width: 100%;
-        }
-      }
-
       .pagecenter {
         height: 80vh;
         width: 100vw;
@@ -106,26 +32,73 @@
         vertical-align: middle;
       }
 
-      .loading-logo {
-        width: 300px;
-        max-width: 70%;
+      .pagecenter .pagecontent {
+        width: 340px;
+        max-width: 90vw;
+        margin: auto;
+        color: #102a43;
+        position: relative;
       }
 
-      .loading-text {
-        margin-top: 30px;
-        font-family: "The Serif Bold", Arial, sans-serif;
+      .pagecenter img {
+        width: 100%;
+      }
+
+      .loader {
+        width: 48px;
+        height: 48px;
+        display: inline-block;
+        position: relative;
+        position: absolute;
+        right: 0;
+        top: -50px;
+      }
+      .loader::after,
+      .loader::before {
+        content: "";
+        box-sizing: border-box;
+        width: 48px;
+        height: 48px;
+        border: 2px solid #102a43;
+        position: absolute;
+        left: 0;
+        top: 0;
+        animation: rotationBreak 3s ease-in-out infinite alternate;
+      }
+      .loader::after {
+        border-color: #38bec9;
+        animation-direction: alternate-reverse;
+      }
+
+      @keyframes rotationBreak {
+        0% {
+          transform: rotate(0);
+        }
+        25% {
+          transform: rotate(90deg);
+        }
+        50% {
+          transform: rotate(180deg);
+        }
+        75% {
+          transform: rotate(270deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
   <body>
     <div id="root">
       <div class="pagecenter">
-        <img src="/img/logo.png" class="loading-logo fade-in" />
-        <div class="loading-text fade-in">Loading Datalakes</div>
-        <div class="progress">
-          <div class="progress-value"></div>
+        <div class="pagecontent">
+          <img src="/img/logo.svg" />
+          <div class="pagetext">
+            Search, visualise and download data on Swiss lakes.
+          </div>
+          <div class="loader"></div>
         </div>
-       
       </div>
     </div>
   </body>

@@ -21,7 +21,18 @@ export default function asyncComponent(importComponent) {
       return C ? (
         <C {...this.props} />
       ) : (
-        <table style={{ width: "100%", height: "400px", textAlign: "center" }}>
+        <table
+          style={{
+            width: "100%",
+            height: "800px",
+            textAlign: "center",
+            backgroundColor: "white",
+            position: "fixed",
+            left: "0",
+            top: "0",
+            maxHeight: "100%",
+          }}
+        >
           <tbody>
             <tr>
               <td>
