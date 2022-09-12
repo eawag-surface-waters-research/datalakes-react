@@ -594,6 +594,14 @@
   font-size: bold;
 }
 
+.datadetail-title {
+  font-size: 30px;
+  font-weight: 500;
+  margin: 15px 0;
+  padding: 0 10px;
+  text-size-adjust: 100%;
+}
+
 @media screen and (max-width: 900px) {
   .data-subnav .subnav-item .subnav-text {
     display: none;
@@ -699,6 +707,12 @@
 
   .pipeline .diagram {
     padding-top: 30px;
+  }
+
+  .datadetail-title {
+    font-size: 22px;
+    font-weight:400;
+    max-height: 30px;
   }
 }
 

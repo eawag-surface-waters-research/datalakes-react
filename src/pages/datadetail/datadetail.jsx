@@ -691,9 +691,9 @@ class DataDetail extends Component {
     var monitor = Number.isInteger(dataset.monitor);
     if (iframe && step !== "") step = "plot";
     var title = (
-      <h2>
+      <div className="datadetail-title">
         {dataset.title} {monitor && <div className="title-live">LIVE</div>}
-      </h2>
+      </div>
     );
 
     switch (step) {

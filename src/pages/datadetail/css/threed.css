@@ -136,6 +136,9 @@
   .threed {
     padding-bottom: 60px;
   }
+  .threed {
+    height: calc(100% - 130px);
+  }
 }
 
 @media print {
