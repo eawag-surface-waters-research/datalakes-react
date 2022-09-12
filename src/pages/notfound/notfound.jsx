@@ -7,7 +7,7 @@ class NotFound extends Component {
         document.title = "Not Found - Datalakes";
          return ( 
             <div className="notfound">
-                <h1>404. Not Found Error.</h1>
+                <div className='number-error'>404</div><h1> Not Found Error.</h1>
                 <h3>The requested URL <div className="url">{url}</div> was not found on this server.</h3>
             </div>
         );

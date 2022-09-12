@@ -7,3 +7,7 @@
     display: inline-block;
     font-weight: 700;
 }
+
+.number-error {
+    font-size: 200px;
+}

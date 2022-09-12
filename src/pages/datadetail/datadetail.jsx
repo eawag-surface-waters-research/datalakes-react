@@ -431,7 +431,12 @@ class DataDetail extends Component {
         ),
         axios.get(serverlessUrl + "/selectiontables"),
       ]).catch((error) => {
-        this.setState({ step: "database-error" });
+        let status = error.response.status
+        if (status === 404 | status === 400){
+          this.setState({ step: "error" });
+        } else {
+          this.setState({ step: "database-error" });
+        }
       });
     }
 
