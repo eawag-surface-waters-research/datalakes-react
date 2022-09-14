@@ -400,6 +400,11 @@ class DataDetail extends Component {
       dataset_id = this.props.location.pathname.split("/").slice(-1)[0];
     }
 
+    if (dataset_id === "") {
+      this.setState({ step: "error" });
+      return
+    }
+
     var search = this.props.location.search;
     var iframe = this.props.location.search.includes("iframe");
     var lang = "en";
@@ -431,8 +436,8 @@ class DataDetail extends Component {
         ),
         axios.get(serverlessUrl + "/selectiontables"),
       ]).catch((error) => {
-        let status = error.response.status
-        if (status === 404 | status === 400){
+        let status = error.response.status;
+        if ((status === 404) | (status === 400)) {
           this.setState({ step: "error" });
         } else {
           this.setState({ step: "database-error" });
