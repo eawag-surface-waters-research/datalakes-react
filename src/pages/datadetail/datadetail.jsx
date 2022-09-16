@@ -853,6 +853,7 @@ class DataDetail extends Component {
                 dataset={dataset}
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}
+                scripts={scripts}
               />
             </div>
           </React.Fragment>

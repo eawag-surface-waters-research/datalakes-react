@@ -24,9 +24,10 @@ class Pipeline extends Component {
     }
   };
   render() {
-    const { dataset, renku, scripts } = this.props;
+    var { dataset, renku, scripts } = this.props;
     var { scriptInt } = this.state;
     var { datasourcelink } = dataset;
+    scripts = scripts.filter((s) => !s.name.includes(".md"));
     var gitlab = datasourcelink.split("/blob/")[0].replace("/-", "");
     var renkulab = gitlab.replace("gitlab", "projects");
     var downloadlink = apiUrl + "/pipeline/files/" + dataset.id;

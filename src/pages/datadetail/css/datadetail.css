@@ -134,18 +134,39 @@
   width: 100%;
 }
 
+.info-mation .readme {
+  font-size: 16px;
+  margin-bottom: 25px;
+  background-color: white;
+  padding: 40px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+  border-radius: 5px;
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.info-mation .readme h1, h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.info-mation .readme h1 {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
 .info-mation .description {
   font-size: 16px;
   margin-bottom: 25px;
   background-color: white;
-  padding: 25px 25px 20px 25px;
+  padding: 0px 5px 15px 5px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
-  border: solid 1px rgb(169, 169, 169);
-  width: 585px;
   display: inline-block;
   max-width: 100%;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .info-contact {
@@ -310,7 +331,6 @@
   padding: 5px 25px 20px 25px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
-  border: solid 1px rgb(169, 169, 169);
 }
 
 .information {
@@ -711,7 +731,7 @@
 
   .datadetail-title {
     font-size: 22px;
-    font-weight:400;
+    font-weight: 400;
     max-height: 30px;
   }
 }
@@ -775,7 +795,6 @@
   margin-bottom: 10px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
-  border: solid 1px rgb(169, 169, 169);
   background-color: white;
 }
 
@@ -806,7 +825,6 @@
   margin-top: 20px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
-  border: solid 1px rgb(169, 169, 169);
 }
 
 @media screen and (max-width: 800px) {
@@ -868,6 +886,7 @@
   overflow-y: auto;
   overflow-x: scroll;
   margin-bottom: 120px;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
 }
 
 .preview-table table {

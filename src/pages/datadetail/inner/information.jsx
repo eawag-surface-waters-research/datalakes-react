@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ReactMarkdown from "react-markdown";
 import mail from "../img/mail.svg";
 import calendar from "../img/calendar.svg";
 import location from "../img/location.svg";
@@ -32,7 +33,8 @@ class Information extends Component {
   };
 
   render() {
-    const { dataset, datasetparameters, getLabel } = this.props;
+    const { dataset, datasetparameters, getLabel, scripts } = this.props;
+    var script = scripts.filter((s) => s.name.includes(".md"));
 
     // Parameter Table
     var rows = [];
@@ -49,28 +51,7 @@ class Information extends Component {
     return (
       <React.Fragment>
         <div className="info-mation">
-          <div className="info-contact">
-            <div className="contact-header">Questions about the dataset?</div>
-            <div className="contact-inner">
-              <div className="contact-icon">
-                <img src={mail} alt="mail" />
-              </div>
-              <div className="contact-text">
-                <div className="contact-name">
-                  {getLabel("persons", dataset.persons_id, "name")}
-                </div>
-                <div className="contact-email">
-                  {getLabel("persons", dataset.persons_id, "email")}
-                </div>
-                <div className="contact-job">
-                  {getLabel("projects", dataset.projects_id, "name")},{" "}
-                  {getLabel("organisations", dataset.organisations_id, "name")}
-                </div>
-              </div>
-            </div>
-          </div>
           <div className="description">
-            <div className="desc-title">{dataset.description}</div>
             <div className="data-row">
               <img src={calendar} alt="calendar" />{" "}
               {this.parseDate(dataset.mindatetime)} to{" "}
@@ -109,7 +90,7 @@ class Information extends Component {
               downloads
             </div>
             <div className="data-row">
-              <img src={licence} alt="licence"/>
+              <img src={licence} alt="licence" />
               <a
                 href={getLabel("licenses", dataset.licenses_id, "link")}
                 target="_blank"
@@ -123,7 +104,33 @@ class Information extends Component {
               <img src={citation} alt="citation" />
               {dataset.citation}
             </div>
-            <div className="parameters">{rows}</div>
+          </div>
+          <div className="readme">
+            {script.length === 1 ? (
+              <ReactMarkdown>{script[0].data}</ReactMarkdown>
+            ) : (
+              <React.Fragment>{dataset.description}</React.Fragment>
+            )}
+          </div>
+          <div className="info-contact">
+            <div className="contact-header">Questions about the dataset?</div>
+            <div className="contact-inner">
+              <div className="contact-icon">
+                <img src={mail} alt="mail" />
+              </div>
+              <div className="contact-text">
+                <div className="contact-name">
+                  {getLabel("persons", dataset.persons_id, "name")}
+                </div>
+                <div className="contact-email">
+                  {getLabel("persons", dataset.persons_id, "email")}
+                </div>
+                <div className="contact-job">
+                  {getLabel("projects", dataset.projects_id, "name")},{" "}
+                  {getLabel("organisations", dataset.organisations_id, "name")}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </React.Fragment>
