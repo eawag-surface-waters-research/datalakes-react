@@ -252,7 +252,6 @@ class GIS extends Component {
   };
 
   setSelected = (selectedlayers) => {
-    console.log("HEre");
     this.setState({ loading: true }, () => {
       var selected = [];
       for (var i = 0; i < selectedlayers.length; i++) {
