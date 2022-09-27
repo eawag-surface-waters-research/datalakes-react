@@ -146,7 +146,8 @@
   box-sizing: border-box;
 }
 
-.info-mation .readme h1, h2 {
+.info-mation .readme h1,
+h2 {
   margin: 0;
   padding: 0;
 }
@@ -449,6 +450,33 @@
   text-align: center;
 }
 
+.mapdatefilter {
+  text-align: center;
+}
+
+.mapfilecontrol button {
+  margin: 6px 3px;
+  border-radius: 16px;
+  color: #38bec9;
+  border-color: #38bec9;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+}
+
+.mapdatefilter button {
+  margin: 6px 3px;
+  border-radius: 16px;
+  color: #38bec9;
+  border-color: #38bec9;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+}
+
+.mapdatefilter button.red {
+  color: red;
+  border-color: red;
+}
+
 .filecontrol {
   width: 100%;
   font-size: 12px;
@@ -470,6 +498,10 @@
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
+}
+
+.filecontrol span {
+  font-size: 10px;
 }
 
 .data-subnav .subnav-item {

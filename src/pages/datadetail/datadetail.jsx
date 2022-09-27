@@ -159,7 +159,7 @@ class DataDetail extends Component {
   selectFilesDatetime = (newfiles) => {
     if (newfiles.length < 1 || newfiles.length > 20) {
       window.alert(
-        "A maximum of 20 profiles can be plotted simultaneously, please select a sorted time period."
+        "A maximum of 20 profiles can be plotted simultaneously, please select a shorter time period."
       );
     } else if (
       window.confirm(
@@ -402,7 +402,7 @@ class DataDetail extends Component {
 
     if (dataset_id === "") {
       this.setState({ step: "error" });
-      return
+      return;
     }
 
     var search = this.props.location.search;
@@ -497,7 +497,18 @@ class DataDetail extends Component {
       }
 
       // Filter for only json files
+      var all_files = files;
       files = files.filter((file) => file.filetype === "json");
+      files = files.map((file) => {
+        var temp = [""];
+        try {
+          temp = all_files
+            .find((af) => af.id === file.filelineage)
+            .filelink.split("/");
+        } catch (e) {}
+        file["nc_name"] = temp[temp.length - 1];
+        return file;
+      });
 
       // Get add average time
       files = this.addAverageTime(files);
@@ -776,6 +787,7 @@ class DataDetail extends Component {
                 onChangeFileInt={this.onChangeFileInt}
                 removeFile={this.removeFile}
                 selectFilesDatetime={this.selectFilesDatetime}
+                apiUrl={apiUrl}
               />
             </div>
           </React.Fragment>
