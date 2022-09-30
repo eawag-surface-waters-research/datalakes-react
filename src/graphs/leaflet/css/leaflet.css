@@ -21,6 +21,10 @@
   font-size: 16px;
 }
 
+.leaflet-tooltip .tooltip-small {
+  font-size: 10px;
+}
+
 .leaflet-tooltip.basic-tooltip {
   color: #f2f5f7;
   background-color: #102a43;

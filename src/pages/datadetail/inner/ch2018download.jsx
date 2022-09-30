@@ -48,7 +48,7 @@ class Ch2018Download extends Component {
           {getLabel("licenses", dataset.licenses_id, "name")}
         </a>
         <div className="info-title">Download Summary Data</div>
-        <div className="remotesensingdownload">
+        <div className="ch2018download">
           <p>
             It is possible to download a .JSON file containing summary
             information for a given lake in the study.

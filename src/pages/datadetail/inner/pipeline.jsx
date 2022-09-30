@@ -175,7 +175,7 @@ class Pipeline extends Component {
         </div>
         {dataset.renku === 0 && <div className="pipeline-left">{diagram}</div>}
         <div className="scripts">
-          <h3>Proccessing Scripts</h3>
+          <h3>Processing Scripts</h3>
           <div className="pipeline-script">
             <div className="pipeline-head">{scriptHeaders}</div>
             <div className="pipeline-body">

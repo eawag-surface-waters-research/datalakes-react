@@ -151,9 +151,6 @@ class Download extends Component {
         <div className="multipledownload">
           {files.length > 1 && (
             <div>
-              <div className="subheading">
-                Select time period for downloads.
-              </div>
               {loading && (
                 <div className="download-loading">
                   Sending download request...

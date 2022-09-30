@@ -170,6 +170,12 @@ h2 {
   text-align: center;
 }
 
+.info-mation .description .exinfo {
+  padding: 40px;
+  text-align: left;
+  font-size: 18px;
+}
+
 .info-contact {
   display: inline-block;
   vertical-align: top;
@@ -339,7 +345,6 @@ h2 {
   padding: 25px 25px 20px 25px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
-  border: solid 1px rgb(169, 169, 169);
 }
 
 .info-title {
@@ -479,8 +484,8 @@ h2 {
 
 .filecontrol {
   width: 100%;
-  font-size: 12px;
-  margin-top: 10px;
+  font-size: 15px;
+  margin-bottom: 10px;
 }
 
 .filecontrol input[type="color"] {
@@ -666,7 +671,7 @@ h2 {
     margin: 0 15px -1px 0;
   }
   .data-subnav {
-    padding: 0 0 10px 15px;
+    padding: 8px 0 10px 15px;
   }
 
   .ch2018graph {
@@ -912,6 +917,13 @@ h2 {
 
 .download-button {
   width: 120px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid #38bec9;
+  padding: 6px 16px;
+  border-radius: 16px;
+  color: #38bec9;
+  text-align: center;
 }
 
 .preview-table {
@@ -977,11 +989,12 @@ h2 {
 }
 
 .multipledownload {
-  background-color: #f3f3f3;
+  background-color: rgb(249, 249, 249);
   padding: 20px;
-  box-shadow: 0 0 4px black;
   margin-bottom: 20px;
   position: relative;
+  box-shadow: 1px 1px 10px rgb(211 209 209) inset;
+  border-radius: 5px;
 }
 
 .multipledownload .subheading {
@@ -1004,7 +1017,7 @@ h2 {
 
 .parsedata table th {
   text-align: left;
-  background-color: #f3f3f3;
+  background-color: rgb(249, 249, 249);
   padding: 0 10px;
 }
 
@@ -1016,9 +1029,8 @@ h2 {
 }
 
 .datadetail-padding {
-  width: calc(100% - 20px);
+  width: 100%;
   box-sizing: border-box;
-  margin: 10px;
 }
 
 .datadetail-header {
@@ -1045,9 +1057,18 @@ h2 {
 
 .remotesensingdownload .downloadinner button {
   margin: 0;
-  padding: 2px 5px;
+  padding: 2px 15px;
 }
 
 .remotesensingdownload .downloadinner table td {
   padding: 2px 10px;
+}
+
+.ch2018download .downloadinner button {
+  margin: 0;
+  padding: 2px 15px;
+  margin-left: 10px;
+  border-radius: 5px;
+  color: #38bec9;
+  border-color: #38bec9;
 }

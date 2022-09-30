@@ -25,7 +25,7 @@ class MapSelect extends Component {
       center: center,
       zoom: zoom,
       minZoom: 2,
-      maxZoom: 30,
+      maxZoom: 18,
       layers: [
         //L.tileLayer('https://wmts20.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg', {attribution: '<a title="Swiss Federal Office of Topography" href="https://www.swisstopo.admin.ch/">swisstopo</a>'})
         L.tileLayer(
@@ -88,7 +88,7 @@ class MapSelect extends Component {
     // Plot markers
     var bounds = this.plotMarkers(datasets);
     try {
-      this.map.fitBounds(bounds, {maxZoom: 12});
+      this.map.fitBounds(bounds, { maxZoom: 12 });
     } catch (e) {}
   }
 
@@ -99,7 +99,7 @@ class MapSelect extends Component {
       this.drawnItems.clearLayers();
       var bounds = this.plotMarkers(datasets);
       try {
-        this.map.fitBounds(bounds, {maxZoom: 8});
+        this.map.fitBounds(bounds, { maxZoom: 8 });
       } catch (e) {}
     } else {
       this.plotMarkers(datasets);
@@ -117,15 +117,15 @@ class MapSelect extends Component {
 
     try {
       const { clickPoint, files } = this.props;
-      var shape = "circle";
-      var color = "blue";
+      var shape = "marker";
+      var color = "#38bec9";
       var Icon = L.divIcon({
         className: "map-marker",
-        html: `<div class="${shape}" style="background-color:${color};box-shadow: 0px 0px 15px ${color};"></div> `,
+        html: `<div class="${shape}" style="background-color:${color};"></div> `,
       });
       var IconSelect = L.divIcon({
         className: "map-marker",
-        html: `<div class="${shape}" style="background-color:red;box-shadow: 0px 0px 15px red;"></div> `,
+        html: `<div class="${shape}" style="background-color:#d14;"></div> `,
       });
 
       this.markers = L.markerClusterGroup();
@@ -145,10 +145,10 @@ class MapSelect extends Component {
             );
           } else if (ave && clickPoint) {
             let inIcon = Icon;
-            let text = "Select file:";
+            let text = "Select file";
             if (files.includes(fileid)) {
               inIcon = IconSelect;
-              text = "Selected file:";
+              text = "Selected file";
             }
             let value = new Date(ave);
             this.markers.addLayer(
@@ -159,7 +159,7 @@ class MapSelect extends Component {
                 .bindTooltip(
                   `<div style="text-align:center;"><b>${text}</b></div><div>${
                     value.toDateString() + " " + value.toLocaleTimeString()
-                  }</div>`
+                  }</div><div class="tooltip-small">${dataset.nc_name}</div>`
                 )
                 .on("click", (e) => {
                   clickPoint(e);

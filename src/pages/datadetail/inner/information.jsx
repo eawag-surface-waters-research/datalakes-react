@@ -33,21 +33,8 @@ class Information extends Component {
   };
 
   render() {
-    const { dataset, datasetparameters, getLabel, scripts } = this.props;
+    const { dataset, getLabel, scripts } = this.props;
     var script = scripts.filter((s) => s.name.includes(".md"));
-
-    // Parameter Table
-    var rows = [];
-    for (var row of datasetparameters) {
-      if (![27].includes(row.parameters_id)) {
-        rows.push(
-          <div className="rows" key={row.id}>
-            {row.name} {row.detail !== "none" && `(${row.detail})`}
-            <div className="unit">{row.unit}</div>
-          </div>
-        );
-      }
-    }
     return (
       <React.Fragment>
         <div className="info-mation">

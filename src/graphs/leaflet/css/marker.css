@@ -14,7 +14,7 @@
   margin-top: -23px;
   border-radius: 50% 50% 50% 0;
   border: 4px solid transparent;
-  width: 15px;
+  width: 12px;
   height: 15px;
   transform: rotate(-45deg);
 }
@@ -22,12 +22,37 @@
 .map-marker .pin::after {
   position: absolute;
   content: "";
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   top: 50%;
   left: 50%;
   margin-left: -6px;
   margin-top: -6.5px;
   background-color: #fff;
+}
+
+.map-marker .marker {
+  transform: perspective(40px) rotateX(20deg) rotateZ(-45deg);
+  transform-origin: 50% 50%;
+  border-radius: 50% 50% 50% 0;
+  padding: 0 3px 3px 0;
+  width: 26px;
+  height: 26px;
+  background: red;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -38px 0 0 -15px;
+  box-shadow: -1px 1px 4px rgb(0 0 0 / 50%);
+}
+
+.map-marker .marker:after {
+  content: "";
+  margin: 8px 0 0 7px;
+  background: #ffffff;
+  position: absolute;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
 }
