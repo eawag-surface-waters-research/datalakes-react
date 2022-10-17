@@ -32,6 +32,10 @@ class Information extends Component {
     return months[date.getMonth()] + date.getFullYear();
   };
 
+  round = (num, dec) => {
+    return Math.round(num * 10 ** dec) / 10 ** dec;
+  };
+
   render() {
     const { dataset, getLabel, scripts } = this.props;
     var script = scripts.filter((s) => s.name.includes(".md"));
@@ -52,7 +56,7 @@ class Information extends Component {
                 rel="noopener noreferrer"
               >
                 {getLabel("lakes", dataset.lakes_id, "name")} [
-                {dataset.latitude}, {dataset.longitude}]
+                {this.round(dataset.latitude, 3)}, {this.round(dataset.longitude, 3)}]
               </a>
             </div>
             <div className="data-row">
@@ -68,14 +72,18 @@ class Information extends Component {
             {dataset.mindepth !== "-9999" && (
               <div className="data-row">
                 <img src={depth} alt="depth" />
-                {`${dataset.mindepth}m to ${dataset.maxdepth}m`}
+                {`${this.round(dataset.mindepth, 3)}m to ${this.round(
+                  dataset.maxdepth,
+                  3
+                )}m`}
               </div>
             )}
-
-            <div className="data-row">
-              <img src={download} alt="download" /> {dataset.downloads}{" "}
-              downloads
-            </div>
+            {dataset.downloads > 10 && (
+              <div className="data-row">
+                <img src={download} alt="download" /> {dataset.downloads}{" "}
+                downloads
+              </div>
+            )}
             <div className="data-row">
               <img src={licence} alt="licence" />
               <a

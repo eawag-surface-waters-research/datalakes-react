@@ -161,13 +161,12 @@ h2 {
   font-size: 16px;
   margin-bottom: 25px;
   background-color: white;
-  padding: 0px 5px 15px 5px;
+  padding: 0px 25px 15px 25px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
   display: inline-block;
   max-width: 100%;
   box-sizing: border-box;
-  text-align: center;
 }
 
 .info-mation .description .exinfo {
@@ -209,7 +208,7 @@ h2 {
 }
 
 .info-mation .description .data-row {
-  padding: 20px 30px 0 0;
+  padding: 30px 40px 10px 0;
   display: inline-block;
 }
 
