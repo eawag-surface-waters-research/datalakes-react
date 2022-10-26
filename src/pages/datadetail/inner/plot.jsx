@@ -2084,7 +2084,7 @@ class Plot extends Component {
 
     const title = dataset.title;
     var colors = this.parseColor(dataset.plotproperties.colors);
-    var zdomain = d3.extent(this.filterData(data[file[0]][zaxis]));
+    var zdomain = d3.extent(this.filterData(data[file[0]][zaxis]).flat());
 
     var yextents = [];
     for (var ya of yaxis) {
@@ -2147,7 +2147,7 @@ class Plot extends Component {
       pd = [pd];
     }
     for (var i = 0; i < pd.length; i++) {
-      let zdomain = d3.extent(this.filterData(pd[i].z));
+      let zdomain = d3.extent(this.filterData(pd[i].z).flat());
       minZ = Math.min(zdomain[0], minZ);
       maxZ = Math.max(zdomain[1], maxZ);
     }
