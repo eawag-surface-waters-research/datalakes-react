@@ -1,12 +1,23 @@
 .report-issue {
-  margin: 15px;
-  text-align: center;
+  margin: -36px 25px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
 }
 
-.report-issue button {
-  margin: 0;
-  margin-left: 20px;
+.report-issue button.click {
+  margin: 6px 3px;
   border-radius: 5px;
+  color: rgb(206, 56, 56);
+  border-color: rgb(206, 56, 56);
+  transition: all 0.2s ease-in-out;
+  background-color: rgb(249, 249, 249);
+}
+
+.report-issue button:hover {
+  color: white;
+  background-color: rgb(206, 56, 56);
 }
 
 .report-issue .report-modal {
@@ -15,19 +26,32 @@
   top: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.5);
   z-index: 9;
 }
 
 .report-issue .report-modal .report-modal-box {
-  box-shadow: 0 0 4px black;
+  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   margin: auto;
-  width: 300px;
-  margin-top: 20%;
+  width: 400px;
+  margin-top: 20vh;
   padding: 30px;
   background-color: white;
   position: relative;
   border-radius: 5px;
+}
+
+.report-issue .report-modal .report-modal-box table {
+  width: 100%;
+}
+
+.report-issue .report-modal .report-modal-box table th {
+  width: 80px;
+  text-align: left;
+}
+
+.report-issue .report-modal .report-modal-box .reportslider {
+  margin-top: 4px;
 }
 
 .report-issue .report-modal .report-modal-box .close-modal {
@@ -41,15 +65,83 @@
 .report-issue .report-modal .report-modal-box textarea {
   width: 100%;
   height: 80px;
+  border: 1px solid rgb(169, 169, 169);
+  padding: 5px 10px;
+  box-sizing: border-box;
 }
 
-.report-issue .report-modal .report-modal-box input {
+.report-issue .report-modal .report-modal-box input[type="text"] {
   width: 100%;
-  border: 1px solid black;
+  border: 1px solid rgb(169, 169, 169);
   margin: 10px 0;
+  padding: 5px 10px;
+  box-sizing: border-box;
 }
 
 .report-issue .report-modal .report-modal-box .modal-submit {
   width: 100%;
   text-align: center;
+}
+
+.report-issue .report-modal .report-modal-box .switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 18px;
+  margin-left: 15px;
+}
+
+/* Hide default HTML checkbox */
+.report-issue .report-modal .report-modal-box .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.report-issue .report-modal .report-modal-box .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.report-issue .report-modal .report-modal-box .slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.report-issue .report-modal .report-modal-box input:checked + .slider {
+  background-color: #38bec9;
+}
+
+.report-issue .report-modal .report-modal-box input:focus + .slider {
+  box-shadow: 0 0 1px #38bec9;
+}
+
+.report-issue .report-modal .report-modal-box input:checked + .slider:before {
+  -webkit-transform: translateX(12px);
+  -ms-transform: translateX(12px);
+  transform: translateX(12px);
+}
+
+/* Rounded sliders */
+.report-issue .report-modal .report-modal-box .slider.round {
+  border-radius: 34px;
+}
+
+.report-issue .report-modal .report-modal-box .slider.round:before {
+  border-radius: 50%;
 }
