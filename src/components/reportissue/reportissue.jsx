@@ -50,7 +50,20 @@ class ReportIssue extends Component {
   };
 
   toggleMaintenance = () => {
-    this.setState({ maintenance: !this.state.maintenance });
+    if (!this.state.maintenance) {
+      var key = "thetis";
+      var output = window.prompt(
+        "Please enter the password to report maintenance.",
+        ""
+      );
+      if (key !== output) {
+        window.alert("Incorrect password.");
+      } else {
+        this.setState({ maintenance: !this.state.maintenance });
+      }
+    } else {
+      this.setState({ maintenance: !this.state.maintenance });
+    }
   };
 
   submitReport = async () => {
