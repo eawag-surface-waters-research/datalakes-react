@@ -2452,7 +2452,7 @@ class Plot extends Component {
                 <div className="detailgraph">
                   <Graph {...this.state} {...this.props} />
                   {!this.props.iframe && (
-                    <ReportIssue dataset={this.state.title} datasetparameters={this.props.datasetparameters}/>
+                    <ReportIssue id={this.props.dataset.id} dataset={this.state.title} datasetparameters={this.props.datasetparameters}/>
                   )}
                 </div>
               </React.Fragment>

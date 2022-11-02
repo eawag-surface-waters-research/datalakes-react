@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import DateTimePicker from "react-datetime-picker";
 import Select from "react-select";
 import axios from "axios";
+import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 
 class ReportIssue extends Component {
@@ -92,7 +93,7 @@ class ReportIssue extends Component {
     };
 
     try {
-      await axios.post("https://api.datalakes-eawag.ch/contact", content);
+      await axios.post(apiUrl + "/contact", content);
       this.setState({ reported: true, error: false });
     } catch (e) {
       console.error(e);
@@ -103,7 +104,7 @@ class ReportIssue extends Component {
   submitMaintenance = async () => {
     var { start, end, parameters, description, reporter, sensordepths } =
       this.state;
-    var { dataset } = this.props;
+    var { id } = this.props;
 
     if (parameters === null) {
       window.alert("You must select at least one parameter.");
@@ -111,7 +112,7 @@ class ReportIssue extends Component {
     }
     parameters = parameters.map((p) => p.value);
     var content = {
-      id: dataset.id,
+      id,
       start,
       end,
       parameters,
@@ -121,7 +122,7 @@ class ReportIssue extends Component {
     };
 
     try {
-      await axios.post("https://api.datalakes-eawag.ch/maintenance", content);
+      await axios.post(apiUrl + "/maintenance", content);
       this.setState({ submitted: true, error: false });
     } catch (e) {
       console.error(e);
