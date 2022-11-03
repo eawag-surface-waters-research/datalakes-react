@@ -20,6 +20,7 @@ class ReportIssue extends Component {
     sensordepths: "",
     submitted: false,
     error: false,
+    data: [],
   };
 
   openModal = () => {
@@ -101,6 +102,18 @@ class ReportIssue extends Component {
     }
   };
 
+  deleteMaintenance = async (ids) => {
+    for (let i = 0; i < ids.length; i++) {
+      await axios.delete(apiUrl + "/maintenance/" + ids[i]);
+    }
+    this.updateMaintenance();
+  };
+
+  updateMaintenance = async () => {
+    var { data } = await axios.get(apiUrl + "/maintenance/" + this.props.id);
+    this.setState({ data });
+  };
+
   submitMaintenance = async () => {
     var { start, end, parameters, description, reporter, sensordepths } =
       this.state;
@@ -123,11 +136,29 @@ class ReportIssue extends Component {
 
     try {
       await axios.post(apiUrl + "/maintenance", content);
-      this.setState({ submitted: true, error: false });
+      this.updateMaintenance();
+      this.setState({
+        start: new Date(),
+        end: new Date(),
+        parameters: null,
+        description: "",
+        reporter: "",
+        sensordepths: "",
+        error: false,
+      });
     } catch (e) {
       console.error(e);
       this.setState({ error: true });
     }
+  };
+
+  formatTime = (time) => {
+    let parts = time.split("T");
+    return parts[0] + " " + parts[1].slice(0, 5);
+  };
+
+  componentDidMount = async () => {
+    this.updateMaintenance();
   };
 
   render() {
@@ -141,8 +172,8 @@ class ReportIssue extends Component {
       description,
       reporter,
       sensordepths,
-      submitted,
       error,
+      data,
     } = this.state;
     var { dataset, datasetparameters } = this.props;
     var dp = datasetparameters
@@ -154,6 +185,46 @@ class ReportIssue extends Component {
       datasetparameters.filter(
         (dp) => dp.parameters_id === 2 && dp.axis === "y"
       ).length > 0;
+
+    var dict = {};
+    for (let i = 0; i < data.length; i++) {
+      let dt = data[i].starttime.toString() + data[i].endtime.toString();
+      if (dt in dict) {
+        dict[dt]["parameters"].push(data[i].name);
+        dict[dt]["id"].push(data[i].id);
+      } else {
+        dict[dt] = {
+          start: data[i].starttime,
+          end: data[i].starttime,
+          parameters: [data[i].name],
+          description: data[i].description,
+          id: [data[i].id],
+          reporter: data[i].reporter,
+        };
+      }
+    }
+    var rows = [];
+    for (var key in dict) {
+      let ids = dict[key].id;
+      rows.push(
+        <tr key={key}>
+          <td>{this.formatTime(dict[key].start)}</td>
+          <td>{this.formatTime(dict[key].end)}</td>
+          <td>{dict[key].parameters.join(", ")}</td>
+          <td>{dict[key].description}</td>
+          <td>{dict[key].reporter}</td>
+          <td
+            style={{ width: "20px" }}
+            className="close"
+            title="Delete report"
+            onClick={() => this.deleteMaintenance(ids)}
+          >
+            &#10005;
+          </td>
+        </tr>
+      );
+    }
+
     return (
       <div className="report-issue">
         <div className="report-button">
@@ -185,11 +256,25 @@ class ReportIssue extends Component {
               </div>
               {maintenance ? (
                 <React.Fragment>
+                  <p>Current maintenance periods:</p>
+                  <table>
+                    <tbody>
+                      <tr>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                        <th>Reporter</th>
+                        <th></th>
+                      </tr>
+                      {rows}
+                    </tbody>
+                  </table>
                   <p>
                     Please complete the form below to suggest a maintenance
                     period for the dataset.
                   </p>
-                  <table>
+                  <table className="report">
                     <tbody>
                       <tr>
                         <th>Start time</th>
@@ -273,20 +358,13 @@ class ReportIssue extends Component {
                       </tr>
                     </tbody>
                   </table>
-                  {submitted ? (
-                    <p>Thanks for submitting a maintenance report.</p>
-                  ) : (
-                    <div className="modal-submit">
-                      {error &&
-                        "Failed to submit please refresh the page and try again."}
-                      <button
-                        className="click"
-                        onClick={this.submitMaintenance}
-                      >
-                        Submit Report
-                      </button>
-                    </div>
-                  )}
+                  <div className="modal-submit">
+                    {error &&
+                      "Failed to submit please refresh the page and try again."}
+                    <button className="click" onClick={this.submitMaintenance}>
+                      Submit Report
+                    </button>
+                  </div>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
