@@ -39,6 +39,15 @@ class ReportIssue extends Component {
     if (!("target" in event)) this.setState({ [parameter]: event });
   };
 
+  addAllParameters = () => {
+    var parameters = this.props.datasetparameters
+      .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
+      .map((p) => {
+        return { value: p.parameters_id, label: p.name };
+      });
+    this.setState({ parameters });
+  };
+
   updateInput = (parameter, event) => {
     this.setState({ [parameter]: event.target.value });
   };
@@ -317,6 +326,7 @@ class ReportIssue extends Component {
                               this.updateState("parameters", event)
                             }
                           />
+                          <div className="addbutton" onClick={this.addAllParameters}>Add all</div>
                         </td>
                       </tr>
                       <tr>

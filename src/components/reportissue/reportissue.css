@@ -49,6 +49,31 @@
   width: 100%;
 }
 
+.report-issue .report-modal .report-modal-box table .multi-select {
+  width: calc(100% - 52px);
+  display: inline-block;
+}
+
+.report-issue .report-modal .report-modal-box table .addbutton {
+  display: inline-block;
+  height: 50px;
+  margin-left: 5px;
+  padding: 8px;
+  border: 1px solid hsl(0,0%,80%);
+  border-radius: 5px;
+  box-sizing: border-box;
+  vertical-align: inherit;
+  width: 46px;
+  text-align: center;
+  cursor: pointer;
+  color: hsl(0,0%,80%);
+}
+
+.report-issue .report-modal .report-modal-box table .addbutton:hover {
+  border-color: #38bec9;
+  color: #38bec9;
+}
+
 .report-issue .report-modal .report-modal-box table.report th {
   width: 80px;
   text-align: left;
