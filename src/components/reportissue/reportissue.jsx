@@ -204,7 +204,7 @@ class ReportIssue extends Component {
       } else {
         dict[dt] = {
           start: data[i].starttime,
-          end: data[i].starttime,
+          end: data[i].endtime,
           parameters: [data[i].name],
           description: data[i].description,
           id: [data[i].id],
