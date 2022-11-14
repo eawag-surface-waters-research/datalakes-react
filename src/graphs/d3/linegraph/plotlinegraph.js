@@ -30,7 +30,7 @@ import {
   formatNumber,
   isNumeric,
   languageOptions,
-  scientificNotation
+  scientificNotation,
 } from "./functions";
 
 import {
@@ -675,6 +675,8 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
 
   var lang = languageOptions(options.language);
 
+  console.log(options.width);
+
   zoombox.on("mousemove", (event) => {
     try {
       var hoverX =
@@ -720,24 +722,50 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
           `<tr><td>y:</td><td>${yval} ${yu}</td></tr>` +
           "</tbody></table>";
 
-        tooltip
-          .html(html)
-          .style(
-            "left",
-            xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
-              options.marginLeft +
-              10 +
-              "px"
-          )
-          .style(
-            "top",
-            yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
-              options.marginTop -
-              options.fontSize -
-              6 +
-              "px"
-          )
-          .style("opacity", 1);
+        if (hoverX > options.width / 2) {
+          tooltip
+            .html(html)
+            .style(
+              "right",
+              options.width -
+                options.marginLeft -
+                xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
+                10 +
+                "px"
+            )
+            .style("left", "auto")
+            .style(
+              "top",
+              yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
+                options.marginTop -
+                options.fontSize -
+                6 +
+                "px"
+            )
+            .attr("class", "tooltip right")
+            .style("opacity", 1);
+        } else {
+          tooltip
+            .html(html)
+            .style(
+              "left",
+              xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
+                options.marginLeft +
+                10 +
+                "px"
+            )
+            .style("right", "auto")
+            .style(
+              "top",
+              yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
+                options.marginTop -
+                options.fontSize -
+                6 +
+                "px"
+            )
+            .attr("class", "tooltip left")
+            .style("opacity", 1);
+        }
 
         if (options.hover) options.hover({ idx, idy });
       } else if (distance > 200) {
