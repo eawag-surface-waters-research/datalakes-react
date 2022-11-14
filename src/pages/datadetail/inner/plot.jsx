@@ -1438,10 +1438,12 @@ class Plot extends Component {
       data.sort((a, b) =>
         a[xaxis[0]] > b[xaxis[0]] ? 1 : b[xaxis[0]] > a[xaxis[0]] ? -1 : 0
       );
+      data = data.filter((d) => d[xaxis] !== null);
     } else if (timeaxis === "y") {
       data.sort((a, b) =>
         a[yaxis[0]] > b[yaxis[0]] ? 1 : b[yaxis[0]] > a[yaxis[0]] ? -1 : 0
       );
+      data = data.filter((d) => d[yaxis] !== null);
     }
     var out = { z: undefined };
     for (ax of axis) {
@@ -2452,7 +2454,11 @@ class Plot extends Component {
                 <div className="detailgraph">
                   <Graph {...this.state} {...this.props} />
                   {!this.props.iframe && (
-                    <ReportIssue id={this.props.dataset.id} dataset={this.state.title} datasetparameters={this.props.datasetparameters}/>
+                    <ReportIssue
+                      id={this.props.dataset.id}
+                      dataset={this.state.title}
+                      datasetparameters={this.props.datasetparameters}
+                    />
                   )}
                 </div>
               </React.Fragment>
