@@ -2456,6 +2456,7 @@ class Plot extends Component {
                   {!this.props.iframe && (
                     <ReportIssue
                       id={this.props.dataset.id}
+                      repositories_id={this.props.dataset.repositories_id}
                       dataset={this.state.title}
                       datasetparameters={this.props.datasetparameters}
                     />

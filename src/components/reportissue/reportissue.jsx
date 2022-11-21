@@ -79,7 +79,7 @@ class ReportIssue extends Component {
 
   submitReport = async () => {
     var { message, email } = this.state;
-    var { dataset } = this.props;
+    var { dataset, repositories_id } = this.props;
     var content = {
       from: {
         email: "runnalls.james@gmail.com",
@@ -101,9 +101,18 @@ class ReportIssue extends Component {
       ],
       template_id: "d-819e0202b4724bbb99069fdff49d667a",
     };
-
+    var issues = {
+      title: message,
+      description: "Reported by: " + email,
+      repo_id: repositories_id,
+    };
     try {
       await axios.post(apiUrl + "/contact", content);
+      try {
+        await axios.post(apiUrl + "/issues", issues);
+      } catch (e) {
+        console.error(e);
+      }
       this.setState({ reported: true, error: false });
     } catch (e) {
       console.error(e);
@@ -326,7 +335,12 @@ class ReportIssue extends Component {
                               this.updateState("parameters", event)
                             }
                           />
-                          <div className="addbutton" onClick={this.addAllParameters}>Add all</div>
+                          <div
+                            className="addbutton"
+                            onClick={this.addAllParameters}
+                          >
+                            Add all
+                          </div>
                         </td>
                       </tr>
                       <tr>
