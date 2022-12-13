@@ -321,6 +321,12 @@ class D3HeatMap extends Component {
     var datax = [{ x: dxx, y: dxy }];
     var datay = [{ x: dyx, y: dyy }];
 
+    var x_dots = false;
+    var y_dots = false;
+
+    if (datax[0].x.length < 100) x_dots = true
+    if (datay[0].y.length < 100) y_dots = true
+
     return (
       <div className={fullscreen ? "vis-main full" : "vis-main"}>
         <div className="heatmap-main">
@@ -362,6 +368,7 @@ class D3HeatMap extends Component {
                     lweight={[1]}
                     bcolor={["white"]}
                     simple={true}
+                    plotdots={y_dots}
                     xscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                     yscale={TimeLabels.includes(ylabel) ? "Time" : ""}
                   />
@@ -383,6 +390,7 @@ class D3HeatMap extends Component {
                   lcolor={["black"]}
                   lweight={[1]}
                   bcolor={["white"]}
+                  plotdots={x_dots}
                   xscale={TimeLabels.includes(xlabel) ? "Time" : ""}
                   yscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                   simple={true}
