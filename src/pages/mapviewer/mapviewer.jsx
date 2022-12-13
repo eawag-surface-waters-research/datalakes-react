@@ -58,7 +58,7 @@ class MapViewer extends Component {
     var new_search = this.searchLocation(defaults);
     let { search, pathname } = this.props.location;
     if (new_search !== search) {
-      this.props.history.push({
+      this.props.history.replace({
         pathname: pathname,
         search: new_search,
       });
