@@ -2231,8 +2231,16 @@ class Plot extends Component {
 
   componentDidMount() {
     var { datasetparameters, dataset, file, data } = this.props;
-    var { xaxis, yaxis, zaxis, decimate, average, display, thresholdStep } =
-      this.state;
+    var {
+      xaxis,
+      yaxis,
+      zaxis,
+      decimate,
+      average,
+      display,
+      thresholdStep,
+      plotdots,
+    } = this.state;
 
     if (data[0] === false) {
       this.setState({ failed: true });
@@ -2297,6 +2305,7 @@ class Plot extends Component {
         display = dataset.plotproperties.display;
       if ("thresholdStep" in dataset.plotproperties)
         thresholdStep = dataset.plotproperties.thresholdStep;
+      if (plotdata[0].x.length < 100) plotdots = true;
 
       this.setState({
         plotdata,
@@ -2332,6 +2341,7 @@ class Plot extends Component {
         timeaxis,
         display,
         thresholdStep,
+        plotdots,
       });
     }
   }
