@@ -42,6 +42,7 @@ class DataDetail extends Component {
     addnewfiles: true,
     iframe: false,
     search: false,
+    maintenance: false,
   };
 
   // Download data
@@ -425,6 +426,7 @@ class DataDetail extends Component {
           timeout: timeout,
         }),
         axios.get(apiUrl + "/selectiontables", { timeout: timeout }),
+        axios.get(apiUrl + "/maintenance/" + dataset_id, { timeout: timeout }),
       ]);
     } catch (error) {
       console.error("NodeJS API error switching to serverless API");
@@ -435,6 +437,7 @@ class DataDetail extends Component {
           serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id
         ),
         axios.get(serverlessUrl + "/selectiontables"),
+        axios.get(serverlessUrl + "/maintenance/" + dataset_id),
       ]).catch((error) => {
         let status = error.response.status;
         if ((status === 404) | (status === 400)) {
@@ -457,6 +460,7 @@ class DataDetail extends Component {
     ); // Remove duplicates
     var datasetparameters = server[2].data;
     var dropdown = server[3].data;
+    var maintenance = server[4].data;
 
     // Internal vs External Data source
     if (mapplotfunction === "gitPlot") {
@@ -597,6 +601,7 @@ class DataDetail extends Component {
         iframe,
         search,
         lang,
+        maintenance,
       });
     } else if (mapplotfunction === "meteolakes") {
       this.setState({
@@ -699,6 +704,7 @@ class DataDetail extends Component {
       search,
       lang,
       dropdown,
+      maintenance,
     } = this.state;
     document.title = dataset.title
       ? dataset.title + " - Datalakes"
@@ -763,6 +769,7 @@ class DataDetail extends Component {
                 downloadMultipleFiles={this.downloadMultipleFiles}
                 iframe={iframe}
                 search={search}
+                maintenance={maintenance}
               />
             </div>
           </React.Fragment>
@@ -866,6 +873,7 @@ class DataDetail extends Component {
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}
                 scripts={scripts}
+                maintenance={maintenance}
               />
             </div>
           </React.Fragment>

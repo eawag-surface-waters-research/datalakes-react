@@ -36,14 +36,20 @@ class ReportIssue extends Component {
   };
 
   updateState = (parameter, event) => {
-    if (!("target" in event)) this.setState({ [parameter]: event });
+    if (event == null) {
+      this.setState({ [parameter]: null });
+    } else if (!("target" in event)) this.setState({ [parameter]: event });
   };
 
   addAllParameters = () => {
     var parameters = this.props.datasetparameters
       .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
       .map((p) => {
-        return { value: p.parameters_id, label: p.name };
+        return {
+          value: p.id,
+          label: p.name + (p.detail !== "none" ? ` (${p.detail})` : ""),
+          id: p.parameters_id,
+        };
       });
     this.setState({ parameters });
   };
@@ -141,15 +147,17 @@ class ReportIssue extends Component {
       window.alert("You must select at least one parameter.");
       return;
     }
-    parameters = parameters.map((p) => p.value);
+    var p = parameters.map((p) => p.id);
+    var dp = parameters.map((p) => p.value);
     var content = {
       id,
       start,
       end,
-      parameters,
+      parameters: p,
       description,
       reporter,
       sensordepths,
+      datasetparameters: dp,
     };
 
     try {
@@ -197,7 +205,11 @@ class ReportIssue extends Component {
     var dp = datasetparameters
       .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
       .map((p) => {
-        return { value: p.parameters_id, label: p.name };
+        return {
+          value: p.id,
+          label: p.name + (p.detail !== "none" ? ` (${p.detail})` : ""),
+          id: p.parameters_id,
+        };
       });
     var sd =
       datasetparameters.filter(
@@ -208,19 +220,20 @@ class ReportIssue extends Component {
     for (let i = 0; i < data.length; i++) {
       let dt = data[i].starttime.toString() + data[i].endtime.toString();
       if (dt in dict) {
-        dict[dt]["parameters"].push(data[i].name);
+        dict[dt]["parameters"].push(data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : ""));
         dict[dt]["id"].push(data[i].id);
       } else {
         dict[dt] = {
           start: data[i].starttime,
           end: data[i].endtime,
-          parameters: [data[i].name],
+          parameters: [data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : "")],
           description: data[i].description,
           id: [data[i].id],
           reporter: data[i].reporter,
         };
       }
     }
+
     var rows = [];
     for (var key in dict) {
       let ids = dict[key].id;
