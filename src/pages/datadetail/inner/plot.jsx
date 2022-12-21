@@ -1287,7 +1287,52 @@ class Plot extends Component {
     }
   };
 
-  selectAxisAndMask = (data, files, file, xaxis, yaxis, zaxis, dp, mask) => {
+  addMaintenance = (data, mask, time, maintenance) => {
+    if (mask === undefined) {
+      if (isArray(data[0])) {
+        mask = Array(data.length)
+          .fill()
+          .map(() => Array(data[0].length).fill(0));
+      } else {
+        mask = new Array(time.length).fill(0);
+      }
+    }
+    for (let i = 0; i < time.length; i++) {
+      for (let j = 0; j < maintenance.length; j++) {
+        if (maintenance[j].start < time[i] && time[i] < maintenance[j].end) {
+          if (isArray(data[0])) {
+            if (time.length === data.length) {
+              for (let k = 0; k < data.length; k++) {
+                mask[i][k] = 1;
+              }
+            } else if (time.length === data[0].length) {
+              for (let k = 0; k < data.length; k++) {
+                mask[k][i] = 1;
+              }
+            }
+          } else {
+            mask[i] = 1;
+          }
+        }
+      }
+    }
+    return mask;
+  };
+
+  selectAxisAndMask = (
+    data,
+    files,
+    file,
+    xaxis,
+    yaxis,
+    zaxis,
+    dp,
+    mask,
+    timeaxis,
+    maintenance,
+    graph
+  ) => {
+    console.log(maintenance)
     var plotdata = [];
     var maskaxis = [];
     var axis = [].concat.apply([], [xaxis, yaxis, zaxis]);
@@ -1305,42 +1350,88 @@ class Plot extends Component {
         maskaxis.push(false);
       }
     }
-    var pd, i, j;
+
+    var iter, pd, j;
     if (files[file[0]].connect === "ind") {
-      for (i = 0; i < file.length; i++) {
+      iter = file;
+    } else {
+      iter = [...Array(data.length).keys()];
+    }
+
+    try {
+      var maintenance_ids = maintenance.map((m) => m.datasetparameters_id);
+      if (graph === "linegraph") {
+        if (String([timeaxis]) === String(xaxis)) {
+          for (let i = 0; i < yaxis.length; i++) {
+            let a = dp.find((d) => d.axis === yaxis[i]).id;
+            if (maintenance_ids.includes(a)) {
+              let idx = axis.findIndex((e) => e === yaxis[i]);
+              console.log(maintenance)
+              let m = maintenance.filter((m) => m.datasetparameters_id === a);
+              console.log(m)
+              for (let i of iter) {
+                if (data[i] !== 0) {
+                  if (maskaxis[idx] === false) {
+                    maskaxis[idx] = axis[i] + "_qual";
+                  }
+                  data[i][maskaxis[idx]] = this.addMaintenance(
+                    data[i][axis[idx]],
+                    data[i][maskaxis[idx]],
+                    data[i][timeaxis],
+                    m
+                  );
+                }
+              }
+            }
+          }
+        }
+      } else if (graph === "heatmap") {
+        if (String([timeaxis]) === String(xaxis)) {
+          let a = dp.find((d) => d.axis === zaxis).id;
+          if (maintenance_ids.includes(a)) {
+            let idx = axis.findIndex((e) => e === zaxis);
+            let m = maintenance.filter(
+              (m) => m.datasetparameters_id === a && m.depths === ""
+            );
+            for (let i of iter) {
+              if (data[i] !== 0) {
+                if (maskaxis[idx] === false) {
+                  maskaxis[idx] = axis[i] + "_qual";
+                }
+                data[i][maskaxis[idx]] = this.addMaintenance(
+                  data[i][axis[idx]],
+                  data[i][maskaxis[idx]],
+                  data[i][timeaxis],
+                  m
+                );
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to add maintenace periods.");
+      console.error(e);
+    }
+
+    for (let i of iter) {
+      if (data[i] !== 0) {
         pd = {};
         for (j = 0; j < axis.length; j++) {
           if (maskaxis) {
             pd[axis[j]] = this.maskArray(
-              data[file[i]][axis[j]],
-              data[file[i]][maskaxis[j]],
+              data[i][axis[j]],
+              data[i][maskaxis[j]],
               mask
             );
           } else {
-            pd[axis[j]] = data[file[i]][axis[j]];
+            pd[axis[j]] = data[i][axis[j]];
           }
         }
         plotdata.push(pd);
       }
-    } else {
-      for (i = 0; i < data.length; i++) {
-        if (data[i] !== 0) {
-          pd = {};
-          for (j = 0; j < axis.length; j++) {
-            if (maskaxis) {
-              pd[axis[j]] = this.maskArray(
-                data[i][axis[j]],
-                data[i][maskaxis[j]],
-                mask
-              );
-            } else {
-              pd[axis[j]] = data[i][axis[j]];
-            }
-          }
-          plotdata.push(pd);
-        }
-      }
     }
+
     return plotdata;
   };
 
@@ -1964,7 +2055,7 @@ class Plot extends Component {
     interpolate
   ) => {
     var { mask, gap } = this.state;
-    var { data, files, file } = this.props;
+    var { data, files, file, maintenance } = this.props;
 
     var plotdata = this.selectAxisAndMask(
       data,
@@ -1974,7 +2065,10 @@ class Plot extends Component {
       yaxis,
       zaxis,
       datasetparameters,
-      mask
+      mask,
+      timeaxis,
+      maintenance,
+      graph
     );
 
     var { minZ: lowerZ, maxZ: upperZ } = this.getZBounds(plotdata);

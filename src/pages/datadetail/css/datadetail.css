@@ -165,7 +165,7 @@ h2 {
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
   border-radius: 5px;
   display: inline-block;
-  max-width: 100%;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -231,6 +231,24 @@ h2 {
   color: #829ab1;
   display: inline-block;
   margin-left: 10px;
+}
+
+.info-mation .description .desc-header {
+  font-size: 20px;
+  padding: 25px 0;
+}
+
+.info-mation .description .desc-warning {
+  font-size: 12px;
+  padding: 15px 0;
+}
+
+.info-mation .description table {
+  width: 100%;
+}
+
+.info-mation .description table td {
+  text-align: center;
 }
 
 .info-contact .contact-icon {

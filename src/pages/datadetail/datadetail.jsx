@@ -462,6 +462,13 @@ class DataDetail extends Component {
     var dropdown = server[3].data;
     var maintenance = server[4].data;
 
+    for (let i = 0; i < maintenance.length; i++) {
+      let start = new Date(maintenance[i].starttime);
+      let end = new Date(maintenance[i].endtime);
+      maintenance[i].start = Math.floor(start.getTime() / 1000);
+      maintenance[i].end = Math.floor(end.getTime() / 1000);
+    }
+
     // Internal vs External Data source
     if (mapplotfunction === "gitPlot") {
       // Add parameter details

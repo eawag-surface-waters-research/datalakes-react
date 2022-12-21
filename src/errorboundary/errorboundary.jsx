@@ -11,12 +11,14 @@ class ErrorBoundary extends Component {
       error: error,
       errorInfo: errorInfo,
     });
-    Sentry.withScope((scope) => {
-      Object.keys(errorInfo).forEach((key) => {
-        scope.setExtra(key, errorInfo[key]);
+    if (!(window.location.href.includes("localhost"))) {
+      Sentry.withScope((scope) => {
+        Object.keys(errorInfo).forEach((key) => {
+          scope.setExtra(key, errorInfo[key]);
+        });
+        Sentry.captureException(error);
       });
-      Sentry.captureException(error);
-    });
+    }
   }
 
   componentDidUpdate(prevProps) {
