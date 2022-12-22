@@ -675,8 +675,6 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
 
   var lang = languageOptions(options.language);
 
-  console.log(options.width);
-
   zoombox.on("mousemove", (event) => {
     try {
       var hoverX =

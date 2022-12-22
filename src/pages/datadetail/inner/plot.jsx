@@ -1332,7 +1332,6 @@ class Plot extends Component {
     maintenance,
     graph
   ) => {
-    console.log(maintenance)
     var plotdata = [];
     var maskaxis = [];
     var axis = [].concat.apply([], [xaxis, yaxis, zaxis]);
@@ -1366,13 +1365,11 @@ class Plot extends Component {
             let a = dp.find((d) => d.axis === yaxis[i]).id;
             if (maintenance_ids.includes(a)) {
               let idx = axis.findIndex((e) => e === yaxis[i]);
-              console.log(maintenance)
               let m = maintenance.filter((m) => m.datasetparameters_id === a);
-              console.log(m)
               for (let i of iter) {
                 if (data[i] !== 0) {
                   if (maskaxis[idx] === false) {
-                    maskaxis[idx] = axis[i] + "_qual";
+                    maskaxis[idx] = axis[idx] + "_qual";
                   }
                   data[i][maskaxis[idx]] = this.addMaintenance(
                     data[i][axis[idx]],
