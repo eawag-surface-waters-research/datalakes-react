@@ -3,7 +3,8 @@ import "./adddataset.css";
 import axios from "axios";
 import Fuse from "fuse.js";
 import { apiUrl } from "../../../src/config.json";
-import AddData from "./steps/adddata";
+import CloneRepository from "./steps/clonerepository";
+import SelectDataset from "./steps/selectdataset";
 import ReviewData from "./steps/reviewdata";
 import ReviewLineage from "./steps/reviewlineage";
 import AddMetadata from "./steps/addmetadata";
@@ -45,6 +46,7 @@ class AddDataset extends Component {
       fileconnect: "no",
       liveconnect: "false",
       renku: "",
+      folder: "",
       accompanyingdata: [],
       mindatetime: "",
       maxdatetime: "",
@@ -64,7 +66,76 @@ class AddDataset extends Component {
     file: {},
   };
 
-  // 0) Get dropdowns
+  cloneRepository = async (id) => {
+    var { dataset, step } = this.state;
+    var post = {};
+    if (id) post = { id };
+
+    // Add blank row to datasets table
+    var { data: new_dataset } = await axios
+      .post(apiUrl + "/datasets", post)
+      .catch((error) => {
+        console.error(error);
+        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+        throw new Error(error.response.data.message);
+      });
+
+    // Clone git repo
+    var { data: clone } = await axios
+      .post(apiUrl + "/gitclone", { ssh: dataset.datasourcelink })
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+        throw new Error("Unable to clone repository please try again.");
+      });
+
+    var clonestatus_id = clone.clonestatus_id;
+    var status = "inprogress";
+    var message = "Starting clone";
+
+    var repeattime = 500;
+    var internalthis = this;
+
+    const clonepromise = new Promise((resolve, reject) => {
+      setTimeout(async function monitor() {
+        try {
+          var { data: clonestatus } = await axios
+            .get(apiUrl + "/gitclone/status/" + clonestatus_id)
+            .catch((error) => {
+              console.error(error.message);
+              this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+              throw new Error("Unable to clone repository please try again.");
+            });
+          ({ status, message } = clonestatus);
+
+          if (status === "failed") {
+            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
+            throw new Error(message);
+          } else if (status === "succeeded") {
+            var clone_data = JSON.parse(message);
+            dataset["id"] = new_dataset.id;
+            dataset["repositories_id"] = clone_data.repo_id;
+            internalthis.setState({
+              allowedStep: [1, 2, 0, 0, 0],
+              step: step + 1,
+              dataset,
+              allFiles: clone_data.allFiles,
+            });
+            return;
+          } else {
+            document.getElementById("adddata-message").innerHTML = message;
+            setTimeout(monitor, repeattime);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      }, repeattime);
+    });
+
+    await clonepromise.catch((error) => {
+      throw new Error(error);
+    });
+  };
 
   getDropdowns = async () => {
     const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
@@ -543,8 +614,13 @@ class AddDataset extends Component {
       } else {
         dp[i].axis_list = this.setDisableAxis(dp[i].axis_list, ["M", "z"]);
       }
-      if (!dp[i].axis_list.filter(a => !a.isDisabled).map((a) => a.name).includes(dp[i].axis)) {
-        dp[i].axis = dp[i].axis_list.filter(a => !a.isDisabled)[0].name;
+      if (
+        !dp[i].axis_list
+          .filter((a) => !a.isDisabled)
+          .map((a) => a.name)
+          .includes(dp[i].axis)
+      ) {
+        dp[i].axis = dp[i].axis_list.filter((a) => !a.isDisabled)[0].name;
       }
     }
     return dp;
@@ -759,7 +835,7 @@ class AddDataset extends Component {
   };
 
   render() {
-    document.title = "Add Data - Datalakes";
+    document.title = "Add Dataset - Datalakes";
     const {
       step,
       allowedStep,
@@ -781,8 +857,8 @@ class AddDataset extends Component {
               setStep={this.setStep}
               allowedStep={allowedStep}
             />
-            <AddData
-              nextStep={this.validateFile}
+            <CloneRepository
+              nextStep={this.cloneRepository}
               handleChange={this.handleDataset}
               dataset={dataset}
             />
@@ -796,14 +872,33 @@ class AddDataset extends Component {
               setStep={this.setStep}
               allowedStep={allowedStep}
             />
-            <AddData
-              nextStep={this.validateFile}
+            <CloneRepository
+              nextStep={this.cloneRepository}
               handleChange={this.handleDataset}
               dataset={dataset}
             />
           </React.Fragment>
         );
       case 2:
+        return (
+          <React.Fragment>
+            <ProgressBar
+              step={step}
+              setStep={this.setStep}
+              allowedStep={allowedStep}
+            />
+            <SelectDataset
+              dataset={dataset}
+              allFiles={allFiles}
+              renkuResponse={renkuResponse}
+              handleAccompanyingData={this.handleAccompanyingData}
+              nextStep={this.validateLineage}
+              prevStep={this.prevStep}
+              handleChange={this.handleDataset}
+            />
+          </React.Fragment>
+        );
+      case 3:
         return (
           <React.Fragment>
             <ProgressBar
@@ -830,7 +925,7 @@ class AddDataset extends Component {
             />
           </React.Fragment>
         );
-      case 3:
+      case 4:
         return (
           <React.Fragment>
             <ProgressBar
@@ -849,7 +944,7 @@ class AddDataset extends Component {
             />
           </React.Fragment>
         );
-      case 4:
+      case 5:
         return (
           <React.Fragment>
             <ProgressBar
@@ -869,7 +964,7 @@ class AddDataset extends Component {
             />
           </React.Fragment>
         );
-      case 5:
+      case 6:
         return (
           <React.Fragment>
             <ProgressBar

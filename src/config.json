@@ -1,5 +1,5 @@
 {
-    "apiUrl": "https://api.datalakes-eawag.ch",
+    "apiUrl": "http://localhost:5000",
     "serverlessUrl": "https://serverless.datalakes-eawag.ch",
     "serverlessUrls": "http://localhost:3000/dev",
     "password": "downloadprivatefiles",

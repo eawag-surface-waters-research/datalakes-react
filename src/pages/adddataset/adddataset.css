@@ -65,12 +65,21 @@
 }
 
 .buttonnav button {
-  border: solid 1px black;
-  background-color: white;
-  margin: 5px;
   cursor: pointer;
-  padding: 4px 8px;
-  width: 120px;
+  border: 1px solid #38bec9;
+  display: inline-block;
+  padding: 6px 24px;
+  border-radius: 16px;
+  margin-left: 16px;
+  color: #38bec9;
+  font-size: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 0 20px 0 0;
+}
+
+.buttonnav button:hover {
+  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .buttonnav {
@@ -87,14 +96,16 @@ form.adddataset-form select {
 }
 
 #git {
-  width: 960px;
+  width: 850px;
   max-width: calc(100% - 20px);
   margin: auto;
+  border-radius: 5px;
 }
 
 .adddataset-form .form-group {
   display: inline-block;
   text-align: center;
+  margin-top: 30px;
   padding: 10px 20px;
   width: 100%;
   box-sizing: border-box;
@@ -214,11 +225,6 @@ table.metadata td {
   margin-top: 30px;
 }
 
-.adddataset-form {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-}
-
 .adddataset-form .welcome-text {
   width: 900px;
   max-width: 100%;
@@ -246,6 +252,7 @@ table.metadata td {
 
 .container-fluid {
   margin-bottom: 50px;
+  padding-top: 30px;
 }
 
 .error-message {

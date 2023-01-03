@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import Loading from "../../../components/loading/loading";
 
-class AddData extends Component {
+class CloneRepository extends Component {
   state = {
     message: "",
     loading: false,
@@ -20,11 +20,11 @@ class AddData extends Component {
       this.setState({
         loading: true,
         message:
-          "Downloading and analysing file. This might take a while for large files.",
+          "Cloning repository. This might take a while for repositories with large datasets.",
       });
       var id = false;
-      if (document.getElementById("id").value !== ""){
-        id = document.getElementById("id").value
+      if (document.getElementById("id").value !== "") {
+        id = document.getElementById("id").value;
       }
       this.props.nextStep(id).catch((error) => {
         console.error(error.message);
@@ -62,39 +62,18 @@ class AddData extends Component {
       <React.Fragment>
         <div className="adddataset-form">
           <div className="welcome-text">
-            <p>
-              Welcome to the Datalakes add dataset portal. Currently we only
-              support connection to git repositories from the following
-              companies: <a href="https://renkulab.io/gitlab">Renkulab.io</a>,{" "}
-              <a href="https://gitlab.com/">GitLab</a> and{" "}
-              <a href="https://github.com/">GitHub</a>.
-            </p>
-            <p>
-              It is important that the repository is either open for public
-              access or you have invited the user <b>EawagDatalakes</b> to have
-              at least Reporter access.{" "}
-              <a href="https://renkulab.io/gitlab/james.runnalls">
-                Renkulab.io
-              </a>
-              , <a href="https://gitlab.com/EawagDatalakes">GitLab</a> and{" "}
-              <a href="https://github.com/eawagdatalakes">GitHub</a>
-            </p>
-            <p>
-              Input data must be in NetCDF format according to the CF
-              convensions. If you wish to upload multiple file to the same
-              dataset they must be of the same format and in the same folder
-              with no other files present.
-            </p>
-            <p>Data must be on the master branch.</p>
-            <p>Enter a link below to the NetCDF file in your git repository.</p>
+            <h3>Welcome to the Datalakes UI for adding new datasets.</h3>
+            Datalakes is a reproducible data portal. As such all datasets should
+            be saved in a git repository. Please provide a link to your
+            repository below.
           </div>
           <div className="form-group">
-            <label htmlFor="git">Link to Git File</label>
+            <label htmlFor="git">Git Repository</label>
             <input
               id="git"
               type="text"
               ref="git"
-              placeholder="https://gitcompany/repo-group/repo-name/blob/master/folders/file-name.nc"
+              placeholder="git@renkulab.io:lexplore/meteostation.git"
               onChange={this.props.handleChange("datasourcelink")}
               defaultValue={dataset.datasourcelink}
             />
@@ -126,4 +105,4 @@ class AddData extends Component {
   }
 }
 
-export default AddData;
+export default CloneRepository;

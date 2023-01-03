@@ -23,6 +23,10 @@
   margin: 4px 0 4px 15px;
 }
 
+.fileselector .folder.selectable {
+  cursor: pointer;
+}
+
 .fileselector .folder .dropdown {
   display: inline-block;
   font-size: 18px;
