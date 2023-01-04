@@ -14,7 +14,7 @@ import ProgressBar from "./progressbar";
 class AddDataset extends Component {
   state = {
     step: 1,
-    allowedStep: [1, 1, 1, 1, 1],
+    allowedStep: [1, 1, 1, 1, 1, 1],
     allFiles: [],
     fileInformation: "",
     renkuResponse: "",
@@ -43,8 +43,8 @@ class AddDataset extends Component {
       },
       citation: "",
       downloads: 0,
-      fileconnect: "no",
-      liveconnect: "false",
+      fileconnect: "time",
+      liveconnect: "true",
       renku: "",
       folder: "",
       accompanyingdata: [],
@@ -76,7 +76,7 @@ class AddDataset extends Component {
       .post(apiUrl + "/datasets", post)
       .catch((error) => {
         console.error(error);
-        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+        this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
         throw new Error(error.response.data.message);
       });
 
@@ -103,20 +103,20 @@ class AddDataset extends Component {
             .get(apiUrl + "/gitclone/status/" + clonestatus_id)
             .catch((error) => {
               console.error(error.message);
-              this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+              this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
               throw new Error("Unable to clone repository please try again.");
             });
           ({ status, message } = clonestatus);
 
           if (status === "failed") {
-            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
+            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
             throw new Error(message);
           } else if (status === "succeeded") {
             var clone_data = JSON.parse(message);
             dataset["id"] = new_dataset.id;
             dataset["repositories_id"] = clone_data.repo_id;
             internalthis.setState({
-              allowedStep: [1, 2, 0, 0, 0],
+              allowedStep: [1, 2, 0, 0, 0, 0],
               step: step + 1,
               dataset,
               allFiles: clone_data.allFiles,
@@ -135,6 +135,98 @@ class AddDataset extends Component {
     await clonepromise.catch((error) => {
       throw new Error(error);
     });
+  };
+
+  selectDataset = async () => {
+    var { dataset, step, dropdown, allFiles } = this.state;
+    if (dataset["folder"] === "") {
+      throw new Error("A folder must be selected.");
+    }
+
+    var reqObj = {
+      id: dataset.id,
+      folder: dataset.folder.value,
+      ssh: dataset.datasourcelink,
+    };
+
+    var { data: gitclone_files } = await axios
+      .post(apiUrl + "/gitclone/files", reqObj)
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
+        throw new Error("Unable to collect files please try again.");
+      });
+
+    var { file, files } = gitclone_files;
+
+    if ("status_id" in gitclone_files) {
+      var status = "inprogress";
+      var message = "Retrieving files";
+
+      var repeattime = 500;
+      var internalthis = this;
+
+      const filepromise = new Promise((resolve, reject) => {
+        setTimeout(async function monitor() {
+          try {
+            var { data: filestatus } = await axios
+              .get(apiUrl + "/gitclone/status/" + gitclone_files.status_id)
+              .catch((error) => {
+                console.error(error.message);
+                this.setState({ allowedStep: [1, 2, 0, 0, 0] });
+                throw new Error("Unable to collect files please try again.");
+              });
+            ({ status, message } = filestatus);
+
+            if (status === "failed") {
+              internalthis.setState({ allowedStep: [1, 2, 0, 0, 0] });
+              throw new Error(message);
+            } else if (status === "succeeded") {
+              resolve();
+            } else {
+              document.getElementById("adddata-message").innerHTML = message;
+              setTimeout(monitor, repeattime);
+            }
+          } catch (e) {
+            reject(e);
+          }
+        }, repeattime);
+      });
+
+      await filepromise.catch((error) => {
+        throw new Error(error);
+      });
+    }
+
+    var { data: fileInformation } = await axios
+      .get(apiUrl + "/files/" + file.id + "?get=metadata")
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
+        throw new Error(
+          "Failed to parse file please check the file structure and try again."
+        );
+      });
+
+    allFiles = allFiles.concat(files.map((f) => f.filelink));
+
+    // Set initial dataset parameters
+    var datasetparameters = this.setDatasetParameters(
+      fileInformation,
+      dropdown
+    );
+
+    this.setState({
+      allowedStep: [1, 2, 3, 0, 0],
+      fileInformation: fileInformation,
+      step: step + 1,
+      allFiles,
+      datasetparameters,
+      files_list: files,
+      file,
+    });
+
+    return;
   };
 
   getDropdowns = async () => {
@@ -803,6 +895,18 @@ class AddDataset extends Component {
     this.setState({ dataset });
   };
 
+  updateDataset = (parameter, value) => {
+    var dataset = this.state.dataset;
+    dataset[parameter] = value;
+    this.setState({ dataset });
+  };
+
+  handleFolder = (event) => {
+    var { dataset } = this.state;
+    dataset.folder = event;
+    this.setState({ dataset });
+  };
+
   handleParameter = (a, b) => (event) => {
     var datasetparameters = this.state.datasetparameters;
     datasetparameters[a][b] = event.target ? event.target.value : event.value;
@@ -890,11 +994,9 @@ class AddDataset extends Component {
             <SelectDataset
               dataset={dataset}
               allFiles={allFiles}
-              renkuResponse={renkuResponse}
-              handleAccompanyingData={this.handleAccompanyingData}
-              nextStep={this.validateLineage}
+              handleFolder={this.handleFolder}
+              nextStep={this.selectDataset}
               prevStep={this.prevStep}
-              handleChange={this.handleDataset}
             />
           </React.Fragment>
         );
@@ -907,6 +1009,7 @@ class AddDataset extends Component {
               allowedStep={allowedStep}
             />
             <ReviewData
+              dataset={dataset}
               datasetparameters={datasetparameters}
               dropdown={dropdown}
               fileconnect={dataset.fileconnect}
@@ -915,6 +1018,7 @@ class AddDataset extends Component {
               files_list={files_list}
               nextStep={this.validateData}
               prevStep={this.prevStep}
+              updateDataset={this.updateDataset}
               handleSelect={this.handleParameter}
               handleChange={this.handleParameter}
               handleDataset={this.handleDataset}

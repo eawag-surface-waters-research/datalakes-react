@@ -65,7 +65,8 @@ class CloneRepository extends Component {
             <h3>Welcome to the Datalakes UI for adding new datasets.</h3>
             Datalakes is a reproducible data portal. As such all datasets should
             be saved in a git repository. Please provide a link to your
-            repository below.
+            repository below. Links must be in the "ssh" format as if you were
+            going to clone your repository.
           </div>
           <div className="form-group">
             <label htmlFor="git">Git Repository</label>

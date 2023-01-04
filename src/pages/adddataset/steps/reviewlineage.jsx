@@ -30,6 +30,7 @@ class ReviewLineage extends Component {
     } = this.props;
     var { accompanyingdata } = dataset;
     const { message } = this.state;
+
     allFiles.sort(function(a, b){
       return b.split("/").length - a.split("/").length;
     })
