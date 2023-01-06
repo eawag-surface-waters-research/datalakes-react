@@ -94,7 +94,7 @@ class Publish extends Component {
         <table className="metadata">
           <tbody>
             <tr>
-              <th>Link to Git Repo</th>
+              <th>File path</th>
               <td>{dataset["datasourcelink"]}</td>
             </tr>
             <tr>

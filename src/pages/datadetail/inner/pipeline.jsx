@@ -6,6 +6,7 @@ import js from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
 import python from "react-syntax-highlighter/dist/esm/languages/hljs/python";
 import r from "react-syntax-highlighter/dist/esm/languages/hljs/r";
 import NetworkGraph from "../../../graphs/d3/networkgraph/networkgraph";
+import { urlFromSsh } from "../../../functions";
 import "../css/datadetail.css";
 
 SyntaxHighlighter.registerLanguage("javascript", js);
@@ -26,10 +27,9 @@ class Pipeline extends Component {
   render() {
     var { dataset, renku, scripts } = this.props;
     var { scriptInt } = this.state;
-    var { datasourcelink } = dataset;
     scripts = scripts.filter((s) => !s.name.includes(".md"));
-    var gitlab = datasourcelink.split("/blob/")[0].replace("/-", "");
-    var renkulab = gitlab.replace("gitlab", "projects");
+    var gitlab = urlFromSsh(dataset.ssh);
+    var renkulab = urlFromSsh(dataset.ssh, (renku = true));
     var downloadlink = apiUrl + "/pipeline/files/" + dataset.id;
     var selectedscript = scripts[scriptInt];
     var nameDict = { js: "javascript", r: "r", py: "python" };
@@ -76,7 +76,7 @@ class Pipeline extends Component {
       }
 
       // Create linage diagram
-      var filepath = datasourcelink.split("/blob/")[1];
+      var filepath = dataset.datasourcelink.split("/blob/")[1];
       filepath = filepath.split("/");
       filepath.shift();
       filepath = filepath.join("/");
@@ -160,16 +160,18 @@ class Pipeline extends Component {
                   <button>GitLab</button>
                 </a>
               </div>
-              <div className="accessOption">
-                3. View on Renkulab.io, interactive environments are availble.
-                <div className="pipeline-private">
-                  Private repositories will require login. Get in touch for
-                  access to private repositories.
+              {renkulab && (
+                <div className="accessOption">
+                  3. View on Renkulab.io, interactive environments are availble.
+                  <div className="pipeline-private">
+                    Private repositories will require login. Get in touch for
+                    access to private repositories.
+                  </div>
+                  <a href={renkulab} target="_blank" rel="noopener noreferrer">
+                    <button>Renkulab</button>
+                  </a>
                 </div>
-                <a href={renkulab} target="_blank" rel="noopener noreferrer">
-                  <button>Renkulab</button>
-                </a>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -205,123 +207,6 @@ class Pipeline extends Component {
         )}
       </div>
     );
-    /*
-      var { edges } = renku.data.lineage;
-
-      function filterEdges(edges, id) {
-        return edges.filter((e) => e.target === id);
-      }
-
-      function findScriptDataset(edges) {
-        var escript = edges.find((e) => {
-          return ["py", "r"].includes(e.source.split(".")[1]);
-        });
-        var edataset = edges.find((e) => e.source !== escript.source);
-        return { escript, edataset };
-      }
-
-      // Create linage diagram
-      var filepath = datasourcelink.split("/blob/")[1];
-      filepath = filepath.split("/");
-      filepath.shift();
-      filepath = filepath.join("/");
-
-      var diagram = [
-        <div key="dat0" className="datasets">
-          {filepath}
-        </div>,
-      ];
-      var i = 1;
-      var j = 0;
-      while (i < 30 && j === 0) {
-        var edge = filterEdges(edges, filepath);
-        if (edge.length === 0) {
-          j = 1;
-        } else if (edge.length === 1) {
-          if (edge[0].source.includes("cwl")) {
-            diagram.unshift(
-              <div key={"coa" + i} className="connector">
-                &#8595;
-              </div>
-            );
-            edge = filterEdges(edges, edge[0].source);
-            var { escript, edataset } = findScriptDataset(edge);
-
-            diagram.unshift(
-              <div key={"scr" + i} className="script">
-                {escript.source}
-              </div>
-            );
-            diagram.unshift(
-              <div key={"cob" + i} className="connector">
-                &#8595;
-              </div>
-            );
-            diagram.unshift(
-              <div key={"dat" + i} className="datasets">
-                {edataset.source}
-              </div>
-            );
-            filepath = edataset.source;
-          }
-        } else if (edge.length > 1) {
-          j = 1;
-        }
-        i++;
-      }
-
-      return (
-        <div className="datadetail-padding">
-          <div className="pipeline">
-            <div className="info-head">Data Pipeline</div>
-            <div>
-              <div className="pipeline-left">{diagram}</div>
-              <div className="pipeline-right">
-                <div className="accessType">
-                  Open Access
-                  <div className="accessOption">
-                    1. Download zipped file of datasets and scripts required to
-                    run pipeline
-                    <a
-                      href={downloadlink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <button>Download</button>
-                    </a>
-                  </div>
-                </div>
-                <div className="accessType">
-                  Access Depends on Project Visibility
-                  <div className="accessOption">
-                    2. View and interact with the full dataset on Renkulab.io.
-                    Interactive environments are availble.
-                    <a
-                      href={renkulab}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <button>Renkulab</button>
-                    </a>
-                  </div>
-                  <div className="accessOption">
-                    3. Clone the git Repository
-                    <a href={gitlab} target="_blank" rel="noopener noreferrer">
-                      <button>GitLab</button>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="networkgraph-outer">
-              <div className="networkgraph-inner">
-                <NetworkGraph data={renku} dataset={dataset} />
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }*/
   }
 }
 

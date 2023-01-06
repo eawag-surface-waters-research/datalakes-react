@@ -8,6 +8,7 @@ import {
 import RasterLegendItem from "../legend/rasterlegenditem";
 import MarkerLegendItem from "../legend/markerlegenditem";
 import LayerObject from "./layerobject";
+import { urlFromSsh } from "../../functions";
 
 class GroupDisplay extends Component {
   state = {};
@@ -25,10 +26,13 @@ class GroupDisplay extends Component {
       markerFixedSize,
       markerSymbol,
       parameters_id,
+      ssh,
     } = display;
     var datasetparameter = datasetparameters.find(
       (dp) => dp.parameters_id === parameters_id
     );
+    var link = datasourcelink;
+    if (ssh !== undefined) link = urlFromSsh(ssh);
     var { unit } = datasetparameter;
     var inner = <div></div>;
     if (mapplot === "marker")
@@ -55,7 +59,7 @@ class GroupDisplay extends Component {
         <div>{description}</div>
         {inner}
         Source:{" "}
-        <a href={datasourcelink} target="_blank" rel="noopener noreferrer">
+        <a href={link} target="_blank" rel="noopener noreferrer">
           {datasource}
         </a>
       </div>

@@ -8,7 +8,9 @@ import depth from "../img/depth.svg";
 import download from "../img/download.svg";
 import citation from "../img/citation.svg";
 import licence from "../img/licence.svg";
+import { urlFromSsh } from '../../../functions';
 import "../css/datadetail.css";
+
 
 class Information extends Component {
   state = {};
@@ -85,6 +87,7 @@ class Information extends Component {
         </tr>
       );
     }
+    urlFromSsh(dataset.ssh)
     return (
       <React.Fragment>
         <div className="info-mation">
@@ -109,7 +112,7 @@ class Information extends Component {
             <div className="data-row">
               <img src={git} alt="git" />
               <a
-                href={dataset.datasourcelink.split("/-/blob")[0]}
+                href={urlFromSsh(dataset.ssh)}
                 target="_blank"
                 rel="noopener noreferrer"
               >
