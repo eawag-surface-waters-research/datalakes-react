@@ -75,8 +75,8 @@ class CloneRepository extends Component {
               type="text"
               ref="git"
               placeholder="git@renkulab.io:lexplore/meteostation.git"
-              onChange={this.props.handleChange("datasourcelink")}
-              defaultValue={dataset.datasourcelink}
+              onChange={this.props.handleChange("ssh")}
+              defaultValue={dataset.ssh}
             />
             <label
               className="optional-id"

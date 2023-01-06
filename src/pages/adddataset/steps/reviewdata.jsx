@@ -69,7 +69,7 @@ class ReviewData extends Component {
 
   toggleConnect = () => {
     var value = "time";
-    if (this.props.dataset.liveconnect === "time") value = "no";
+    if (this.props.dataset.fileconnect === "time") value = "no";
     this.props.updateDataset("fileconnect", value);
   };
 
@@ -196,7 +196,7 @@ class ReviewData extends Component {
           <td>
             <input
               type="checkbox"
-              defaultChecked={row.included}
+              checked={row.included}
               onChange={handleCheck(i, "included")}
             ></input>
           </td>

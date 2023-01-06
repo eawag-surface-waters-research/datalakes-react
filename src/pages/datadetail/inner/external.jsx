@@ -34,7 +34,6 @@ class Information extends Component {
   render() {
     const { dataset, getLabel } = this.props;
     var lake = getLabel("lakes", dataset.lakes_id, "name");
-    console.log(lake);
     return (
       <React.Fragment>
         <div className="info-mation">

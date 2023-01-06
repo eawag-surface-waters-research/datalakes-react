@@ -43,7 +43,6 @@ class Information extends Component {
 
   render() {
     const { dataset, getLabel, scripts, maintenance } = this.props;
-    console.log(maintenance);
     var script = scripts.filter((s) => s.name.includes(".md"));
     var dict = {};
     for (let i = 0; i < maintenance.length; i++) {

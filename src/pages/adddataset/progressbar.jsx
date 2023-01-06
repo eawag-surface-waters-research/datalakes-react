@@ -4,7 +4,7 @@ class ProgressBar extends Component {
   state = {};
   render() {
     const { step, setStep, allowedStep } = this.props;
-    var classes = ["", "", "", "", ""];
+    var classes = ["", "", "", "", "", ""];
     classes[step - 1] = "is-active";
     return (
       <React.Fragment>

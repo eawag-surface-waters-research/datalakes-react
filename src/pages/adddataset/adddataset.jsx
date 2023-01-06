@@ -21,6 +21,7 @@ class AddDataset extends Component {
     dropdown: {},
     dataset: {
       id: "",
+      ssh: "",
       title: "",
       description: "",
       origin: "measurement",
@@ -66,6 +67,8 @@ class AddDataset extends Component {
     file: {},
   };
 
+  // Next step functions
+
   cloneRepository = async (id) => {
     var { dataset, step } = this.state;
     var post = {};
@@ -82,10 +85,10 @@ class AddDataset extends Component {
 
     // Clone git repo
     var { data: clone } = await axios
-      .post(apiUrl + "/gitclone", { ssh: dataset.datasourcelink })
+      .post(apiUrl + "/gitclone", { ssh: dataset.ssh })
       .catch((error) => {
         console.error(error.message);
-        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+        this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
         throw new Error("Unable to clone repository please try again.");
       });
 
@@ -146,18 +149,20 @@ class AddDataset extends Component {
     var reqObj = {
       id: dataset.id,
       folder: dataset.folder.value,
-      ssh: dataset.datasourcelink,
+      ssh: dataset.ssh,
     };
 
     var { data: gitclone_files } = await axios
       .post(apiUrl + "/gitclone/files", reqObj)
       .catch((error) => {
         console.error(error.message);
-        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
+        this.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
         throw new Error("Unable to collect files please try again.");
       });
 
     var { file, files } = gitclone_files;
+    var dl = file.filelink.split("/")
+    dataset["datasourcelink"] = dl.slice(2, dl.length).join("/")
 
     if ("status_id" in gitclone_files) {
       var status = "inprogress";
@@ -173,13 +178,13 @@ class AddDataset extends Component {
               .get(apiUrl + "/gitclone/status/" + gitclone_files.status_id)
               .catch((error) => {
                 console.error(error.message);
-                this.setState({ allowedStep: [1, 2, 0, 0, 0] });
+                this.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
                 throw new Error("Unable to collect files please try again.");
               });
             ({ status, message } = filestatus);
 
             if (status === "failed") {
-              internalthis.setState({ allowedStep: [1, 2, 0, 0, 0] });
+              internalthis.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
               throw new Error(message);
             } else if (status === "succeeded") {
               resolve();
@@ -202,7 +207,7 @@ class AddDataset extends Component {
       .get(apiUrl + "/files/" + file.id + "?get=metadata")
       .catch((error) => {
         console.error(error.message);
-        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
+        this.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
         throw new Error(
           "Failed to parse file please check the file structure and try again."
         );
@@ -217,10 +222,11 @@ class AddDataset extends Component {
     );
 
     this.setState({
-      allowedStep: [1, 2, 3, 0, 0],
+      allowedStep: [1, 2, 3, 0, 0, 0],
       fileInformation: fileInformation,
       step: step + 1,
       allFiles,
+      dataset,
       datasetparameters,
       files_list: files,
       file,
@@ -228,131 +234,6 @@ class AddDataset extends Component {
 
     return;
   };
-
-  getDropdowns = async () => {
-    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
-    this.setState({
-      dropdown,
-    });
-  };
-
-  componentDidMount() {
-    this.getDropdowns();
-  }
-
-  // 1) Process input file
-  validateFile = async (id) => {
-    var { dataset, step, dropdown } = this.state;
-    var post = {};
-    if (id) post = { id };
-    // Add blank row to datasets table
-    var { data: data1 } = await axios
-      .post(apiUrl + "/datasets", post)
-      .catch((error) => {
-        console.error(error);
-        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
-        throw new Error(error.response.data.message);
-      });
-
-    // Clone git repo and add files to files table
-    try {
-      var reqObj = this.parseUrl(dataset.datasourcelink);
-    } catch (error) {
-      throw new Error(
-        "Malformed input url. Please check your input and try again"
-      );
-    }
-
-    reqObj["id"] = data1.id;
-    var { data: clone } = await axios
-      .post(apiUrl + "/gitclone", reqObj)
-      .catch((error) => {
-        console.error(error.message);
-        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
-        throw new Error("Unable to clone repository please try again.");
-      });
-
-    var clonestatus_id = clone.clonestatus_id;
-    var status = "inprogress";
-    var message = "Starting clone";
-
-    var repeattime = 500;
-    var internalthis = this;
-
-    const clonepromise = new Promise((resolve, reject) => {
-      setTimeout(async function monitor() {
-        try {
-          var { data: clonestatus } = await axios
-            .get(apiUrl + "/gitclone/status/" + clonestatus_id)
-            .catch((error) => {
-              console.error(error.message);
-              this.setState({ allowedStep: [1, 0, 0, 0, 0] });
-              throw new Error("Unable to clone repository please try again.");
-            });
-          ({ status, message } = clonestatus);
-
-          if (status === "failed") {
-            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
-            throw new Error(message);
-          } else if (status === "succeeded") {
-            // Parse variable and attribute information from incoming file
-            var data2 = JSON.parse(message);
-            var { repo_id, file, files, allFiles } = data2;
-            var filepath =
-              "git/" + repo_id + "/" + reqObj.dir + "/" + reqObj.file;
-            if (file) {
-              var { data: fileInformation } = await axios
-                .get(apiUrl + "/files/" + file.id + "?get=metadata")
-                .catch((error) => {
-                  console.error(error.message);
-                  internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
-                  throw new Error(
-                    "Failed to parse file please check the file structure and try again."
-                  );
-                });
-            } else {
-              internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
-              throw new Error(
-                "File not found in repository please check the link and try again."
-              );
-            }
-            dataset["id"] = reqObj.id;
-            dataset["repositories_id"] = repo_id;
-            dataset["accompanyingdata"] = [filepath];
-
-            // Set initial dataset parameters
-            var datasetparameters = internalthis.setDatasetParameters(
-              fileInformation,
-              dropdown
-            );
-
-            internalthis.setState({
-              allowedStep: [1, 2, 0, 0, 0],
-              fileInformation: fileInformation,
-              step: step + 1,
-              dataset,
-              allFiles,
-              datasetparameters,
-              files_list: files,
-              file,
-            });
-            return;
-          } else {
-            document.getElementById("adddata-message").innerHTML = message;
-            setTimeout(monitor, repeattime);
-          }
-        } catch (e) {
-          reject(e);
-        }
-      }, repeattime);
-    });
-
-    await clonepromise.catch((error) => {
-      throw new Error(error);
-    });
-  };
-
-  // 2) Validate data parse and get lineage from Renku
 
   validateData = async () => {
     var { step, datasetparameters, dataset, file, files_list } = this.state;
@@ -362,17 +243,8 @@ class AddDataset extends Component {
       console.error(error.message);
     });
 
-    // Check all table filled
-    /*for (var row of datasetparameters) {
-      if (!this.noEmptyString(row)) {
-        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
-        throw new Error("Please complete all the fields.");
-      }
-    }*/
-
     // Lineage from Renku
     dataset["renku"] = 1;
-    var allowedStep = [1, 2, 3, 0, 0];
     step = step + 1;
     var { data: renkuData } = await axios
       .get(apiUrl + "/renku/" + encodeURIComponent(dataset.datasourcelink))
@@ -382,7 +254,6 @@ class AddDataset extends Component {
     if (renkuData && "data" in renkuData) {
       if (renkuData.data.lineage !== null) {
         dataset["renku"] = 0;
-        allowedStep = [1, 2, 3, 0, 0];
       }
     }
 
@@ -464,53 +335,30 @@ class AddDataset extends Component {
       renkuResponse: renkuData,
       datasetparameters,
       dataset,
-      allowedStep,
+      allowedStep: [1, 2, 3, 4, 0, 0],
       step,
     });
     return;
   };
 
-  convertFile = async (apiUrl, id, datasetparameters, fileconnect) => {
-    var { data } = await axios
-      .post(apiUrl + "/convert", {
-        id: id,
-        variables: datasetparameters,
-        fileconnect: fileconnect,
-      })
-      .catch((error) => {
-        console.error(error.message);
-        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
-        throw new Error(
-          "Unable to convert file to JSON format. Please contact the developer."
-        );
-      });
-    return data;
-  };
-
-  // 3) Validate lineage
-
   validateLineage = async () => {
     const { dataset, step } = this.state;
     if (dataset["accompanyingdata"].length > 0) {
-      this.setState({ allowedStep: [1, 2, 3, 4, 0], step: step + 1 });
+      this.setState({ allowedStep: [1, 2, 3, 4, 5, 0], step: step + 1 });
     } else {
       throw new Error("Please add some files.");
     }
     return;
   };
 
-  // 4) Validate metadata
-
   validateMetadata = async () => {
     const { dataset, step } = this.state;
     if (this.noEmptyString(dataset)) {
-      this.setState({ allowedStep: [1, 2, 3, 4, 5], step: step + 1 });
+      this.setState({ allowedStep: [1, 2, 3, 4, 5, 6], step: step + 1 });
     } else {
       throw new Error("Please complete all the fields.");
     }
   };
-
-  // 5) Publish
 
   publish = async () => {
     const { dataset, datasetparameters } = this.state;
@@ -526,6 +374,23 @@ class AddDataset extends Component {
       throw new Error("Failed to publish please try again.");
     });
     window.location.href = "/datadetail/" + dataset.id;
+  };
+
+  convertFile = async (apiUrl, id, datasetparameters, fileconnect) => {
+    var { data } = await axios
+      .post(apiUrl + "/convert", {
+        id: id,
+        variables: datasetparameters,
+        fileconnect: fileconnect,
+      })
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 2, 3, 0, 0, 0] });
+        throw new Error(
+          "Unable to convert file to JSON format. Please contact the developer."
+        );
+      });
+    return data;
   };
 
   // Progress Bar
@@ -730,7 +595,7 @@ class AddDataset extends Component {
       (params.includes(2) || params.includes(18))
     ) {
       let confirm_profile = window.confirm(
-        "Process this file as a single profile (NOT a timeseries)?"
+        "Autoparse thinks this dataset is made up of profiles where each file represents a profile, is this correct?"
       );
       if (confirm_profile) type = "profile";
     }
@@ -918,7 +783,7 @@ class AddDataset extends Component {
   handleParameterCheck = (a, b) => (event) => {
     var { datasetparameters, dataset } = this.state;
     datasetparameters[a][b] = !datasetparameters[a][b];
-    dataset.fileconnect = "no";
+    //dataset.fileconnect = "no";
     this.setState({ datasetparameters, dataset });
   };
 
@@ -937,6 +802,17 @@ class AddDataset extends Component {
       this.setState({ datasetparameters });
     }
   };
+
+  getDropdowns = async () => {
+    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
+    this.setState({
+      dropdown,
+    });
+  };
+
+  componentDidMount() {
+    this.getDropdowns();
+  }
 
   render() {
     document.title = "Add Dataset - Datalakes";
