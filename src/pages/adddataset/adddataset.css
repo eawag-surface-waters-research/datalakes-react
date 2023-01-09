@@ -65,12 +65,22 @@
 }
 
 .buttonnav button {
-  border: solid 1px black;
-  background-color: white;
-  margin: 5px;
   cursor: pointer;
-  padding: 4px 8px;
-  width: 120px;
+  border: 1px solid #38bec9;
+  display: inline-block;
+  padding: 6px 24px;
+  border-radius: 16px;
+  margin-left: 16px;
+  color: #38bec9;
+  font-size: 16px;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 0 20px 0 0;
+}
+
+.buttonnav button:hover {
+  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset,
+    rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .buttonnav {
@@ -87,14 +97,16 @@ form.adddataset-form select {
 }
 
 #git {
-  width: 960px;
+  width: 850px;
   max-width: calc(100% - 20px);
   margin: auto;
+  border-radius: 5px;
 }
 
 .adddataset-form .form-group {
   display: inline-block;
   text-align: center;
+  margin-top: 30px;
   padding: 10px 20px;
   width: 100%;
   box-sizing: border-box;
@@ -126,16 +138,18 @@ form.adddataset-form select {
   text-align: center;
 }
 
-.adddataset-form input.optional-id  {
+.adddataset-form input.optional-id {
   width: 80px;
 }
 
 .repo-connection {
   margin-top: 15px;
+  margin-bottom: 30px;
 }
 
 table.datareview {
-  width: 100%;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
   margin-bottom: 15px;
   border-spacing: 10px;
 }
@@ -212,11 +226,7 @@ table.metadata td {
   max-width: 100%;
   margin: auto;
   margin-top: 30px;
-}
-
-.adddataset-form {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
+  margin-bottom: 20px;
 }
 
 .adddataset-form .welcome-text {
@@ -246,6 +256,7 @@ table.metadata td {
 
 .container-fluid {
   margin-bottom: 50px;
+  padding-top: 30px;
 }
 
 .error-message {
@@ -282,4 +293,66 @@ table.metadata td {
 
 .liveconnection {
   margin-left: 20px;
+}
+
+.adddataset-form .switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+  margin-left: 10px;
+  margin-right: 20px;
+  vertical-align: middle;
+}
+
+.adddataset-form .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.adddataset-form .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.adddataset-form .slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.adddataset-form input:checked + .slider {
+  background-color: #38bec9;
+}
+
+.adddataset-form input:focus + .slider {
+  box-shadow: 0 0 1px #38bec9;
+}
+
+.adddataset-form input:checked + .slider:before {
+  -webkit-transform: translateX(16px);
+  -ms-transform: translateX(16px);
+  transform: translateX(16px);
+}
+
+.adddataset-form .slider.round {
+  border-radius: 34px;
+}
+
+.adddataset-form .slider.round:before {
+  border-radius: 50%;
 }

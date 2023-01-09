@@ -3,7 +3,8 @@ import "./adddataset.css";
 import axios from "axios";
 import Fuse from "fuse.js";
 import { apiUrl } from "../../../src/config.json";
-import AddData from "./steps/adddata";
+import CloneRepository from "./steps/clonerepository";
+import SelectDataset from "./steps/selectdataset";
 import ReviewData from "./steps/reviewdata";
 import ReviewLineage from "./steps/reviewlineage";
 import AddMetadata from "./steps/addmetadata";
@@ -13,13 +14,14 @@ import ProgressBar from "./progressbar";
 class AddDataset extends Component {
   state = {
     step: 1,
-    allowedStep: [1, 1, 1, 1, 1],
+    allowedStep: [1, 1, 1, 1, 1, 1],
     allFiles: [],
     fileInformation: "",
     renkuResponse: "",
     dropdown: {},
     dataset: {
       id: "",
+      ssh: "",
       title: "",
       description: "",
       origin: "measurement",
@@ -42,9 +44,10 @@ class AddDataset extends Component {
       },
       citation: "",
       downloads: 0,
-      fileconnect: "no",
-      liveconnect: "false",
+      fileconnect: "time",
+      liveconnect: "true",
       renku: "",
+      folder: "",
       accompanyingdata: [],
       mindatetime: "",
       maxdatetime: "",
@@ -64,48 +67,28 @@ class AddDataset extends Component {
     file: {},
   };
 
-  // 0) Get dropdowns
+  // Next step functions
 
-  getDropdowns = async () => {
-    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
-    this.setState({
-      dropdown,
-    });
-  };
-
-  componentDidMount() {
-    this.getDropdowns();
-  }
-
-  // 1) Process input file
-  validateFile = async (id) => {
-    var { dataset, step, dropdown } = this.state;
+  cloneRepository = async (id) => {
+    var { dataset, step } = this.state;
     var post = {};
     if (id) post = { id };
+
     // Add blank row to datasets table
-    var { data: data1 } = await axios
+    var { data: new_dataset } = await axios
       .post(apiUrl + "/datasets", post)
       .catch((error) => {
         console.error(error);
-        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+        this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
         throw new Error(error.response.data.message);
       });
 
-    // Clone git repo and add files to files table
-    try {
-      var reqObj = this.parseUrl(dataset.datasourcelink);
-    } catch (error) {
-      throw new Error(
-        "Malformed input url. Please check your input and try again"
-      );
-    }
-
-    reqObj["id"] = data1.id;
+    // Clone git repo
     var { data: clone } = await axios
-      .post(apiUrl + "/gitclone", reqObj)
+      .post(apiUrl + "/gitclone", { ssh: dataset.ssh })
       .catch((error) => {
         console.error(error.message);
-        this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+        this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
         throw new Error("Unable to clone repository please try again.");
       });
 
@@ -123,55 +106,23 @@ class AddDataset extends Component {
             .get(apiUrl + "/gitclone/status/" + clonestatus_id)
             .catch((error) => {
               console.error(error.message);
-              this.setState({ allowedStep: [1, 0, 0, 0, 0] });
+              this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
               throw new Error("Unable to clone repository please try again.");
             });
           ({ status, message } = clonestatus);
 
           if (status === "failed") {
-            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
+            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
             throw new Error(message);
           } else if (status === "succeeded") {
-            // Parse variable and attribute information from incoming file
-            var data2 = JSON.parse(message);
-            var { repo_id, file, files, allFiles } = data2;
-            var filepath =
-              "git/" + repo_id + "/" + reqObj.dir + "/" + reqObj.file;
-            if (file) {
-              var { data: fileInformation } = await axios
-                .get(apiUrl + "/files/" + file.id + "?get=metadata")
-                .catch((error) => {
-                  console.error(error.message);
-                  internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
-                  throw new Error(
-                    "Failed to parse file please check the file structure and try again."
-                  );
-                });
-            } else {
-              internalthis.setState({ allowedStep: [1, 0, 0, 0, 0] });
-              throw new Error(
-                "File not found in repository please check the link and try again."
-              );
-            }
-            dataset["id"] = reqObj.id;
-            dataset["repositories_id"] = repo_id;
-            dataset["accompanyingdata"] = [filepath];
-
-            // Set initial dataset parameters
-            var datasetparameters = internalthis.setDatasetParameters(
-              fileInformation,
-              dropdown
-            );
-
+            var clone_data = JSON.parse(message);
+            dataset["id"] = new_dataset.id;
+            dataset["repositories_id"] = clone_data.repo_id;
             internalthis.setState({
-              allowedStep: [1, 2, 0, 0, 0],
-              fileInformation: fileInformation,
+              allowedStep: [1, 2, 0, 0, 0, 0],
               step: step + 1,
               dataset,
-              allFiles,
-              datasetparameters,
-              files_list: files,
-              file,
+              allFiles: clone_data.allFiles,
             });
             return;
           } else {
@@ -189,7 +140,100 @@ class AddDataset extends Component {
     });
   };
 
-  // 2) Validate data parse and get lineage from Renku
+  selectDataset = async () => {
+    var { dataset, step, dropdown, allFiles } = this.state;
+    if (dataset["folder"] === "") {
+      throw new Error("A folder must be selected.");
+    }
+
+    var reqObj = {
+      id: dataset.id,
+      folder: dataset.folder.value,
+      ssh: dataset.ssh,
+    };
+
+    var { data: gitclone_files } = await axios
+      .post(apiUrl + "/gitclone/files", reqObj)
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
+        throw new Error("Unable to collect files please try again.");
+      });
+
+    var { file, files } = gitclone_files;
+    var dl = file.filelink.split("/")
+    dataset["datasourcelink"] = dl.slice(2, dl.length).join("/")
+
+    if ("status_id" in gitclone_files) {
+      var status = "inprogress";
+      var message = "Retrieving files";
+
+      var repeattime = 500;
+      var internalthis = this;
+
+      const filepromise = new Promise((resolve, reject) => {
+        setTimeout(async function monitor() {
+          try {
+            var { data: filestatus } = await axios
+              .get(apiUrl + "/gitclone/status/" + gitclone_files.status_id)
+              .catch((error) => {
+                console.error(error.message);
+                this.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
+                throw new Error("Unable to collect files please try again.");
+              });
+            ({ status, message } = filestatus);
+
+            if (status === "failed") {
+              internalthis.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
+              throw new Error(message);
+            } else if (status === "succeeded") {
+              resolve();
+            } else {
+              document.getElementById("adddata-message").innerHTML = message;
+              setTimeout(monitor, repeattime);
+            }
+          } catch (e) {
+            reject(e);
+          }
+        }, repeattime);
+      });
+
+      await filepromise.catch((error) => {
+        throw new Error(error);
+      });
+    }
+
+    var { data: fileInformation } = await axios
+      .get(apiUrl + "/files/" + file.id + "?get=metadata")
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 2, 0, 0, 0, 0] });
+        throw new Error(
+          "Failed to parse file please check the file structure and try again."
+        );
+      });
+
+    allFiles = allFiles.concat(files.map((f) => f.filelink));
+
+    // Set initial dataset parameters
+    var datasetparameters = this.setDatasetParameters(
+      fileInformation,
+      dropdown
+    );
+
+    this.setState({
+      allowedStep: [1, 2, 3, 0, 0, 0],
+      fileInformation: fileInformation,
+      step: step + 1,
+      allFiles,
+      dataset,
+      datasetparameters,
+      files_list: files,
+      file,
+    });
+
+    return;
+  };
 
   validateData = async () => {
     var { step, datasetparameters, dataset, file, files_list } = this.state;
@@ -199,17 +243,8 @@ class AddDataset extends Component {
       console.error(error.message);
     });
 
-    // Check all table filled
-    /*for (var row of datasetparameters) {
-      if (!this.noEmptyString(row)) {
-        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
-        throw new Error("Please complete all the fields.");
-      }
-    }*/
-
     // Lineage from Renku
     dataset["renku"] = 1;
-    var allowedStep = [1, 2, 3, 0, 0];
     step = step + 1;
     var { data: renkuData } = await axios
       .get(apiUrl + "/renku/" + encodeURIComponent(dataset.datasourcelink))
@@ -219,7 +254,6 @@ class AddDataset extends Component {
     if (renkuData && "data" in renkuData) {
       if (renkuData.data.lineage !== null) {
         dataset["renku"] = 0;
-        allowedStep = [1, 2, 3, 0, 0];
       }
     }
 
@@ -301,53 +335,30 @@ class AddDataset extends Component {
       renkuResponse: renkuData,
       datasetparameters,
       dataset,
-      allowedStep,
+      allowedStep: [1, 2, 3, 4, 0, 0],
       step,
     });
     return;
   };
 
-  convertFile = async (apiUrl, id, datasetparameters, fileconnect) => {
-    var { data } = await axios
-      .post(apiUrl + "/convert", {
-        id: id,
-        variables: datasetparameters,
-        fileconnect: fileconnect,
-      })
-      .catch((error) => {
-        console.error(error.message);
-        this.setState({ allowedStep: [1, 2, 0, 0, 0] });
-        throw new Error(
-          "Unable to convert file to JSON format. Please contact the developer."
-        );
-      });
-    return data;
-  };
-
-  // 3) Validate lineage
-
   validateLineage = async () => {
     const { dataset, step } = this.state;
     if (dataset["accompanyingdata"].length > 0) {
-      this.setState({ allowedStep: [1, 2, 3, 4, 0], step: step + 1 });
+      this.setState({ allowedStep: [1, 2, 3, 4, 5, 0], step: step + 1 });
     } else {
       throw new Error("Please add some files.");
     }
     return;
   };
 
-  // 4) Validate metadata
-
   validateMetadata = async () => {
     const { dataset, step } = this.state;
     if (this.noEmptyString(dataset)) {
-      this.setState({ allowedStep: [1, 2, 3, 4, 5], step: step + 1 });
+      this.setState({ allowedStep: [1, 2, 3, 4, 5, 6], step: step + 1 });
     } else {
       throw new Error("Please complete all the fields.");
     }
   };
-
-  // 5) Publish
 
   publish = async () => {
     const { dataset, datasetparameters } = this.state;
@@ -363,6 +374,23 @@ class AddDataset extends Component {
       throw new Error("Failed to publish please try again.");
     });
     window.location.href = "/datadetail/" + dataset.id;
+  };
+
+  convertFile = async (apiUrl, id, datasetparameters, fileconnect) => {
+    var { data } = await axios
+      .post(apiUrl + "/convert", {
+        id: id,
+        variables: datasetparameters,
+        fileconnect: fileconnect,
+      })
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ allowedStep: [1, 2, 3, 0, 0, 0] });
+        throw new Error(
+          "Unable to convert file to JSON format. Please contact the developer."
+        );
+      });
+    return data;
   };
 
   // Progress Bar
@@ -543,8 +571,13 @@ class AddDataset extends Component {
       } else {
         dp[i].axis_list = this.setDisableAxis(dp[i].axis_list, ["M", "z"]);
       }
-      if (!dp[i].axis_list.filter(a => !a.isDisabled).map((a) => a.name).includes(dp[i].axis)) {
-        dp[i].axis = dp[i].axis_list.filter(a => !a.isDisabled)[0].name;
+      if (
+        !dp[i].axis_list
+          .filter((a) => !a.isDisabled)
+          .map((a) => a.name)
+          .includes(dp[i].axis)
+      ) {
+        dp[i].axis = dp[i].axis_list.filter((a) => !a.isDisabled)[0].name;
       }
     }
     return dp;
@@ -562,7 +595,7 @@ class AddDataset extends Component {
       (params.includes(2) || params.includes(18))
     ) {
       let confirm_profile = window.confirm(
-        "Process this file as a single profile (NOT a timeseries)?"
+        "Autoparse thinks this dataset is made up of profiles where each file represents a profile, is this correct?"
       );
       if (confirm_profile) type = "profile";
     }
@@ -727,6 +760,18 @@ class AddDataset extends Component {
     this.setState({ dataset });
   };
 
+  updateDataset = (parameter, value) => {
+    var dataset = this.state.dataset;
+    dataset[parameter] = value;
+    this.setState({ dataset });
+  };
+
+  handleFolder = (event) => {
+    var { dataset } = this.state;
+    dataset.folder = event;
+    this.setState({ dataset });
+  };
+
   handleParameter = (a, b) => (event) => {
     var datasetparameters = this.state.datasetparameters;
     datasetparameters[a][b] = event.target ? event.target.value : event.value;
@@ -738,7 +783,7 @@ class AddDataset extends Component {
   handleParameterCheck = (a, b) => (event) => {
     var { datasetparameters, dataset } = this.state;
     datasetparameters[a][b] = !datasetparameters[a][b];
-    dataset.fileconnect = "no";
+    //dataset.fileconnect = "no";
     this.setState({ datasetparameters, dataset });
   };
 
@@ -758,8 +803,19 @@ class AddDataset extends Component {
     }
   };
 
+  getDropdowns = async () => {
+    const { data: dropdown } = await axios.get(apiUrl + "/selectiontables");
+    this.setState({
+      dropdown,
+    });
+  };
+
+  componentDidMount() {
+    this.getDropdowns();
+  }
+
   render() {
-    document.title = "Add Data - Datalakes";
+    document.title = "Add Dataset - Datalakes";
     const {
       step,
       allowedStep,
@@ -781,8 +837,8 @@ class AddDataset extends Component {
               setStep={this.setStep}
               allowedStep={allowedStep}
             />
-            <AddData
-              nextStep={this.validateFile}
+            <CloneRepository
+              nextStep={this.cloneRepository}
               handleChange={this.handleDataset}
               dataset={dataset}
             />
@@ -796,8 +852,8 @@ class AddDataset extends Component {
               setStep={this.setStep}
               allowedStep={allowedStep}
             />
-            <AddData
-              nextStep={this.validateFile}
+            <CloneRepository
+              nextStep={this.cloneRepository}
               handleChange={this.handleDataset}
               dataset={dataset}
             />
@@ -811,7 +867,25 @@ class AddDataset extends Component {
               setStep={this.setStep}
               allowedStep={allowedStep}
             />
+            <SelectDataset
+              dataset={dataset}
+              allFiles={allFiles}
+              handleFolder={this.handleFolder}
+              nextStep={this.selectDataset}
+              prevStep={this.prevStep}
+            />
+          </React.Fragment>
+        );
+      case 3:
+        return (
+          <React.Fragment>
+            <ProgressBar
+              step={step}
+              setStep={this.setStep}
+              allowedStep={allowedStep}
+            />
             <ReviewData
+              dataset={dataset}
               datasetparameters={datasetparameters}
               dropdown={dropdown}
               fileconnect={dataset.fileconnect}
@@ -820,6 +894,7 @@ class AddDataset extends Component {
               files_list={files_list}
               nextStep={this.validateData}
               prevStep={this.prevStep}
+              updateDataset={this.updateDataset}
               handleSelect={this.handleParameter}
               handleChange={this.handleParameter}
               handleDataset={this.handleDataset}
@@ -830,7 +905,7 @@ class AddDataset extends Component {
             />
           </React.Fragment>
         );
-      case 3:
+      case 4:
         return (
           <React.Fragment>
             <ProgressBar
@@ -849,7 +924,7 @@ class AddDataset extends Component {
             />
           </React.Fragment>
         );
-      case 4:
+      case 5:
         return (
           <React.Fragment>
             <ProgressBar
@@ -869,7 +944,7 @@ class AddDataset extends Component {
             />
           </React.Fragment>
         );
-      case 5:
+      case 6:
         return (
           <React.Fragment>
             <ProgressBar

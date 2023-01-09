@@ -61,6 +61,18 @@ class ReviewData extends Component {
     handleDataset(input);
   };
 
+  toggleLive = () => {
+    var value = "false";
+    if (this.props.dataset.liveconnect === "false") value = "true";
+    this.props.updateDataset("liveconnect", value);
+  };
+
+  toggleConnect = () => {
+    var value = "time";
+    if (this.props.dataset.fileconnect === "time") value = "no";
+    this.props.updateDataset("fileconnect", value);
+  };
+
   prevStep = (e) => {
     e.preventDefault();
     this.props.prevStep();
@@ -87,13 +99,10 @@ class ReviewData extends Component {
       handleChange,
       handleCheck,
       handleSelect,
-      files_list,
       liveconnect,
       fileconnect,
-      handleDataset,
       moveParameterUp,
       moveParameterDown,
-      fileInformation,
     } = this.props;
     const { parameters, sensors } = dropdown;
     var { modal, modalValue, message, loading } = this.state;
@@ -136,7 +145,7 @@ class ReviewData extends Component {
           <td>{row.id}</td>
           <td>{row.parseparameter}</td>
           <td>{row.parseUnit}</td>
-          <td>{"["+row.dims.map(d => d.name).join(", ")+"]"}</td>
+          <td>{"[" + row.dims.map((d) => d.name).join(", ") + "]"}</td>
           <td>
             <DataSelect
               table="parameters"
@@ -187,7 +196,7 @@ class ReviewData extends Component {
           <td>
             <input
               type="checkbox"
-              defaultChecked={row.included}
+              checked={row.included}
               onChange={handleCheck(i, "included")}
             ></input>
           </td>
@@ -209,30 +218,35 @@ class ReviewData extends Component {
       );
     }
 
-    // Number of files
-    var noFiles = 0;
-    try {
-      noFiles = files_list.length - 1;
-    } catch (e) {}
-
-    // Multiple files
-    var fT = datasetparameters.filter((dp) => dp.parameters_id === 1);
-    var filesTime =
-      (fT.length > 0 && fT[0].included) ||
-      this.listMatch(Object.keys(fileInformation.attributes), [
-        "time",
-        "datetime",
-        "unix",
-        "unix time",
-        "unix datetime",
-        "date",
-      ]);
-    //var fD = datasetparameters.filter(dp => dp.parameters_id === 2);
-    //var filesDepth = fD.length > 0 && fD[0].included;
-
     return (
       <React.Fragment>
         <form className="adddataset-form" onSubmit={this.nextStep}>
+          <div className="lineage-text">
+            Review the file autoparse to ensure that the file axis and
+            parameters are correct.
+          </div>
+          <div className="file-connection">
+            <label className="switch">
+              <input
+                type="checkbox"
+                onChange={this.toggleConnect}
+                checked={fileconnect === "time"}
+              />
+              <span className="slider round"></span>
+            </label>
+            Connect files along the time axis.
+          </div>
+          <div className="repo-connection">
+            <label className="switch">
+              <input
+                type="checkbox"
+                onChange={this.toggleLive}
+                checked={liveconnect === "true"}
+              />
+              <span className="slider round"></span>
+            </label>
+            Live connection
+          </div>
           <table className="datareview">
             <tbody>
               <tr>
@@ -259,35 +273,6 @@ class ReviewData extends Component {
               {rows}
             </tbody>
           </table>
-          <div className="file-connection">
-            The {noFiles} additional files in my folder
-            <select value={fileconnect} onChange={handleDataset("fileconnect")}>
-              <option value="no">have no relevance to my file.</option>
-              <option value="mix">are a mix of different files.</option>
-              <option value="time" disabled={!filesTime}>
-                are of identical format but vary in time and I would like to
-                combine them.
-              </option>
-              <option value="depth" disabled={true}>
-                are of identical format but vary in depth and I would like to
-                combine them..
-              </option>
-            </select>
-          </div>
-          <div className="repo-connection">
-            I want a
-            <select
-              defaultValue={liveconnect}
-              onChange={handleDataset("liveconnect")}
-            >
-              <option value="false">
-                static (one-off) connection to my repository.
-              </option>
-              <option value="true">
-                live (updating) connection to my repository.
-              </option>
-            </select>
-          </div>
           <div className="error-message">{userMessage}</div>
           <div className="buttonnav">
             <button onClick={this.prevStep}>Back</button>
