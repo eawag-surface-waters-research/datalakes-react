@@ -57,7 +57,7 @@ const plotlinegraph = (div, data, options = {}) => {
     if (data.length < 1) return;
     options = processOptions(div, data, options);
 
-    var { xDomain, yDomain, x2Domain, y2Domain } = dataExtents(data);
+    var { xDomain, yDomain, x2Domain, y2Domain } = dataExtents(data, options);
 
     const context = addCanvas(div, options);
     const svg = addSVG(div, options);
@@ -143,6 +143,10 @@ const processOptions = (div, data, userOptions) => {
     { name: "yUnit", default: false, verify: verifyString },
     { name: "x2Unit", default: false, verify: verifyString },
     { name: "y2Unit", default: false, verify: verifyString },
+    { name: "xMax", default: false, verify: verifyNumber },
+    { name: "yMax", default: false, verify: verifyNumber },
+    { name: "xMin", default: false, verify: verifyNumber },
+    { name: "yMin", default: false, verify: verifyNumber },
     { name: "xLog", default: false, verify: verifyBool },
     { name: "yLog", default: false, verify: verifyBool },
     { name: "scatter", default: false, verify: verifyBool },
@@ -265,7 +269,7 @@ const getDomain = (domain) => {
   return [min, max];
 };
 
-const dataExtents = (data) => {
+const dataExtents = (data, options) => {
   var xdomarr = [];
   var ydomarr = [];
   var y2domarr = [];
@@ -288,6 +292,12 @@ const dataExtents = (data) => {
   var yDomain = getDomain(ydomarr);
   var y2Domain = getDomain(y2domarr);
   var x2Domain = getDomain(x2domarr);
+
+  if (options.xMin) xDomain[0] = options.xMin
+  if (options.xMax) xDomain[1] = options.xMax
+  if (options.yMin) yDomain[0] = options.yMin
+  if (options.yMax) yDomain[1] = options.yMax
+
   return { xDomain, yDomain, x2Domain, y2Domain };
 };
 
@@ -740,7 +750,7 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
                 6 +
                 "px"
             )
-            .attr("class", "tooltip right")
+            .attr("class", "tooltip tooltip-right")
             .style("opacity", 1);
         } else {
           tooltip
@@ -761,7 +771,7 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
                 6 +
                 "px"
             )
-            .attr("class", "tooltip left")
+            .attr("class", "tooltip tooltip-left")
             .style("opacity", 1);
         }
 
