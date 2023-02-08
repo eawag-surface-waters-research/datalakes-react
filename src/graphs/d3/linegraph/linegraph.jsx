@@ -205,6 +205,10 @@ class D3LineGraph extends Component {
       x2units,
       y2label,
       y2units,
+      xmax,
+      xmin,
+      ymax, 
+      ymin,
       xscale,
       yscale,
       bcolor,
@@ -261,6 +265,10 @@ class D3LineGraph extends Component {
       tooltip: !simple,
       setDownloadGraphDiv: "png" + graphid,
     };
+    if (xmax) options["xMax"] = xmax
+    if (xmin) options["xMin"] = xmin
+    if (ymax) options["yMax"] = ymax
+    if (ymin) options["yMin"] = ymin
     plotlinegraph("vis" + graphid, data, options);
   };
 

@@ -290,6 +290,8 @@ class D3HeatMap extends Component {
       data,
       xReverse,
       yReverse,
+      maxvalue,
+      minvalue,
     } = this.props;
 
     const TimeLabels = ["Time", "time", "datetime", "Datetime", "Date", "date"];
@@ -324,8 +326,8 @@ class D3HeatMap extends Component {
     var x_dots = false;
     var y_dots = false;
 
-    if (datax[0].x.length < 100) x_dots = true
-    if (datay[0].y.length < 100) y_dots = true
+    if (datax[0].x.length < 100) x_dots = true;
+    if (datay[0].y.length < 100) y_dots = true;
 
     return (
       <div className={fullscreen ? "vis-main full" : "vis-main"}>
@@ -361,6 +363,8 @@ class D3HeatMap extends Component {
                     ylabel={ylabel}
                     xunits={zunits}
                     yunits={yunits}
+                    xmax={maxvalue}
+                    xmin={minvalue}
                     fontSize={fontSize}
                     xReverse={false}
                     yReverse={yReverse}
