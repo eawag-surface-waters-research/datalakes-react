@@ -10,6 +10,7 @@ import NotFound from "./pages/notfound/notfound";
 import DataPortal from "./pages/dataportal/dataportal";
 import AddDataset from "./pages/adddataset/adddataset";
 import Monitor from "./pages/monitor/monitor";
+import Files from './pages/files/files';
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
 import "./index.css";
 import MapViewer from "./pages/mapviewer/mapviewer";
@@ -45,6 +46,15 @@ class App extends Component {
               render={(props) => (
                 <ErrorBoundary {...props}>
                   <DataPortal {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/files"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <Files {...props} />
                 </ErrorBoundary>
               )}
             />
