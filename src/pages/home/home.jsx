@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import HomepageMap from "../../graphs/leaflet/homepage_map";
 import epfl from "../../img/epfl.png";
 import epflc from "../../img/epflc.png";
 import eawag from "../../img/eawag.png";
@@ -194,7 +193,7 @@ class Home extends Component {
               <div className="box">
                 <div className="box-header">API</div>
                 <div className="box-img">
-                  <img src={api} alt="api"/>
+                  <img src={api} alt="api" />
                 </div>
                 <div className="box-text">
                   Build automated applications that connect to Datalakes through
@@ -226,34 +225,25 @@ class Home extends Component {
             </div>
           </div>
 
-          <div className="section lakesimulations" ref={this.simulation}>
-            <div className="homepagemap">
-              <HomepageMap />
-            </div>
-            <div className="img" id="lakesim">
-              <div className="outer">
-                <div className="inner">
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>
-                          Explore fluctuations of lake temperature and velocity
-                          at incredibly high spatial resolution from our
-                          real-time hydrodynamic lake simulations.
-                          <Link to="/datadetail/14">
-                            <button>Lake Geneva</button>
-                          </Link>
-                          <Link to="/datadetail/11">
-                            <button>Lake Zurich</button>
-                          </Link>
-                          <Link to="/datadetail/15">
-                            <button>Lake Greifen</button>
-                          </Link>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          <div className="sectiontitle" ref={this.accessoptions}>
+            Datalakes is helping drive limnology into the digital era with a
+            step change in reproducability.
+            <div className="acc">
+              <div className="lw">
+                <div className="letter">F</div>
+                <div className="word">indable</div>
+              </div>
+              <div className="lw">
+                <div className="letter">A</div>
+                <div className="word">ccessible</div>
+              </div>
+              <div className="lw">
+                <div className="letter">I</div>
+                <div className="word">nteroperable</div>
+              </div>
+              <div className="lw">
+                <div className="letter">R</div>
+                <div className="word">eusable</div>
               </div>
             </div>
           </div>
@@ -285,29 +275,6 @@ class Home extends Component {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="sectiontitle" ref={this.accessoptions}>
-            Datalakes is helping drive limnology into the digital era with a
-            step change in reproducability.
-            <div className="acc">
-              <div className="lw">
-                <div className="letter">F</div>
-                <div className="word">indable</div>
-              </div>
-              <div className="lw">
-                <div className="letter">A</div>
-                <div className="word">ccessible</div>
-              </div>
-              <div className="lw">
-                <div className="letter">I</div>
-                <div className="word">nteroperable</div>
-              </div>
-              <div className="lw">
-                <div className="letter">R</div>
-                <div className="word">eusable</div>
               </div>
             </div>
           </div>

@@ -9,6 +9,30 @@
   overflow: auto;
 }
 
+.colortable table button {
+  cursor: pointer;
+  border: 1px solid #38bec9;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 16px;
+  color: #38bec9;
+  font-size: 14px;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.colortable table button:hover {
+  box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset,
+    rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+
+.colortable table input[type="text"] {
+  border-radius: 16px;
+  padding: 3px 10px;
+  border: 1px solid black;
+}
+
 form.colortable table input {
   width: 100%;
 }
