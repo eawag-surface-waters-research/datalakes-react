@@ -1,25 +1,34 @@
 .colormanipulation-outer {
   height: 100%;
+  margin-bottom: 10px;
+  background-color: rgb(249,249,249);
+  border-radius: 5px;
 }
 
 .colormanipulation-headerbar {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.colormanipulation-outer input[type="color"] {
+  width: 100%;
 }
 
 .colormanipulation-header {
   display: inline-block;
-  padding: 15px;
-  padding: 5px;
-  margin: 1px 15px 1px 1px;
+  padding: 8px 18px;
   cursor: pointer;
 }
 
 .colormanipulation-header:hover {
-  border: 1px solid;
-  margin: 0 14px 0 0;
+  color: white;
+  background-color: #38bec9;
 }
 
 .colormanipulation-header.header-active {
-  border: 1px solid;
-  margin: 0 14px 0 0;
+  color: white;
+  background-color: #38bec9;
+}
+
+.colormanipulation-content {
+  padding:5px
 }

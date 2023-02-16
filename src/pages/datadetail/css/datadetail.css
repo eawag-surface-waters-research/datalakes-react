@@ -784,7 +784,7 @@ h2 {
   }
 
   .datadetail-title {
-    font-size: 22px;
+    font-size: 17px;
     font-weight: 400;
     max-height: 30px;
   }
@@ -1059,8 +1059,9 @@ h2 {
   display: inline-block;
   vertical-align: top;
   margin-right: 15px;
-  max-height: 300px;
+  max-height: 270px;
   overflow-y: auto;
+  margin-top: 18px;
 }
 
 .remotesensingdownload .downloadinner th {
@@ -1072,9 +1073,11 @@ h2 {
 .remotesensingdownload .downloadinner tbody {
 }
 
-.remotesensingdownload .downloadinner button {
-  margin: 0;
-  padding: 2px 15px;
+.remotesensingdownload .downloadinner button.download-rs {
+  margin: 2px;
+  border-radius: 16px;
+  color: #38bec9;
+  border-color: #38bec9;
 }
 
 .remotesensingdownload .downloadinner table td {

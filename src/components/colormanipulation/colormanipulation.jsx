@@ -62,34 +62,26 @@ class ColorManipulation extends Component {
           >
             Table
           </div>
-          {/*<div
-            className={
-              manipulation === "slider"
-                ? "colormanipulation-header header-active"
-                : "colormanipulation-header"
-            }
-            onClick={() => this.setManipulation("slider")}
-          >
-            Slider
-          </div>*/}
         </div>
-        {manipulation === "solid" && (
-          <ColorSolid onChange={onChange} colors={colors} />
-        )}
-        {manipulation === "ramp" && (
-          <ColorRamp onChange={onChange} colors={colors} />
-        )}
-        {manipulation === "table" && (
-          <ColorTable
-            onChange={onChange}
-            colors={colors}
-            array={array}
-            autoOptimise={true}
-          />
-        )}
-        {manipulation === "slider" && (
-          <ColorSlider onChange={onChange} colors={colors} array={array} />
-        )}
+        <div className="colormanipulation-content">
+          {manipulation === "solid" && (
+            <ColorSolid onChange={onChange} colors={colors} />
+          )}
+          {manipulation === "ramp" && (
+            <ColorRamp onChange={onChange} colors={colors} />
+          )}
+          {manipulation === "table" && (
+            <ColorTable
+              onChange={onChange}
+              colors={colors}
+              array={array}
+              autoOptimise={true}
+            />
+          )}
+          {manipulation === "slider" && (
+            <ColorSlider onChange={onChange} colors={colors} array={array} />
+          )}
+        </div>
       </div>
     );
   }

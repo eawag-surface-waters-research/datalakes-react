@@ -34,7 +34,7 @@ ul.maplayers-list {
 
 .maplayers-dropdown .maplayers-dropdown-table {
   width: 100%;
-  background-color: #f2f5f7;
+  background-color: rgb(249, 249, 249);
   padding: 5px;
   box-shadow: rgb(0 0 0 / 24%) 0px 3px 8px;
   box-sizing: border-box;
@@ -127,6 +127,7 @@ ul.maplayers-list {
 .editsettings-button {
   width: 100%;
   text-align: center;
+  margin-top: 10px;
 }
 
 .editsettings-button button {

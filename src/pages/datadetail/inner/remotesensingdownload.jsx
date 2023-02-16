@@ -76,14 +76,9 @@ class RemoteSensingDownload extends Component {
               " " +
               file.mindatetime.toLocaleDateString()}
           </td>
-          <td title="Download JSON">
-            <a href={file.filelink}>
-              <button>JSON</button>
-            </a>
-          </td>
           <td title="Download NetCDF">
             <a href={file.nc}>
-              <button>NetCDF</button>
+              <button className="download-rs">Download</button>
             </a>
           </td>
         </tr>
@@ -120,6 +115,7 @@ class RemoteSensingDownload extends Component {
 
         <div className="info-title">Download</div>
         <div className="remotesensingdownload">
+          Use the calender below to select your desired time period and then specific products can be downloaded.
           <div className="downloadinner">
             <Calendar
               selectRange={true}
@@ -135,7 +131,7 @@ class RemoteSensingDownload extends Component {
                 <tr>
                   <th>Satellite</th>
                   <th>Datetime</th>
-                  <th colSpan="2">Download</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>{table_inner}</tbody>
