@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import folder from "./img/folder.svg";
 import download from "../../img/download.svg";
+import axios from "axios";
+import { apiUrl } from "../../config.json";
 import "./fileexplorer.css";
 
 class Header extends Component {
@@ -17,7 +19,8 @@ class Header extends Component {
     }
   };
   render() {
-    var { dir, headerClick, selected, size } = this.props;
+    var { dir, headerClick, selected, size, loading, downloadClick } =
+      this.props;
     return (
       <div className="file-explorer-header-inner">
         <div
@@ -37,8 +40,29 @@ class Header extends Component {
             </div>
           </React.Fragment>
         ))}
-        <div className="file-explorer-header-inner-selected">
-          Download {selected.length} selected files ({this.transformSize(size)})
+        <div
+          className={
+            loading
+              ? "file-explorer-header-inner-selected active"
+              : "file-explorer-header-inner-selected"
+          }
+        >
+          {loading ? (
+            <React.Fragment>
+              <div className="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+              <div className="lds-text">Zipping files...</div>
+            </React.Fragment>
+          ) : (
+            <div onClick={downloadClick}>
+              Download {selected.length} selected files (
+              {this.transformSize(size)})
+            </div>
+          )}
         </div>
       </div>
     );
@@ -81,16 +105,21 @@ class ListView extends Component {
                 ? "file-explorer-content-list-object selected"
                 : "file-explorer-content-list-object"
             }
-            title={f.name}
-            onClick={() => objectClick(f)}
+            title="Select file"
+            onClick={(e) => objectClick(f, e)}
             key={`list_${f.name}_${i}`}
           >
             <div className="list-object-img">
               {f.children.length > 0 ? (
                 <img src={folder} alt="Folder" />
               ) : (
-                <a href={`${prefix}/${f.name}`} title="Download file">
-                  <img src={download} alt="Download file" />
+                <a
+                  href={`${prefix}/${f.name}`}
+                  title="Download file"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={download} alt="Download file" id="download" />
                 </a>
               )}
             </div>
@@ -110,8 +139,10 @@ class FileExplorer extends Component {
     dir: [],
     selected: [],
     size: 0,
+    loading: false,
   };
-  objectClick = (object) => {
+  objectClick = (object, event) => {
+    if (event.target.id === "download") return;
     var { dir, selected, size } = this.state;
     if (object.children.length === 0) {
       let path = `${dir.join("/")}/${object.name}`;
@@ -143,12 +174,59 @@ class FileExplorer extends Component {
       this.setState({ dir: new_dir });
     }
   };
-  downloadClick = () => {
-    console.log("Download files");
-    this.setState({ selected: [], size: 0 });
+  promisedSetState = (newState) =>
+    new Promise((resolve) => this.setState(newState, resolve));
+  downloadClick = async () => {
+    const { selected, size } = this.state;
+    if (size > 2000000000) {
+      alert(
+        "The download interface can only be used for downloading < 200 MB of data. Please use the scripts provided in the git repository to download larger volumes."
+      );
+      return
+    }
+    if (selected.length > 0) {
+      const { bucket, repo, prefix } = this.props;
+      var pre = prefix.split(".com/")[1];
+      await this.promisedSetState({ loading: true });
+      try {
+        var body = {
+          bucket,
+          zip: repo,
+          keys: selected.map((s) => `${pre}/${s}`.replace("//", "/")),
+        };
+        const { data } = await axios.post(apiUrl + "/s3zip", body);
+        var timesRun = 0;
+        var interval = setInterval(async () => {
+          timesRun += 1;
+          if (timesRun === 20) {
+            clearInterval(interval);
+            alert("Request timed out, please try with less data.");
+          }
+          try {
+            var { data: status } = await axios.get(data.status_link);
+          } catch (e) {
+            console.log("Link not yet generated.");
+          }
+          if (status === "Complete") {
+            clearInterval(interval);
+            const link = document.createElement("a");
+            link.style.display = "none";
+            link.href = data.download_link;
+            link.targe = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            this.setState({ selected: [], size: 0, loading: false });
+          }
+        }, 1000);
+      } catch (e) {
+        console.error(e);
+        alert("Download failed.");
+        this.setState({ selected: [], size: 0, loading: false });
+      }
+    }
   };
   render() {
-    var { dir, selected, size } = this.state;
+    var { dir, selected, size, loading } = this.state;
     var { prefix } = this.props;
 
     var files = this.props.file_tree;
@@ -164,13 +242,14 @@ class FileExplorer extends Component {
             downloadClick={this.downloadClick}
             selected={selected}
             size={size}
+            loading={loading}
           />
         </div>
         <div className="file-explorer-content">
           <ListView
             files={files}
             objectClick={this.objectClick}
-            prefix={`${prefix}/${dir.join("/")}`}
+            prefix={`${prefix}${dir.length > 0 ? "/" : ""}${dir.join("/")}`}
             dir={dir.join("/")}
             selected={selected}
           />

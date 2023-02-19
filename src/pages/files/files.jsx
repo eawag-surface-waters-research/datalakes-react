@@ -43,6 +43,8 @@ class Files extends Component {
           prefix={
             "https://eawag-data.s3.eu-central-1.amazonaws.com/renkulab.io/lexplore/idronaut-automatic-profiler/data"
           }
+          bucket={"eawag-data"}
+          repo={"idronaut-automatic-profiler"}
         />
       </div>
     );
