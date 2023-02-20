@@ -10,10 +10,9 @@ import NotFound from "./pages/notfound/notfound";
 import DataPortal from "./pages/dataportal/dataportal";
 import AddDataset from "./pages/adddataset/adddataset";
 import Monitor from "./pages/monitor/monitor";
-import Files from './pages/files/files';
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
-import "./index.css";
 import MapViewer from "./pages/mapviewer/mapviewer";
+import "./index.css";
 
 const AsyncDataDetail = asyncComponent(() =>
   import("./pages/datadetail/datadetail")
@@ -49,16 +48,7 @@ class App extends Component {
                 </ErrorBoundary>
               )}
             />
-
-            <Route
-              path="/files"
-              render={(props) => (
-                <ErrorBoundary {...props}>
-                  <Files {...props} />
-                </ErrorBoundary>
-              )}
-            />
-
+            
             <Route
               path="/datadetail"
               render={(props) => (

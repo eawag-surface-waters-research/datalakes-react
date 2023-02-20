@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { apiUrl, serverlessUrl } from "../../../src/config.json";
+import { apiUrl, serverlessUrl, bucket } from "../../../src/config.json";
 import axios from "axios";
 import * as d3 from "d3";
 import Download from "./inner/download";
@@ -33,6 +33,7 @@ class DataDetail extends Component {
     lower: "",
     upper: "",
     files: [],
+    file_tree: [],
     data: "",
     step: "",
     lang: "en",
@@ -391,6 +392,39 @@ class DataDetail extends Component {
     }
   };
 
+  async getFileTree(bucket_url, ssh) {
+    var path = ssh.replace("git@", "").replace(".git", "").replace(":", "/");
+    var prefix = `${bucket_url}/${path}/data`;
+    var repo = ssh.split("/")[1].replace(".git", "");
+    try {
+      const { data } = await axios.get(
+        `${bucket_url}/${path}/filelist.json?timestamp=${new Date().getTime()}`
+      );
+
+      let file_tree = [];
+      let level = { file_tree };
+
+      data.forEach((path) => {
+        let arr = path.k.split("/");
+        arr.reduce((r, name, i, a) => {
+          if (!r[name]) {
+            r[name] = { file_tree: [] };
+            r.file_tree.push({
+              name,
+              size: i === arr.length - 1 ? path.s : 0,
+              children: r[name].file_tree,
+            });
+          }
+
+          return r[name];
+        }, level);
+      });
+      this.setState({ file_tree, prefix, repo });
+    } catch (e) {
+      console.error("No file tree data available");
+    }
+  }
+
   async componentDidMount() {
     this._isMounted = true;
     var { step, allowedStep, lower, upper } = this.state;
@@ -467,6 +501,11 @@ class DataDetail extends Component {
       let end = new Date(maintenance[i].endtime);
       maintenance[i].start = Math.floor(start.getTime() / 1000);
       maintenance[i].end = Math.floor(end.getTime() / 1000);
+    }
+
+    // Check for file tree
+    if (!dataset.datasourcelink.includes("https://")) {
+      this.getFileTree(bucket.url, dataset.ssh);
     }
 
     // Internal vs External Data source
@@ -712,6 +751,9 @@ class DataDetail extends Component {
       lang,
       dropdown,
       maintenance,
+      file_tree,
+      prefix,
+      repo,
     } = this.state;
     document.title = dataset.title
       ? dataset.title + " - Datalakes"
@@ -845,6 +887,9 @@ class DataDetail extends Component {
                 max={maxdatetime}
                 min={mindatetime}
                 apiUrl={apiUrl}
+                file_tree={file_tree}
+                prefix={prefix}
+                repo={repo}
               />
             </div>
           </React.Fragment>
