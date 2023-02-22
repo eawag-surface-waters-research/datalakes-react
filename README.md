@@ -6,7 +6,7 @@ Datalakes is a collaboration between a number of Swiss institutions to facilitat
 
 [www.datalakes-eawag.ch](https://www.datalakes-eawag.ch/)
 
-![Home Page](https://runnalls.s3.eu-central-1.amazonaws.com/datalakes-home.png)
+![Home Page](https://runnalls.s3.eu-central-1.amazonaws.com/datalakes.png)
 
 ## Custom Deployment
 
