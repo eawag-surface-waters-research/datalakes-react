@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import SliderDouble from "../../../components/sliders/sliderdouble";
 import Loading from "../../../components/loading/loading";
+import FileExplorer from "../../../components/fileexplorer/fileexplorer";
+import { bucket } from "../../../../src/config.json";
 import axios from "axios";
 import "../css/datadetail.css";
 
@@ -111,6 +113,9 @@ class Download extends Component {
       files,
       selectedFiles,
       datasetparameters,
+      file_tree,
+      prefix,
+      repo,
     } = this.props;
     var { upper, lower, loading } = this.state;
     var csv =
@@ -147,64 +152,102 @@ class Download extends Component {
         )}
 
         <div className="info-title">Download</div>
-
-        <div className="multipledownload">
-          {files.length > 1 && (
-            <div>
-              {loading && (
-                <div className="download-loading">
-                  Sending download request...
-                  <Loading />
+        <div>
+          Select all files for a given time period.
+          <div className="multipledownload">
+            {files.length > 1 && (
+              <div>
+                {loading && (
+                  <div className="download-loading">
+                    Sending download request...
+                    <Loading />
+                  </div>
+                )}
+                <SliderDouble
+                  onChange={this.onChangeTime}
+                  onChangeLower={this.onChangeLower}
+                  onChangeUpper={this.onChangeUpper}
+                  min={min}
+                  max={max}
+                  lower={lower}
+                  upper={upper}
+                  files={files}
+                />
+                <div className="selected-download">
+                  {selectedArray.length} of {files.length} files selected for
+                  download.
                 </div>
-              )}
-              <SliderDouble
-                onChange={this.onChangeTime}
-                onChangeLower={this.onChangeLower}
-                onChangeUpper={this.onChangeUpper}
-                min={min}
-                max={max}
-                lower={lower}
-                upper={upper}
-                files={files}
-              />
-              <div className="selected-download">
-                {selectedArray.length} of {files.length} files selected for
-                download.
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="subheading">Select file type for download.</div>
-          <button
-            onClick={() =>
-              this.downloadFiles("nc", apiUrl, selectedArray, dataset.title)
-            }
-            className="download-button"
-            title="Download datasets in NetCDF format"
-          >
-            NetCDF
-          </button>
-          <button
-            onClick={() =>
-              this.downloadFiles("json", apiUrl, selectedArray, dataset.title)
-            }
-            className="download-button"
-            title="Download datasets in JSON format"
-          >
-            JSON
-          </button>
-          {csv && (
+            <div className="subheading">Select file type for download.</div>
             <button
               onClick={() =>
-                this.downloadFiles("csv", apiUrl, selectedArray, dataset.title)
+                this.downloadFiles("nc", apiUrl, selectedArray, dataset.title)
               }
               className="download-button"
-              title="Download datasets in CSV format"
+              title="Download datasets in NetCDF format"
             >
-              CSV (Beta)
+              NetCDF
             </button>
-          )}
+            <button
+              onClick={() =>
+                this.downloadFiles("json", apiUrl, selectedArray, dataset.title)
+              }
+              className="download-button"
+              title="Download datasets in JSON format"
+            >
+              JSON
+            </button>
+            {csv && (
+              <button
+                onClick={() =>
+                  this.downloadFiles(
+                    "csv",
+                    apiUrl,
+                    selectedArray,
+                    dataset.title
+                  )
+                }
+                className="download-button"
+                title="Download datasets in CSV format"
+              >
+                CSV (Beta)
+              </button>
+            )}
+          </div>
         </div>
+
+        {file_tree.length > 0 && (
+          <div>
+            Explore all files in the repository.
+            <table>
+            <tbody>
+              <tr>
+                <th>Level 0</th>
+                <td>Raw data</td>
+              </tr>
+              <tr>
+                <th>Level 1</th>
+                <td>Reformatted to NetCDF and quality assurance applied</td>
+              </tr>
+              <tr>
+                <th>Level 2</th>
+                <td>Resampled, interpolated, combined or further processed datasets</td>
+              </tr>
+            </tbody>
+          </table>
+            <div className="download-fileexplorer">
+              <FileExplorer
+                file_tree={file_tree}
+                prefix={prefix}
+                bucket={bucket.name}
+                repo={repo}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="info-title">Parse Data</div>
         <div className="parsedata">
           <p>

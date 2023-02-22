@@ -1012,6 +1012,17 @@ h2 {
   position: relative;
   box-shadow: 1px 1px 10px rgb(211 209 209) inset;
   border-radius: 5px;
+  margin-top: 10px;
+}
+
+.download-fileexplorer {
+  background-color: rgb(249, 249, 249);
+  padding-top: 10px;
+  position: relative;
+  box-shadow: 1px 1px 10px rgb(211 209 209) inset;
+  border-radius: 5px;
+  height: 500px;
+  margin-top: 10px;
 }
 
 .multipledownload .subheading {
