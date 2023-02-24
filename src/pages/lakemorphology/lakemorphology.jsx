@@ -27,7 +27,7 @@ class LakeMorphologyGraph extends Component {
     var download = JSON.parse(JSON.stringify(morphology));
     delete download.id;
     var keys = Object.keys(download).filter((k) => k !== "Source");
-    var csv = `data:text/csv;charset=utf-8, ${keys
+    var csv = `data:text/csv;charset=utf-8,${keys
       .map((d) => `${d} (${download[d].unit})`)
       .join(",")}\n`;
     for (var i = 0; i < download["Depth"].values.length; i++) {
