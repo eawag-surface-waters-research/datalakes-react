@@ -109,7 +109,7 @@ class LakeMorphologyGraph extends Component {
       );
 
       var xlabel = xlabels[0];
-      if (xlabels.includes("Isobath Area")) xlabel = "Isobath Area";
+      if (xlabels.includes("Area")) xlabel = "Area";
 
       var { data, xunits, yunits } = this.prepareGraph(
         xlabel,
