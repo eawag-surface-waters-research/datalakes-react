@@ -95,6 +95,7 @@ class AddDataset extends Component {
     var clonestatus_id = clone.clonestatus_id;
     var status = "inprogress";
     var message = "Starting clone";
+    var repeat = 5;
 
     var repeattime = 500;
     var internalthis = this;
@@ -102,32 +103,38 @@ class AddDataset extends Component {
     const clonepromise = new Promise((resolve, reject) => {
       setTimeout(async function monitor() {
         try {
-          var { data: clonestatus } = await axios
+          var clonestatus = await axios
             .get(apiUrl + "/gitclone/status/" + clonestatus_id)
             .catch((error) => {
               console.error(error.message);
-              this.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
-              throw new Error("Unable to clone repository please try again.");
+              if (repeat === 0) {
+                throw new Error("Unable to clone repository please try again.");
+              } else {
+                repeat = repeat - 1;
+                setTimeout(monitor, 1000);
+              }
             });
-          ({ status, message } = clonestatus);
+          if (clonestatus) {
+            ({ status, message } = clonestatus.data);
 
-          if (status === "failed") {
-            internalthis.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
-            throw new Error(message);
-          } else if (status === "succeeded") {
-            var clone_data = JSON.parse(message);
-            dataset["id"] = new_dataset.id;
-            dataset["repositories_id"] = clone_data.repo_id;
-            internalthis.setState({
-              allowedStep: [1, 2, 0, 0, 0, 0],
-              step: step + 1,
-              dataset,
-              allFiles: clone_data.allFiles,
-            });
-            return;
-          } else {
-            document.getElementById("adddata-message").innerHTML = message;
-            setTimeout(monitor, repeattime);
+            if (status === "failed") {
+              internalthis.setState({ allowedStep: [1, 0, 0, 0, 0, 0] });
+              throw new Error(message);
+            } else if (status === "succeeded") {
+              var clone_data = JSON.parse(message);
+              dataset["id"] = new_dataset.id;
+              dataset["repositories_id"] = clone_data.repo_id;
+              internalthis.setState({
+                allowedStep: [1, 2, 0, 0, 0, 0],
+                step: step + 1,
+                dataset,
+                allFiles: clone_data.allFiles,
+              });
+              return;
+            } else {
+              document.getElementById("adddata-message").innerHTML = message;
+              setTimeout(monitor, repeattime);
+            }
           }
         } catch (e) {
           reject(e);
@@ -136,6 +143,7 @@ class AddDataset extends Component {
     });
 
     await clonepromise.catch((error) => {
+      console.log(error);
       throw new Error(error);
     });
   };
@@ -161,8 +169,8 @@ class AddDataset extends Component {
       });
 
     var { file, files } = gitclone_files;
-    var dl = file.filelink.split("/")
-    dataset["datasourcelink"] = dl.slice(2, dl.length).join("/")
+    var dl = file.filelink.split("/");
+    dataset["datasourcelink"] = dl.slice(2, dl.length).join("/");
 
     if ("status_id" in gitclone_files) {
       var status = "inprogress";
