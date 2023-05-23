@@ -22,6 +22,8 @@ import {
   zoom as d3zoom,
   format,
   timeFormatDefaultLocale,
+  curveBasis,
+  curveLinear,
 } from "d3";
 
 import {
@@ -81,7 +83,7 @@ const plotlinegraph = (div, data, options = {}) => {
 
     var plot = addPlottingArea(div, svg, options);
     if (options.legend) addLegend(svg, div, data, options);
-    if (options.lines) plotLines(div, plot, data, xAxis, yAxis);
+    if (options.lines) plotLines(div, plot, data, xAxis, yAxis, options);
     if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
     if (options.zoom) addZoom(plot, context, data, div, xAxis, yAxis, options);
     if (options.tooltip) addTooltip(data, div, xAxis, yAxis, options);
@@ -167,6 +169,7 @@ const processOptions = (div, data, userOptions) => {
     { name: "setDownloadGraph", default: false, verify: verifyFunction },
     { name: "setDownloadGraphDiv", default: false, verify: verifyString },
     { name: "hover", default: false, verify: verifyFunction },
+    { name: "curve", default: false, verify: verifyBool },
     {
       name: "backgroundColor",
       default: false,
@@ -293,10 +296,10 @@ const dataExtents = (data, options) => {
   var y2Domain = getDomain(y2domarr);
   var x2Domain = getDomain(x2domarr);
 
-  if (options.xMin) xDomain[0] = options.xMin
-  if (options.xMax) xDomain[1] = options.xMax
-  if (options.yMin) yDomain[0] = options.yMin
-  if (options.yMax) yDomain[1] = options.yMax
+  if (options.xMin) xDomain[0] = options.xMin;
+  if (options.xMax) xDomain[1] = options.xMax;
+  if (options.yMin) yDomain[0] = options.yMin;
+  if (options.yMax) yDomain[1] = options.yMax;
 
   return { xDomain, yDomain, x2Domain, y2Domain };
 };
@@ -840,7 +843,7 @@ const downloadGraph = (div, options) => {
   title.style("opacity", "0");
 };
 
-const plotLines = (div, g, data, xAxis, yAxis) => {
+const plotLines = (div, g, data, xAxis, yAxis, options) => {
   g.selectAll("path").remove();
   for (let j = 0; j < data.length; j++) {
     plotConfidenceInterval(
@@ -850,6 +853,8 @@ const plotLines = (div, g, data, xAxis, yAxis) => {
       yAxis[data[j].yaxis]
     );
   }
+  var curve = curveLinear;
+  if (options.curve) curve = curveBasis;
   for (let j = 0; j < data.length; j++) {
     g.append("path")
       .datum(data[j].x)
@@ -866,6 +871,7 @@ const plotLines = (div, g, data, xAxis, yAxis) => {
           .y(function (d, i) {
             return yAxis[data[j].yaxis].ax(data[j].y[i]);
           })
+          .curve(curve)
           .defined(function (d, i) {
             if (
               isNumeric(xAxis[data[j].xaxis].ax(d)) &&

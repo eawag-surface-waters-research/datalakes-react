@@ -207,7 +207,7 @@ class D3LineGraph extends Component {
       y2units,
       xmax,
       xmin,
-      ymax, 
+      ymax,
       ymin,
       xscale,
       yscale,
@@ -224,6 +224,7 @@ class D3LineGraph extends Component {
       box,
       grid,
       language,
+      curve,
     } = this.props;
     var { graphid, fontSize } = this.state;
     if (this.props.header !== false) fontSize = this.props.fontSize;
@@ -265,10 +266,11 @@ class D3LineGraph extends Component {
       tooltip: !simple,
       setDownloadGraphDiv: "png" + graphid,
     };
-    if (xmax) options["xMax"] = xmax
-    if (xmin) options["xMin"] = xmin
-    if (ymax) options["yMax"] = ymax
-    if (ymin) options["yMin"] = ymin
+    if (xmax) options["xMax"] = xmax;
+    if (xmin) options["xMin"] = xmin;
+    if (ymax) options["yMax"] = ymax;
+    if (ymin) options["yMin"] = ymin;
+    if (curve) options["curve"] = curve;
     plotlinegraph("vis" + graphid, data, options);
   };
 

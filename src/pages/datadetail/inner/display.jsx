@@ -5,6 +5,23 @@ import D3LineGraph from "../../../graphs/d3/linegraph/linegraph";
 import "../css/display.css";
 
 class Display extends Component {
+  calculateMovingAverage = (array, windowSize) => {
+    if (windowSize <= 0 || windowSize > array.length) {
+      throw new Error("Window size is invalid");
+    }
+
+    const movingAverages = [];
+
+    for (let i = 0; i < array.length; i++) {
+      const windowStart = Math.max(0, i - windowSize + 1);
+      const window = array.slice(windowStart, i + 1);
+      const sum = window.reduce((acc, num) => acc + num, 0);
+      const average = sum / window.length;
+      movingAverages.push(average);
+    }
+
+    return movingAverages;
+  };
   render() {
     var {
       graph,
@@ -63,6 +80,11 @@ class Display extends Component {
       } catch (e) {
         console.error(e);
       }
+      try {
+       plotdata[0].y = this.calculateMovingAverage(plotdata[0].y, 10);
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     var head = (
@@ -71,7 +93,9 @@ class Display extends Component {
           <div className="value">{value}°C</div>
           <div className="time">Last reading: {time} ago</div>
           <div className="title">{title}</div>
-          <a href={window.location.href.split("?")[0]} ><button>More info</button></a>
+          <a href={window.location.href.split("?")[0]}>
+            <button>More info</button>
+          </a>
         </div>
 
         <div>
@@ -188,6 +212,7 @@ class Display extends Component {
                 fontSize={14}
                 language={lang}
                 border={true}
+                curve={true}
               />
             </div>
           </div>
