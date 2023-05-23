@@ -18,6 +18,7 @@ import isInteger from "lodash/isInteger";
 import ReportIssue from "../../../components/reportissue/reportissue";
 import Connect from "../img/connect.svg";
 import Bafu from "./bafu";
+import Display from "./display";
 
 class Graph extends Component {
   render() {
@@ -2538,6 +2539,16 @@ class Plot extends Component {
             Downloading extra files.
           </div>
           <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX} />
+        </React.Fragment>
+      );
+    } else if (this.props.search.toLowerCase().includes("display")) {
+      return (
+        <React.Fragment>
+          <div className="detailloading" id="detailloading">
+            <Loading />
+            Downloading extra files.
+          </div>
+          <Display {...this.state} {...this.props} onChangeX={this.onChangeX} />
         </React.Fragment>
       );
     } else {

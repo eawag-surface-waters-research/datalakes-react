@@ -1,0 +1,118 @@
+.display {
+    width: 100%;
+    height: calc(100% - 50px);
+    overflow: auto;
+    left: 0;
+    top: 50px;
+    position: fixed;
+    background-color: white;
+    z-index: 9;
+}
+
+.display .graph {
+    height: calc(55% - 75px);
+    width: 100%;
+    min-height: 180px;
+    padding: 0 48px;
+    box-sizing: border-box;
+}
+
+.display .header {
+    position: relative;
+    text-align: center;
+    background: linear-gradient(60deg, rgba(84, 58, 183, 1) 0%, rgba(0, 172, 193, 1) 100%);
+    color: white;
+    height: calc(45% + 75px);
+}
+
+.display .inner-header {
+    height: calc(100% - 150px);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.display .inner-header .value {
+    font-size: 72px;
+    padding-top: 8%;
+}
+
+.display .inner-header .time {
+    font-size: 12px;
+}
+
+.display .inner-header .title {
+    font-size: 18px;
+}
+
+.display .inner-header button {
+    color: white;
+    border-color: white;
+}
+
+.display .flex {
+    /*Flexbox for containers*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.display .waves {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    margin-bottom: -7px;
+    /*Fix for safari gap*/
+    min-height: 100px;
+    max-height: 150px;
+}
+
+/* Animation */
+
+.display .parallax>use {
+    animation: move-forever 25s cubic-bezier(.55, .5, .45, .5) infinite;
+}
+
+.display .parallax>use:nth-child(1) {
+    animation-delay: -2s;
+    animation-duration: 7s;
+}
+
+.display .parallax>use:nth-child(2) {
+    animation-delay: -3s;
+    animation-duration: 10s;
+}
+
+.display .parallax>use:nth-child(3) {
+    animation-delay: -4s;
+    animation-duration: 13s;
+}
+
+.display .parallax>use:nth-child(4) {
+    animation-delay: -5s;
+    animation-duration: 20s;
+}
+
+@keyframes move-forever {
+    0% {
+        transform: translate3d(-90px, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(85px, 0, 0);
+    }
+}
+
+/*Shrinking for mobile*/
+@media (max-width: 500px) {
+    .display {
+        height: calc(100% - 104px);
+        top: 41px;
+    }
+
+    .display .graph {
+        padding: 0 12px;
+    }
+
+}
