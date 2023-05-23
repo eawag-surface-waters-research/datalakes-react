@@ -64,12 +64,15 @@ class Display extends Component {
     var value = "";
     var time = "";
 
-    if (plotdata.length > 0) {
+    var data = JSON.parse(JSON.stringify(plotdata));
+
+    if (data.length > 0) {
       try {
-        value = plotdata[0].y[plotdata[0].y.length - 1];
-        let y = plotdata[0].x[plotdata[0].x.length - 1];
+        data[0].x = data[0].x.map((d) => new Date(d));
+        value = data[0].y[data[0].y.length - 1];
+        let x = data[0].x[data[0].x.length - 1];
         var now = new Date();
-        let diff = now - y;
+        let diff = now - x;
         if (diff < 1000 * 3600) {
           time = `${Math.round(diff / (1000 * 60))} minutes`;
         } else if (diff < 1000 * 3600 * 24) {
@@ -81,7 +84,7 @@ class Display extends Component {
         console.error(e);
       }
       try {
-       plotdata[0].y = this.calculateMovingAverage(plotdata[0].y, 10);
+        data[0].y = this.calculateMovingAverage(data[0].y, 10);
       } catch (e) {
         console.error(e);
       }
@@ -159,7 +162,7 @@ class Display extends Component {
             {head}
             <div className="graph">
               <D3HeatMap
-                data={plotdata}
+                data={data}
                 title={title}
                 xlabel={xlabel}
                 ylabel={ylabel}
@@ -191,7 +194,7 @@ class Display extends Component {
             {head}
             <div className="graph">
               <D3LineGraph
-                data={plotdata}
+                data={data}
                 confidence={confidence}
                 title={title}
                 legend={legend}
