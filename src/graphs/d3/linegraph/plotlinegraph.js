@@ -1102,7 +1102,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
         yAxis.y2.axis.scale(yAxis.y2.ax);
         yAxis.y2.g.call(yAxis.y2.axis);
       }
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis);
+      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
       if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
       xAxis.x.ref = xAxis.x.ax;
       if (options.dualaxis === "x2") xAxis.x2.ref = xAxis.x2.ax;
@@ -1119,7 +1119,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       xAxis.x.ax = t.rescaleX(xAxis.x.ref);
       xAxis.x.axis.scale(xAxis.x.ax);
       xAxis.x.g.call(xAxis.x.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis);
+      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
       if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
       xAxis.x.ref = xAxis.x.ax;
       zoomboxx.call(zoom.transform, zoomIdentity);
@@ -1133,7 +1133,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       xAxis.x2.ax = t.rescaleX(xAxis.x2.ref);
       xAxis.x2.axis.scale(xAxis.x2.ax);
       xAxis.x2.g.call(xAxis.x2.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis);
+      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
       if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
       xAxis.x2.ref = xAxis.x2.ax;
       zoomboxx2.call(zoom.transform, zoomIdentity);
@@ -1147,7 +1147,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       yAxis.y.ax = t.rescaleY(yAxis.y.ref);
       yAxis.y.axis.scale(yAxis.y.ax);
       yAxis.y.g.call(yAxis.y.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis);
+      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
       if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
       yAxis.y.ref = yAxis.y.ax;
       zoomboxy.call(zoom.transform, zoomIdentity);
@@ -1161,7 +1161,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       yAxis.y2.ax = t.rescaleY(yAxis.y2.ref);
       yAxis.y2.axis.scale(yAxis.y2.ax);
       yAxis.y2.g.call(yAxis.y2.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis);
+      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
       if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
       yAxis.y2.ref = yAxis.y2.ax;
       zoomboxy2.call(zoom.transform, zoomIdentity);
@@ -1190,7 +1190,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       yAxis.y2.axis.scale(yAxis.y2.base);
       yAxis.y2.g.call(yAxis.y2.axis);
     }
-    if (options.lines) plotLines(div, g, data, xAxis, yAxis);
+    if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
     if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
     if (options.grid) editTicks(xAxis, yAxis);
   });
