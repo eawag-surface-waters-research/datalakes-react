@@ -434,49 +434,38 @@ class AddDataset extends Component {
     var dir;
     var branch;
     var file;
-    url = url.replace("/-/", "/");
-    if (url.includes("renkulab.io/gitlab")) {
-      const path = url.split("/blob/")[1].split("/");
-      const loc = url.split("/blob/")[0].split("/");
-      const repo = loc[loc.length - 1];
+  
+    if (url.includes("https://")) {
+      var url_split = url.replace("/-/", "/").split("/blob/");
+      var path = url_split[1].split("/");
+      var loc = url_split[0].split("/");
+      var repo = loc[loc.length - 1];
       branch = path[0];
-      ssh =
-        "git@renkulab.io:" +
-        url.split("/blob/")[0].split("renkulab.io/gitlab/").pop() +
-        ".git";
       dir = path.slice(1, path.length - 1);
       dir.unshift(repo);
       dir = dir.join("/");
       file = path[path.length - 1];
-    } else if (url.includes("github.com")) {
-      const path = url.split("/blob/")[1].split("/");
-      const loc = url.split("/blob/")[0].split("/");
-      const repo = loc[loc.length - 1];
-      branch = path[0];
-      ssh =
-        "git@github.com:" +
-        url.split("/blob/")[0].split("github.com/").pop() +
-        ".git";
-      dir = path.slice(1, path.length - 1);
-      dir.unshift(repo);
-      dir = dir.join("/");
-      file = path[path.length - 1];
-    } else if (url.includes("gitlab.com")) {
-      const path = url.split("/blob/")[1].split("/");
-      const loc = url.split("/blob/")[0].split("/");
-      const repo = loc[loc.length - 1];
-      branch = path[0];
-      ssh =
-        "git@gitlab.com:" +
-        url.split("/blob/")[0].split("gitlab.com/").pop() +
-        ".git";
-      dir = path.slice(1, path.length - 1);
-      dir.unshift(repo);
-      dir = dir.join("/");
-      file = path[path.length - 1];
+      if (url.includes("renkulab.io/gitlab")) {
+        ssh =
+          "git@renkulab.io:" +
+          url.split("/blob/")[0].split("renkulab.io/gitlab/").pop() +
+          ".git";
+      } else if (url.includes("gitlab.renkulab.io")) {
+        ssh =
+          "git@gitlab.renkulab.io:" +
+          url_split[0].split("gitlab.renkulab.io/").pop() +
+          ".git";
+      } else if (url.includes("github.com")) {
+        ssh =
+          "git@github.com:" + url_split[0].split("github.com/").pop() + ".git";
+      } else if (url.includes("gitlab.com")) {
+        ssh =
+          "git@gitlab.com:" + url_split[0].split("gitlab.com/").pop() + ".git";
+      }
     } else {
       alert("Repository type not recognised.");
     }
+  
     return {
       ssh: ssh,
       dir: dir,
