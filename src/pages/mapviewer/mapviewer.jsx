@@ -15,7 +15,7 @@ class MapViewer extends Component {
           out[split[0]] = new Date(split[1] * 1000);
         } else if (["depth", "zoom"].includes(split[0])) {
           out[split[0]] = parseFloat(split[1]);
-        } else if (split[0] === "basemap") {
+        } else if (["basemap", "menu", "legend"].includes(split[0])) {
           out[split[0]] = split[1];
         }
       } catch (e) {

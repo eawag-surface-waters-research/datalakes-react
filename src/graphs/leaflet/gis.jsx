@@ -121,6 +121,7 @@ class GIS extends Component {
     modaldetail: "",
     lakejson: false,
     plotDatasets: false,
+    legend: false,
   };
 
   togglePlotDataset = () => {
@@ -137,6 +138,10 @@ class GIS extends Component {
     this.setState({ menu: true }, () => {
       window.dispatchEvent(new Event("resize"));
     });
+  };
+
+  toggleLegend = () => {
+    this.setState({ legend: !this.state.legend });
   };
 
   hideTimeDepthModal = () => {
@@ -1097,11 +1102,20 @@ class GIS extends Component {
 
   async componentDidMount() {
     // Defaults
-    var { lakejson, plotDatasets } = this.state;
+    var { lakejson, plotDatasets, menu, legend } = this.state;
+    var { defaults } = this.props;
     var { selected, hidden, datetime, depth, zoom, center, basemap, timestep } =
       this.setDefaults();
 
     if ("timestep" in this.props) timestep = this.props.timestep;
+
+    if ("menu" in defaults) {
+      menu = defaults.menu === "visible";
+    }
+
+    if ("legend" in defaults) {
+      legend = defaults.legend === "visible";
+    }
 
     // Get data
     try {
@@ -1167,6 +1181,8 @@ class GIS extends Component {
         timestep,
         lakes: server[3].data,
         plotDatasets,
+        menu,
+        legend,
       });
     } catch (error) {
       console.error(error);
@@ -1181,7 +1197,7 @@ class GIS extends Component {
   }
 
   render() {
-    var { menu } = this.state;
+    var { menu, legend } = this.state;
     var hidelayerbutton = false;
     if (this.props.hidelayerbutton) hidelayerbutton = true;
     return (
@@ -1247,7 +1263,11 @@ class GIS extends Component {
           </div>
         </div>
         <div className={menu ? "map" : "map min"}>
-          <Legend selectedlayers={this.state.selectedlayers} open={false} />
+          <Legend
+            selectedlayers={this.state.selectedlayers}
+            open={legend}
+            toggleLegend={this.toggleLegend}
+          />
           <Basemap
             selectedlayers={this.state.selectedlayers}
             basemap={this.state.basemap}

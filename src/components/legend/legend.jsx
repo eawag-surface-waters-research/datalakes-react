@@ -4,15 +4,8 @@ import MarkerLegendItem from "./markerlegenditem";
 import RasterLegendItem from "./rasterlegenditem";
 
 class Legend extends Component {
-  state = {
-    open: this.props.open,
-  };
-  toggle = () => {
-    this.setState({ open: !this.state.open });
-  };
   render() {
-    var { open } = this.state;
-    var { selectedlayers } = this.props;
+    var { selectedlayers, toggleLegend, open } = this.props;
     var legendmaplayers = selectedlayers.filter((layer) => layer.legend);
     var inner = [];
     var l;
@@ -83,7 +76,7 @@ class Legend extends Component {
         <div className={open ? "legend" : "legend hide"}>
           <div
             className="legend-title"
-            onClick={this.toggle}
+            onClick={toggleLegend}
             title={open ? "Hide legend" : "Show legend"}
           >
             <div className="legend-title-text">Legend</div>
