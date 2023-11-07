@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import axios from "axios";
-import { apiUrl } from "../../../config.json";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 import "../css/datadetail.css";
@@ -61,7 +59,7 @@ class ThreeDModelDownload extends Component {
   };
 
   async componentDidMount() {
-    var { id, mindatetime, maxdatetime } = this.props.dataset;
+    var { mindatetime, maxdatetime } = this.props.dataset;
 
     const dates = {};
     let currentDate = new Date(mindatetime);
@@ -83,7 +81,7 @@ class ThreeDModelDownload extends Component {
 
   render() {
     const { getLabel, dataset } = this.props;
-    var { mindatetime, maxdatetime, id, datasourcelink } = dataset;
+    var { mindatetime, maxdatetime, datasourcelink } = dataset;
     let arr = datasourcelink.split("/");
     var lake = arr[arr.length - 1];
     mindatetime = new Date(mindatetime);

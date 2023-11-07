@@ -64,6 +64,91 @@ class Basemap extends Component {
     return [lat, lng];
   };
 
+  UTMtoWGSlatlng = (yx, zoneNum = 32) => {
+    const easting = yx[0];
+    const northing = yx[1];
+    var K0 = 0.9996;
+
+    var E = 0.00669438;
+    var E2 = Math.pow(E, 2);
+    var E3 = Math.pow(E, 3);
+    var E_P2 = E / (1 - E);
+
+    var SQRT_E = Math.sqrt(1 - E);
+    var _E = (1 - SQRT_E) / (1 + SQRT_E);
+    var _E2 = Math.pow(_E, 2);
+    var _E3 = Math.pow(_E, 3);
+    var _E4 = Math.pow(_E, 4);
+    var _E5 = Math.pow(_E, 5);
+
+    var M1 = 1 - E / 4 - (3 * E2) / 64 - (5 * E3) / 256;
+    // var M2 = (3 * E) / 8 + (3 * E2) / 32 + (45 * E3) / 1024;
+    // var M3 = (15 * E2) / 256 + (45 * E3) / 1024;
+    // var M4 = (35 * E3) / 3072;
+
+    var P2 = (3 / 2) * _E - (27 / 32) * _E3 + (269 / 512) * _E5;
+    var P3 = (21 / 16) * _E2 - (55 / 32) * _E4;
+    var P4 = (151 / 96) * _E3 - (417 / 128) * _E5;
+    var P5 = (1097 / 512) * _E4;
+
+    var R = 6378137;
+    var x = easting - 500000;
+    var y = northing;
+
+    var m = y / K0;
+    var mu = m / (R * M1);
+
+    var pRad =
+      mu +
+      P2 * Math.sin(2 * mu) +
+      P3 * Math.sin(4 * mu) +
+      P4 * Math.sin(6 * mu) +
+      P5 * Math.sin(8 * mu);
+
+    var pSin = Math.sin(pRad);
+    var pSin2 = Math.pow(pSin, 2);
+
+    var pCos = Math.cos(pRad);
+
+    var pTan = Math.tan(pRad);
+    var pTan2 = Math.pow(pTan, 2);
+    var pTan4 = Math.pow(pTan, 4);
+
+    var epSin = 1 - E * pSin2;
+    var epSinSqrt = Math.sqrt(epSin);
+
+    var n = R / epSinSqrt;
+    var r = (1 - E) / epSin;
+
+    var c = _E * pCos * pCos;
+    var c2 = c * c;
+
+    var d = x / (n * K0);
+    var d2 = Math.pow(d, 2);
+    var d3 = Math.pow(d, 3);
+    var d4 = Math.pow(d, 4);
+    var d5 = Math.pow(d, 5);
+    var d6 = Math.pow(d, 6);
+
+    var latitude =
+      pRad -
+      (pTan / r) *
+        (d2 / 2 - (d4 / 24) * (5 + 3 * pTan2 + 10 * c - 4 * c2 - 9 * E_P2)) +
+      (d6 / 720) *
+        (61 + 90 * pTan2 + 298 * c + 45 * pTan4 - 252 * E_P2 - 3 * c2);
+    var longitude =
+      (d -
+        (d3 / 6) * (1 + 2 * pTan2 + c) +
+        (d5 / 120) *
+          (5 - 2 * c + 28 * pTan2 - 3 * c2 + 8 * E_P2 + 24 * pTan4)) /
+      pCos;
+
+    return [
+      (latitude / Math.PI) * 180,
+      (longitude / Math.PI) * 180 + (zoneNum - 1) * 6 - 180 + 3,
+    ];
+  };
+
   movingAverage = (data, size) => {
     function pointsInRadius(quadtree, x, y, radius) {
       const result = [];
@@ -342,49 +427,51 @@ class Basemap extends Component {
     if (!br && tl) br = oppositePoint(op, tl);
     if (!tr && bl) tr = oppositePoint(op, bl);
     if (tl && bl && br && tr) {
+      var project = function (xy) {
+        return xy;
+      };
       if (locationformat === "CH1903") {
-        return [
-          this.CHtoWGSlatlng(tl),
-          this.CHtoWGSlatlng(bl),
-          this.CHtoWGSlatlng(br),
-          this.CHtoWGSlatlng(tr),
-        ];
-      } else {
-        return [tl, bl, br, tr];
+        project = this.CHtoWGSlatlng;
+      } else if (locationformat === "UTM") {
+        project = this.UTMtoWGSlatlng;
       }
+      return [project(tl), project(bl), project(br), project(tr)];
     } else {
       return false;
     }
   };
 
   prepareContourData = (data, locationformat) => {
+    var project = function (xy) {
+      return xy;
+    };
     if (locationformat === "CH1903") {
-      var x = [];
-      var y = [];
-      for (let i = 0; i < data["t"]["data"].length; i++) {
-        var xx = [];
-        var yy = [];
-        for (let j = 0; j < data["t"]["data"][0].length; j++) {
-          if (data["t"]["data"][i][j]) {
-            let latlng = this.CHtoWGSlatlng([data["x"]["data"][i][j], data["y"]["data"][i][j]]);
-            xx.push(latlng[1]);
-            yy.push(latlng[0]);
-          } else {
-            xx.push(null);
-            yy.push(null);
-          }
-        }
-        x.push(xx);
-        y.push(yy);
-      }
-      return { x, y, z: data["t"]["data"] };
-    } else {
-      return {
-        x: data["x"]["data"],
-        y: data["y"]["data"],
-        z: data["t"]["data"],
-      };
+      project = this.CHtoWGSlatlng;
+    } else if (locationformat === "UTM") {
+      project = this.UTMtoWGSlatlng;
     }
+    var x = [];
+    var y = [];
+    for (let i = 0; i < data["t"]["data"].length; i++) {
+      var xx = [];
+      var yy = [];
+      for (let j = 0; j < data["t"]["data"][0].length; j++) {
+        if (data["t"]["data"][i][j]) {
+          let latlng = project([
+            data["x"]["data"][i][j],
+            data["y"]["data"][i][j],
+          ]);
+          xx.push(latlng[1]);
+          yy.push(latlng[0]);
+        } else {
+          xx.push(null);
+          yy.push(null);
+        }
+      }
+      x.push(xx);
+      y.push(yy);
+    }
+    return { x, y, z: data["t"]["data"] };
   };
 
   onEachContour = (info, datetime, depth, url) => {
@@ -437,7 +524,8 @@ class Basemap extends Component {
     var url = "https://www.datalakes-eawag.ch/datadetail/" + datasets_id;
     var polygons, i, j, coords, value, valuestring, pixelcolor;
     var map = this.map;
-    if (parameters_id === 5) { // Temperature plot
+    if (parameters_id === 5) {
+      // Temperature plot
       if (contour) {
         var contourData = this.prepareContourData(data, locationformat);
         var contours = L.contour(contourData, {
@@ -511,7 +599,8 @@ class Basemap extends Component {
         this.map.fitBounds(this.raster[0].getBounds());
         this.zoomedtolayer = true;
       }
-    } else if (parameters_id === 25) { // Velocity plot
+    } else if (parameters_id === 25) {
+      // Velocity plot
       if (vectorMagnitude) {
         polygons = [];
         for (i = 1; i < data["x"]["data"].length - 1; i++) {
@@ -636,7 +725,7 @@ class Basemap extends Component {
         } else if (datasets_id === 17) {
           radius = 1000;
         }
-        var vectordata = this.parseVectorData(data, radius);
+        var vectordata = this.parseVectorData(data, radius, locationformat);
 
         var vectors;
         if (Object.keys(this.vectorfieldanim).includes(id)) {
@@ -1038,7 +1127,7 @@ class Basemap extends Component {
     return months[date.getMonth()] + date.getFullYear();
   };
 
-  parseVectorData = (data, radius) => {
+  parseVectorData = (data, radius, locationformat) => {
     function createAndFillTwoDArray({ rows, columns, defaultValue }) {
       return Array.from({ length: rows }, () =>
         Array.from({ length: columns }, () => defaultValue)
@@ -1101,8 +1190,17 @@ class Basemap extends Component {
         }
       }
     }
-    var minLatLng = this.CHtoWGSlatlng([min_x, min_y]);
-    var maxLatLng = this.CHtoWGSlatlng([max_x, max_y]);
+
+    var project = function (xy) {
+      return xy;
+    };
+    if (locationformat === "CH1903") {
+      project = this.CHtoWGSlatlng;
+    } else if (locationformat === "UTM") {
+      project = this.UTMtoWGSlatlng;
+    }
+    var minLatLng = project([min_x, min_y]);
+    var maxLatLng = project([max_x, max_y]);
 
     return {
       nCols,
@@ -1239,15 +1337,17 @@ class Basemap extends Component {
     for (var i = selectedlayers.length - 1; i > -1; i--) {
       var layer = selectedlayers[i];
       if (layer.visible) {
+        var locationformat = "CH1903";
+        if ([7, 8].includes(layer.datasets_id)) locationformat = "UTM";
         var { fileid, files, mapplotfunction } = layer;
         var file = this.findDataset(fileid, files);
         mapplotfunction === "gitPlot" && this.gitPlot(layer, file);
         mapplotfunction === "remoteSensing" && this.remoteSensing(layer, file);
         mapplotfunction === "simstrat" && this.simstrat(layer, file);
         mapplotfunction === "meteolakes" &&
-          this.threeDmodel(layer, file, "delft3d", "CH1903");
+          this.threeDmodel(layer, file, "delft3d", locationformat);
         mapplotfunction === "datalakes" &&
-          this.threeDmodel(layer, file, "unix", "CH1903");
+          this.threeDmodel(layer, file, "unix", locationformat);
       }
     }
   };
