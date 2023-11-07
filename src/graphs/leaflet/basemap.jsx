@@ -279,42 +279,22 @@ class Basemap extends Component {
     this.raster.push(L.layerGroup(polygons).addTo(this.map));
   };
 
-  matlabToJavascriptDatetime = (date) => {
-    return new Date((date - 719529) * 24 * 60 * 60 * 1000);
+  delft3dToJavascriptDatetime = (date) => {
+    const out = new Date(2008, 2, 1, 0, 0, 0);
+    out.setTime(out.getTime() + date * 1000);
+    return out;
   };
 
   getCellCorners = (data, i, j, locationformat) => {
-    function cellCorner(center, opposite, left, right, data, i, j) {
-      if (center === null) {
-        return false;
-      } else if (opposite !== null && left !== null && right !== null) {
-        // All corner points
-        var m1 = (center[1] - opposite[1]) / (center[0] - opposite[0]);
-        var m2 = (left[1] - right[1]) / (left[0] - right[0]);
-        var c1 = opposite[1] - m1 * opposite[0];
-        var c2 = right[1] - m2 * right[0];
-        let x = (c2 - c1) / (m1 - m2);
-        let y = m1 * x + c1;
-        return [x, y];
-      } else if (opposite !== null) {
-        let x = center[0] + (opposite[0] - center[0]) / 2;
-        let y = center[1] + (opposite[1] - center[1]) / 2;
-        return [x, y];
-      } else if (left !== null && right !== null) {
-        let x = left[0] + (right[0] - left[0]) / 2;
-        let y = left[1] + (right[1] - left[1]) / 2;
-        return [x, y];
-      } else if (right !== null) {
-        let x =
-          center[0] + (right[0] - center[0]) / 2 + (right[1] - center[1]) / 2;
-        let y =
-          center[1] + (right[1] - center[1]) / 2 - (right[0] - center[0]) / 2;
-        return [x, y];
-      } else if (left !== null) {
-        let x =
-          center[0] + (left[0] - center[0]) / 2 - (left[1] - center[1]) / 2;
-        let y =
-          center[1] + (left[1] - center[1]) / 2 + (left[0] - center[0]) / 2;
+    function cellCorner(center, opposite, left, right) {
+      if (
+        center[0] !== null &&
+        opposite[0] !== null &&
+        left[0] !== null &&
+        right[0] !== null
+      ) {
+        let x = (opposite[0] + left[0] + right[0] + center[0]) / 4;
+        let y = (opposite[1] + left[1] + right[1] + center[1]) / 4;
         return [x, y];
       } else {
         return false;
@@ -328,49 +308,39 @@ class Basemap extends Component {
     }
     // TopLeft
     var tl = cellCorner(
-      data[i][j],
-      data[i - 1][j - 1],
-      data[i][j - 1],
-      data[i - 1][j],
-      data,
-      i,
-      j
+      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
+      [data["x"]["data"][i - 1][j - 1], data["y"]["data"][i - 1][j - 1]],
+      [data["x"]["data"][i][j - 1], data["y"]["data"][i][j - 1]],
+      [data["x"]["data"][i - 1][j], data["y"]["data"][i - 1][j]]
     );
     // BottomLeft
     var bl = cellCorner(
-      data[i][j],
-      data[i + 1][j - 1],
-      data[i + 1][j],
-      data[i][j - 1],
-      data,
-      i,
-      j
+      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
+      [data["x"]["data"][i + 1][j - 1], data["y"]["data"][i + 1][j - 1]],
+      [data["x"]["data"][i + 1][j], data["y"]["data"][i + 1][j]],
+      [data["x"]["data"][i][j - 1], data["y"]["data"][i][j - 1]]
     );
     // BottomRight
     var br = cellCorner(
-      data[i][j],
-      data[i + 1][j + 1],
-      data[i][j + 1],
-      data[i + 1][j],
-      data,
-      i,
-      j
+      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
+      [data["x"]["data"][i + 1][j + 1], data["y"]["data"][i + 1][j + 1]],
+      [data["x"]["data"][i][j + 1], data["y"]["data"][i][j + 1]],
+      [data["x"]["data"][i + 1][j], data["y"]["data"][i + 1][j]]
     );
     // TopRight
     var tr = cellCorner(
-      data[i][j],
-      data[i - 1][j + 1],
-      data[i - 1][j],
-      data[i][j + 1],
-      data,
-      i,
-      j
+      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
+      [data["x"]["data"][i - 1][j + 1], data["y"]["data"][i - 1][j + 1]],
+      [data["x"]["data"][i - 1][j], data["y"]["data"][i - 1][j]],
+      [data["x"]["data"][i][j + 1], data["y"]["data"][i][j + 1]]
     );
 
-    if (!tl && br) tl = oppositePoint(data[i][j], br);
-    if (!bl && tr) bl = oppositePoint(data[i][j], tr);
-    if (!br && tl) br = oppositePoint(data[i][j], tl);
-    if (!tr && bl) tr = oppositePoint(data[i][j], bl);
+    let op = [data["x"]["data"][i][j], data["y"]["data"][i][j]];
+
+    if (!tl && br) tl = oppositePoint(op, br);
+    if (!bl && tr) bl = oppositePoint(op, tr);
+    if (!br && tl) br = oppositePoint(op, tl);
+    if (!tr && bl) tr = oppositePoint(op, bl);
     if (tl && bl && br && tr) {
       if (locationformat === "CH1903") {
         return [
@@ -387,31 +357,34 @@ class Basemap extends Component {
     }
   };
 
-  prepareContourData = (data, xi, yi, zi) => {
-    var x = [];
-    var y = [];
-    var z = [];
-    for (let i = 0; i < data.length; i++) {
-      var xx = [];
-      var yy = [];
-      var zz = [];
-      for (let j = 0; j < data[i].length; j++) {
-        if (data[i][j]) {
-          let latlng = this.CHtoWGSlatlng([data[i][j][xi], data[i][j][yi]]);
-          xx.push(latlng[1]);
-          yy.push(latlng[0]);
-          zz.push(data[i][j][zi]);
-        } else {
-          xx.push(data[i][j]);
-          yy.push(data[i][j]);
-          zz.push(data[i][j]);
+  prepareContourData = (data, locationformat) => {
+    if (locationformat === "CH1903") {
+      var x = [];
+      var y = [];
+      for (let i = 0; i < data["t"]["data"].length; i++) {
+        var xx = [];
+        var yy = [];
+        for (let j = 0; j < data["t"]["data"][0].length; j++) {
+          if (data["t"]["data"][i][j]) {
+            let latlng = this.CHtoWGSlatlng([data["x"]["data"][i][j], data["y"]["data"][i][j]]);
+            xx.push(latlng[1]);
+            yy.push(latlng[0]);
+          } else {
+            xx.push(null);
+            yy.push(null);
+          }
         }
+        x.push(xx);
+        y.push(yy);
       }
-      x.push(xx);
-      y.push(yy);
-      z.push(zz);
+      return { x, y, z: data["t"]["data"] };
+    } else {
+      return {
+        x: data["x"]["data"],
+        y: data["y"]["data"],
+        z: data["t"]["data"],
+      };
     }
-    return { x, y, z };
   };
 
   onEachContour = (info, datetime, depth, url) => {
@@ -436,15 +409,15 @@ class Basemap extends Component {
   };
 
   threeDmodel = async (layer, file, timeformat, locationformat) => {
-    var { parameters_id, data: indata, id } = layer;
-    var { datetime, depth, data } = indata;
+    var { parameters_id, data, id } = layer;
+    var datetime = data["time"]["data"];
+    var depth = data["depth"]["data"];
     var parseDatetime = this.parseDatetime;
-    if (timeformat === "matlab") {
-      datetime = this.matlabToJavascriptDatetime(datetime);
+    if (timeformat === "delft3d") {
+      datetime = this.delft3dToJavascriptDatetime(datetime);
     } else if (timeformat === "unix") {
       datetime = new Date(datetime * 1000);
     }
-
     depth = Math.abs(depth).toFixed(2);
     var {
       vectorArrows,
@@ -464,9 +437,9 @@ class Basemap extends Component {
     var url = "https://www.datalakes-eawag.ch/datadetail/" + datasets_id;
     var polygons, i, j, coords, value, valuestring, pixelcolor;
     var map = this.map;
-    if (parameters_id === 5) {
+    if (parameters_id === 5) { // Temperature plot
       if (contour) {
-        var contourData = this.prepareContourData(data, 0, 1, 2);
+        var contourData = this.prepareContourData(data, locationformat);
         var contours = L.contour(contourData, {
           thresholds: thresholds,
           style: (feature) => {
@@ -481,14 +454,19 @@ class Basemap extends Component {
         this.raster.push(contours.addTo(this.map));
       } else {
         polygons = [];
-        for (i = 1; i < data.length - 1; i++) {
-          for (j = 1; j < data[i].length - 1; j++) {
-            if (data[i][j] !== null) {
+        for (i = 1; i < data["x"]["data"].length - 1; i++) {
+          for (j = 1; j < data["x"]["data"][0].length - 1; j++) {
+            if (data["t"]["data"][i][j] !== null) {
               coords = this.getCellCorners(data, i, j, locationformat);
               if (coords) {
-                value = Math.round(data[i][j][2] * 1000) / 1000;
+                value = Math.round(data["t"]["data"][i][j] * 1000) / 1000;
                 valuestring = String(value) + String(unit);
-                pixelcolor = getColor(data[i][j][2], min, max, colors);
+                pixelcolor = getColor(
+                  data["t"]["data"][i][j],
+                  min,
+                  max,
+                  colors
+                );
                 let lat = Math.round(coords[0][0] * 1000) / 1000;
                 let lng = Math.round(coords[0][1] * 1000) / 1000;
                 polygons.push(
@@ -496,7 +474,7 @@ class Basemap extends Component {
                     color: pixelcolor,
                     fillColor: pixelcolor,
                     fillOpacity: 1,
-                    title: data[i][j][2],
+                    title: value,
                   })
                     .bindPopup(
                       `<div><div class="popup-title">${
@@ -506,7 +484,7 @@ class Basemap extends Component {
                       }</div><div class="popup-detail"><a href="${url}" target="_blank" rel="noopener noreferrer"><button>View Dataset</button></a></div><div class="popup-date">${parseDatetime(
                         datetime
                       )}</div><div class="popup-values"><div class="popup-param">${lat}, ${lng}</div><div class="popup-value">${String(
-                        data[i][j][2]
+                        value
                       )}</div><div class="popup-unit">${String(
                         unit
                       )}</div><div class="popup-param">Water Temperature @ ${depth}m</div><div></div>`,
@@ -533,16 +511,16 @@ class Basemap extends Component {
         this.map.fitBounds(this.raster[0].getBounds());
         this.zoomedtolayer = true;
       }
-    } else if (parameters_id === 25) {
+    } else if (parameters_id === 25) { // Velocity plot
       if (vectorMagnitude) {
         polygons = [];
-        for (i = 0; i < data.length - 1; i++) {
-          for (j = 0; j < data[i].length - 1; j++) {
-            if (data[i][j] !== null) {
+        for (i = 1; i < data["x"]["data"].length - 1; i++) {
+          for (j = 1; j < data["x"]["data"][0].length - 1; j++) {
+            if (data["u"]["data"][i][j] !== null) {
               coords = this.getCellCorners(data, i, j, locationformat);
               if (coords) {
-                let u = data[i][j][3];
-                let v = data[i][j][4];
+                let u = data["u"]["data"][i][j];
+                let v = data["v"]["data"][i][j];
                 var magnitude = Math.abs(
                   Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2))
                 );
@@ -652,7 +630,7 @@ class Basemap extends Component {
       }
 
       if (vectorFlow) {
-        var radius = 150;
+        var radius = 300;
         if (datasets_id === 14) {
           radius = 300;
         } else if (datasets_id === 17) {
@@ -1068,11 +1046,23 @@ class Basemap extends Component {
     }
     var nCols = 200;
     var nRows = 200;
-    let flatdata = data.flat().filter((d) => d !== null);
-    let quadtreedata = flatdata.map((f) => [f[0], f[1], f[3], f[4]]);
-
-    let x_array = flatdata.map((df) => df[0]);
-    let y_array = flatdata.map((df) => df[1]);
+    var quadtreedata = [];
+    var x_array = [];
+    var y_array = [];
+    for (let i = 0; i < data["u"]["data"].length; i++) {
+      for (let j = 0; j < data["u"]["data"][0].length; j++) {
+        if (data["u"]["data"][i][j] !== null) {
+          quadtreedata.push([
+            data["x"]["data"][i][j],
+            data["y"]["data"][i][j],
+            data["u"]["data"][i][j],
+            data["v"]["data"][i][j],
+          ]);
+          x_array.push(data["x"]["data"][i][j]);
+          y_array.push(data["y"]["data"][i][j]);
+        }
+      }
+    }
 
     let min_x = Math.min(...x_array);
     let min_y = Math.min(...y_array);
@@ -1255,7 +1245,7 @@ class Basemap extends Component {
         mapplotfunction === "remoteSensing" && this.remoteSensing(layer, file);
         mapplotfunction === "simstrat" && this.simstrat(layer, file);
         mapplotfunction === "meteolakes" &&
-          this.threeDmodel(layer, file, "matlab", "CH1903");
+          this.threeDmodel(layer, file, "delft3d", "CH1903");
         mapplotfunction === "datalakes" &&
           this.threeDmodel(layer, file, "unix", "CH1903");
       }

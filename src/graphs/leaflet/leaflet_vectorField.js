@@ -156,18 +156,18 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
   },
   _pixelSize: function () {
     var d = this._inputdata;
-    var nRows = d.length;
-    var nCols = d[0].length;
+    var nRows = this._inputdata["x"]["data"].length;
+    var nCols = this._inputdata["x"]["data"][0].length;
     var i, j;
     var abort = false;
 
     for (i = 0; i < nRows - 1 && !abort; i++) {
       for (j = 0; j < nCols - 1 && !abort; j++) {
         if (
-          d[i][j] !== null &&
-          d[i + 1][j] !== null &&
-          d[i][j + 1] !== null &&
-          d[i + 1][j + 1] !== null
+          d["x"]["data"][i][j] !== null &&
+          d["x"]["data"][i + 1][j] !== null &&
+          d["x"]["data"][i][j + 1] !== null &&
+          d["x"]["data"][i + 1][j + 1] !== null
         ) {
           abort = true;
           break;
@@ -175,16 +175,16 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
       }
     }
     var i0j0 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d[i][j][0], d[i][j][1]])
+      this._CHtolatlng([d["x"]["data"][i][j], d["y"]["data"][i][j]])
     );
     var i1j0 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d[i + 1][j][0], d[i + 1][j][1]])
+      this._CHtolatlng([d["x"]["data"][i + 1][j], d["y"]["data"][i + 1][j]])
     );
     var i0j1 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d[i][j + 1][0], d[i][j + 1][1]])
+      this._CHtolatlng([d["x"]["data"][i][j + 1], d["y"]["data"][i][j + 1]])
     );
     var i1j1 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d[i + 1][j + 1][0], d[i + 1][j + 1][1]])
+      this._CHtolatlng([d["x"]["data"][i + 1][j + 1], d["y"]["data"][i + 1][j + 1]])
     );
     var apixelx = [i0j0.x, i1j0.x, i0j1.x, i1j1.x];
     var apixely = [i0j0.x, i1j0.x, i0j1.x, i1j1.x];
@@ -259,8 +259,8 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
     var i, j, k, l, latlng, p, value, rotation, cell;
     var lat, lng, vx, vy, alat, alng, avx, avy;
 
-    var nRows = this._inputdata.length;
-    var nCols = this._inputdata[0].length;
+    var nRows = this._inputdata["x"]["data"].length;
+    var nCols = this._inputdata["x"]["data"][0].length;
     var size = this.options.size;
 
     var pixelSize = this._pixelSize();
@@ -282,11 +282,11 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
         avy = [];
         for (k = 0; k < stride; k++) {
           for (l = 0; l < stride; l++) {
-            if (this._inputdata[i + k][j + l] !== null) {
-              alat.push(this._inputdata[i + k][j + l][0]);
-              alng.push(this._inputdata[i + k][j + l][1]);
-              avx.push(this._inputdata[i + k][j + l][3]);
-              avy.push(this._inputdata[i + k][j + l][4]);
+            if (this._inputdata["x"]["data"][i + k][j + l] !== null) {
+              alat.push(this._inputdata["x"]["data"][i + k][j + l]);
+              alng.push(this._inputdata["y"]["data"][i + k][j + l]);
+              avx.push(this._inputdata["u"]["data"][i + k][j + l]);
+              avy.push(this._inputdata["v"]["data"][i + k][j + l]);
             }
           }
         }

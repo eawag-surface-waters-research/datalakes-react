@@ -9,32 +9,18 @@ class ThreeDModelDownload extends Component {
   state = {
     year: 2020,
     week: 0,
-    yearlist: [],
     dates: { 2020: [] },
   };
 
   onChangeYear = (event) => {
-    var { dates } = this.state;
     this.setState({
       year: event.target.value,
-      week: dates[event.target.value][0],
+      week: 0,
     });
   };
 
   onChangeWeek = (event) => {
     this.setState({ week: event.target.value });
-  };
-
-  getDateFromIsoweek = (isoweek, year, day) => {
-    var simple = new Date(year, 0, 1 + (isoweek - 1) * 7, 3);
-    var dow = simple.getDay();
-    var ISOweekStart = simple;
-    if (dow <= 4) {
-      ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
-    } else {
-      ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
-    }
-    return new Date(ISOweekStart.setDate(ISOweekStart.getDate() + (day - 1)));
   };
 
   parseDateFormat = (date) => {
@@ -57,70 +43,55 @@ class ThreeDModelDownload extends Component {
     return `${day} ${month}`;
   };
 
-  parseWeek = (week, year) => {
-    return `${this.parseDateFormat(
-      this.getDateFromIsoweek(week, year, 1)
-    )} to ${this.parseDateFormat(this.getDateFromIsoweek(week, year, 7))}`;
+  parseSimpleDate = (date) => {
+    if (date !== undefined) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}${month}${day}`;
+    } else {
+      return "";
+    }
+  };
+
+  parseWeek = (date) => {
+    var end = new Date(date.getTime());
+    end.setDate(end.getDate() + 7);
+    return `${this.parseDateFormat(date)} to ${this.parseDateFormat(end)}`;
   };
 
   async componentDidMount() {
-    var { id } = this.props.dataset;
-    var url;
-    if (id === 17) {
-      url = "/datalakesmodel/available";
-    } else {
-      url = "/externaldata/meteolakes/available";
-    }
-    var { data } = await axios
-      .get(apiUrl + url, {
-        timeout: 10000,
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    var dates, lake;
-    if (id === 11) {
-      dates = data.find((d) => d.folder === "data_zurich").data;
-      lake = "zurich";
-    } else if (id === 14 || id === 17) {
-      dates = data.find((d) => d.name === "Lake Geneva").data;
-      lake = "geneva";
-    } else if (id === 15) {
-      dates = data.find((d) => d.name === "Lake Greifen").data;
-      lake = "greifensee";
-    }
+    var { id, mindatetime, maxdatetime } = this.props.dataset;
 
-    var new_key;
-    for (var key in dates) {
-      if (key.includes("Y")) {
-        new_key = parseInt(key.replace("Y", ""));
-        dates[new_key] = dates[key];
-        delete dates[key];
+    const dates = {};
+    let currentDate = new Date(mindatetime);
+    let endDate = new Date(maxdatetime);
+    while (currentDate <= endDate) {
+      if (currentDate.getDay() === 0) {
+        const year = currentDate.getFullYear();
+        if (!dates[year]) {
+          dates[year] = [];
+        }
+        dates[year].push(new Date(currentDate.getTime()));
       }
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-
-    var yearlist = Object.keys(dates);
-    var year = Math.max(...yearlist);
-    var weeklist = dates[year];
-    var week = Math.max(...weeklist);
-
-    this.setState({
-      yearlist,
-      year,
-      dates,
-      week,
-      lake,
-    });
+    var year = Math.max(...Object.keys(dates).map((d) => parseInt(d)));
+    var week = dates[String(year)].length - 1;
+    this.setState({ dates, year, week });
   }
 
   render() {
     const { getLabel, dataset } = this.props;
-    var { mindatetime, maxdatetime, id } = dataset;
+    var { mindatetime, maxdatetime, id, datasourcelink } = dataset;
+    let arr = datasourcelink.split("/");
+    var lake = arr[arr.length - 1];
     mindatetime = new Date(mindatetime);
     maxdatetime = new Date(maxdatetime);
-    var { lake, week, dates, year, yearlist } = this.state;
+    var { dates, year, week } = this.state;
 
     var years = [];
+    var yearlist = Object.keys(dates);
     for (var i = 0; i < yearlist.length; i++) {
       years.push(
         <option key={yearlist[i]} value={yearlist[i]}>
@@ -131,23 +102,18 @@ class ThreeDModelDownload extends Component {
     var weeks = [];
     for (var j = 0; j < dates[year].length; j++) {
       weeks.push(
-        <option key={dates[year][j]} value={dates[year][j]}>
-          {this.parseWeek(dates[year][j], year)}
+        <option key={dates[year][j]} value={j}>
+          {this.parseWeek(dates[year][j])}
         </option>
       );
     }
-    var url, swagger, git;
-    if (id === 17) {
-      url = apiUrl + "/datalakesmodel";
-      swagger = url + "/api";
-      git = "https://gitlab.com/siam-sc/spux/tree/Datalakes-Spux";
-    } else {
-      url = "https://api.meteolakes.ch/api/datalakes";
-      swagger = apiUrl + "/externaldata/meteolakes/api";
-      git = "https://github.com/rkaravia/meteolakes";
-    }
 
-    var link = `${url}/nc/${lake}/${year}/${week}`;
+    var url = "https://alplakes-api.eawag.ch";
+    var swagger = "https://alplakes-api.eawag.ch/openapi.json";
+    var git =
+      "https://github.com/eawag-surface-waters-research/alplakes-simulations";
+    var sunday = this.parseSimpleDate(dates[year][week]);
+    var link = `${url}/simulations/file/delft3d-flow/${lake}/${sunday}`;
 
     return (
       <div className="download">

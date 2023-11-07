@@ -111,7 +111,7 @@ class GIS extends Component {
     selected: [],
     hidden: [],
     datetime: new Date(),
-    depth: 0,
+    depth: 1,
     timestep: 180,
     center: [46.85, 7.55],
     zoom: 9,
@@ -399,9 +399,8 @@ class GIS extends Component {
   threeDmodelScalarMinMax = (inarray) => {
     var min = Infinity;
     var max = -Infinity;
-    var flat = inarray.flat();
+    var flat = inarray["t"]["data"].flat();
     flat = flat.filter((item) => item !== null);
-    flat = flat.map((item) => item[2]);
     min = Math.min(min, this.getMin(flat));
     max = Math.max(max, this.getMax(flat));
     return { filemin: min, filemax: max, filearray: flat };
@@ -410,11 +409,14 @@ class GIS extends Component {
   threeDmodelVectorMinMax = (inarray) => {
     var min = Infinity;
     var max = -Infinity;
-    var flat = inarray.flat();
-    flat = flat.filter((item) => item !== null);
-    flat = flat.map((item) =>
-      Math.abs(Math.sqrt(Math.pow(item[3], 2) + Math.pow(item[4], 2)))
-    );
+    var flat_u = inarray["u"]["data"].flat();
+    var flat_v = inarray["u"]["data"].flat();
+    var flat = []
+    for (let i = 0; i < flat_u.length; i++){
+      if (flat_u !== null){
+        flat.push(Math.abs(Math.sqrt(Math.pow(flat_u[i], 2) + Math.pow(flat_v[i], 2))))
+      }
+    }
     min = Math.min(min, this.getMin(flat));
     max = Math.max(max, this.getMax(flat));
     return { filemin: min, filemax: max, filearray: flat };
@@ -455,13 +457,9 @@ class GIS extends Component {
     }
     if (mapplotfunction === "meteolakes" || mapplotfunction === "datalakes") {
       if (parameters_id === 25) {
-        ({ filemin, filemax, filearray } = this.threeDmodelVectorMinMax(
-          data.data
-        ));
+        ({ filemin, filemax, filearray } = this.threeDmodelVectorMinMax(data));
       } else {
-        ({ filemin, filemax, filearray } = this.threeDmodelScalarMinMax(
-          data.data
-        ));
+        ({ filemin, filemax, filearray } = this.threeDmodelScalarMinMax(data));
       }
     }
 
@@ -671,6 +669,15 @@ class GIS extends Component {
     return { realdatetime, realdepth };
   };
 
+  formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}${month}${day}${hours}${minutes}`;
+  };
+
   downloadFile = async (
     datasets_id,
     fileid,
@@ -709,7 +716,7 @@ class GIS extends Component {
           dataset.maxdepth
         ));
       } else {
-        filelink = filelink.replace(":datetime", datetime.getTime());
+        filelink = filelink.replace(":datetime", this.formatDate(datetime));
         filelink = filelink.replace(":depth", depth);
         ({ data } = await axios
           .get(filelink, { timeout: 5000 })
