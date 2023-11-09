@@ -28,39 +28,6 @@
     },
     "groups": [
         {
-          "name": "Lake Geneva Whiting 22.05.22",
-          "description": "Some description",
-          "data": {
-            "selected": [[25, 110]],
-            "center": [46.405, 6.578],
-            "zoom": 11,
-            "datetime": 1653775200
-          }
-        },
-        {
-          "name": "Lake Geneva Whiting 14.05.22",
-          "description": "Some description",
-          "data": {
-            "selected": [[25, 110]],
-            "center": [46.405, 6.578],
-            "zoom": 11,
-            "datetime": 1652479200
-          }
-        },
-        {
-          "name": "Lake Geneva Algal Bloom 06.09.21",
-          "description": "Some description",
-          "data": {
-            "selected": [
-              [20, 15],
-              [14, 25]
-            ],
-            "center": [46.405, 6.578],
-            "zoom": 11,
-            "datetime": 1630937100
-          }
-        },
-        {
           "name": "Lake Zurich 3D Model",
           "description": "Some description",
           "data": {
