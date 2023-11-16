@@ -88,7 +88,7 @@ class FileSelector extends Component {
       }
       return [split.slice(0, nameLength + 1).join("/"), type];
     });
-    var children = shortFiles.filter((f) => f[0].includes(name));
+    var children = shortFiles.filter((f) => f[0].includes(name + "/"));
     var set = new Set(children.map(JSON.stringify));
     var uniqueChildren = Array.from(set).map(JSON.parse);
     var out = [];
