@@ -160,7 +160,7 @@ class Home extends Component {
 
           <div className="sectiontitle" ref={this.ourdata}>
             Datalakes is a collaboration between a number of Swiss institutions
-            to facilitate the visualisation and dissemination of reproducable
+            to facilitate the visualisation and dissemination of reproducible
             datasets for Swiss lakes.
           </div>
 
