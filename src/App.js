@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import ReactGA from "react-ga";
 import asyncComponent from "./components/asynccomponent/asynccomponent";
 import ErrorBoundary from "./errorboundary/errorboundary";
 import Header from "./format/header/header";
@@ -18,9 +17,6 @@ const AsyncDataDetail = asyncComponent(() =>
   import("./pages/datadetail/datadetail")
 );
 const AsyncAPI = asyncComponent(() => import("./pages/api/api"));
-
-ReactGA.initialize("UA-186400369-1");
-ReactGA.pageview(window.location.pathname + window.location.search);
 
 class App extends Component {
   render() {
