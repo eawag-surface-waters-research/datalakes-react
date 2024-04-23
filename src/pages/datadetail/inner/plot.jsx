@@ -2332,6 +2332,7 @@ class Plot extends Component {
       display,
       thresholdStep,
       plotdots,
+      interpolate,
     } = this.state;
 
     if (data[0] === false) {
@@ -2373,6 +2374,9 @@ class Plot extends Component {
         upperX
       ));
 
+      if ("interpolate" in dataset.plotproperties)
+        interpolate = dataset.plotproperties.interpolate;
+
       var { plotdata, lowerZ, upperZ } = this.processPlotData(
         xaxis,
         yaxis,
@@ -2390,7 +2394,7 @@ class Plot extends Component {
         datasetparameters,
         timeaxis,
         graph,
-        this.state.interpolate
+        interpolate
       );
 
       if ("display" in dataset.plotproperties)
@@ -2434,6 +2438,7 @@ class Plot extends Component {
         display,
         thresholdStep,
         plotdots,
+        interpolate,
       });
     }
   }
@@ -2470,6 +2475,8 @@ class Plot extends Component {
         lowerX = minX;
       if (prevState.maxX === prevState.upperX && prevState.upperX === upperX)
         upperX = maxX;
+
+      console.log(this.state.interpolate)
 
       var { plotdata } = this.processPlotData(
         xaxis,
