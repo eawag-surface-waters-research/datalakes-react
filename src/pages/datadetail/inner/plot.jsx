@@ -647,6 +647,7 @@ class DisplayOptions extends Component {
       decimate,
       average,
       plotdots,
+      interpolate,
     } = this.props;
     var updateZ = false;
     if (
@@ -663,7 +664,8 @@ class DisplayOptions extends Component {
       prevProps.thresholdStep !== thresholdStep ||
       prevProps.decimate !== decimate ||
       prevProps.average !== average ||
-      prevProps.plotdots !== plotdots
+      prevProps.plotdots !== plotdots ||
+      prevProps.interpolate !== interpolate
     ) {
       this.setState({
         colors,
@@ -675,6 +677,7 @@ class DisplayOptions extends Component {
         decimate,
         average,
         plotdots,
+        interpolate,
       });
     }
   }
@@ -2475,8 +2478,6 @@ class Plot extends Component {
         lowerX = minX;
       if (prevState.maxX === prevState.upperX && prevState.upperX === upperX)
         upperX = maxX;
-
-      console.log(this.state.interpolate)
 
       var { plotdata } = this.processPlotData(
         xaxis,
