@@ -156,36 +156,40 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
   },
   _pixelSize: function () {
     var d = this._inputdata;
-    var nRows = this._inputdata["x"]["data"].length;
-    var nCols = this._inputdata["x"]["data"][0].length;
+    var nRows = this._inputdata["lat"].length;
+    var nCols = this._inputdata["lat"][0].length;
     var i, j;
     var abort = false;
 
     for (i = 0; i < nRows - 1 && !abort; i++) {
       for (j = 0; j < nCols - 1 && !abort; j++) {
         if (
-          d["x"]["data"][i][j] !== null &&
-          d["x"]["data"][i + 1][j] !== null &&
-          d["x"]["data"][i][j + 1] !== null &&
-          d["x"]["data"][i + 1][j + 1] !== null
+          d["lat"][i][j] !== null &&
+          d["lat"][i + 1][j] !== null &&
+          d["lat"][i][j + 1] !== null &&
+          d["lat"][i + 1][j + 1] !== null
         ) {
           abort = true;
           break;
         }
       }
     }
-    var i0j0 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d["x"]["data"][i][j], d["y"]["data"][i][j]])
-    );
-    var i1j0 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d["x"]["data"][i + 1][j], d["y"]["data"][i + 1][j]])
-    );
-    var i0j1 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d["x"]["data"][i][j + 1], d["y"]["data"][i][j + 1]])
-    );
-    var i1j1 = this._map.latLngToContainerPoint(
-      this._CHtolatlng([d["x"]["data"][i + 1][j + 1], d["y"]["data"][i + 1][j + 1]])
-    );
+    var i0j0 = this._map.latLngToContainerPoint([
+      d["lat"][i][j],
+      d["lng"][i][j],
+    ]);
+    var i1j0 = this._map.latLngToContainerPoint([
+      d["lat"][i + 1][j],
+      d["lng"][i + 1][j],
+    ]);
+    var i0j1 = this._map.latLngToContainerPoint([
+      d["lat"][i][j + 1],
+      d["lng"][i][j + 1],
+    ]);
+    var i1j1 = this._map.latLngToContainerPoint([
+      d["lat"][i + 1][j + 1],
+      d["lng"][i + 1][j + 1],
+    ]);
     var apixelx = [i0j0.x, i1j0.x, i0j1.x, i1j1.x];
     var apixely = [i0j0.x, i1j0.x, i0j1.x, i1j1.x];
 
@@ -243,12 +247,8 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
     var noNan = this._inputdata.flat().filter((i) => isNaN(i));
     var lat = noNan.map((n) => n[0]);
     var lng = noNan.map((n) => n[1]);
-    var southWest = L.latLng(
-      this._CHtolatlng([Math.min(...lat), Math.min(...lng)])
-    );
-    var northEast = L.latLng(
-      this._CHtolatlng([Math.max(...lat), Math.max(...lng)])
-    );
+    var southWest = L.latLng([Math.min(...lat), Math.min(...lng)]);
+    var northEast = L.latLng([Math.max(...lat), Math.max(...lng)]);
     return L.latLngBounds(southWest, northEast);
   },
 
@@ -256,11 +256,11 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
     var ctx = this._ctx;
     ctx.clearRect(0, 0, this._width, this._height);
 
-    var i, j, k, l, latlng, p, value, rotation, cell;
+    var i, j, k, l, p, value, rotation, cell;
     var lat, lng, vx, vy, alat, alng, avx, avy;
 
-    var nRows = this._inputdata["x"]["data"].length;
-    var nCols = this._inputdata["x"]["data"][0].length;
+    var nRows = this._inputdata["lat"].length;
+    var nCols = this._inputdata["lat"][0].length;
     var size = this.options.size;
 
     var pixelSize = this._pixelSize();
@@ -282,11 +282,11 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
         avy = [];
         for (k = 0; k < stride; k++) {
           for (l = 0; l < stride; l++) {
-            if (this._inputdata["x"]["data"][i + k][j + l] !== null) {
-              alat.push(this._inputdata["x"]["data"][i + k][j + l]);
-              alng.push(this._inputdata["y"]["data"][i + k][j + l]);
-              avx.push(this._inputdata["u"]["data"][i + k][j + l]);
-              avy.push(this._inputdata["v"]["data"][i + k][j + l]);
+            if (this._inputdata["lat"][i + k][j + l] !== null) {
+              alat.push(this._inputdata["lat"][i + k][j + l]);
+              alng.push(this._inputdata["lng"][i + k][j + l]);
+              avx.push(this._inputdata["variables"]["u"]["data"][i + k][j + l]);
+              avy.push(this._inputdata["variables"]["v"]["data"][i + k][j + l]);
             }
           }
         }
@@ -297,8 +297,7 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
           vx = this._getAve(avx);
           vy = this._getAve(avy);
 
-          latlng = this._CHtolatlng([lat, lng]);
-          p = this._map.latLngToContainerPoint(latlng);
+          p = this._map.latLngToContainerPoint([lat, lng]);
 
           value = Math.abs(Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2)));
 
@@ -389,6 +388,42 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
     }
   },
 
+  _getClosestLocation: function (latArray, lngArray, targetLat, targetLng) {
+    if (
+      !Array.isArray(latArray) ||
+      !Array.isArray(lngArray) ||
+      latArray.length === 0 ||
+      lngArray.length === 0
+    ) {
+      return null;
+    }
+
+    let minDistance = Infinity;
+    let closestIndex = { row: -1, col: -1 }; // Store the indices of the closest point
+
+    // Loop through the 2D arrays
+    for (let i = 0; i < latArray.length; i++) {
+      for (let j = 0; j < latArray[i].length; j++) {
+        const lat = latArray[i][j];
+        const lng = lngArray[i][j];
+
+        // Calculate Euclidean distance
+        const distance = Math.sqrt(
+          Math.pow(targetLat - lat, 2) + Math.pow(targetLng - lng, 2)
+        );
+
+        // Update closest point and its indices if a shorter distance is found
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = { row: i, col: j }; // Update the row and column index
+        }
+      }
+    }
+
+    // Return the indices and the distance
+    return { index: closestIndex, distance: minDistance };
+  },
+
   _onMousemove: function (t) {
     var e = this._queryValue(t);
     this.fire("mousemove", e);
@@ -399,20 +434,12 @@ L.VectorField = (L.Layer ? L.Layer : L.Class).extend({
     this.fire("click", e);
   },
   _queryValue: function (click) {
-    let point = this._WGSlatlngtoCH(click.latlng.lat, click.latlng.lng);
-    let data = this._inputdata.flat().filter((i) => i !== null);
-    data = data.map((d) => {
-      return {
-        data: d,
-        dist: Math.sqrt((d[0] - point.y) ** 2 + (d[1] - point.x) ** 2),
-      };
-    });
-    data.sort((a, b) => (a.dist > b.dist ? 1 : -1));
     let u = null;
     let v = null;
-    if (data[0].dist < 300) {
-      u = data[0].data[3];
-      v = data[0].data[4];
+    var { index, distance } = this._getClosestLocation(this._inputdata["lat"], this._inputdata["lng"], click.latlng.lat, click.latlng.lng)
+    if (distance < 0.002) {
+      u = this._inputdata["variables"]["u"]["data"][index.row][index.col]
+      v = this._inputdata["variables"]["v"]["data"][index.row][index.col];
     }
     click["value"] = { u, v };
     return click;

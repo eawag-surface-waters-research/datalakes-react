@@ -370,7 +370,7 @@ class Basemap extends Component {
     return out;
   };
 
-  getCellCorners = (data, i, j, locationformat) => {
+  getCellCorners = (data, i, j) => {
     function cellCorner(center, opposite, left, right) {
       if (
         center[0] !== null &&
@@ -393,76 +393,66 @@ class Basemap extends Component {
     }
     // TopLeft
     var tl = cellCorner(
-      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
-      [data["x"]["data"][i - 1][j - 1], data["y"]["data"][i - 1][j - 1]],
-      [data["x"]["data"][i][j - 1], data["y"]["data"][i][j - 1]],
-      [data["x"]["data"][i - 1][j], data["y"]["data"][i - 1][j]]
+      [data["lng"][i][j], data["lat"][i][j]],
+      [data["lng"][i - 1][j - 1], data["lat"][i - 1][j - 1]],
+      [data["lng"][i][j - 1], data["lat"][i][j - 1]],
+      [data["lng"][i - 1][j], data["lat"][i - 1][j]]
     );
     // BottomLeft
     var bl = cellCorner(
-      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
-      [data["x"]["data"][i + 1][j - 1], data["y"]["data"][i + 1][j - 1]],
-      [data["x"]["data"][i + 1][j], data["y"]["data"][i + 1][j]],
-      [data["x"]["data"][i][j - 1], data["y"]["data"][i][j - 1]]
+      [data["lng"][i][j], data["lat"][i][j]],
+      [data["lng"][i + 1][j - 1], data["lat"][i + 1][j - 1]],
+      [data["lng"][i + 1][j], data["lat"][i + 1][j]],
+      [data["lng"][i][j - 1], data["lat"][i][j - 1]]
     );
     // BottomRight
     var br = cellCorner(
-      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
-      [data["x"]["data"][i + 1][j + 1], data["y"]["data"][i + 1][j + 1]],
-      [data["x"]["data"][i][j + 1], data["y"]["data"][i][j + 1]],
-      [data["x"]["data"][i + 1][j], data["y"]["data"][i + 1][j]]
+      [data["lng"][i][j], data["lat"][i][j]],
+      [data["lng"][i + 1][j + 1], data["lat"][i + 1][j + 1]],
+      [data["lng"][i][j + 1], data["lat"][i][j + 1]],
+      [data["lng"][i + 1][j], data["lat"][i + 1][j]]
     );
     // TopRight
     var tr = cellCorner(
-      [data["x"]["data"][i][j], data["y"]["data"][i][j]],
-      [data["x"]["data"][i - 1][j + 1], data["y"]["data"][i - 1][j + 1]],
-      [data["x"]["data"][i - 1][j], data["y"]["data"][i - 1][j]],
-      [data["x"]["data"][i][j + 1], data["y"]["data"][i][j + 1]]
+      [data["lng"][i][j], data["lat"][i][j]],
+      [data["lng"][i - 1][j + 1], data["lat"][i - 1][j + 1]],
+      [data["lng"][i - 1][j], data["lat"][i - 1][j]],
+      [data["lng"][i][j + 1], data["lat"][i][j + 1]]
     );
 
-    let op = [data["x"]["data"][i][j], data["y"]["data"][i][j]];
+    let op = [data["lng"][i][j], data["lat"][i][j]];
 
     if (!tl && br) tl = oppositePoint(op, br);
     if (!bl && tr) bl = oppositePoint(op, tr);
     if (!br && tl) br = oppositePoint(op, tl);
     if (!tr && bl) tr = oppositePoint(op, bl);
     if (tl && bl && br && tr) {
-      var project = function (xy) {
-        return xy;
-      };
-      if (locationformat === "CH1903") {
-        project = this.CHtoWGSlatlng;
-      } else if (locationformat === "UTM") {
-        project = this.UTMtoWGSlatlng;
-      }
-      return [project(tl), project(bl), project(br), project(tr)];
+      return [
+        [tl[1], tl[0]],
+        [bl[1], bl[0]],
+        [br[1], br[0]],
+        [tr[1], tr[0]],
+      ];
     } else {
       return false;
     }
   };
 
-  prepareContourData = (data, locationformat) => {
-    var project = function (xy) {
-      return xy;
-    };
-    if (locationformat === "CH1903") {
-      project = this.CHtoWGSlatlng;
-    } else if (locationformat === "UTM") {
-      project = this.UTMtoWGSlatlng;
-    }
+  prepareContourData = (data) => {
     var x = [];
     var y = [];
-    for (let i = 0; i < data["t"]["data"].length; i++) {
+    for (let i = 0; i < data["variables"]["temperature"]["data"].length; i++) {
       var xx = [];
       var yy = [];
-      for (let j = 0; j < data["t"]["data"][0].length; j++) {
-        if (data["t"]["data"][i][j]) {
-          let latlng = project([
-            data["x"]["data"][i][j],
-            data["y"]["data"][i][j],
-          ]);
-          xx.push(latlng[1]);
-          yy.push(latlng[0]);
+      for (
+        let j = 0;
+        j < data["variables"]["temperature"]["data"][0].length;
+        j++
+      ) {
+        if (data["variables"]["temperature"]["data"][i][j]) {
+          let latlng = [data["lng"][i][j], data["lat"][i][j]];
+          xx.push(latlng[0]);
+          yy.push(latlng[1]);
         } else {
           xx.push(null);
           yy.push(null);
@@ -471,7 +461,7 @@ class Basemap extends Component {
       x.push(xx);
       y.push(yy);
     }
-    return { x, y, z: data["t"]["data"] };
+    return { x, y, z: data["variables"]["temperature"]["data"] };
   };
 
   onEachContour = (info, datetime, depth, url) => {
@@ -495,17 +485,11 @@ class Basemap extends Component {
     };
   };
 
-  threeDmodel = async (layer, file, timeformat, locationformat) => {
+  threeDmodel = async (layer, file, timeformat) => {
     var { parameters_id, data, id } = layer;
-    var datetime = data["time"]["data"];
-    var depth = data["depth"]["data"];
+    var datetime = new Date(data["time"]);
+    var depth = Math.abs(data["depth"]["data"]).toFixed(2);
     var parseDatetime = this.parseDatetime;
-    if (timeformat === "delft3d") {
-      datetime = this.delft3dToJavascriptDatetime(datetime);
-    } else if (timeformat === "unix") {
-      datetime = new Date(datetime * 1000);
-    }
-    depth = Math.abs(depth).toFixed(2);
     var {
       vectorArrows,
       vectorMagnitude,
@@ -527,7 +511,7 @@ class Basemap extends Component {
     if (parameters_id === 5) {
       // Temperature plot
       if (contour) {
-        var contourData = this.prepareContourData(data, locationformat);
+        var contourData = this.prepareContourData(data);
         var contours = L.contour(contourData, {
           thresholds: thresholds,
           style: (feature) => {
@@ -542,15 +526,18 @@ class Basemap extends Component {
         this.raster.push(contours.addTo(this.map));
       } else {
         polygons = [];
-        for (i = 1; i < data["x"]["data"].length - 1; i++) {
-          for (j = 1; j < data["x"]["data"][0].length - 1; j++) {
-            if (data["t"]["data"][i][j] !== null) {
-              coords = this.getCellCorners(data, i, j, locationformat);
+        for (i = 1; i < data["lat"].length - 1; i++) {
+          for (j = 1; j < data["lat"][0].length - 1; j++) {
+            if (data["variables"]["temperature"]["data"][i][j] !== null) {
+              coords = this.getCellCorners(data, i, j);
               if (coords) {
-                value = Math.round(data["t"]["data"][i][j] * 1000) / 1000;
+                value =
+                  Math.round(
+                    data["variables"]["temperature"]["data"][i][j] * 1000
+                  ) / 1000;
                 valuestring = String(value) + String(unit);
                 pixelcolor = getColor(
-                  data["t"]["data"][i][j],
+                  data["variables"]["temperature"]["data"][i][j],
                   min,
                   max,
                   colors
@@ -603,13 +590,13 @@ class Basemap extends Component {
       // Velocity plot
       if (vectorMagnitude) {
         polygons = [];
-        for (i = 1; i < data["x"]["data"].length - 1; i++) {
-          for (j = 1; j < data["x"]["data"][0].length - 1; j++) {
-            if (data["u"]["data"][i][j] !== null) {
-              coords = this.getCellCorners(data, i, j, locationformat);
+        for (i = 1; i < data["lng"].length - 1; i++) {
+          for (j = 1; j < data["lng"][0].length - 1; j++) {
+            if (data["variables"]["u"]["data"][i][j] !== null) {
+              coords = this.getCellCorners(data, i, j);
               if (coords) {
-                let u = data["u"]["data"][i][j];
-                let v = data["v"]["data"][i][j];
+                let u = data["variables"]["u"]["data"][i][j];
+                let v = data["variables"]["v"]["data"][i][j];
                 var magnitude = Math.abs(
                   Math.sqrt(Math.pow(u, 2) + Math.pow(v, 2))
                 );
@@ -655,7 +642,6 @@ class Basemap extends Component {
         }
         this.raster.push(L.layerGroup(polygons).addTo(this.map));
       }
-
       if (vectorArrows) {
         var arrows = L.vectorField(data, {
           vectorArrowColor,
@@ -717,16 +703,19 @@ class Basemap extends Component {
         });
         this.raster.push(arrows);
       }
-
       if (vectorFlow) {
-        var radius = 300;
-        if (datasets_id === 14) {
-          radius = 300;
-        } else if (datasets_id === 17) {
-          radius = 1000;
-        }
-        var vectordata = this.parseVectorData(data, radius, locationformat);
-
+        var dict = {
+          2: 0.0005,
+          14: 0.004,
+          5: 0.001,
+          6: 0.001,
+          8: 0.001,
+          10: 0.001,
+          15: 0.001,
+        };
+        var radius =
+          String(datasets_id) in dict ? dict[String(datasets_id)] : 0.002;
+        var vectordata = this.parseVectorData(data, radius);
         var vectors;
         if (Object.keys(this.vectorfieldanim).includes(id)) {
           this.vectorfieldanim[id].updateData(vectordata.data);
@@ -1127,7 +1116,7 @@ class Basemap extends Component {
     return months[date.getMonth()] + date.getFullYear();
   };
 
-  parseVectorData = (data, radius, locationformat) => {
+  parseVectorData = (data, radius) => {
     function createAndFillTwoDArray({ rows, columns, defaultValue }) {
       return Array.from({ length: rows }, () =>
         Array.from({ length: columns }, () => defaultValue)
@@ -1138,34 +1127,34 @@ class Basemap extends Component {
     var quadtreedata = [];
     var x_array = [];
     var y_array = [];
-    for (let i = 0; i < data["u"]["data"].length; i++) {
-      for (let j = 0; j < data["u"]["data"][0].length; j++) {
-        if (data["u"]["data"][i][j] !== null) {
+    for (let i = 0; i < data["variables"]["u"]["data"].length; i++) {
+      for (let j = 0; j < data["variables"]["u"]["data"][0].length; j++) {
+        if (data["variables"]["u"]["data"][i][j] !== null) {
           quadtreedata.push([
-            data["x"]["data"][i][j],
-            data["y"]["data"][i][j],
-            data["u"]["data"][i][j],
-            data["v"]["data"][i][j],
+            data["lng"][i][j],
+            data["lat"][i][j],
+            data["variables"]["u"]["data"][i][j],
+            data["variables"]["v"]["data"][i][j],
           ]);
-          x_array.push(data["x"]["data"][i][j]);
-          y_array.push(data["y"]["data"][i][j]);
+          x_array.push(data["lng"][i][j]);
+          y_array.push(data["lat"][i][j]);
         }
       }
     }
 
-    let min_x = Math.min(...x_array);
-    let min_y = Math.min(...y_array);
-    let max_x = Math.max(...x_array);
-    let max_y = Math.max(...y_array);
+    let xMin = Math.min(...x_array);
+    let yMin = Math.min(...y_array);
+    let xMax = Math.max(...x_array);
+    let yMax = Math.max(...y_array);
 
-    let xSize = (max_x - min_x) / nCols;
-    let ySize = (max_y - min_y) / nRows;
+    let xSize = (xMax - xMin) / nCols;
+    let ySize = (yMax - yMin) / nRows;
 
     let quadtree = d3
       .quadtree()
       .extent([
-        [min_x, min_y],
-        [max_x, max_y],
+        [xMin, yMin],
+        [xMax, yMax],
       ])
       .addAll(quadtreedata);
 
@@ -1181,36 +1170,24 @@ class Basemap extends Component {
     });
     var x, y;
     for (var i = 0; i < nRows + 1; i++) {
-      y = max_y - i * ySize;
+      y = yMax - i * ySize;
       for (var j = 0; j < nCols + 1; j++) {
-        x = min_x + j * xSize;
+        x = xMin + j * xSize;
         if (quadtree.find(x, y, radius) !== undefined) {
           u[i][j] = parseFloat(JSON.stringify(quadtree.find(x, y, radius)[2]));
           v[i][j] = parseFloat(JSON.stringify(quadtree.find(x, y, radius)[3]));
         }
       }
     }
-
-    var project = function (xy) {
-      return xy;
-    };
-    if (locationformat === "CH1903") {
-      project = this.CHtoWGSlatlng;
-    } else if (locationformat === "UTM") {
-      project = this.UTMtoWGSlatlng;
-    }
-    var minLatLng = project([min_x, min_y]);
-    var maxLatLng = project([max_x, max_y]);
-
     return {
       nCols,
       nRows,
       xSize,
       ySize,
-      xMin: minLatLng[1],
-      xMax: maxLatLng[1],
-      yMin: minLatLng[0],
-      yMax: maxLatLng[0],
+      xMin,
+      xMax,
+      yMin,
+      yMax,
       data: { u, v },
     };
   };
@@ -1337,17 +1314,15 @@ class Basemap extends Component {
     for (var i = selectedlayers.length - 1; i > -1; i--) {
       var layer = selectedlayers[i];
       if (layer.visible) {
-        var locationformat = "CH1903";
-        if ([7, 8].includes(layer.datasets_id)) locationformat = "UTM";
         var { fileid, files, mapplotfunction } = layer;
         var file = this.findDataset(fileid, files);
         mapplotfunction === "gitPlot" && this.gitPlot(layer, file);
         mapplotfunction === "remoteSensing" && this.remoteSensing(layer, file);
         mapplotfunction === "simstrat" && this.simstrat(layer, file);
         mapplotfunction === "meteolakes" &&
-          this.threeDmodel(layer, file, "delft3d", locationformat);
+          this.threeDmodel(layer, file, "delft3d");
         mapplotfunction === "datalakes" &&
-          this.threeDmodel(layer, file, "unix", locationformat);
+          this.threeDmodel(layer, file, "unix");
       }
     }
   };

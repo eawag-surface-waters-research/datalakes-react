@@ -399,7 +399,7 @@ class GIS extends Component {
   threeDmodelScalarMinMax = (inarray) => {
     var min = Infinity;
     var max = -Infinity;
-    var flat = inarray["t"]["data"].flat();
+    var flat = inarray["variables"]["temperature"]["data"].flat();
     flat = flat.filter((item) => item !== null);
     min = Math.min(min, this.getMin(flat));
     max = Math.max(max, this.getMax(flat));
@@ -409,8 +409,8 @@ class GIS extends Component {
   threeDmodelVectorMinMax = (inarray) => {
     var min = Infinity;
     var max = -Infinity;
-    var flat_u = inarray["u"]["data"].flat();
-    var flat_v = inarray["u"]["data"].flat();
+    var flat_u = inarray["variables"]["u"]["data"].flat();
+    var flat_v = inarray["variables"]["u"]["data"].flat();
     var flat = []
     for (let i = 0; i < flat_u.length; i++){
       if (flat_u !== null){
@@ -655,9 +655,9 @@ class GIS extends Component {
     var realdatetime = datetime;
     var realdepth = depth;
     if (datasource === "Meteolakes") {
-      ({ datetime: realdatetime, depth: realdepth } = data);
-      realdepth = Math.abs(realdepth);
-      realdatetime = this.matlabToJavascriptDatetime(realdatetime);
+      ({ time: realdatetime, depth: realdepth } = data);
+      realdepth = Math.abs(data["depth"]["data"]);
+      realdatetime = new Date(data["time"])
     } else if (datasource === "Eawag RS") {
       realdepth = 0;
       realdatetime = new Date(file.mindatetime);
