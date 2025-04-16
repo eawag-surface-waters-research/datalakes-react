@@ -87,7 +87,18 @@ class ReportIssue extends Component {
 
   submitReport = async () => {
     var { message, email } = this.state;
-    var { dataset, repositories_id } = this.props;
+    var { dataset, repositories_id, selectedData } = this.props;
+
+    if (selectedData?.bbox && selectedData.bbox.length > 0) {
+      message += (message ? "\n\n" : "") + this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0]);
+      message += "\n" + this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1]);
+    } else {
+      window.alert(
+        "Please select a data region on the graph to report an issue with (use Ctrl and Click to select)."
+      );
+      return;
+    }
+
     var content = {
       from: {
         email: "runnalls.james@gmail.com",
