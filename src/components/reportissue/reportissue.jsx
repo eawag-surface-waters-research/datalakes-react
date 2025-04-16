@@ -5,7 +5,7 @@ import Select from "react-select";
 import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./reportissue.css";
-import { color } from "d3";
+import { formatNumber } from "../../graphs/d3/linegraph/functions";
 
 class ReportIssue extends Component {
   state = {
@@ -187,9 +187,9 @@ class ReportIssue extends Component {
 
   formatRange = (label, unit, time, start, end) => {
     if (time) {
-      return `${label ? label : 'Time'}: ${start.toISOString()} - ${end.toISOString()}`;
+      return `${label ? label : 'Time'}: from ${start.toISOString()} to ${end.toISOString()}`;
     } else {
-      return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: ${start} - ${end}`;
+      return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: [${formatNumber(start < end ? start : end)}, ${formatNumber(start > end ? start : end)}]`;
     }
   };
 
