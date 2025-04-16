@@ -1,9 +1,11 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import DateTimePicker from "react-datetime-picker";
 import Select from "react-select";
 import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./reportissue.css";
+import { color } from "d3";
 
 class ReportIssue extends Component {
   state = {
@@ -183,6 +185,14 @@ class ReportIssue extends Component {
     return parts[0] + " " + parts[1].slice(0, 5);
   };
 
+  formatRange = (label, unit, time, start, end) => {
+    if (time) {
+      return `${label ? label : 'Time'}: ${start.toISOString()} - ${end.toISOString()}`;
+    } else {
+      return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: ${start} - ${end}`;
+    }
+  };
+
   componentDidMount = async () => {
     this.updateMaintenance();
   };
@@ -201,7 +211,7 @@ class ReportIssue extends Component {
       error,
       data,
     } = this.state;
-    var { dataset, datasetparameters } = this.props;
+    var { dataset, datasetparameters, selectedData } = this.props;
     var dp = datasetparameters
       .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
       .map((p) => {
@@ -411,6 +421,22 @@ class ReportIssue extends Component {
                     further questions.
                   </p>
                   <p>Dataset: {dataset}</p>
+                  {selectedData?.bbox && selectedData.bbox.length > 0 ? (
+                    <div>
+                      <p>
+                        Selected data:
+                      </p>
+                      <ul>
+                        <li>{this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0])}</li>
+                        <li>{this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1])}</li>
+                      </ul>
+                    </div>
+                  ) : (
+                    <p style={{color: "red"}}>
+                      Please select a data region on the graph to report an issue
+                      with (use Ctrl and Click to select).
+                    </p>
+                  )}
                   <textarea
                     placeholder="Please type your report here."
                     onChange={this.updateMessage}
@@ -446,4 +472,8 @@ class ReportIssue extends Component {
   }
 }
 
-export default ReportIssue;
+const mapStateToProps = (state) => ({
+  selectedData: state.selection.selectedData
+});
+
+export default connect(mapStateToProps)(ReportIssue);

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import * as d3 from "d3";
 import "d3-contour";
 import GraphHeader from "../graphheader/graphheader";
@@ -430,4 +431,8 @@ class D3HeatMap extends Component {
   }
 }
 
-export default D3HeatMap;
+const mapDispatchToProps = (dispatch) => ({
+  setSelection: (data) => dispatch({ type: 'SET_SELECTION', payload: data })
+});
+
+export default connect(null, mapDispatchToProps)(D3HeatMap);
