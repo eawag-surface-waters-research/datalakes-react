@@ -89,9 +89,24 @@ class ReportIssue extends Component {
     var { message, email } = this.state;
     var { dataset, repositories_id, selectedData } = this.props;
 
+    if (!message) {
+      window.alert(
+        "Please enter an issue description."
+      );
+      return;
+    }
+
+    if (!email) {
+      window.alert(
+        "Please enter a contact email."
+      );
+      return;
+    }
+
+    var dataDetails = "";
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
-      message += (message ? "\n\n" : "") + this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0]);
-      message += "\n" + this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1]);
+      dataDetails = "Data region:\n* " + this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0]);
+      dataDetails += "\n* " + this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1]);
     } else {
       window.alert(
         "Please select a data region on the graph to report an issue with (use Ctrl and Click to select)."
@@ -114,7 +129,7 @@ class ReportIssue extends Component {
             dataset: dataset,
             email: email,
             url: window.location.href,
-            message: message,
+            message: message + (message ? "\n\n" : "") + dataDetails,
           },
         },
       ],
@@ -122,7 +137,7 @@ class ReportIssue extends Component {
     };
     var issues = {
       title: message,
-      description: "Reported by: " + email,
+      description: "Reported by: " + email + "\n\n" + dataDetails,
       repo_id: repositories_id,
     };
     try {
