@@ -26,7 +26,29 @@ class ReportIssue extends Component {
   };
 
   openModal = () => {
-    this.setState({ modal: true });
+    // init maintenance form with selected data
+    var { selectedData } = this.props;
+    var { start, end, parameters } = this.state;
+    if (selectedData?.bbox && selectedData.bbox.length > 0 && selectedData.xTime) {
+      start = selectedData.bbox[0][0];
+      end = selectedData.bbox[1][0];
+    }
+    if (selectedData?.yLabel) {
+      // find parameter with same name
+      var parameter = this.props.datasetparameters.find(
+        (d) => d.name === selectedData.yLabel
+      );
+      if (parameter) {
+        parameters = [
+          {
+            value: parameter.id,
+            label: parameter.name + (parameter.detail !== "none" ? ` (${parameter.detail})` : ""),
+            id: parameter.parameters_id,
+          },
+        ];
+      }
+    }
+    this.setState({ start, end, parameters, modal: true });
   };
 
   closeModal = (event) => {
@@ -211,11 +233,11 @@ class ReportIssue extends Component {
     return parts[0] + " " + parts[1].slice(0, 5);
   };
 
-  formatRange = (label, unit, time, start, end) => {
+  formatRange = (label, unit, time, startVal, endVal) => {
     if (time) {
-      return `${label ? label : 'Time'}: from ${start.toISOString()} to ${end.toISOString()}`;
+      return `${label ? label : 'Time'}: from ${startVal.toISOString()} to ${endVal.toISOString()}`;
     } else {
-      return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: [${formatNumber(start < end ? start : end)}, ${formatNumber(start > end ? start : end)}]`;
+      return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: [${formatNumber(startVal < endVal ? startVal : endVal)}, ${formatNumber(startVal > endVal ? startVal : endVal)}]`;
     }
   };
 
@@ -238,6 +260,7 @@ class ReportIssue extends Component {
       data,
     } = this.state;
     var { dataset, datasetparameters, selectedData } = this.props;
+
     var dp = datasetparameters
       .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
       .map((p) => {
