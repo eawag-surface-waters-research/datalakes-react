@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import "./addlayers.css";
-import FilterBox from "../filterbox/filterbox";
 
 class AddLayersInnerInner extends Component {
   state = {

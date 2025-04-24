@@ -734,7 +734,7 @@ h2 {
   }
 
   .detailgraph {
-    height: calc(100vh - 290px);
+    height: calc(100vh - 350px);
     min-height: 300px;
     box-shadow: none;
     border: none;

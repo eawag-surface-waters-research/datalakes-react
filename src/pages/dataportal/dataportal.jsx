@@ -704,7 +704,6 @@ class DataPortal extends Component {
 
     var dParams = this.filterList(dataP, "parameters_id", "parameters", 1);
     var dLake = this.filterList(dataL, "lakes_id", "lakes");
-    var dOrigin = this.filterList(datasets, "origin", "NA");
 
     // Sort by
     if (search === "") {

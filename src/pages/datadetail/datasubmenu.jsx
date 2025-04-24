@@ -1,11 +1,9 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import line from "../../img/line.svg";
 import preview from "../../img/preview.svg";
 import download from "../../img/download.svg";
 import pipe from "../../img/pipe.svg";
 import info from "../../img/info.svg";
-import webgis from "../../img/webgis.svg";
 import td from "../../img/3d.svg";
 import map from "../../img/map.svg";
 import "./css/datadetail.css";
@@ -19,7 +17,7 @@ class DataSubMenu extends Component {
   };
 
   render() {
-    const { step, allowedStep, updateSelectedState, link } = this.props;
+    const { step, allowedStep, updateSelectedState } = this.props;
     return (
       <React.Fragment>
         <div className="data-subnav">
