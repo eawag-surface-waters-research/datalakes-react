@@ -19,6 +19,7 @@
   border: solid 1px rgb(169, 169, 169);
   border-radius: 5px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+  z-index: 999;
 }
 
 .sidebarlayout .rightcontainer.hide {
@@ -140,10 +141,12 @@
   }
 
   .sidebarlayout.wide {
-    width: calc(100% - 10px);
-    margin-left: 5px;
+    width: 100%;
+    margin-left: 0px;
     padding: 0;
+    margin-top: 8px;
   }
+
   .sidebarlayout .rightcontainer.hide {
     width: 150px;
     min-height: 0;
@@ -186,6 +189,11 @@
     font-size: 20px;
     padding: 20px;
   }
+
+  .sidebarlayout .rightcontainer .righthead:hover {
+    background-color: white;
+  }
+
 
   .sidebarlayout .rightcontainer .righthead .sidebartitle {
     padding: 0;

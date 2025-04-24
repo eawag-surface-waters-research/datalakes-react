@@ -132,47 +132,13 @@ class AddLayers extends Component {
     var { datasets, parameters, datasetparameters, addSelected } = this.props;
     return (
       <div className="addlayers">
-        <FilterBox
-          title="Measured Values"
-          inner="true"
-          content={
-            <AddLayersInner
-              datasets={datasets}
-              parameters={parameters}
-              datasetparameters={datasetparameters}
-              addSelected={addSelected}
-              lakes={this.props.lakes}
-              type="measurement"
-            />
-          }
-        />
-        <FilterBox
-          title="Satellite Data"
-          inner="true"
-          content={
-            <AddLayersInner
-              datasets={datasets}
-              parameters={parameters}
-              datasetparameters={datasetparameters}
-              addSelected={addSelected}
-              lakes={this.props.lakes}
-              type="satellite"
-            />
-          }
-        />
-        <FilterBox
-          title="Lake Simulations"
-          inner="true"
-          content={
-            <AddLayersInner
-              datasets={datasets}
-              parameters={parameters}
-              datasetparameters={datasetparameters}
-              addSelected={addSelected}
-              lakes={this.props.lakes}
-              type="model"
-            />
-          }
+        <AddLayersInner
+          datasets={datasets}
+          parameters={parameters}
+          datasetparameters={datasetparameters}
+          addSelected={addSelected}
+          lakes={this.props.lakes}
+          type="measurement"
         />
       </div>
     );

@@ -29,3 +29,10 @@
 .closemap:hover {
   color: grey;
 }
+
+@media screen and (max-width: 500px) {
+  .mapselect {
+    border: none;
+    border-radius: 0;
+  }
+}

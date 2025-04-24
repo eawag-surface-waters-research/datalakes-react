@@ -734,8 +734,11 @@ h2 {
   }
 
   .detailgraph {
-    height: calc(100vh - 330px);
+    height: calc(100vh - 290px);
     min-height: 300px;
+    box-shadow: none;
+    border: none;
+    border-radius: none;
   }
 
   .data-subnav .subnav-item .subnav-text {
@@ -749,7 +752,7 @@ h2 {
     border-color: white;
   }
   .data-subnav {
-    padding: 5px;
+    padding: 10px;
     margin: 0;
     width: 100%;
     box-sizing: border-box;

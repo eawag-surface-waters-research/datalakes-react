@@ -212,17 +212,6 @@ class DataSubMenu extends Component {
             <img src={info} className="subnav-img" alt="Information" />
             <div className="subnav-text">Information</div>
           </div>
-          <Link
-            to={link}
-            title="Compare with other datasets in the Map Viewer"
-            className={
-              this.active("webgis", step) ? "subnav-item active" : "subnav-item"
-            }
-            style={{ display: this.hide("webgis", allowedStep) && "none" }}
-          >
-            <img src={webgis} className="subnav-img" alt="webgis" />
-            <div className="subnav-text">Map Viewer</div>
-          </Link>
         </div>
       </React.Fragment>
     );

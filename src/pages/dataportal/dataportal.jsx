@@ -849,19 +849,6 @@ class DataPortal extends Component {
               </table>
               <PopupBox title="Location" fun={this.mapToggle} state={map} />
               <FilterBox
-                title="Origin"
-                content={
-                  <FilterBoxInner
-                    checkbox={this.checkboxAddFilter}
-                    cat="origin"
-                    params={dOrigin}
-                    filters={filters}
-                    table="datasets"
-                  />
-                }
-                preopen="true"
-              />
-              <FilterBox
                 title="Lake"
                 content={
                   <FilterBoxInner
