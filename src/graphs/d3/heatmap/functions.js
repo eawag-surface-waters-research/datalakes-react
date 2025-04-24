@@ -484,20 +484,21 @@ export const autoDownSample = (arr, ads) => {
 
 export const prepareContours = (zMin, zMax, data, nullData, thresholdStep) => {
   const step = (zMax - zMin) / thresholdStep;
-  const thresholds = range(zMin, zMax, step);
+  const thresholds = range(zMin, zMax, step); 
   const baseContour = [];
   const mainContour = [];
   const nanContour = [];
-  const cr = contours()
+  for (let i = 0; i < data.length; i++) {
+    let cr = contours()
     .size([data[0].z[0].length, data[0].z.length])
     .smooth(false);
-  const c = contours().size([data[0].z[0].length, data[0].z.length]);
-  for (let i = 0; i < data.length; i++) {
+    let c = contours().size([data[i].z[0].length, data[i].z.length]);
     const values = data[i].z.flat();
     const nullValues = nullData[i].z.flat();
     baseContour.push(cr.thresholds(thresholds)(values)[0]);
     mainContour.push(c.thresholds(thresholds)(values));
     nanContour.push(cr.thresholds([zMax * 1000])(nullValues)[0]);
   }
+
   return { baseContour, mainContour, nanContour, step };
 };

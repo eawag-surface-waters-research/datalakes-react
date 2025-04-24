@@ -21,7 +21,7 @@ class D3HeatMap extends Component {
     mousey: false,
     mouse: false,
     idx: 0,
-    ads: 500,
+    autoDownSample: false,
     saved: [],
   };
 
@@ -239,7 +239,7 @@ class D3HeatMap extends Component {
   };
 
   prepareOptions = () => {
-    var { display, graphid, fontSize, ads } = this.state;
+    var { display, graphid, fontSize, autoDownSample } = this.state;
     var {
       xlabel,
       ylabel,
@@ -278,7 +278,7 @@ class D3HeatMap extends Component {
       title,
       language: language,
       backgroundColor: bcolor,
-      autoDownsample: ads,
+      autoDownsample: autoDownSample,
       fontSize,
       contour: display === "contour",
       hover: this.hover,
