@@ -98,7 +98,7 @@ class TimeDepth extends Component {
 
 class GIS extends Component {
   state = {
-    menu: window.screen.width < 900 ? false : true,
+    menu: false,
     layersModal: false,
     dateModal: false,
     timeDepthModal: false,

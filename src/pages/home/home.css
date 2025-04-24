@@ -28,6 +28,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -38,6 +39,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -73,22 +75,27 @@
   0% {
     -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
   }
+
   70% {
     -webkit-box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
   }
+
   100% {
     -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
+
 @keyframes pulse {
   0% {
     -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
   }
+
   70% {
     -moz-box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
     box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
   }
+
   100% {
     -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
@@ -266,6 +273,7 @@
     width: calc(100% - 100px);
     margin: 30px 50px;
   }
+
   .section.access .box .box-text {
     display: inline-block;
     width: 50%;
@@ -273,6 +281,7 @@
     vertical-align: top;
     margin-top: 40px;
   }
+
   .section.access .box .box-img {
     display: inline-block;
     width: 50%;
@@ -285,6 +294,7 @@
   .section.access {
     margin: 0;
   }
+
   .section.access .box {
     display: block;
     width: calc(100% - 60px);
@@ -484,32 +494,31 @@
 
 .section.insitudata button {
   border: none;
-  color: white;
   display: block;
   font-size: 24px;
   margin-top: 20px;
   border-radius: 15px;
   padding: 10px 30px;
-  background-color: #102a43;
+  background-color: white;
+  color: black;
 }
 
 .section.insitudata button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .section.rs button {
   border: none;
-  color: white;
   display: block;
   font-size: 24px;
   margin-top: 20px;
   border-radius: 15px;
   padding: 10px 30px;
-  background-color: #102a43;
+  background-color: white;
 }
 
 .section.rs button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .section.insitudata a {
@@ -539,9 +548,8 @@
 }
 
 .section.rs img {
-  width: 100%;
-  padding: 40px 60px;
-  box-sizing: border-box;
+  height: 45px;
+  padding-top: 7px;
 }
 
 .section.rs .text {
@@ -626,9 +634,11 @@
   .home-banner .home-tagline {
     font-size: 45px;
   }
+
   .home {
     padding: 0 20px;
   }
+
   .section.insitudata .title {
     font-size: 22px;
     margin-top: 20px;
@@ -655,25 +665,30 @@
     padding: 0;
     margin-bottom: 100px;
   }
+
   .section.about .contacts .contact {
     width: 100%;
   }
+
   .section.about {
     box-sizing: border-box;
     width: 90%;
     margin-left: 5%;
     padding: 20px;
   }
+
   .home-banner {
     margin-bottom: 0;
     padding-top: 25vh;
   }
+
   .home-banner .home-tagline {
     font-size: 40px;
     width: 100%;
     padding: 0 10px;
     box-sizing: border-box;
   }
+
   .home-banner button {
     font-size: 16px;
   }
@@ -717,6 +732,7 @@
     float: right;
     padding-right: 20px;
   }
+
   .section.lakesimulations .textbox .numberbox {
     margin: 0 20px;
   }

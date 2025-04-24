@@ -440,6 +440,29 @@ class DataDetail extends Component {
       return;
     }
 
+    var forward = {
+      2: "https://www.alplakes.eawag.ch/stmoritz",
+      3: "https://www.alplakes.eawag.ch/murten",
+      4: "https://www.alplakes.eawag.ch/lugano",
+      5: "https://www.alplakes.eawag.ch/joux",
+      6: "https://www.alplakes.eawag.ch/hallwil",
+      7: "https://www.alplakes.eawag.ch/garda",
+      8: "https://www.alplakes.eawag.ch/caldonazzo",
+      9: "https://www.alplakes.eawag.ch/biel",
+      10: "https://www.alplakes.eawag.ch/ageri",
+      11: "https://www.alplakes.eawag.ch/zurich",
+      14: "https://www.alplakes.eawag.ch/geneva",
+      15: "https://www.alplakes.eawag.ch/greifensee",
+      19: "https://www.alplakes.eawag.ch",
+      20: "https://www.alplakes.eawag.ch",
+      21: "https://www.alplakes.eawag.ch",
+      22: "https://www.alplakes.eawag.ch",
+      24: "https://www.alplakes.eawag.ch",
+      25: "https://www.alplakes.eawag.ch",
+    };
+
+    if (dataset_id in forward) window.location.href = forward[dataset_id];
+
     var search = this.props.location.search;
     var iframe = this.props.location.search.includes("iframe");
     var lang = "en";

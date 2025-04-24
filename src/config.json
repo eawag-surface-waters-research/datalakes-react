@@ -1,67 +1,33 @@
 {
-    "apiUrl": "https://api.datalakes-eawag.ch",
-    "serverlessUrl": "https://serverless.datalakes-eawag.ch",
-    "serverlessUrls": "http://localhost:3000/dev",
-    "password": "downloadprivatefiles",
-    "bucket": {"name": "eawag-data", "url": "https://eawag-data.s3.eu-central-1.amazonaws.com"},
-    "basemaps": {
-        "datalakesmap": {
-            "url": "https://api.mapbox.com/styles/v1/jamesrunnalls/ck96x8fhp6h2i1ik5q9xz0iqn/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
-            "attribution": "swisstopo DV 5704 000 000 | &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> | &copy; <a href='https://www.mapbox.com/'>mapbox</a>",
-            "title": "Datalakes Map"
-        },
-        "satellite": {
-            "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-            "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-            "title": "Satellite Imagery"
-        },
-        "swisstopo": {
-            "url": "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg",
-            "attribution": "<a title='Swiss Federal Office of Topography' href='https://www.swisstopo.admin.ch/'>swisstopo</a>",
-            "title": "Swisstopo"
-        },
-        "dark": {
-            "url": "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
-            "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>",
-            "title": "Dark Theme"
-        }
+  "apiUrl": "https://api.datalakes-eawag.ch",
+  "serverlessUrl": "https://serverless.datalakes-eawag.ch",
+  "serverlessUrls": "http://localhost:3000/dev",
+  "password": "downloadprivatefiles",
+  "bucket": {
+    "name": "eawag-data",
+    "url": "https://eawag-data.s3.eu-central-1.amazonaws.com"
+  },
+  "basemaps": {
+    "datalakesmap": {
+      "url": "https://api.mapbox.com/styles/v1/jamesrunnalls/ck96x8fhp6h2i1ik5q9xz0iqn/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",
+      "attribution": "swisstopo DV 5704 000 000 | &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> | &copy; <a href='https://www.mapbox.com/'>mapbox</a>",
+      "title": "Datalakes Map"
     },
-    "groups": [
-        {
-          "name": "Lake Zurich 3D Model",
-          "description": "Some description",
-          "data": {
-            "selected": [
-              [11, 5],
-              [11, 25]
-            ],
-            "center": [47.282, 8.729],
-            "zoom": 12
-          }
-        },
-        {
-          "name": "Lake Geneva 3D Model",
-          "description": "Some description",
-          "data": {
-            "selected": [
-              [14, 5],
-              [14, 25]
-            ],
-            "center": [46.405, 6.578],
-            "zoom": 11
-          }
-        },
-        {
-          "name": "Lake Greifen 3D Model",
-          "description": "Some description",
-          "data": {
-            "selected": [
-              [15, 5],
-              [15, 25]
-            ],
-            "center": [47.347, 8.683],
-            "zoom": 13
-          }
-        }
-      ]
+    "satellite": {
+      "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+      "title": "Satellite Imagery"
+    },
+    "swisstopo": {
+      "url": "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg",
+      "attribution": "<a title='Swiss Federal Office of Topography' href='https://www.swisstopo.admin.ch/'>swisstopo</a>",
+      "title": "Swisstopo"
+    },
+    "dark": {
+      "url": "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
+      "attribution": "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>",
+      "title": "Dark Theme"
+    }
+  },
+  "groups": []
 }

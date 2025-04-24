@@ -17,6 +17,7 @@ import damien from "../../img/damien.jpg";
 import map from "../../img/map.png";
 import data from "../../img/data.png";
 import api from "../../img/api.png";
+import alplakes from "../../img/alplakes.png";
 import "./home.css";
 
 class PartnerBanner extends Component {
@@ -172,8 +173,8 @@ class Home extends Component {
                   <img src={map} alt="map" />
                 </div>
                 <div className="box-text">
-                  Build multi-layered maps of insitu-data, remote sensing and 3d
-                  models in our Web-GIS application.
+                  Discover and explore datasets based on geographic location
+                  using our interactive map viewer.
                 </div>
               </div>
             </Link>
@@ -256,20 +257,14 @@ class Home extends Component {
                     <tbody>
                       <tr>
                         <td>
-                          Access years of remotely sensed water quality
-                          parameters for water bodies across Switerland.
-                          <Link to="/datadetail/20">
-                            <button>Chlorophyll Concentration</button>
-                          </Link>
-                          <Link to="/datadetail/21">
-                            <button>Total Suspended Matter</button>
-                          </Link>
-                          <Link to="/datadetail/19">
-                            <button>Secchi Depth</button>
-                          </Link>
-                          <Link to="/datadetail/25">
-                            <button>Whiting</button>
-                          </Link>
+                          Discover a wide range of remote sensing products and
+                          hydrodynamic model data on Alplakes, the dedicated
+                          sister site of Datalakes.
+                          <a href="https://www.alplakes.eawag.ch/">
+                            <button>
+                              <img src={alplakes} alt="Alplakes" />
+                            </button>
+                          </a>
                         </td>
                       </tr>
                     </tbody>
