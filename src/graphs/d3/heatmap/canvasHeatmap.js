@@ -6,18 +6,30 @@ import {
   scaleLinear,
   axisBottom,
   axisLeft,
+  timeFormat,
+  timeSecond,
+  timeMinute,
+  timeHour,
+  timeDay,
+  timeMonth,
+  timeYear,
+  timeWeek,
   symbol,
   symbolTriangle,
   zoomIdentity,
+  range,
   format,
   zoom as d3zoom,
   timeFormatDefaultLocale,
 } from "d3";
+import { contours } from "d3-contour";
 import {
   verifyString,
   verifyBool,
   verifyNumber,
+  verifyNone,
   verifyColors,
+  verifyDiv,
   verifyData,
   verifyFunction,
 } from "./verify";
@@ -28,953 +40,1063 @@ import {
   closest,
   formatDate,
   formatNumber,
+  isNumeric,
   languageOptions,
   scientificNotation,
-  getDomain,
-  multiFormat,
-  replaceNull,
-  autoDownSample,
-  prepareContours,
 } from "./functions";
 import { canvasGrid, canvasContour } from "./fillcanvas";
 
-class CanvasHeatmap {
-  options = {
-    language: "en",
-    xLabel: false,
-    yLabel: false,
-    zLabel: false,
-    xUnit: false,
-    yUnit: false,
-    zUnit: false,
-    xLog: false,
-    yLog: false,
-    decimalPlaces: 3,
-    tooltip: true,
-    levels: false,
-    title: false,
-    zMin: false,
-    zMax: false,
-    fontSize: 12,
-    contour: false,
-    yReverse: false,
-    xReverse: false,
-    marginTop: 10,
-    marginLeft: 46,
-    marginBottom: 46,
-    marginRight: 70,
-    legendRight: true,
-    thresholdStep: 20,
-    backgroundColor: false,
-    autoDownsample: false,
-    setDownloadGraph: false,
-    setDownloadGraphDiv: false,
-    hover: false,
-    click: false,
-    colors: [
-      { color: "#0000ff", rgba: [0, 0, 255, 255], point: 0 },
-      { color: "#ff0000", rgba: [255, 0, 0, 255], point: 1 },
-    ],
-  };
-  constructor(div, data, options = {}) {
-    this._div = div;
-    this._setData(data);
-    this._setOptions(options);
-    this._processContour();
-    this._onAdd();
-  }
-  update(data, options) {
-    this._setData(data);
-    this._setOptions(options);
-    this._processContour();
-    this._onAdd();
-  }
-  updateOptions(options) {
-    this._setOptions(options);
-    this._processContour();
-    this._onAdd();
-  }
-  updateData(data) {
-    this._setData(data);
-    this._processContour();
-    this._plot();
-  }
-  resize() {
-    this._onAdd();
-  }
-  remove() {
-    try {
-      select("#svg_" + this._div).remove();
-    } catch (e) {}
-    try {
-      select("#canvas_" + this._div).remove();
-    } catch (e) {}
-    try {
-      select("#tooltip_" + this._div).remove();
-    } catch (e) {}
-  }
-  _onAdd() {
-    if (select("#" + this._div)._groups[0][0] === null) return;
-    this.remove();
-    this._setViewport();
-    this._addCanvas();
-    this._addSVG();
-    this._addXAxis();
-    this._addYAxis();
-    this._addTitle();
-    this._addBackground();
-    this._addLegendRight();
-    this._addZoom();
-    this._addTooltip();
-    this._plot();
-  }
-  _setData(data) {
-    if (!Array.isArray(data)) data = [data];
+const heatmap = (div, data, options = {}) => {
+  if (!Array.isArray(data)) data = [data];
+  try {
+    select("#svg_" + div).remove();
+    select("#canvas_" + div).remove();
+    select("#tooltip_" + div).remove();
+  } catch (e) {}
+
+  try {
+    verifyDiv(div);
     verifyData(data);
-    this._xTime = data[0].x[0] instanceof Date;
-    this._yTime = data[0].y[0] instanceof Date;
-    this._data = data;
-    this._dataExtents();
-  }
-  _processContour() {
-    if (this.options.contour) {
-      var data = this.options.autoDownsample
-        ? this._data.map((d) => autoDownSample(d, this.options.autoDownsample))
-        : this._data;
-      var { zMin, zMax } = this._zBounds();
-      var nullData = replaceNull(data, zMax);
-      this._prepContours = prepareContours(
-        zMin,
-        zMax,
+
+    options = processOptions(div, data, options);
+
+    const { xDomain, yDomain, zDomain, xFileDomain, yFileDomain } =
+      dataExtents(data);
+
+    if (options.zMin === false) options.zMin = zDomain[0];
+    if (options.zMax === false) options.zMax = zDomain[1];
+
+    const context = addCanvas(div, options);
+    const svg = addSVG(div, options);
+
+    timeFormatDefaultLocale(languageOptions(options.language));
+
+    var xAxis = addXAxis(svg, xDomain, options);
+    var yAxis = addYAxis(svg, yDomain, options);
+
+    if (options.addTitle) addTitle(svg, div, options);
+    if (options.backgroundColor) addBackground(div, options);
+    if (options.legendRight) addLegendRight(svg, div, options);
+    if (options.setDownloadGraph)
+      options.setDownloadGraph(() => downloadGraph(div, options));
+    if (options.setDownloadGraphDiv)
+      select("#" + options.setDownloadGraphDiv).on("click", function () {
+        downloadGraph(div, options);
+      });
+
+    var contour;
+    var nullData;
+    var prepContours;
+    if (options.contour) {
+      contour = options.autoDownsample
+        ? data.map((d) => autoDownSample(d, options.autoDownsample))
+        : data;
+      nullData = replaceNull(contour, options.zMax);
+      prepContours = prepareContours(contour, nullData, zDomain, options);
+    }
+
+    var { zoombox } = addZoom(
+      svg,
+      data,
+      contour,
+      prepContours,
+      div,
+      xAxis,
+      yAxis,
+      xDomain,
+      yDomain,
+      zDomain,
+      context,
+      options
+    );
+
+    if (options.tooltip)
+      addTooltip(
+        svg,
         data,
-        nullData,
-        this.options.thresholdStep
+        div,
+        zoombox,
+        xAxis,
+        yAxis,
+        xFileDomain,
+        yFileDomain,
+        options
       );
-      this._contour = data;
-    }
-  }
-  _plot() {
-    try {
-      this._vpi.style("opacity", 0);
-      this._tooltip.style("opacity", 0);
-      select("#zpointer_" + this._div).style("opacity", 0);
-      if (this.options.hover)
-        this.options.hover({ mousex: false, mousey: false });
-    } catch (e) {}
-    try {
-      setTimeout(() => {
-        this._context.clearRect(0, 0, this._canvasWidth, this._canvasHeight);
-        if (this.options.contour) {
-          this._canvasContour();
-        } else {
-          this._canvasGrid();
-        }
-      }, 0);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  _setOptions(options) {
-    var verifyOptions = {
-      language: verifyString,
-      xLabel: verifyString,
-      yLabel: verifyString,
-      zLabel: verifyString,
-      xUnit: verifyString,
-      yUnit: verifyString,
-      zUnit: verifyString,
-      xLog: verifyBool,
-      yLog: verifyBool,
-      decimalPlaces: verifyNumber,
-      tooltip: verifyBool,
-      levels: verifyBool,
-      title: verifyString,
-      zMin: verifyNumber,
-      zMax: verifyNumber,
-      fontSize: verifyNumber,
-      contour: verifyBool,
-      yReverse: verifyBool,
-      xReverse: verifyBool,
-      marginTop: verifyNumber,
-      marginLeft: verifyNumber,
-      marginBottom: verifyNumber,
-      marginRight: verifyNumber,
-      legendRight: verifyBool,
-      thresholdStep: verifyNumber,
-      backgroundColor: verifyString,
-      autoDownsample: verifyNumber,
-      setDownloadGraph: verifyFunction,
-      setDownloadGraphDiv: verifyString,
-      hover: verifyFunction,
-      click: verifyFunction,
-      colors: verifyColors,
-    };
 
-    for (let key in options) {
-      if (
-        key in this.options &&
-        verifyOptions[key](options[key]) &&
-        options[key] !== undefined
-      ) {
-        if (key === "colors") {
-          let colors = JSON.parse(JSON.stringify(options.colors));
-          this.options[key] = colors.map((c) => {
-            if (Array.isArray(c.color)) {
-              c.rgba = JSON.parse(JSON.stringify(c.color));
-              c.color = convertToHex(c.color);
-            } else {
-              c.rgba = convertToRGB(c.color);
-            }
-            return c;
-          });
-        } else {
-          this.options[key] = options[key];
-        }
-      }
-    }
-
-    if (!("marginLeft" in options))
-      this.options.marginLeft = this.options.fontSize * 4 + 10;
-    if (!("marginRight" in options)) {
-      if (this.options.legendRight) {
-        this.options.marginRight = this.options.fontSize * 5 + 12;
+    setTimeout(() => {
+      context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
+      if (options.contour) {
+        canvasContour(
+          contour,
+          xAxis.ax,
+          yAxis.ax,
+          context,
+          options,
+          prepContours
+        );
       } else {
-        this.options.marginRight = 10;
+        canvasGrid(
+          data,
+          xAxis.ax,
+          yAxis.ax,
+          xDomain,
+          yDomain,
+          context,
+          options
+        );
       }
-    }
-    if (!("marginBottom" in options))
-      this.options.marginBottom = this.options.fontSize * 3 + 10;
-    if (!("marginTop" in options)) {
-      if (this.options.title) {
-        this.options.marginTop = this.options.fontSize + 2;
-      } else {
-        this.options.marginTop = 10;
-      }
-    }
-
-    if (this.options.setDownloadGraph) {
-      this.options.setDownloadGraph(() => this._downloadGraph());
-    }
-
-    if (this.options.setDownloadGraphDiv) {
-      select("#" + this.options.setDownloadGraphDiv).on("click", () =>
-        this._downloadGraph()
-      );
-    }
-
-    timeFormatDefaultLocale(languageOptions(this.options.language));
-
-    this._colorCache = new Map();
+    }, 0);
+  } catch (e) {
+    console.error(e);
   }
-  _dataExtents() {
-    var xFileDomain = [];
-    var yFileDomain = [];
-    var zFileDomain = [];
-    for (var h = 0; h < this._data.length; h++) {
-      let xext = extent(this._data[h].x);
-      let yext = extent(this._data[h].y);
-      if (
-        !xFileDomain.map((x) => x[0]).includes(xext[0]) ||
-        !xFileDomain.map((x) => x[1]).includes(xext[1])
-      ) {
-        xFileDomain.push(xext);
-      }
-      if (
-        !yFileDomain.map((y) => y[0]).includes(yext[0]) ||
-        !yFileDomain.map((y) => y[1]).includes(yext[1])
-      ) {
-        yFileDomain.push(yext);
-      }
+};
 
-      zFileDomain.push(
-        extent(
-          [].concat.apply([], this._data[h].z).filter((f) => {
-            return !isNaN(parseFloat(f)) && isFinite(f);
-          })
-        )
-      );
-    }
-    this._xDomain = getDomain(xFileDomain);
-    this._yDomain = getDomain(yFileDomain);
-    this._zDomain = getDomain(zFileDomain);
-    this._xFileDomain = xFileDomain;
-    this._yFileDomain = yFileDomain;
-    this._zFileDomain = zFileDomain;
-  }
-  _setViewport() {
-    this._width = select("#" + this._div)
-      .node()
-      .getBoundingClientRect().width;
-    this._height =
-      select("#" + this._div)
+const processOptions = (div, data, userOptions) => {
+  var defaultOptions = [
+    { name: "language", default: "en", verify: verifyString },
+    { name: "xLabel", default: false, verify: verifyString },
+    { name: "yLabel", default: false, verify: verifyString },
+    { name: "zLabel", default: false, verify: verifyString },
+    { name: "xUnit", default: false, verify: verifyString },
+    { name: "yUnit", default: false, verify: verifyString },
+    { name: "zUnit", default: false, verify: verifyString },
+    { name: "xLog", default: false, verify: verifyBool },
+    { name: "yLog", default: false, verify: verifyBool },
+    { name: "decimalPlaces", default: 3, verify: verifyNumber },
+    { name: "tooltip", default: true, verify: verifyBool },
+    { name: "levels", default: false, verify: verifyBool },
+    { name: "title", default: false, verify: verifyString },
+    { name: "zMin", default: false, verify: verifyNone },
+    { name: "zMax", default: false, verify: verifyNone },
+    { name: "fontSize", default: 12, verify: verifyNumber },
+    { name: "contour", default: false, verify: verifyBool },
+    { name: "yReverse", default: false, verify: verifyBool },
+    { name: "xReverse", default: false, verify: verifyBool },
+    { name: "marginTop", default: 10, verify: verifyNumber },
+    { name: "marginLeft", default: 46, verify: verifyNumber },
+    { name: "marginBottom", default: 46, verify: verifyNumber },
+    { name: "marginRight", default: 70, verify: verifyNumber },
+    { name: "legendRight", default: true, verify: verifyBool },
+    { name: "thresholdStep", default: 20, verify: verifyNumber },
+    { name: "backgroundColor", default: false, verify: verifyString },
+    { name: "autoDownsample", default: false, verify: verifyNumber },
+    { name: "setDownloadGraph", default: false, verify: verifyFunction },
+    { name: "setDownloadGraphDiv", default: false, verify: verifyString },
+    { name: "hover", default: false, verify: verifyFunction },
+    { name: "click", default: false, verify: verifyFunction },
+
+    {
+      name: "colors",
+      default: [
+        { color: "#0000ff", point: 0 },
+        { color: "#ff0000", point: 1 },
+      ],
+      verify: verifyColors,
+    },
+    {
+      name: "width",
+      default: select("#" + div)
         .node()
-        .getBoundingClientRect().height - 5;
-    this._canvasWidth = Math.floor(
-      this._width - this.options.marginLeft - this.options.marginRight
-    );
-    this._canvasHeight = Math.floor(
-      this._height - this.options.marginTop - this.options.marginBottom
+        .getBoundingClientRect().width,
+      verify: verifyNumber,
+    },
+    {
+      name: "height",
+      default:
+        select("#" + div)
+          .node()
+          .getBoundingClientRect().height - 5,
+      verify: verifyNumber,
+    },
+  ];
+
+  var options = {};
+  for (let i = 0; i < defaultOptions.length; i++) {
+    if (defaultOptions[i].name in userOptions) {
+      if (userOptions[defaultOptions[i].name] === undefined) {
+        options[defaultOptions[i].name] = defaultOptions[i].default;
+      } else if (
+        defaultOptions[i].verify(userOptions[defaultOptions[i].name])
+      ) {
+        options[defaultOptions[i].name] = userOptions[defaultOptions[i].name];
+      } else {
+        console.error(
+          `${userOptions[defaultOptions[i].name]} is not a valid input for ${
+            defaultOptions[i].name
+          }`
+        );
+        options[defaultOptions[i].name] = defaultOptions[i].default;
+      }
+    } else {
+      options[defaultOptions[i].name] = defaultOptions[i].default;
+    }
+  }
+
+  if (!("marginLeft" in userOptions))
+    options.marginLeft = options.fontSize * 4 + 10;
+  if (!("marginRight" in userOptions)) {
+    if (options.legendRight) {
+      options.marginRight = options.fontSize * 5 + 12;
+    } else {
+      options.marginRight = 10;
+    }
+  }
+  if (!("marginBottom" in userOptions))
+    options.marginBottom = options.fontSize * 3 + 10;
+  if (!("marginTop" in userOptions)) {
+    if (options.title) {
+      options.marginTop = options.fontSize + 2;
+    } else {
+      options.marginTop = 10;
+    }
+  }
+
+  if (!(typeof options.zMin === "number" && !isNaN(options.zMin)))
+    options.zMin = false;
+
+  if (!(typeof options.zMax === "number" && !isNaN(options.zMax)))
+    options.zMax = false;
+
+  options.xTime = false;
+  options.yTime = false;
+  if (data[0].x[0] instanceof Date) options.xTime = true;
+  if (data[0].y[0] instanceof Date) options.yTime = true;
+
+  options.colors = JSON.parse(JSON.stringify(options.colors));
+  options.colors = options.colors.map((c) => {
+    if (Array.isArray(c.color)) {
+      c.rgba = JSON.parse(JSON.stringify(c.color));
+      c.color = convertToHex(c.color);
+    } else {
+      c.rgba = convertToRGB(c.color);
+    }
+    return c;
+  });
+  options.colorCache = new Map();
+
+  options.canvasWidth = Math.floor(
+    options.width - options.marginLeft - options.marginRight
+  );
+  options.canvasHeight = Math.floor(
+    options.height - options.marginTop - options.marginBottom
+  );
+  return options;
+};
+
+const prepareContours = (data, nullData, zDomain, options) => {
+  var thresholds = range(
+    zDomain[0],
+    zDomain[1],
+    (zDomain[1] - zDomain[0]) / options.thresholdStep
+  );
+  var step = (zDomain[1] - zDomain[0]) / options.thresholdStep;
+
+  var baseContour = [];
+  var mainContour = [];
+  var nanContour = [];
+
+  for (var i = 0; i < data.length; i++) {
+    let cr = contours()
+      .size([data[i].z[0].length, data[i].z.length])
+      .smooth(false);
+    let c = contours().size([data[i].z[0].length, data[i].z.length]);
+    let values = data[i].z.flat();
+    let nullValues = nullData[i].z.flat();
+    baseContour.push(cr.thresholds(thresholds)(values)[0]);
+    mainContour.push(c.thresholds(thresholds)(values));
+    nanContour.push(cr.thresholds([options.zMax * 1000])(nullValues)[0]);
+  }
+  return { baseContour, mainContour, nanContour, step };
+};
+
+const replaceNull = (data, zMax) => {
+  var nullData = JSON.parse(JSON.stringify(data));
+  for (var i = 0; i < data.length; i++) {
+    for (var y = 1; y < data[i].z.length - 1; y++) {
+      for (var x = 1; x < data[i].z[y].length - 1; x++) {
+        if (data[i].z[y][x] === null || !isNumeric(data[i].z[y][x])) {
+          if (data[i].z[y][x] !== null) data[i].z[y][x] = null;
+          nullData[i].z[y][x] = zMax * 10;
+          nullData[i].z[y][x + 1] = zMax * 10;
+          nullData[i].z[y - 1][x + 1] = zMax * 10;
+          nullData[i].z[y - 1][x] = zMax * 10;
+          nullData[i].z[y - 1][x - 1] = zMax * 10;
+          nullData[i].z[y][x - 1] = zMax * 10;
+          nullData[i].z[y + 1][x - 1] = zMax * 10;
+          nullData[i].z[y + 1][x] = zMax * 10;
+          nullData[i].z[y + 1][x + 1] = zMax * 10;
+        }
+      }
+    }
+  }
+  return nullData;
+};
+
+const getDomain = (domain) => {
+  var minarr = domain.map((d) => d[0]);
+  var maxarr = domain.map((d) => d[1]);
+  var min = extent(minarr)[0];
+  var max = extent(maxarr)[1];
+  return [min, max];
+};
+
+const dataExtents = (data) => {
+  var xDomain, yDomain, zDomain;
+  var xFileDomain = [];
+  var yFileDomain = [];
+  var zFileDomain = [];
+  for (var h = 0; h < data.length; h++) {
+    let xext = extent(data[h].x);
+    let yext = extent(data[h].y);
+    if (
+      !xFileDomain.map((x) => x[0]).includes(xext[0]) ||
+      !xFileDomain.map((x) => x[1]).includes(xext[1])
+    ) {
+      xFileDomain.push(xext);
+    }
+    if (
+      !yFileDomain.map((y) => y[0]).includes(yext[0]) ||
+      !yFileDomain.map((y) => y[1]).includes(yext[1])
+    ) {
+      yFileDomain.push(yext);
+    }
+
+    zFileDomain.push(
+      extent(
+        [].concat.apply([], data[h].z).filter((f) => {
+          return !isNaN(parseFloat(f)) && isFinite(f);
+        })
+      )
     );
   }
-  _addCanvas() {
-    var left = "0px";
-    if (this.options.contour) left = "1px";
-    this._canvas = select("#" + this._div)
-      .append("canvas")
-      .attr("width", this._canvasWidth)
-      .attr("height", this._canvasHeight)
-      .style("margin-left", this.options.marginLeft + "px")
-      .style("margin-top", this.options.marginTop + "px")
-      .style("pointer-events", "none")
-      .style("z-index", 1)
-      .style("position", "absolute")
-      .style("left", left)
-      .style("cursor", "grab")
-      .attr("id", "canvas_" + this._div)
-      .attr("class", "canvas-plot");
-    this._context = this._canvas.node().getContext("2d");
+  xDomain = getDomain(xFileDomain);
+  yDomain = getDomain(yFileDomain);
+  zDomain = getDomain(zFileDomain);
+  return { xDomain, yDomain, zDomain, xFileDomain, yFileDomain, zFileDomain };
+};
+
+const addSVG = (div, options) => {
+  return select("#" + div)
+    .append("svg")
+    .attr("id", "svg_" + div)
+    .attr("width", options.width)
+    .style("z-index", 2)
+    .style("position", "absolute")
+    .attr("height", options.height)
+    .append("g")
+    .attr(
+      "transform",
+      "translate(" + options.marginLeft + "," + options.marginTop + ")"
+    );
+};
+
+const addCanvas = (div, options) => {
+  var left = "0px";
+  if (options.contour) left = "1px";
+  const canvas = select("#" + div)
+    .append("canvas")
+    .attr("width", options.canvasWidth)
+    .attr("height", options.canvasHeight)
+    .style("margin-left", options.marginLeft + "px")
+    .style("margin-top", options.marginTop + "px")
+    .style("pointer-events", "none")
+    .style("z-index", 1)
+    .style("position", "absolute")
+    .style("left", left)
+    .style("cursor", "grab")
+    .attr("id", "canvas_" + div)
+    .attr("class", "canvas-plot");
+  return canvas.node().getContext("2d");
+};
+
+const addXAxis = (svg, xDomain, options) => {
+  var ax;
+  var xrange = [0, options.canvasWidth];
+  var xAxisLabel =
+    "" +
+    (options.xLabel ? options.xLabel : "") +
+    (options.xUnit ? " (" + options.xUnit + ")" : "");
+  if (options.xReverse) xrange = [options.canvasWidth, 0];
+  if (options.xTime) {
+    xAxisLabel = "";
+    ax = scaleTime().range(xrange).domain(xDomain);
+  } else if (options.xLog) {
+    ax = scaleLog().range(xrange).domain(xDomain);
+  } else {
+    ax = scaleLinear().range(xrange).domain(xDomain);
   }
-  _addSVG() {
-    this._svg = select("#" + this._div)
-      .append("svg")
-      .attr("id", "svg_" + this._div)
-      .attr("width", this._width)
-      .style("z-index", 2)
-      .style("position", "absolute")
-      .attr("height", this._height)
-      .append("g")
+  var ref = ax.copy();
+  var base = ax.copy();
+  var axis = axisBottom(ax).ticks(3);
+  if (options.xTime) {
+    axis.tickFormat(multiFormat);
+  } else if (scientificNotation(xDomain[0], xDomain[1])) {
+    axis.tickFormat(format(".1e"));
+  }
+
+  var g = svg
+    .append("g")
+    .attr("class", "x axis")
+    .attr("id", "axis--x")
+    .attr("transform", "translate(0," + options.canvasHeight + ")")
+    .style("font-size", `${options.fontSize}px`)
+    .call(axis);
+
+  if (xAxisLabel !== "") {
+    svg
+      .append("text")
       .attr(
         "transform",
         "translate(" +
-          this.options.marginLeft +
-          "," +
-          this.options.marginTop +
+          options.canvasWidth / 2 +
+          " ," +
+          (options.canvasHeight + options.marginBottom / 1.5) +
           ")"
+      )
+      .attr("x", 6)
+      .attr("dx", `${options.fontSize}px`)
+      .style("font-size", `${options.fontSize}px`)
+      .style("text-anchor", "end")
+      .text(xAxisLabel);
+
+    /*gX.selectAll("text").attr("transform", function (d) {
+      return (
+        "rotate(-45)translate(-" +
+        this.getBBox().width * (3 / 4) +
+        ",-" +
+        this.getBBox().height * (3 / 4) +
+        ")"
       );
+    });*/
   }
-  _addXAxis() {
-    var ax;
-    var xrange = [0, this._canvasWidth];
-    var xAxisLabel =
-      "" +
-      (this.options.xLabel ? this.options.xLabel : "") +
-      (this.options.xUnit ? " (" + this.options.xUnit + ")" : "");
-    if (this.options.xReverse) xrange = [this._canvasWidth, 0];
-    if (this._xTime) {
-      xAxisLabel = "";
-      ax = scaleTime().range(xrange).domain(this._xDomain);
-    } else if (this.options.xLog) {
-      ax = scaleLog().range(xrange).domain(this._xDomain);
-    } else {
-      ax = scaleLinear().range(xrange).domain(this._xDomain);
-    }
-    var ref = ax.copy();
-    var base = ax.copy();
-    var axis = axisBottom(ax).ticks(3);
-    if (this._xTime) {
-      axis.tickFormat(multiFormat);
-    } else if (scientificNotation(this._xDomain[0], this._xDomain[1])) {
-      axis.tickFormat(format(".1e"));
-    }
 
-    var g = this._svg
-      .append("g")
-      .attr("class", "x axis")
-      .attr("id", "axis--x")
-      .attr("transform", "translate(0," + this._canvasHeight + ")")
-      .style("font-size", `${this.options.fontSize}px`)
-      .call(axis);
+  return { ax, ref, base, axis, g };
+};
 
-    if (xAxisLabel !== "") {
-      this._svg
-        .append("text")
+const addYAxis = (svg, yDomain, options) => {
+  var ax;
+  var yrange = [options.canvasHeight, 0];
+  var yAxisLabel =
+    "" +
+    (options.yLabel ? options.yLabel : "") +
+    (options.yUnit ? " (" + options.yUnit + ")" : "");
+  if (options.yReverse) yrange = [0, options.canvasHeight];
+  if (options.yTime) {
+    yAxisLabel = "";
+    ax = scaleTime().range(yrange).domain(yDomain);
+  } else if (options.yLog) {
+    ax = scaleLog().range(yrange).domain(yDomain);
+  } else {
+    ax = scaleLinear().range(yrange).domain(yDomain);
+  }
+  var ref = ax.copy();
+  var base = ax.copy();
+  var axis = axisLeft(ax).ticks(3);
+  if (options.yTime) {
+    axis.tickFormat(multiFormat);
+  } else if (scientificNotation(yDomain[0], yDomain[1])) {
+    axis.tickFormat(format(".1e"));
+  }
+
+  var g = svg
+    .append("g")
+    .attr("class", "y axis")
+    .attr("id", "axis--y")
+    .style("font-size", `${options.fontSize}px`)
+    .call(axis);
+
+  if (yAxisLabel !== "") {
+    svg
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - options.marginLeft)
+      .attr("x", 0 - options.canvasHeight / 2)
+      .attr("dy", `${options.fontSize}px`)
+      .style("font-size", `${options.fontSize}px`)
+      .style("text-anchor", "middle")
+      .text(yAxisLabel);
+  }
+  return { ax, ref, base, axis, g };
+};
+
+const addTitle = (svg, div, options) => {
+  svg
+    .append("text")
+    .attr("x", options.canvasWidth / 2)
+    .attr("y", 2 - options.marginTop / 2)
+    .attr("id", "title_" + div)
+    .attr("text-anchor", "middle")
+    .style("font-size", `${options.fontSize}px`)
+    .style("text-decoration", "underline")
+    .style("opacity", "0")
+    .text(options.title);
+};
+
+const addBackground = (div, options) => {
+  select("#" + div)
+    .append("svg")
+    .attr("id", "background_" + div)
+    .attr("width", options.width)
+    .style("z-index", 0)
+    .style("position", "absolute")
+    .attr("height", options.height)
+    .append("g")
+    .append("rect")
+    .attr("x", 1)
+    .attr("width", options.width)
+    .attr("height", options.height)
+    .attr("fill", options.backgroundColor);
+};
+
+const addLegendRight = (svg, div, options) => {
+  var defs = svg.append("defs");
+  var ndp = 100;
+  if (options.zMax - options.zMin < 0.1) ndp = 1000;
+  if (options.zMax - options.zMin < 0.01) ndp = 10000;
+  var t1 = Math.round(options.zMax * ndp) / ndp,
+    t5 = Math.round(options.zMin * ndp) / ndp,
+    t3 = Math.round(((t1 + t5) / 2) * ndp) / ndp,
+    t2 = Math.round(((t1 + t3) / 2) * ndp) / ndp,
+    t4 = Math.round(((t3 + t5) / 2) * ndp) / ndp;
+
+  if (scientificNotation(options.zMin, options.zMax)) {
+    t1 = t1.toExponential();
+    t2 = t2.toExponential();
+    t3 = t3.toExponential();
+    t4 = t4.toExponential();
+    t5 = t5.toExponential();
+  }
+
+  var svgGradient = defs
+    .append("linearGradient")
+    .attr("id", "svgGradient_" + div)
+    .attr("x1", "0")
+    .attr("x2", "0")
+    .attr("y1", "0")
+    .attr("y2", "1");
+
+  for (var g = options.colors.length - 1; g > -1; g--) {
+    svgGradient
+      .append("stop")
+      .attr("class", "end")
+      .attr("offset", 1 - options.colors[g].point)
+      .attr("stop-color", options.colors[g].color)
+      .attr("stop-opacity", 1);
+  }
+
+  svg
+    .append("g")
+    .append("rect")
+    .attr("width", options.marginRight / 6)
+    .attr("height", options.canvasHeight)
+    .attr("x", options.canvasWidth + options.marginRight / 6)
+    .attr("y", 0)
+    .attr("fill", `url(#svgGradient_${div})`);
+
+  svg
+    .append("text")
+    .attr("x", options.canvasWidth + 2 + options.marginRight / 3)
+    .attr("y", 10)
+    .style("font-size", `${options.fontSize}px`)
+    .text(t1);
+
+  svg
+    .append("text")
+    .attr("x", options.canvasWidth + 2 + options.marginRight / 3)
+    .attr("y", options.canvasHeight * 0.25 + 3)
+    .style("font-size", `${options.fontSize}px`)
+    .text(t2);
+
+  svg
+    .append("text")
+    .attr("x", options.canvasWidth + 2 + options.marginRight / 3)
+    .attr("y", options.canvasHeight * 0.75 + 3)
+    .style("font-size", `${options.fontSize}px`)
+    .text(t4);
+
+  svg
+    .append("text")
+    .attr("x", options.canvasWidth + 2 + options.marginRight / 3)
+    .attr("y", options.canvasHeight)
+    .style("font-size", `${options.fontSize}px`)
+    .text(t5);
+
+  if (options.zLabel) {
+    var zAxisLabel =
+      options.zLabel + (options.zUnit ? " (" + options.zUnit + ")" : "");
+    svg
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", options.canvasWidth + options.marginRight - 5)
+      .attr("x", 0 - options.canvasHeight / 2)
+      .attr("dz", "1em")
+      .style("text-anchor", "middle")
+      .style("font-size", `${options.fontSize}px`)
+      .text(zAxisLabel);
+  }
+};
+
+const addTooltip = (
+  svg,
+  data,
+  div,
+  zoombox,
+  xAxis,
+  yAxis,
+  xFileDomain,
+  yFileDomain,
+  options
+) => {
+  var tooltip = select("#" + div)
+    .append("div")
+    .style("opacity", 0)
+    .style("z-index", 2)
+    .style("pointer-events", "none")
+    .attr("id", "tooltip_" + div)
+    .attr("class", "tooltip");
+
+  // Add axis locators
+  var symbolGenerator = symbol().type(symbolTriangle).size(25);
+  svg
+    .append("g")
+    .attr("transform", "rotate(90)")
+    .append("g")
+    .style("opacity", 0)
+    .attr("id", "zpointer_" + div)
+    .attr(
+      "transform",
+      "translate(" +
+        options.canvasHeight +
+        ",-" +
+        (options.canvasWidth - 16 + options.marginRight / 3) +
+        ")"
+    )
+    .append("path")
+    .attr("d", symbolGenerator());
+
+  // Add vertical point identifier
+  var vpi = svg
+    .append("g")
+    .style("opacity", 0)
+    .style("pointer-events", "none")
+    .attr("id", "xline_" + div);
+  if (options.levels)
+    vpi
+      .append("line")
+      .attr("y1", 0)
+      .attr("y2", options.canvasHeight)
+      .style("stroke-width", 1)
+      .style("stroke", "white")
+      .style("fill", "none");
+
+  var lang = languageOptions(options.language);
+
+  zoombox.on("mousemove", (event) => {
+    try {
+      var hoverX = xAxis.ax.invert(
+        event.layerX - options.marginLeft || event.offsetX - options.marginLeft
+      );
+      var hoverY = yAxis.ax.invert(
+        event.layerY - options.marginTop || event.offsetY - options.marginTop
+      );
+
+      var idx = Math.max(
+        getFileIndex(xFileDomain, hoverX),
+        getFileIndex(yFileDomain, hoverY)
+      );
+      var process = data[idx];
+
+      var yi = closest(hoverY, process.y);
+      var xi = closest(hoverX, process.x);
+
+      var xval, yval;
+      var xu = "";
+      var yu = "";
+      var zu = "";
+      var zval = process.z[yi][xi];
+
+      if (options.xTime) {
+        xval = formatDate(process.x[xi], lang);
+      } else {
+        xval = formatNumber(process.x[xi]);
+        if (typeof options.xUnit === "string") xu = options.xUnit;
+      }
+
+      if (options.yTime) {
+        yval = formatDate(process.y[yi], lang);
+      } else {
+        yval = formatNumber(process.y[yi]);
+        if (typeof options.yUnit === "string") yu = options.yUnit;
+      }
+
+      if (typeof options.zUnit === "string") zu = options.zUnit;
+
+      var html =
+        "<table><tbody>" +
+        `<tr><td>x:</td><td>${xval} ${xu}</td></tr>` +
+        `<tr><td>y:</td><td>${yval} ${yu}</td></tr>` +
+        `<tr><td>z:</td><td>${formatNumber(
+          zval,
+          options.decimalPlaces
+        )} ${zu}</td></tr>` +
+        "</tbody></table>";
+
+      tooltip
+        .html(html)
+        .style("left", xAxis.ax(process.x[xi]) + options.marginLeft + 10 + "px")
+        .style("top", yAxis.ax(process.y[yi]) + options.marginTop - 20 + "px")
+        .style("opacity", 1);
+
+      select("#zpointer_" + div)
         .attr(
           "transform",
           "translate(" +
-            this._canvasWidth / 2 +
-            " ," +
-            (this._canvasHeight + this.options.marginBottom / 1.5) +
+            ((zval - options.zMax) / (options.zMin - options.zMax)) *
+              options.canvasHeight +
+            ",-" +
+            (options.canvasWidth - 16 + options.marginRight / 3) +
             ")"
         )
-        .attr("x", 6)
-        .attr("dx", `${this.options.fontSize}px`)
-        .style("font-size", `${this.options.fontSize}px`)
-        .style("text-anchor", "end")
-        .text(xAxisLabel);
-    }
-    this._xAxis = { ax, ref, base, axis, g };
-  }
-  _addYAxis() {
-    var ax;
-    var yrange = [this._canvasHeight, 0];
-    var yAxisLabel =
-      "" +
-      (this.options.yLabel ? this.options.yLabel : "") +
-      (this.options.yUnit ? " (" + this.options.yUnit + ")" : "");
-    if (this.options.yReverse) yrange = [0, this._canvasHeight];
-    if (this._yTime) {
-      yAxisLabel = "";
-      ax = scaleTime().range(yrange).domain(this._yDomain);
-    } else if (this.options.yLog) {
-      ax = scaleLog().range(yrange).domain(this._yDomain);
-    } else {
-      ax = scaleLinear().range(yrange).domain(this._yDomain);
-    }
-    var ref = ax.copy();
-    var base = ax.copy();
-    var axis = axisLeft(ax).ticks(3);
-    if (this._yTime) {
-      axis.tickFormat(multiFormat);
-    } else if (scientificNotation(this._yDomain[0], this._yDomain[1])) {
-      axis.tickFormat(format(".1e"));
-    }
+        .style("opacity", 1);
+      if (options.hover) options.hover({ mousex: xi, mousey: yi, idx });
 
-    var g = this._svg
-      .append("g")
-      .attr("class", "y axis")
-      .attr("id", "axis--y")
-      .style("font-size", `${this.options.fontSize}px`)
-      .call(axis);
-
-    if (yAxisLabel !== "") {
-      this._svg
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - this.options.marginLeft)
-        .attr("x", 0 - this._canvasHeight / 2)
-        .attr("dy", `${this.options.fontSize}px`)
-        .style("font-size", `${this.options.fontSize}px`)
-        .style("text-anchor", "middle")
-        .text(yAxisLabel);
-    }
-    this._yAxis = { ax, ref, base, axis, g };
-  }
-  _addTitle() {
-    if (this.options.title === false) return;
-    this._svg
-      .append("text")
-      .attr("x", this._canvasWidth / 2)
-      .attr("y", 2 - this.options.marginTop / 2)
-      .attr("id", "title_" + this._div)
-      .attr("text-anchor", "middle")
-      .style("font-size", `${this.options.fontSize}px`)
-      .style("text-decoration", "underline")
-      .style("opacity", "0")
-      .text(this.options.title);
-  }
-  _addBackground() {
-    if (this.options.backgroundColor === false) return;
-    select("#" + this._div)
-      .append("svg")
-      .attr("id", "background_" + this._div)
-      .attr("width", this._width)
-      .style("z-index", 0)
-      .style("position", "absolute")
-      .attr("height", this._height)
-      .append("g")
-      .append("rect")
-      .attr("x", 1)
-      .attr("width", this._width)
-      .attr("height", this._height)
-      .attr("fill", this.options.backgroundColor);
-  }
-  _addLegendRight() {
-    if (this.options.legendRight === false) return;
-    var defs = this._svg.append("defs");
-    var decimal_places = 100;
-    var { zMin, zMax } = this._zBounds();
-    if (zMax - zMin < 0.1) decimal_places = 1000;
-    if (zMax - zMin < 0.01) decimal_places = 10000;
-    var t1 = Math.round(zMax * decimal_places) / decimal_places,
-      t5 = Math.round(zMin * decimal_places) / decimal_places,
-      t3 = Math.round(((t1 + t5) / 2) * decimal_places) / decimal_places,
-      t2 = Math.round(((t1 + t3) / 2) * decimal_places) / decimal_places,
-      t4 = Math.round(((t3 + t5) / 2) * decimal_places) / decimal_places;
-
-    if (scientificNotation(zMin, zMax)) {
-      t1 = t1.toExponential();
-      t2 = t2.toExponential();
-      t3 = t3.toExponential();
-      t4 = t4.toExponential();
-      t5 = t5.toExponential();
-    }
-
-    var svgGradient = defs
-      .append("linearGradient")
-      .attr("id", "svgGradient_" + this._div)
-      .attr("x1", "0")
-      .attr("x2", "0")
-      .attr("y1", "0")
-      .attr("y2", "1");
-
-    for (var g = this.options.colors.length - 1; g > -1; g--) {
-      svgGradient
-        .append("stop")
-        .attr("class", "end")
-        .attr("offset", 1 - this.options.colors[g].point)
-        .attr("stop-color", this.options.colors[g].color)
-        .attr("stop-opacity", 1);
-    }
-
-    this._svg
-      .append("g")
-      .append("rect")
-      .attr("width", this.options.marginRight / 6)
-      .attr("height", this._canvasHeight)
-      .attr("x", this._canvasWidth + this.options.marginRight / 6)
-      .attr("y", 0)
-      .attr("fill", `url(#svgGradient_${this._div})`);
-
-    this._svg
-      .append("text")
-      .attr("x", this._canvasWidth + 2 + this.options.marginRight / 3)
-      .attr("y", 10)
-      .style("font-size", `${this.options.fontSize}px`)
-      .text(t1);
-
-    this._svg
-      .append("text")
-      .attr("x", this._canvasWidth + 2 + this.options.marginRight / 3)
-      .attr("y", this._canvasHeight * 0.25 + 3)
-      .style("font-size", `${this.options.fontSize}px`)
-      .text(t2);
-
-    this._svg
-      .append("text")
-      .attr("x", this._canvasWidth + 2 + this.options.marginRight / 3)
-      .attr("y", this._canvasHeight * 0.75 + 3)
-      .style("font-size", `${this.options.fontSize}px`)
-      .text(t4);
-
-    this._svg
-      .append("text")
-      .attr("x", this._canvasWidth + 2 + this.options.marginRight / 3)
-      .attr("y", this._canvasHeight)
-      .style("font-size", `${this.options.fontSize}px`)
-      .text(t5);
-
-    if (this.options.zLabel) {
-      var zAxisLabel =
-        this.options.zLabel +
-        (this.options.zUnit ? " (" + this.options.zUnit + ")" : "");
-      this._svg
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", this._canvasWidth + this.options.marginRight - 5)
-        .attr("x", 0 - this._canvasHeight / 2)
-        .attr("dz", "1em")
-        .style("text-anchor", "middle")
-        .style("font-size", `${this.options.fontSize}px`)
-        .text(zAxisLabel);
-    }
-  }
-  _downloadGraph = () => {
-    var title = select("#title_" + this._div);
-    title.style("opacity", "1");
-    var s = new XMLSerializer();
-    var str = s.serializeToString(document.getElementById("svg_" + this._div));
-
-    var canvasout = document.createElement("canvas"),
-      contextout = canvasout.getContext("2d");
-
-    canvasout.width = this._width;
-    canvasout.height = this._height;
-    var { marginLeft, marginTop } = this.options;
-    var div = this._div;
-
-    var image = new Image();
-    image.onerror = function () {
-      alert("Appologies .png download failed. Please download as .svg.");
-    };
-    image.onload = function () {
-      contextout.drawImage(image, 0, 0);
-      contextout.drawImage(
-        document.getElementById("canvas_" + div),
-        marginLeft,
-        marginTop
-      );
-      var a = document.createElement("a");
-      a.download = "heatmap_" + div + ".png";
-      a.href = canvasout.toDataURL("image/png");
-      a.click();
-    };
-    image.src = "data:image/svg+xml;charset=utf8," + encodeURIComponent(str);
-    title.style("opacity", "0");
-  };
-  _addTooltip() {
-    if (this.options.tooltip === false) return;
-    var { zMin, zMax } = this._zBounds();
-    var tooltip = select("#" + this._div)
-      .append("div")
-      .style("opacity", 0)
-      .style("z-index", 2)
-      .style("pointer-events", "none")
-      .attr("id", "tooltip_" + this._div)
-      .attr("class", "tooltip");
-
-    // Add axis locators
-    var symbolGenerator = symbol().type(symbolTriangle).size(25);
-    this._svg
-      .append("g")
-      .attr("transform", "rotate(90)")
-      .append("g")
-      .style("opacity", 0)
-      .attr("id", "zpointer_" + this._div)
-      .attr(
-        "transform",
-        "translate(" +
-          this._canvasHeight +
-          ",-" +
-          (this._canvasWidth - 16 + this.options.marginRight / 3) +
-          ")"
-      )
-      .append("path")
-      .attr("d", symbolGenerator());
-
-    // Add vertical point identifier
-    var vpi = this._svg
-      .append("g")
-      .style("opacity", 0)
-      .style("pointer-events", "none")
-      .attr("id", "xline_" + this._div);
-    if (this.options.levels)
-      vpi
-        .append("line")
-        .attr("y1", 0)
-        .attr("y2", this._canvasHeight)
-        .style("stroke-width", 1)
-        .style("stroke", "white")
-        .style("fill", "none");
-
-    var lang = languageOptions(this.options.language);
-
-    this._zoombox.on("mousemove", (event) => {
-      try {
-        var rect = event.currentTarget.getBoundingClientRect();
-        var hoverX = event.clientX - rect.left;
-        var hoverY = event.clientY - rect.top;
-
-        var xValue = this._xAxis.ax.invert(hoverX);
-        var yValue = this._yAxis.ax.invert(hoverY);
-
-        var idx = Math.max(
-          getFileIndex(this._xFileDomain, xValue),
-          getFileIndex(this._yFileDomain, yValue)
-        );
-        var process = this._data[idx];
-
-        var xi = closest(xValue, process.x);
-        var yi = closest(yValue, process.y);
-
-        var xval, yval;
-        var xu = "";
-        var yu = "";
-        var zu = "";
-        var zval = process.z[yi][xi];
-
-        if (this._xTime) {
-          xval = formatDate(process.x[xi], lang);
-        } else {
-          xval = formatNumber(process.x[xi]);
-          if (typeof this.options.xUnit === "string") xu = this.options.xUnit;
+      // Add vertical point identifier
+      if (options.levels) {
+        vpi.selectAll("circle").remove();
+        for (var yp of process.y) {
+          if (yAxis.ax(yp) >= 0 && yAxis.ax(yp) <= options.canvasHeight) {
+            vpi
+              .append("circle")
+              .attr("cy", yAxis.ax(yp))
+              .attr("r", 2)
+              .style("fill", "white");
+          }
         }
-
-        if (this._yTime) {
-          yval = formatDate(process.y[yi], lang);
-        } else {
-          yval = formatNumber(process.y[yi]);
-          if (typeof this.options.yUnit === "string") yu = this.options.yUnit;
-        }
-
-        if (typeof this.options.zUnit === "string") zu = this.options.zUnit;
-
-        var html =
-          "<table><tbody>" +
-          `<tr><td>x:</td><td>${xval} ${xu}</td></tr>` +
-          `<tr><td>y:</td><td>${yval} ${yu}</td></tr>` +
-          `<tr><td>z:</td><td>${formatNumber(
-            zval,
-            this.options.decimalPlaces
-          )} ${zu}</td></tr>` +
-          "</tbody></table>";
-
-        if (hoverX > this._width / 2) {
-          tooltip
-            .html(html)
-            .style(
-              "right",
-              this._width -
-                this._xAxis.ax(process.x[xi]) -
-                this.options.marginLeft +
-                10 +
-                "px"
-            )
-            .style("left", "auto")
-            .style(
-              "top",
-              this._yAxis.ax(process.y[yi]) + this.options.marginTop - 20 + "px"
-            )
-            .attr("class", "tooltip tooltip-right")
-            .style("opacity", 1);
-        } else {
-          tooltip
-            .html(html)
-            .style(
-              "left",
-              this._xAxis.ax(process.x[xi]) +
-                this.options.marginLeft +
-                10 +
-                "px"
-            )
-            .style("right", "auto")
-            .style(
-              "top",
-              this._yAxis.ax(process.y[yi]) + this.options.marginTop - 20 + "px"
-            )
-            .attr("class", "tooltip tooltip-left")
-            .style("opacity", 1);
-        }
-
-        select("#zpointer_" + this._div)
+        vpi
           .attr(
             "transform",
             "translate(" +
-              ((zval - zMax) / (zMin - zMax)) * this._canvasHeight +
-              ",-" +
-              (this._canvasWidth - 16 + this.options.marginRight / 3) +
-              ")"
+              xAxis.ax(process.x[xi]) +
+              options.marginLeft +
+              10 +
+              ",0)"
           )
-          .style("opacity", 1);
-        if (this.options.hover)
-          this.options.hover({ mousex: xi, mousey: yi, idx });
-
-        // Add vertical point identifier
-        if (this.options.levels) {
-          vpi.selectAll("circle").remove();
-          for (var yp of process.y) {
-            if (
-              this._yAxis.ax(yp) >= 0 &&
-              this._yAxis.ax(yp) <= this._canvasHeight
-            ) {
-              vpi
-                .append("circle")
-                .attr("cy", this._yAxis.ax(yp))
-                .attr("r", 2)
-                .style("fill", "white");
-            }
-          }
-          vpi
-            .attr(
-              "transform",
-              "translate(" +
-                this._xAxis.ax(process.x[xi]) +
-                this.options.marginLeft +
-                10 +
-                ",0)"
-            )
-            .style("opacity", 0.7);
-        }
-      } catch (e) {
-        vpi.style("opacity", 0);
-        tooltip.style("opacity", 0);
-        select("#zpointer_" + this._div).style("opacity", 0);
-        if (this.options.hover)
-          this.options.hover({ mousex: false, mousey: false });
+          .style("opacity", 0.7);
       }
-    });
-
-    this._zoombox.on("click", (event) => {
-      try {
-        var hoverX = this._xAxis.ax.invert(
-          event.layerX - this.options.marginLeft ||
-            event.offsetX - this.options.marginLeft
-        );
-        var hoverY = this._yAxis.ax.invert(
-          event.layerY - this.options.marginTop ||
-            event.offsetY - this.options.marginTop
-        );
-        var idx = Math.max(
-          getFileIndex(this._xFileDomain, hoverX),
-          getFileIndex(this._yFileDomain, hoverY)
-        );
-        var process = this._data[idx];
-        var yi = closest(hoverY, process.y);
-        var xi = closest(hoverX, process.x);
-        if (this.options.click)
-          this.options.click({ mousex: xi, mousey: yi, idx });
-      } catch (e) {
-        if (this.options.click)
-          this.options.click({ mousex: false, mousey: false });
-      }
-    });
-
-    this._zoombox.on("mouseout", () => {
+    } catch (e) {
       vpi.style("opacity", 0);
       tooltip.style("opacity", 0);
-      select("#zpointer_" + this._div).style("opacity", 0);
-      if (this.options.hover)
-        this.options.hover({ mousex: false, mousey: false });
-    });
-    this._tooltip = tooltip;
-    this._vpi = vpi;
-  }
-  _addZoom() {
-    this._zoom = d3zoom()
-      .extent([
-        [0, 0],
-        [this._canvasWidth, this._canvasHeight],
-      ])
-      .on("zoom", (event) => this._normalzoom(event));
+      select("#zpointer_" + div).style("opacity", 0);
+      if (options.hover) options.hover({ mousex: false, mousey: false });
+    }
+  });
 
-    var zoomx = d3zoom()
-      .extent([
-        [0, 0],
-        [this._canvasWidth, this._canvasHeight],
-      ])
-      .on("zoom", (event) => this._normalzoomx(event));
+  zoombox.on("click", (event) => {
+    try {
+      var hoverX = xAxis.ax.invert(
+        event.layerX - options.marginLeft || event.offsetX - options.marginLeft
+      );
+      var hoverY = yAxis.ax.invert(
+        event.layerY - options.marginTop || event.offsetY - options.marginTop
+      );
+      var idx = Math.max(
+        getFileIndex(xFileDomain, hoverX),
+        getFileIndex(yFileDomain, hoverY)
+      );
+      var process = data[idx];
+      var yi = closest(hoverY, process.y);
+      var xi = closest(hoverX, process.x);
+      if (options.click) options.click({ mousex: xi, mousey: yi, idx });
+    } catch (e) {
+      if (options.click) options.click({ mousex: false, mousey: false });
+    }
+  });
 
-    var zoomy = d3zoom()
-      .extent([
-        [0, 0],
-        [this._canvasWidth, this._canvasHeight],
-      ])
-      .on("zoom", (event) => this._normalzoomy(event));
+  zoombox.on("mouseout", () => {
+    vpi.style("opacity", 0);
+    tooltip.style("opacity", 0);
+    select("#zpointer_" + div).style("opacity", 0);
+    if (options.hover) options.hover({ mousex: false, mousey: false });
+  });
+};
 
-    this._zoombox = this._svg
-      .append("rect")
-      .attr("id", "zoombox_" + this._div)
-      .attr("width", this._canvasWidth)
-      .attr("height", this._canvasHeight)
-      .style("fill", "none")
-      .style("cursor", "pointer")
-      .attr("pointer-events", "all")
-      .call(this._zoom);
+const addZoom = (
+  svg,
+  data,
+  contour,
+  prepContours,
+  div,
+  xAxis,
+  yAxis,
+  xDomain,
+  yDomain,
+  zDomain,
+  context,
+  options
+) => {
+  var zoom = d3zoom()
+    .extent([
+      [0, 0],
+      [options.canvasWidth, options.canvasHeight],
+    ])
+    .on("zoom", normalzoom);
 
-    this._zoomboxx = this._svg
-      .append("rect")
-      .attr("id", "zoomboxx_" + this._div)
-      .attr("width", this._canvasWidth)
-      .attr("height", this.options.marginBottom)
-      .style("fill", "none")
-      .style("cursor", "col-resize")
-      .attr("pointer-events", "all")
-      .attr("y", this._canvasHeight)
-      .call(zoomx);
+  var zoomx = d3zoom()
+    .extent([
+      [0, 0],
+      [options.canvasWidth, options.canvasHeight],
+    ])
+    .on("zoom", normalzoomx);
 
-    this._zoomboxy = this._svg
-      .append("rect")
-      .attr("id", "zoomboxy_" + this._div)
-      .attr("width", this.options.marginLeft)
-      .attr("height", this._canvasHeight)
-      .style("fill", "none")
-      .style("cursor", "row-resize")
-      .attr("pointer-events", "all")
-      .attr("x", -this.options.marginLeft)
-      .call(zoomy);
+  var zoomy = d3zoom()
+    .extent([
+      [0, 0],
+      [options.canvasWidth, options.canvasHeight],
+    ])
+    .on("zoom", normalzoomy);
 
-    this._zoombox.on("dblclick.zoom", null).on("dblclick", () => {
-      this._xAxis.ax = this._xAxis.base;
-      this._yAxis.ax = this._yAxis.base;
-      this._xAxis.ref = this._xAxis.base;
-      this._yAxis.ref = this._yAxis.base;
-      this._yAxis.axis.scale(this._yAxis.base);
-      this._yAxis.g.call(this._yAxis.axis);
-      this._xAxis.axis.scale(this._xAxis.base);
-      this._xAxis.g.call(this._xAxis.axis);
-      this._plot();
-    });
-    this._zoomboxx.on("dblclick.zoom", null);
-    this._zoomboxy.on("dblclick.zoom", null);
-  }
-  _normalzoom(event) {
+  var zoombox = svg
+    .append("rect")
+    .attr("id", "zoombox_" + div)
+    .attr("width", options.canvasWidth)
+    .attr("height", options.canvasHeight)
+    .style("fill", "none")
+    .style("cursor", "pointer")
+    .attr("pointer-events", "all")
+    .call(zoom);
+
+  var zoomboxx = svg
+    .append("rect")
+    .attr("id", "zoomboxx_" + div)
+    .attr("width", options.canvasWidth)
+    .attr("height", options.marginBottom)
+    .style("fill", "none")
+    .style("cursor", "col-resize")
+    .attr("pointer-events", "all")
+    .attr("y", options.canvasHeight)
+    .call(zoomx);
+
+  var zoomboxy = svg
+    .append("rect")
+    .attr("id", "zoomboxy_" + div)
+    .attr("width", options.marginLeft)
+    .attr("height", options.canvasHeight)
+    .style("fill", "none")
+    .style("cursor", "row-resize")
+    .attr("pointer-events", "all")
+    .attr("x", -options.marginLeft)
+    .call(zoomy);
+
+  function normalzoom(event) {
     let t = event.transform;
     if (t !== zoomIdentity) {
-      this._xAxis.ax = t.rescaleX(this._xAxis.ref);
-      this._xAxis.axis.scale(this._xAxis.ax);
-      this._xAxis.g.call(this._xAxis.axis);
-      this._yAxis.ax = t.rescaleY(this._yAxis.ref);
-      this._yAxis.axis.scale(this._yAxis.ax);
-      this._yAxis.g.call(this._yAxis.axis);
-      this._plot();
-      this._xAxis.ref = this._xAxis.ax;
-      this._yAxis.ref = this._yAxis.ax;
-      this._zoombox.call(this._zoom.transform, zoomIdentity);
-    }
-  }
-  _normalzoomx(event) {
-    let t = event.transform;
-    if (t !== zoomIdentity) {
-      this._xAxis.ax = t.rescaleX(this._xAxis.ref);
-      this._xAxis.axis.scale(this._xAxis.ax);
-      this._xAxis.g.call(this._xAxis.axis);
-      this._plot();
-      this._xAxis.ref = this._xAxis.ax;
-      this._zoomboxx.call(this._zoom.transform, zoomIdentity);
-    }
-  }
-  _normalzoomy(event) {
-    let t = event.transform;
-    if (t !== zoomIdentity) {
-      this._yAxis.ax = t.rescaleY(this._yAxis.ref);
-      this._yAxis.axis.scale(this._yAxis.ax);
-      this._yAxis.g.call(this._yAxis.axis);
-      this._plot();
-      this._yAxis.ref = this._yAxis.ax;
-      this._zoomboxy.call(this._zoom.transform, zoomIdentity);
-    }
-  }
-  _zBounds() {
-    var zMin = this._zDomain[0];
-    var zMax = this._zDomain[1];
-    if (this.options.zMin) zMin = this.options.zMin;
-    if (this.options.zMax) zMax = this.options.zMax;
-    return { zMin, zMax };
-  }
-  _canvasContour() {
-    var { zMin, zMax } = this._zBounds();
-    canvasContour(
-      this._contour,
-      this._xAxis.ax,
-      this._yAxis.ax,
-      this._context,
-      {
-        zMin,
-        zMax,
-        xTime: this._xTime,
-        yTime: this._yTime,
-        colorCache: this._colorCache,
-        canvasHeight: this._canvasHeight,
-        canvasWidth: this._canvasWidth,
-        colors: this.options.colors,
-        yReverse: this.options.yReverse,
-        xReverse: this.options.xReverse,
-      },
-      this._prepContours
-    );
-  }
-  _canvasGrid() {
-    var { zMin, zMax } = this._zBounds();
-    canvasGrid(
-      this._data,
-      this._xAxis.ax,
-      this._yAxis.ax,
-      this._xDomain,
-      this._yDomain,
-      this._context,
-      {
-        zMin,
-        zMax,
-        xTime: this._xTime,
-        yTime: this._yTime,
-        colorCache: this._colorCache,
-        canvasHeight: this._canvasHeight,
-        canvasWidth: this._canvasWidth,
-        colors: this.options.colors,
-        yReverse: this.options.yReverse,
-        xReverse: this.options.xReverse,
+      xAxis.ax = t.rescaleX(xAxis.ref);
+      xAxis.axis.scale(xAxis.ax);
+      xAxis.g.call(xAxis.axis);
+      yAxis.ax = t.rescaleY(yAxis.ref);
+      yAxis.axis.scale(yAxis.ax);
+      yAxis.g.call(yAxis.axis);
+      context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
+      if (options.contour) {
+        canvasContour(
+          contour,
+          xAxis.ax,
+          yAxis.ax,
+          context,
+          options,
+          prepContours
+        );
+      } else {
+        canvasGrid(
+          data,
+          xAxis.ax,
+          yAxis.ax,
+          xDomain,
+          yDomain,
+          context,
+          options
+        );
       }
-    );
+      xAxis.ref = xAxis.ax;
+      yAxis.ref = yAxis.ax;
+      zoombox.call(zoom.transform, zoomIdentity);
+    }
   }
-}
 
-export default CanvasHeatmap;
+  function normalzoomx(event) {
+    let t = event.transform;
+    if (t !== zoomIdentity) {
+      xAxis.ax = t.rescaleX(xAxis.ref);
+      xAxis.axis.scale(xAxis.ax);
+      xAxis.g.call(xAxis.axis);
+      context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
+      if (options.contour) {
+        canvasContour(
+          contour,
+          xAxis.ax,
+          yAxis.ax,
+          context,
+          options,
+          prepContours
+        );
+      } else {
+        canvasGrid(
+          data,
+          xAxis.ax,
+          yAxis.ax,
+          xDomain,
+          yDomain,
+          context,
+          options
+        );
+      }
+      xAxis.ref = xAxis.ax;
+      zoomboxx.call(zoom.transform, zoomIdentity);
+    }
+  }
+
+  function normalzoomy(event) {
+    let t = event.transform;
+    if (t !== zoomIdentity) {
+      yAxis.ax = t.rescaleY(yAxis.ref);
+      yAxis.axis.scale(yAxis.ax);
+      yAxis.g.call(yAxis.axis);
+      context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
+      if (options.contour) {
+        canvasContour(
+          contour,
+          xAxis.ax,
+          yAxis.ax,
+          context,
+          options,
+          prepContours
+        );
+      } else {
+        canvasGrid(
+          data,
+          xAxis.ax,
+          yAxis.ax,
+          xDomain,
+          yDomain,
+          context,
+          options
+        );
+      }
+      yAxis.ref = yAxis.ax;
+      zoomboxy.call(zoom.transform, zoomIdentity);
+    }
+  }
+
+  zoombox.on("dblclick.zoom", null).on("dblclick", () => {
+    xAxis.ax = xAxis.base;
+    yAxis.ax = yAxis.base;
+    xAxis.ref = xAxis.base;
+    yAxis.ref = yAxis.base;
+    yAxis.axis.scale(yAxis.base);
+    yAxis.g.call(yAxis.axis);
+    xAxis.axis.scale(xAxis.base);
+    xAxis.g.call(xAxis.axis);
+    context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
+    if (options.contour) {
+      canvasContour(
+        contour,
+        xAxis.ax,
+        yAxis.ax,
+        context,
+        options,
+        prepContours
+      );
+    } else {
+      canvasGrid(data, xAxis.ax, yAxis.ax, xDomain, yDomain, context, options);
+    }
+  });
+  zoomboxx.on("dblclick.zoom", null);
+  zoomboxy.on("dblclick.zoom", null);
+  return { zoombox };
+};
+
+const downloadGraph = (div, options) => {
+  var title = select("#title_" + div);
+  title.style("opacity", "1");
+  var s = new XMLSerializer();
+  var str = s.serializeToString(document.getElementById("svg_" + div));
+
+  var canvasout = document.createElement("canvas"),
+    contextout = canvasout.getContext("2d");
+
+  canvasout.width = options.width;
+  canvasout.height = options.height;
+
+  var image = new Image();
+  image.onerror = function () {
+    alert("Appologies .png download failed. Please download as .svg.");
+  };
+  image.onload = function () {
+    contextout.drawImage(image, 0, 0);
+    contextout.drawImage(
+      document.getElementById("canvas_" + div),
+      options.marginLeft,
+      options.marginTop
+    );
+    var a = document.createElement("a");
+    a.download = "heatmap_" + div + ".png";
+    a.href = canvasout.toDataURL("image/png");
+    a.click();
+  };
+  image.src = "data:image/svg+xml;charset=utf8," + encodeURIComponent(str);
+  title.style("opacity", "0");
+};
+
+const autoDownSample = (arr, ads) => {
+  var l1 = arr.z.length;
+  var l2 = arr.z[0].length;
+  if (l1 <= ads && l2 <= ads) {
+    return arr;
+  } else {
+    var d1 = Math.max(1, Math.floor(l1 / ads));
+    var d2 = Math.max(1, Math.floor(l2 / ads));
+    var z_ds = [];
+    var y_ds = [];
+    for (let i = 0; i < l1; i = i + d1) {
+      let zz_ds = [];
+      var x_ds = [];
+      for (let j = 0; j < l2; j = j + d2) {
+        zz_ds.push(arr.z[i][j]);
+        x_ds.push(arr.x[j]);
+      }
+      y_ds.push(arr.y[i]);
+      z_ds.push(zz_ds);
+    }
+    return { x: x_ds, y: y_ds, z: z_ds };
+  }
+};
+
+const multiFormat = (date) => {
+  var formatMillisecond = timeFormat(".%L"),
+    formatSecond = timeFormat(":%S"),
+    formatMinute = timeFormat("%H:%M"),
+    formatHour = timeFormat("%H:%M"),
+    formatDay = timeFormat("%d.%m"),
+    formatWeek = timeFormat("%d.%m"),
+    formatMonth = timeFormat("%B"),
+    formatYear = timeFormat("%Y");
+  return (
+    timeSecond(date) < date
+      ? formatMillisecond
+      : timeMinute(date) < date
+      ? formatSecond
+      : timeHour(date) < date
+      ? formatMinute
+      : timeDay(date) < date
+      ? formatHour
+      : timeMonth(date) < date
+      ? timeWeek(date) < date
+        ? formatDay
+        : formatWeek
+      : timeYear(date) < date
+      ? formatMonth
+      : formatYear
+  )(date);
+};
+
+export default heatmap;
