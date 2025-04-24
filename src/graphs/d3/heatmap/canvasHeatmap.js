@@ -66,7 +66,7 @@ class CanvasHeatmap {
     legendRight: true,
     thresholdStep: 20,
     backgroundColor: false,
-    autoDownsample: false,
+    autoDownsample: 500,
     setDownloadGraph: false,
     setDownloadGraphDiv: false,
     hover: false,
