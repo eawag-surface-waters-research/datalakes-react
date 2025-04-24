@@ -20,7 +20,7 @@
   left: 0;
   top: 0;
   pointer-events: none;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 7px 29px 0 rgb(100 100 111 / 20%);
   -webkit-transition: all 0.15s;
   -moz-transition: all 0.15s;
@@ -34,14 +34,32 @@
 .heatmap-main .heatmap-graphs .heatmap-right .tooltip:after {
   content: " ";
   position: absolute;
-  left: -10px;
   top: 10px;
   border-top: 10px solid transparent;
-  border-right: 10px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 7px 29px 0 rgb(100 100 111 / 20%);
-  border-left: none;
   border-bottom: 10px solid transparent;
 }
+
+.heatmap-main .heatmap-graphs .heatmap-right .tooltip.tooltip-right:after {
+  right: -10px;
+  border-left: 10px solid rgba(255, 255, 255, 0.9);
+  border-right: none;
+}
+
+.heatmap-main .heatmap-graphs .heatmap-right .tooltip.tooltip-left:after {
+  left: -10px;
+  border-right: 10px solid rgba(255, 255, 255, 0.9);
+  border-left: none;
+}
+
+.main.dark .heatmap-main .heatmap-graphs .heatmap-right .tooltip.tooltip-right:after {
+  border-left: 10px solid rgba(0, 0, 0, 0.7);
+}
+
+.main.dark .heatmap-main .heatmap-graphs .heatmap-right .tooltip.tooltip-left:after {
+  border-right: 10px solid rgba(0, 0, 0, 0.7);
+}
+
+
 
 .heatmap-main .heatmap-graphs .heatmap-right .tooltip tr {
   height: 1px;
