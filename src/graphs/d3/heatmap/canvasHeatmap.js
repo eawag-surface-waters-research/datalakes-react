@@ -142,11 +142,10 @@ class CanvasHeatmap {
         ? this._data.map((d) => autoDownSample(d, this.options.autoDownsample))
         : this._data;
       var { zMin, zMax } = this._zBounds();
-      var nullData = replaceNull(data, zMax);
+      var nullData = replaceNull(data, zMin);
       this._prepContours = prepareContours(
         zMin,
         zMax,
-        data,
         nullData,
         this.options.thresholdStep
       );

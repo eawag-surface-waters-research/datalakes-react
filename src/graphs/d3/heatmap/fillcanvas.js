@@ -49,13 +49,10 @@ export const canvasContour = (
       options.colorCache
     );
   };
-
   for (let i = 0; i < data.length; i++) {
-    fill(prepContours.baseContour[i], data[i], false);
-    for (let index = 1; index < prepContours.mainContour[i].length; index++) {
-      fill(prepContours.mainContour[i][index], data[i], false);
+    for (let index = 1; index < prepContours.contour[i].length; index++) {
+      fill(prepContours.contour[i][index], data[i], false);
     }
-    fill(prepContours.nanContour[i], data[i], [255, 255, 255]);
   }
 
   function fill(geometry, plotdata, fixedColor) {

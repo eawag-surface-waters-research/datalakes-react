@@ -435,22 +435,14 @@ export const multiFormat = (date) => {
   )(date);
 };
 
-export const replaceNull = (data, zMax) => {
+export const replaceNull = (data, zMin, factor = 9999) => {
   var nullData = JSON.parse(JSON.stringify(data));
   for (var i = 0; i < data.length; i++) {
     for (var y = 1; y < data[i].z.length - 1; y++) {
       for (var x = 1; x < data[i].z[y].length - 1; x++) {
         if (data[i].z[y][x] === null || !isNumeric(data[i].z[y][x])) {
           if (data[i].z[y][x] !== null) data[i].z[y][x] = null;
-          nullData[i].z[y][x] = zMax * 10;
-          nullData[i].z[y][x + 1] = zMax * 10;
-          nullData[i].z[y - 1][x + 1] = zMax * 10;
-          nullData[i].z[y - 1][x] = zMax * 10;
-          nullData[i].z[y - 1][x - 1] = zMax * 10;
-          nullData[i].z[y][x - 1] = zMax * 10;
-          nullData[i].z[y + 1][x - 1] = zMax * 10;
-          nullData[i].z[y + 1][x] = zMax * 10;
-          nullData[i].z[y + 1][x + 1] = zMax * 10;
+          nullData[i].z[y][x] = -Math.abs(zMin * factor);
         }
       }
     }
@@ -482,23 +474,14 @@ export const autoDownSample = (arr, ads) => {
   }
 };
 
-export const prepareContours = (zMin, zMax, data, nullData, thresholdStep) => {
+export const prepareContours = (zMin, zMax, data, thresholdStep) => {
   const step = (zMax - zMin) / thresholdStep;
-  const thresholds = range(zMin, zMax, step); 
-  const baseContour = [];
-  const mainContour = [];
-  const nanContour = [];
+  const thresholds = range(zMin - step, zMax, step);
+  const contour = [];
   for (let i = 0; i < data.length; i++) {
-    let cr = contours()
-    .size([data[0].z[0].length, data[0].z.length])
-    .smooth(false);
     let c = contours().size([data[i].z[0].length, data[i].z.length]);
-    const values = data[i].z.flat();
-    const nullValues = nullData[i].z.flat();
-    baseContour.push(cr.thresholds(thresholds)(values)[0]);
-    mainContour.push(c.thresholds(thresholds)(values));
-    nanContour.push(cr.thresholds([zMax * 1000])(nullValues)[0]);
+    const nullValues = data[i].z.flat();
+    contour.push(c.thresholds(thresholds)(nullValues));
   }
-
-  return { baseContour, mainContour, nanContour, step };
+  return { contour, step };
 };
