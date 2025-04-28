@@ -12,21 +12,15 @@ class D3HeatMap extends Component {
     graphid: Math.round(Math.random() * 100000),
     download: false,
     fullscreen: false,
-    display: this.props.display ? this.props.display : "contour",
+    display: this.props.display ? this.props.display : "heatmap",
     zoom: false,
     fontSize: 12,
-    xgraph: this.props.xgraph ? true : false,
-    ygraph: this.props.ygraph ? true : false,
+    xgraph: false,
+    ygraph: false,
     mousex: false,
     mousey: false,
-    mouse: false,
     idx: 0,
-    autoDownSample: false,
-    saved: [],
-  };
-
-  clearSaved = () => {
-    this.setState({ saved: [] });
+    ads: 500,
   };
 
   editFontSize = (fontSize) => {
@@ -34,17 +28,13 @@ class D3HeatMap extends Component {
   };
 
   toggleXgraph = () => {
-    var { saved, ygraph, xgraph } = this.state;
-    if (ygraph === false && xgraph === true) saved = [];
-    this.setState({ xgraph: !xgraph, saved }, () => {
+    this.setState({ xgraph: !this.state.xgraph }, () => {
       window.dispatchEvent(new Event("resize"));
     });
   };
 
   toggleYgraph = () => {
-    var { saved, ygraph, xgraph } = this.state;
-    if (xgraph === false && ygraph === true) saved = [];
-    this.setState({ ygraph: !ygraph, saved }, () => {
+    this.setState({ ygraph: !this.state.ygraph }, () => {
       window.dispatchEvent(new Event("resize"));
     });
   };
@@ -145,10 +135,7 @@ class D3HeatMap extends Component {
           csvContent +
           `${printdata.x[i]},${this.columnSelect(printdata.z, i).join(",")}\n`;
       }
-      var name = "heatmap_data.csv";
-      if (title) {
-        name = title.split(" ").join("_") + ".csv";
-      }
+      var name = title + ".csv";
       var encodedUri = encodeURI(csvContent);
       var link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -168,10 +155,7 @@ class D3HeatMap extends Component {
       ...{ xlabel, xunits, ylabel, yunits, zlabel, zunits, title },
       ...data,
     };
-    var name = "heatmap_data.json";
-    if (title) {
-      name = title.split(" ").join("_") + ".json";
-    }
+    var name = title.split(" ").join("_") + ".json";
     var encodedUri =
       "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(arr));
     var link = document.createElement("a");
@@ -199,43 +183,8 @@ class D3HeatMap extends Component {
     return thresholds;
   };
 
-  hover = (event) => {
-    var { mousex, mousey } = event;
-    this.setState({ mousex, mousey });
-  };
-
-  click = (event) => {
-    var { saved, xgraph, ygraph } = this.state;
-    if (xgraph || ygraph) {
-      var { mousex, mousey } = event;
-      saved.push({ mousex, mousey });
-      if (saved.length > 10) {
-        saved.splice(0, saved.length - 10);
-      }
-      this.setState({ saved });
-    }
-  };
-
-  parseName = (data, label, timeLabels, unit) => {
-    if (timeLabels.includes(label)) {
-      return this.formatDateTime(data);
-    } else {
-      return data + unit;
-    }
-  };
-
-  formatDateTime = (datetime) => {
-    var a = new Date(datetime);
-    var hour = a.getHours();
-    var minute = a.getMinutes();
-    var year = a.getFullYear();
-    var month = a.getMonth() + 1;
-    var date = a.getDate();
-    return `${hour < 10 ? "0" + hour : hour}:${
-      minute < 10 ? "0" + minute : minute
-    } ${date < 10 ? "0" + date : date}.${
-      month < 10 ? "0" + month : month
-    }.${String(year).slice(-2)}`;
+  hover = (obj) => {
+    this.setState(obj);
   };
 
   prepareOptions = () => {
@@ -331,10 +280,8 @@ class D3HeatMap extends Component {
       const options = this.prepareOptions();
       this.heatmap.update(this.props.data, options);
     }
-    if (compareProps) {
-      this.setState({ saved: [] });
-    }
   }
+
   render() {
     var {
       graphid,
@@ -347,7 +294,6 @@ class D3HeatMap extends Component {
       mousex,
       mousey,
       idx,
-      saved,
     } = this.state;
     var {
       title,
@@ -362,7 +308,6 @@ class D3HeatMap extends Component {
       yReverse,
       maxvalue,
       minvalue,
-      dark,
     } = this.props;
 
     const TimeLabels = ["Time", "time", "datetime", "Datetime", "Date", "date"];
@@ -371,79 +316,35 @@ class D3HeatMap extends Component {
     if (xgraph) xy = xy + "x";
     if (ygraph) xy = xy + "y";
 
-    var datax = [];
-    var datay = [];
+    var dxy = [];
+    var dxx = [];
+    var dyy = [];
+    var dyx = [];
+
     try {
-      var linedata = data;
+      let linedata = data;
       if (Array.isArray(linedata)) linedata = linedata[idx];
-      for (let s of saved) {
-        if (xgraph && linedata) {
-          datax.push({
-            x: linedata.x,
-            y: linedata.z[s.mousey],
-            name: this.parseName(
-              linedata.y[s.mousey],
-              ylabel,
-              TimeLabels,
-              yunits
-            ),
-          });
-        }
-        if (ygraph && linedata) {
-          datay.push({
-            x: linedata.z.map((z) => z[s.mousex]),
-            y: linedata.y,
-            name: this.parseName(
-              linedata.x[s.mousex],
-              xlabel,
-              TimeLabels,
-              xunits
-            ),
-          });
-        }
-      }
       if (xgraph && mousey !== false && linedata) {
-        datax.push({
-          x: linedata.x,
-          y: linedata.z[mousey],
-          name: this.parseName(linedata.y[mousey], ylabel, TimeLabels, yunits),
-        });
+        dxx = linedata.x;
+        dxy = linedata.z[mousey];
       }
       if (ygraph && mousex !== false && linedata) {
-        datay.push({
-          x: linedata.z.map((z) => z[mousex]),
-          y: linedata.y,
-          name: this.parseName(linedata.x[mousex], xlabel, TimeLabels, xunits),
-        });
+        dyx = linedata.z.map((z) => z[mousex]);
+        dyy = linedata.y;
       }
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
 
-    if (datax.length === 0) datax.push({ x: [], y: [] });
-    if (datay.length === 0) datay.push({ x: [], y: [] });
+    var datax = [{ x: dxx, y: dxy }];
+    var datay = [{ x: dyx, y: dyy }];
 
-    var lcolor = [
-      dark ? "white" : "black",
-      "#e6194B",
-      "#3cb44b",
-      "#4363d8",
-      "#f58231",
-      "#911eb4",
-      "#42d4f4",
-      "#f032e6",
-      "#fabed4",
-      "#469990",
-      "#dcbeff",
-      "#9A6324",
-      "#fffac8",
-      "#800000",
-      "#aaffc3",
-      "#808000",
-      "#ffd8b1",
-      "#000075",
-    ];
-    if (xlabel === "time") xlabel = "";
+    var x_dots = false;
+    var y_dots = false;
+
+    if (datax[0].x.length < 100) x_dots = true;
+    if (datay[0].y.length < 100) y_dots = true;
+
     return (
       <div className={fullscreen ? "vis-main full" : "vis-main"}>
         <div className="heatmap-main">
@@ -462,7 +363,6 @@ class D3HeatMap extends Component {
                 toggleFullscreen={this.toggleFullscreen}
                 downloadJSON={this.downloadJSON}
                 downloadCSV={this.downloadCSV}
-                clearPlot={this.clearSaved}
                 toggleXgraph={this.toggleXgraph}
                 toggleYgraph={this.toggleYgraph}
               />
@@ -484,20 +384,17 @@ class D3HeatMap extends Component {
                     fontSize={fontSize}
                     xReverse={false}
                     yReverse={yReverse}
-                    lcolor={lcolor}
+                    lcolor={["black"]}
                     lweight={[1]}
-                    marginTop={1}
-                    marginRight={1}
                     bcolor={["white"]}
-                    simple={false}
-                    scatter={false}
-                    curve={true}
+                    simple={true}
+                    plotdots={y_dots}
                     xscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                     yscale={TimeLabels.includes(ylabel) ? "Time" : ""}
                   />
                 )}
               </div>
-              <div className={"heatmap-right" + xy} id={"vis" + graphid}></div>
+              <div className={"heatmap-right" + xy} id={"vis" + graphid} />
             </div>
             <div className={"heatmap-bottom" + xy}>
               {xgraph && (
@@ -510,17 +407,13 @@ class D3HeatMap extends Component {
                   fontSize={fontSize}
                   xReverse={xReverse}
                   yReverse={false}
-                  lcolor={lcolor}
+                  lcolor={["black"]}
                   lweight={[1]}
                   bcolor={["white"]}
-                  scatter={false}
-                  curve={true}
-                  marginLeft={58}
-                  marginTop={1}
-                  marginRight={1}
+                  plotdots={x_dots}
                   xscale={TimeLabels.includes(xlabel) ? "Time" : ""}
                   yscale={TimeLabels.includes(zlabel) ? "Time" : ""}
-                  simple={false}
+                  simple={true}
                 />
               )}
             </div>
