@@ -111,7 +111,7 @@
 .heatmap-main .heatmap-graphs .heatmap-bottom.xy {
   display: block;
   height: 33%;
-  width: 66%;
+  width: calc(66% - 60px);
   margin-left: 33%;
 }
 
