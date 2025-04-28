@@ -17,9 +17,8 @@ class D3HeatMap extends Component {
     fontSize: 12,
     xgraph: false,
     ygraph: false,
-    mousex: false,
-    mousey: false,
-    idx: 0,
+    datax: [],
+    datay: [],
     ads: 500,
   };
 
@@ -184,7 +183,45 @@ class D3HeatMap extends Component {
   };
 
   hover = (obj) => {
-    this.setState(obj);
+    const { data, xlabel, ylabel } = this.props;
+    const { xgraph, ygraph } = this.state;
+    const { mousex, mousey, idx } = obj;
+    const TimeLabels = ["Time", "time", "datetime", "Datetime", "Date", "date"];
+
+    var datax = [];
+    var datay = [];
+
+    try {
+      if (xgraph && mousey !== false) {
+        if (!Array.isArray(data)) {
+          datax.push({ x: data.x, y: data.z[mousey] });
+        } else if (TimeLabels.includes(xlabel)) {
+          for (let i = 0; i < data.length; i++) {
+            datax.push({ x: data[i].x, y: data[i].z[mousey] });
+          }
+        } else {
+          datax.push({ x: data[idx].x, y: data[idx].z[mousey] });
+        }
+      }
+      if (ygraph && mousex !== false) {
+        if (!Array.isArray(data)) {
+          datay.push({ x: data.z.map((z) => z[mousex]), y: data.y });
+        } else if (TimeLabels.includes(ylabel)) {
+          for (let i = 0; i < data.length; i++) {
+            datay.push({ x: data[i].z.map((z) => z[mousex]), y: data[i].y });
+          }
+        } else {
+          datay.push({ x: data[idx].z.map((z) => z[mousex]), y: data[idx].y });
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
+    if (datax.length === 0) datax.push({ x: [], y: [] });
+    if (datay.length === 0) datay.push({ x: [], y: [] });
+
+    this.setState({ datax, datay });
   };
 
   prepareOptions = () => {
@@ -291,9 +328,8 @@ class D3HeatMap extends Component {
       fontSize,
       xgraph,
       ygraph,
-      mousex,
-      mousey,
-      idx,
+      datax,
+      datay,
     } = this.state;
     var {
       title,
@@ -303,7 +339,6 @@ class D3HeatMap extends Component {
       xunits,
       yunits,
       zunits,
-      data,
       xReverse,
       yReverse,
       maxvalue,
@@ -315,36 +350,6 @@ class D3HeatMap extends Component {
     var xy = " ";
     if (xgraph) xy = xy + "x";
     if (ygraph) xy = xy + "y";
-
-    var datax = [];
-    var datay = [];
-
-    try {
-      if (xgraph && mousey !== false) {
-        if (!Array.isArray(data)) {
-          datax.push({ x: data.x, y: data.z[mousey] });
-        } else if (TimeLabels.includes(xlabel)) {
-          for (let i = 0; i < data.length; i++) {
-            datax.push({ x: data[i].x, y: data[i].z[mousey] });
-          }
-        } else {
-          datax.push({ x: data[idx].x, y: data[idx].z[mousey] });
-        }
-      }
-      if (ygraph && mousex !== false) {
-        if (!Array.isArray(data)) {
-          datay.push({ x: data.z.map((z) => z[mousex]), y: data.y });
-        } else if (TimeLabels.includes(ylabel)) {
-          for (let i = 0; i < data.length; i++) {
-            datay.push({ x: data[i].z.map((z) => z[mousex]), y: data[i].y });
-          }
-        } else {
-          datay.push({ x: data[idx].z.map((z) => z[mousex]), y: data[idx].y });
-        }
-      }
-    } catch (e) {
-      console.log(e);
-    }
 
     return (
       <div className={fullscreen ? "vis-main full" : "vis-main"}>
