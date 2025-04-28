@@ -225,6 +225,12 @@ class D3HeatMap extends Component {
     this.setState({ datax, datay });
   };
 
+  selectData = (region) => {
+    // Store data selection
+    //console.debug("selection", region);
+    this.props.setSelection(region);
+  };
+
   prepareOptions = () => {
     var { display, graphid, fontSize, autoDownSample } = this.state;
     var {
@@ -270,6 +276,7 @@ class D3HeatMap extends Component {
       contour: display === "contour",
       hover: this.hover,
       click: this.click,
+      select: this.selectData,
       setDownloadGraphDiv: "png" + graphid,
       levels,
     };

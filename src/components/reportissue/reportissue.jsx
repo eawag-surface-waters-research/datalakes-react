@@ -235,7 +235,7 @@ class ReportIssue extends Component {
 
   formatRange = (label, unit, time, startVal, endVal) => {
     if (time) {
-      return `${label ? label : 'Time'}: from ${startVal.toISOString()} to ${endVal.toISOString()}`;
+      return `${label ? label : 'Time'}: from ${this.formatTime(startVal.toISOString())} to ${this.formatTime(endVal.toISOString())}`;
     } else {
       return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: [${formatNumber(startVal < endVal ? startVal : endVal)}, ${formatNumber(startVal > endVal ? startVal : endVal)}]`;
     }

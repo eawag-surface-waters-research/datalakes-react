@@ -173,13 +173,10 @@ const processOptions = (div, data, userOptions) => {
     { name: "setDownloadGraph", default: false, verify: verifyFunction },
     { name: "setDownloadGraphDiv", default: false, verify: verifyString },
     { name: "hover", default: false, verify: verifyFunction },
-<<<<<<< HEAD
     { name: "onClick", default: false, verify: verifyFunction },
     { name: "noYear", default: false, verify: verifyBool },
-=======
     { name: "select", default: false, verify: verifyFunction },
     { name: "curve", default: false, verify: verifyBool },
->>>>>>> b4a49f4 (feat: added region selection on linre graphs)
     {
       name: "backgroundColor",
       default: false,
