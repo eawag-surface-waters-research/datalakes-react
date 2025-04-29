@@ -44,6 +44,7 @@ class DataDetail extends Component {
     iframe: false,
     search: false,
     maintenance: false,
+    events: false,
   };
 
   // Download data
@@ -627,6 +628,7 @@ class DataDetail extends Component {
       // Get Pipeline Data
       var renku = false;
       var scripts = [];
+      var events = [];
       if (dataset.renku === 0) {
         try {
           ({ data: renku } = await axios.post(
@@ -650,6 +652,15 @@ class DataDetail extends Component {
       } catch (e) {
         console.error("Failed to collect scripts.");
       }
+      try {
+        ({ data: events } = await axios({
+          method: "get",
+          url: apiUrl + "/pipeline/events/" + dataset_id,
+          timeout: 2000,
+        }));
+      } catch (e) {
+        console.error("Failed to collect events.");
+      }
 
       this.setState({
         renku,
@@ -671,6 +682,7 @@ class DataDetail extends Component {
         search,
         lang,
         maintenance,
+        events,
       });
     } else if (mapplotfunction === "meteolakes") {
       this.setState({
@@ -774,6 +786,7 @@ class DataDetail extends Component {
       lang,
       dropdown,
       maintenance,
+      events,
       file_tree,
       prefix,
       repo,
@@ -842,6 +855,7 @@ class DataDetail extends Component {
                 iframe={iframe}
                 search={search}
                 maintenance={maintenance}
+                events={events}
               />
             </div>
           </React.Fragment>
@@ -949,6 +963,7 @@ class DataDetail extends Component {
                 getLabel={this.getLabel}
                 scripts={scripts}
                 maintenance={maintenance}
+                events={events}
               />
             </div>
           </React.Fragment>

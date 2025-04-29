@@ -232,6 +232,7 @@ class D3LineGraph extends Component {
       grid,
       language,
       curve,
+      events,
     } = this.props;
     var { graphid, fontSize } = this.state;
 
@@ -278,7 +279,7 @@ class D3LineGraph extends Component {
     if (ymax) options["yMax"] = ymax;
     if (ymin) options["yMin"] = ymin;
     if (curve) options["curve"] = curve;
-    plotlinegraph("vis" + graphid, data, options);
+    plotlinegraph("vis" + graphid, data, events, options);
   };
 
   componentDidMount() {
