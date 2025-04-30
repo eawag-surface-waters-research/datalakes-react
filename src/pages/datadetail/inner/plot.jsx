@@ -53,6 +53,12 @@ class Graph extends Component {
       yScale,
       datasetparameters,
     } = this.props;
+    if (
+      (graph === "heatmap" && plotdata[0].z === undefined) ||
+      (graph === "linegraph" && plotdata[0].z !== undefined)
+    ) {
+      graph = false;
+    }
     switch (graph) {
       default:
         return (
