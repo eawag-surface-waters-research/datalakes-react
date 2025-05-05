@@ -685,8 +685,10 @@ class CanvasHeatmap {
       yTime: this._yTime,
       xLabel: this.options.xLabel,
       yLabel: this.options.yLabel,
+      zLabel: this.options.zLabel,
       xUnit: this.options.xUnit,
-      yUnit: this.options.yUnit
+      yUnit: this.options.yUnit,
+      zUnit: this.options.zUnit,
     });
   }
   _activateBrush() {

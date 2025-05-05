@@ -7,6 +7,8 @@ import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 
+const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
+
 class ReportIssue extends Component {
   state = {
     reported: false,
@@ -28,16 +30,34 @@ class ReportIssue extends Component {
   openModal = () => {
     // init maintenance form with selected data
     var { selectedData } = this.props;
-    var { start, end, parameters } = this.state;
-    if (selectedData?.bbox && selectedData.bbox.length > 0 && selectedData.xTime) {
-      start = selectedData.bbox[0][0];
-      end = selectedData.bbox[1][0];
+    var { start, end, parameters, sensordepths } = this.state;
+    if (selectedData?.bbox && selectedData.bbox.length > 0) {
+      if (selectedData.xTime) {
+        start = selectedData.bbox[0][0];
+        end = selectedData.bbox[1][0];
+      }
+      if (selectedData.yLabel === "Depth") {
+        sensordepths = `${formatNumber(selectedData.bbox[0][1])}-${formatNumber(selectedData.bbox[1][1])}`;
+      }
     }
     if (selectedData?.yLabel) {
       // find parameter with same name
-      var parameter = this.props.datasetparameters.find(
-        (d) => d.name === selectedData.yLabel
-      );
+      var parameter = this.props.datasetparameters
+        .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
+        .find(
+          (d) => d.name === selectedData.yLabel
+        );
+
+      // if no parameter found, try with zLabel
+      if (!parameter && selectedData.zLabel) {
+        parameter = this.props.datasetparameters
+          .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
+          .find(
+            (d) => d.name === selectedData.zLabel
+          );
+      }
+
+      // prefill form with found parameter
       if (parameter) {
         parameters = [
           {
@@ -48,7 +68,8 @@ class ReportIssue extends Component {
         ];
       }
     }
-    this.setState({ start, end, parameters, modal: true });
+
+    this.setState({ start, end, parameters, sensordepths, modal: true });
   };
 
   closeModal = (event) => {
@@ -67,7 +88,7 @@ class ReportIssue extends Component {
 
   addAllParameters = () => {
     var parameters = this.props.datasetparameters
-      .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
+      .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
       .map((p) => {
         return {
           value: p.id,
@@ -129,6 +150,9 @@ class ReportIssue extends Component {
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
       dataDetails = "Data region:\n* " + this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0]);
       dataDetails += "\n* " + this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1]);
+      if (selectedData.zLabel) {
+        dataDetails += "\n* " + this.formatLabel(selectedData.zLabel, selectedData.zUnit);
+      }
     } else {
       window.alert(
         "Please select a data region on the graph to report an issue with (use Ctrl and Click to select)."
@@ -241,6 +265,10 @@ class ReportIssue extends Component {
     }
   };
 
+  formatLabel = (label, unit) => {
+    return label + (unit ? " (" + unit + ")" : "");
+  };
+
   componentDidMount = async () => {
     this.updateMaintenance();
   };
@@ -262,7 +290,7 @@ class ReportIssue extends Component {
     var { dataset, datasetparameters, selectedData } = this.props;
 
     var dp = datasetparameters
-      .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
+      .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
       .map((p) => {
         return {
           value: p.id,
@@ -286,6 +314,7 @@ class ReportIssue extends Component {
           start: data[i].starttime,
           end: data[i].endtime,
           parameters: [data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : "")],
+          depths: data[i].depths,
           description: data[i].description,
           id: [data[i].id],
           reporter: data[i].reporter,
@@ -301,6 +330,7 @@ class ReportIssue extends Component {
           <td>{this.formatTime(dict[key].start)}</td>
           <td>{this.formatTime(dict[key].end)}</td>
           <td>{dict[key].parameters.join(", ")}</td>
+          <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
           <td>{dict[key].reporter}</td>
           <td
@@ -348,15 +378,18 @@ class ReportIssue extends Component {
                 <React.Fragment>
                   <p>Current maintenance periods:</p>
                   <table>
-                    <tbody>
+                    <thead>
                       <tr>
                         <th>Start</th>
                         <th>End</th>
                         <th>Parameters</th>
+                        <th>Depths</th>
                         <th>Description</th>
                         <th>Reporter</th>
                         <th></th>
                       </tr>
+                    </thead>
+                    <tbody>
                       {rows}
                     </tbody>
                   </table>
@@ -478,6 +511,7 @@ class ReportIssue extends Component {
                       <ul>
                         <li>{this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0])}</li>
                         <li>{this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1])}</li>
+                        {selectedData.zLabel ? (<li>{this.formatLabel(selectedData.zLabel, selectedData.zUnit)}</li>) : null}
                       </ul>
                     </div>
                   ) : (
