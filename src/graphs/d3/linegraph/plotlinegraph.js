@@ -1361,8 +1361,10 @@ const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options) => {
       yTime: options.yTime,
       xLabel: options.xLabel,
       yLabel: options.yLabel,
+      zLabel: null,
       xUnit: options.xUnit,
-      yUnit: options.yUnit
+      yUnit: options.yUnit,
+      zUnit: null,
     });
   };
 
