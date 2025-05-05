@@ -1395,14 +1395,13 @@ const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options) => {
 
     // Add a visual indicator that brush mode is active
     select("#brush-indicator").remove(); // Remove any existing indicator
-    select("body")
-    //svg
+    select(".linegraph-header")
       .append("div")
       .attr("id", "brush-indicator")
       .style("position", "absolute")
-      .style("top", "100px")
-      .style("left", "10px")
-      .style("background-color", "rgba(0, 0, 0, 0.7)")
+      .style("top", "0px")
+      .style("left", "60px")
+      .style("background-color", "rgba(255, 0, 0, 0.7)")
       .style("color", "white")
       .style("padding", "5px 10px")
       .style("border-radius", "4px")
