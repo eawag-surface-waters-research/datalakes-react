@@ -470,11 +470,11 @@ class ReportIssue extends Component {
                       </tr>
                       {sd && (
                         <tr>
-                          <th>Comma Seperated Sensor Depths</th>
+                          <th>Sensor Depths</th>
                           <td>
                             <textarea
                               value={sensordepths}
-                              placeholder="1.6,4.5,18.0"
+                              placeholder="List: 1.6,4.5,18.0 or Range: 1.6-18.0"
                               onChange={(event) =>
                                 this.updateInput("sensordepths", event)
                               }
