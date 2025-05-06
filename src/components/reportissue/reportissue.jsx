@@ -57,6 +57,15 @@ class ReportIssue extends Component {
           );
       }
 
+      // case the x axis is not time
+      if (!parameter && selectedData.xLabel && !selectedData.xTime) {
+        parameter = this.props.datasetparameters
+          .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
+          .find(
+            (d) => d.name === selectedData.xLabel
+          );
+      }
+
       // prefill form with found parameter
       if (parameter) {
         parameters = [
