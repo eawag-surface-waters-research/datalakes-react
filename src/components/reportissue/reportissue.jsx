@@ -6,6 +6,7 @@ import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
+import { set } from "lodash";
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
@@ -31,6 +32,10 @@ class ReportIssue extends Component {
     // init maintenance form with selected data
     var { selectedData } = this.props;
     var { start, end, parameters, sensordepths } = this.state;
+    start = new Date();
+    end = new Date();
+    parameters = [];
+    sensordepths = "";
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
       if (selectedData.xTime) {
         start = selectedData.bbox[0][0];
