@@ -1,9 +1,14 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import DateTimePicker from "react-datetime-picker";
 import Select from "react-select";
 import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./reportissue.css";
+import { formatNumber } from "../../graphs/d3/linegraph/functions";
+import { set } from "lodash";
+
+const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
 class ReportIssue extends Component {
   state = {
@@ -24,7 +29,61 @@ class ReportIssue extends Component {
   };
 
   openModal = () => {
-    this.setState({ modal: true });
+    // init maintenance form with selected data
+    var { selectedData } = this.props;
+    var { start, end, parameters, sensordepths } = this.state;
+    start = new Date();
+    end = new Date();
+    parameters = [];
+    sensordepths = "";
+    if (selectedData?.bbox && selectedData.bbox.length > 0) {
+      if (selectedData.xTime) {
+        start = selectedData.bbox[0][0];
+        end = selectedData.bbox[1][0];
+      }
+      if (selectedData.yLabel === "Depth") {
+        sensordepths = `${formatNumber(selectedData.bbox[0][1])}-${formatNumber(selectedData.bbox[1][1])}`;
+      }
+    }
+    if (selectedData?.yLabel) {
+      // find parameter with same name
+      var parameter = this.props.datasetparameters
+        .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
+        .find(
+          (d) => d.name === selectedData.yLabel
+        );
+
+      // if no parameter found, try with zLabel
+      if (!parameter && selectedData.zLabel) {
+        parameter = this.props.datasetparameters
+          .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
+          .find(
+            (d) => d.name === selectedData.zLabel
+          );
+      }
+
+      // case the x axis is not time
+      if (!parameter && selectedData.xLabel && !selectedData.xTime) {
+        parameter = this.props.datasetparameters
+          .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
+          .find(
+            (d) => d.name === selectedData.xLabel
+          );
+      }
+
+      // prefill form with found parameter
+      if (parameter) {
+        parameters = [
+          {
+            value: parameter.id,
+            label: parameter.name + (parameter.detail !== "none" ? ` (${parameter.detail})` : ""),
+            id: parameter.parameters_id,
+          },
+        ];
+      }
+    }
+
+    this.setState({ start, end, parameters, sensordepths, modal: true });
   };
 
   closeModal = (event) => {
@@ -43,7 +102,7 @@ class ReportIssue extends Component {
 
   addAllParameters = () => {
     var parameters = this.props.datasetparameters
-      .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
+      .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
       .map((p) => {
         return {
           value: p.id,
@@ -85,7 +144,36 @@ class ReportIssue extends Component {
 
   submitReport = async () => {
     var { message, email } = this.state;
-    var { dataset, repositories_id } = this.props;
+    var { dataset, repositories_id, selectedData } = this.props;
+
+    if (!message) {
+      window.alert(
+        "Please enter an issue description."
+      );
+      return;
+    }
+
+    if (!email) {
+      window.alert(
+        "Please enter a contact email."
+      );
+      return;
+    }
+
+    var dataDetails = "";
+    if (selectedData?.bbox && selectedData.bbox.length > 0) {
+      dataDetails = "Data region:\n* " + this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0]);
+      dataDetails += "\n* " + this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1]);
+      if (selectedData.zLabel) {
+        dataDetails += "\n* " + this.formatLabel(selectedData.zLabel, selectedData.zUnit);
+      }
+    } else {
+      window.alert(
+        "Please select a data region on the graph to report an issue with (use Ctrl and Click to select)."
+      );
+      return;
+    }
+
     var content = {
       from: {
         email: "runnalls.james@gmail.com",
@@ -101,7 +189,7 @@ class ReportIssue extends Component {
             dataset: dataset,
             email: email,
             url: window.location.href,
-            message: message,
+            message: message + (message ? "\n\n" : "") + dataDetails,
           },
         },
       ],
@@ -109,7 +197,7 @@ class ReportIssue extends Component {
     };
     var issues = {
       title: message,
-      description: "Reported by: " + email,
+      description: "Reported by: " + email + "\n\n" + dataDetails,
       repo_id: repositories_id,
     };
     try {
@@ -183,6 +271,18 @@ class ReportIssue extends Component {
     return parts[0] + " " + parts[1].slice(0, 5);
   };
 
+  formatRange = (label, unit, time, startVal, endVal) => {
+    if (time) {
+      return `${label ? label : 'Time'}: from ${this.formatTime(startVal.toISOString())} to ${this.formatTime(endVal.toISOString())}`;
+    } else {
+      return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: [${formatNumber(startVal < endVal ? startVal : endVal)}, ${formatNumber(startVal > endVal ? startVal : endVal)}]`;
+    }
+  };
+
+  formatLabel = (label, unit) => {
+    return label + (unit ? " (" + unit + ")" : "");
+  };
+
   componentDidMount = async () => {
     this.updateMaintenance();
   };
@@ -201,9 +301,10 @@ class ReportIssue extends Component {
       error,
       data,
     } = this.state;
-    var { dataset, datasetparameters } = this.props;
+    var { dataset, datasetparameters, selectedData } = this.props;
+
     var dp = datasetparameters
-      .filter((d) => ![1, 2, 18, 27, 28, 29, 30].includes(d.parameters_id))
+      .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
       .map((p) => {
         return {
           value: p.id,
@@ -227,6 +328,7 @@ class ReportIssue extends Component {
           start: data[i].starttime,
           end: data[i].endtime,
           parameters: [data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : "")],
+          depths: data[i].depths,
           description: data[i].description,
           id: [data[i].id],
           reporter: data[i].reporter,
@@ -242,6 +344,7 @@ class ReportIssue extends Component {
           <td>{this.formatTime(dict[key].start)}</td>
           <td>{this.formatTime(dict[key].end)}</td>
           <td>{dict[key].parameters.join(", ")}</td>
+          <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
           <td>{dict[key].reporter}</td>
           <td
@@ -289,15 +392,18 @@ class ReportIssue extends Component {
                 <React.Fragment>
                   <p>Current maintenance periods:</p>
                   <table>
-                    <tbody>
+                    <thead>
                       <tr>
                         <th>Start</th>
                         <th>End</th>
                         <th>Parameters</th>
+                        <th>Depths</th>
                         <th>Description</th>
                         <th>Reporter</th>
                         <th></th>
                       </tr>
+                    </thead>
+                    <tbody>
                       {rows}
                     </tbody>
                   </table>
@@ -369,11 +475,11 @@ class ReportIssue extends Component {
                       </tr>
                       {sd && (
                         <tr>
-                          <th>Comma Seperated Sensor Depths</th>
+                          <th>Sensor Depths</th>
                           <td>
                             <textarea
                               value={sensordepths}
-                              placeholder="1.6,4.5,18.0"
+                              placeholder="List: 1.6,4.5,18.0 or Range: 1.6-18.0"
                               onChange={(event) =>
                                 this.updateInput("sensordepths", event)
                               }
@@ -411,6 +517,23 @@ class ReportIssue extends Component {
                     further questions.
                   </p>
                   <p>Dataset: {dataset}</p>
+                  {selectedData?.bbox && selectedData.bbox.length > 0 ? (
+                    <div>
+                      <p>
+                        Selected data:
+                      </p>
+                      <ul>
+                        <li>{this.formatRange(selectedData.xLabel, selectedData.xUnit, selectedData.xTime, selectedData.bbox[0][0], selectedData.bbox[1][0])}</li>
+                        <li>{this.formatRange(selectedData.yLabel, selectedData.yUnit, selectedData.yTime, selectedData.bbox[0][1], selectedData.bbox[1][1])}</li>
+                        {selectedData.zLabel ? (<li>{this.formatLabel(selectedData.zLabel, selectedData.zUnit)}</li>) : null}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p style={{color: "red"}}>
+                      Please select a data region on the graph to report an issue
+                      with (use Ctrl and Click to select).
+                    </p>
+                  )}
                   <textarea
                     placeholder="Please type your report here."
                     onChange={this.updateMessage}
@@ -446,4 +569,8 @@ class ReportIssue extends Component {
   }
 }
 
-export default ReportIssue;
+const mapStateToProps = (state) => ({
+  selectedData: state.selection.selectedData
+});
+
+export default connect(mapStateToProps)(ReportIssue);

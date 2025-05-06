@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import * as d3 from "d3";
 import isEqual from "lodash/isEqual";
 import GraphHeader from "../graphheader/graphheader";
@@ -194,6 +195,12 @@ class D3LineGraph extends Component {
     }
   };
 
+  selectData = (region) => {
+    // Store data selection
+    // console.debug("selection", region);
+    this.props.setSelection(region);
+  };
+
   plot = async () => {
     var {
       data,
@@ -263,6 +270,7 @@ class D3LineGraph extends Component {
       fontSize,
       scatter: plotdots,
       tooltip: !simple,
+      select: this.selectData,
       setDownloadGraphDiv: "png" + graphid,
     };
     if (xmax) options["xMax"] = xmax;
@@ -337,4 +345,8 @@ class D3LineGraph extends Component {
   }
 }
 
-export default D3LineGraph;
+const mapDispatchToProps = (dispatch) => ({
+  setSelection: (data) => dispatch({ type: 'SET_SELECTION', payload: data })
+});
+
+export default connect(null, mapDispatchToProps)(D3LineGraph);

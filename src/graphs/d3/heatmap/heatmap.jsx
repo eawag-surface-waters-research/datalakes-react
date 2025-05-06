@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import * as d3 from "d3";
 import "d3-contour";
 import GraphHeader from "../graphheader/graphheader";
@@ -224,6 +225,12 @@ class D3HeatMap extends Component {
     this.setState({ datax, datay });
   };
 
+  selectData = (region) => {
+    // Store data selection
+    //console.debug("selection", region);
+    this.props.setSelection(region);
+  };
+
   prepareOptions = () => {
     var { display, graphid, fontSize, autoDownSample } = this.state;
     var {
@@ -269,6 +276,7 @@ class D3HeatMap extends Component {
       contour: display === "contour",
       hover: this.hover,
       click: this.click,
+      select: this.selectData,
       setDownloadGraphDiv: "png" + graphid,
       levels,
     };
@@ -430,4 +438,8 @@ class D3HeatMap extends Component {
   }
 }
 
-export default D3HeatMap;
+const mapDispatchToProps = (dispatch) => ({
+  setSelection: (data) => dispatch({ type: 'SET_SELECTION', payload: data })
+});
+
+export default connect(null, mapDispatchToProps)(D3HeatMap);

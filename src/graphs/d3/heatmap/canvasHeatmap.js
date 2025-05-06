@@ -11,6 +11,7 @@ import {
   zoomIdentity,
   format,
   zoom as d3zoom,
+  brush as d3brush,
   timeFormatDefaultLocale,
 } from "d3";
 import {
@@ -71,6 +72,7 @@ class CanvasHeatmap {
     setDownloadGraphDiv: false,
     hover: false,
     click: false,
+    select: false,
     colors: [
       { color: "#0000ff", rgba: [0, 0, 255, 255], point: 0 },
       { color: "#ff0000", rgba: [255, 0, 0, 255], point: 1 },
@@ -125,6 +127,7 @@ class CanvasHeatmap {
     this._addBackground();
     this._addLegendRight();
     this._addZoom();
+    this._addBrush();
     this._addTooltip();
     this._plot();
   }
@@ -206,6 +209,7 @@ class CanvasHeatmap {
       setDownloadGraphDiv: verifyString,
       hover: verifyFunction,
       click: verifyFunction,
+      select: verifyFunction,
       colors: verifyColors,
     };
 
@@ -260,6 +264,8 @@ class CanvasHeatmap {
         this._downloadGraph()
       );
     }
+
+    this._ctrlPressed = false;
 
     timeFormatDefaultLocale(languageOptions(this.options.language));
 
@@ -600,6 +606,122 @@ class CanvasHeatmap {
     image.src = "data:image/svg+xml;charset=utf8," + encodeURIComponent(str);
     title.style("opacity", "0");
   };
+  _addBrush() {
+    if (this.options.select === false) return;
+
+    // Listen for keyboard events
+    select("body")
+      .on("keydown", (event) => {
+        if (event.key === "Control" && !this._ctrlPressed) {
+          this._ctrlPressed = true;
+          this._activateBrush();
+        }
+      })
+      .on("keyup", (event) => {
+        if (event.key === "Control") {
+          this._ctrlPressed = false;
+          this._deactivateBrush();
+        }
+    });
+
+    this._isBrushing = false;
+
+    // Create a separate group for the brush
+    this._brushGroup = this._svg
+      .append("g")
+      .attr("class", "brush");
+
+    // Initialize brush with event handlers
+    this._brush = d3brush()
+      .extent([
+        [0, 0],
+        [this._canvasWidth, this._canvasHeight],
+      ])
+      .filter(event => event.ctrlKey) // only allow brush if Ctrl is pressed
+      .on("start", this._brushStart)
+      .on("end", this._brushEnd);
+
+    // Add brush to the brush group but hide it initially
+    this._brushGroup
+      .call(this._brush)
+      .attr("pointer-events", "all")
+      .style("display", "none");
+  }
+  _brushStart = (event) => {
+    // If the event is not coming from a user interaction or no selection was made
+    if (!event.sourceEvent) return;
+    // We're starting a brush action
+    this._isBrushing = true;
+  }
+  _brushEnd = (event) => {
+    if (!this._isBrushing) return;
+    // We're ending a brush action
+    const selection = event.selection;
+
+    // If the event is not coming from a user interaction or no selection was made
+    if (!event.sourceEvent || !selection) {
+      // Reset opacity
+      //cells.attr("opacity", 1);
+      this._isBrushing = false;
+
+      // If Ctrl is no longer pressed, deactivate brush
+      if (!this._ctrlPressed) {
+        this._deactivateBrush();
+      }
+      return;
+    }
+
+    // Get the coordinates of the brush selection
+    const [[x0, y0], [x1, y1]] = selection;
+    // Convert the coordinates to data values
+    const x0Val = this._xAxis.ax.invert(x0);
+    const x1Val = this._xAxis.ax.invert(x1);
+    const y0Val = this._yAxis.ax.invert(y0);
+    const y1Val = this._yAxis.ax.invert(y1);
+    // Call the select function with the selected box
+    this.options.select({
+      bbox: [[x0Val, y0Val], [x1Val, y1Val]], 
+      xTime: this._xTime,
+      yTime: this._yTime,
+      xLabel: this.options.xLabel,
+      yLabel: this.options.yLabel,
+      zLabel: this.options.zLabel,
+      xUnit: this.options.xUnit,
+      yUnit: this.options.yUnit,
+      zUnit: this.options.zUnit,
+    });
+  }
+  _activateBrush() {
+    this._brushGroup.style("display", null);
+    this._zoombox.on(".zoom", null); // Temporarily disable zoom
+
+    // Add a visual indicator that brush mode is active
+    select("#brush-indicator").remove(); // Remove any existing indicator
+    select(".heatmap-header")
+      .append("div")
+      .attr("id", "brush-indicator")
+      .style("position", "absolute")
+      .style("top", "0px")
+      .style("left", "60px")
+      .style("background-color", "rgba(255, 0, 0, 0.7)")
+      .style("color", "white")
+      .style("padding", "5px 10px")
+      .style("border-radius", "4px")
+      .style("font-size", "12px")
+      .text("Brush Mode Active (Ctrl + Click to select)");
+  }
+  _deactivateBrush() {
+    if (!this._isBrushing) {
+      this._brushGroup.style("display", "none");
+      this._zoombox.call(this._zoom); // Re-enable zoom
+
+      // Remove the brush indicator
+      select("#brush-indicator").remove();
+      // Clear the brush selection
+      this._brushGroup.call(this._brush.move, null);
+      this.options.select(null);
+    }
+  }
   _addTooltip() {
     if (this.options.tooltip === false) return;
     var { zMin, zMax } = this._zBounds();
@@ -818,6 +940,8 @@ class CanvasHeatmap {
     this._vpi = vpi;
   }
   _addZoom() {
+    this._zoomEnabled = true;
+
     this._zoom = d3zoom()
       .extent([
         [0, 0],
@@ -838,6 +962,20 @@ class CanvasHeatmap {
         [this._canvasWidth, this._canvasHeight],
       ])
       .on("zoom", (event) => this._normalzoomy(event));
+
+    if (this.options.select) {
+      select(window)
+        .on("keydown.zoomBrushToggle", (event) => {
+          if (event.ctrlKey) {
+            this._zoomEnabled = false;
+            this._zoombox.style("cursor", "crosshair");
+          }
+        })
+        .on("keyup.zoomBrushToggle", () => {
+          this._zoomEnabled = true;
+          this._zoombox.style("cursor", "pointer");
+        });
+    }
 
     this._zoombox = this._svg
       .append("rect")
@@ -886,6 +1024,7 @@ class CanvasHeatmap {
     this._zoomboxy.on("dblclick.zoom", null);
   }
   _normalzoom(event) {
+    if (!this._zoomEnabled) return;
     let t = event.transform;
     if (t !== zoomIdentity) {
       this._xAxis.ax = t.rescaleX(this._xAxis.ref);
@@ -901,6 +1040,7 @@ class CanvasHeatmap {
     }
   }
   _normalzoomx(event) {
+    if (!this._zoomEnabled) return;
     let t = event.transform;
     if (t !== zoomIdentity) {
       this._xAxis.ax = t.rescaleX(this._xAxis.ref);
@@ -912,6 +1052,7 @@ class CanvasHeatmap {
     }
   }
   _normalzoomy(event) {
+    if (!this._zoomEnabled) return;
     let t = event.transform;
     if (t !== zoomIdentity) {
       this._yAxis.ax = t.rescaleY(this._yAxis.ref);
