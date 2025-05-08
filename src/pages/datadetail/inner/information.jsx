@@ -44,7 +44,7 @@ class Information extends Component {
   };
 
   render() {
-    const { dataset, getLabel, scripts, maintenance } = this.props;
+    const { dataset, getLabel, scripts, maintenance, events } = this.props;
     var script = scripts.filter((s) => s.name.includes(".md"));
     var dict = {};
     for (let i = 0; i < maintenance.length; i++) {
@@ -68,6 +68,7 @@ class Information extends Component {
                 ? ` (${maintenance[i].detail})`
                 : ""),
           ],
+          depths: maintenance[i].depths,
           description: maintenance[i].description,
           id: [maintenance[i].id],
           reporter: maintenance[i].reporter,
@@ -82,11 +83,29 @@ class Information extends Component {
           <td>{this.formatTime(dict[key].start)}</td>
           <td>{this.formatTime(dict[key].end)}</td>
           <td>{dict[key].parameters.join(", ")}</td>
+          <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
           <td>{dict[key].reporter}</td>
         </tr>
       );
     }
+
+    var eventRows = [];
+    if (events && events.length > 0) {
+      for (var i = 0; i < events.length; i++) {
+        var event = events[i];
+        eventRows.push(
+          <tr>
+            <td>{this.formatTime(event.start)}</td>
+            <td>{this.formatTime(event.stop)}</td> 
+            <td>{event.parameter}</td>
+            <td>{event.depth ? event.depth.split(",").join(", ") : ""}</td>
+            <td>{event.comments}</td>
+          </tr>
+        );
+      }
+    }
+    
     urlFromSsh(dataset.ssh)
     return (
       <React.Fragment>
@@ -150,19 +169,29 @@ class Information extends Component {
               {dataset.citation}
             </div>
           </div>
+          <div className="readme">
+            {script.length === 1 ? (
+              <ReactMarkdown>{script[0].data}</ReactMarkdown>
+            ) : (
+              <React.Fragment>{dataset.description}</React.Fragment>
+            )}
+          </div>
           <React.Fragment>
             {maintenance.length > 0 ? (
               <div className="description">
                 <div className="desc-header">Reported maintenance periods:</div>
                 <table>
-                  <tbody>
+                  <thead>
                     <tr>
-                      <th>Start</th>
-                      <th>End</th>
+                      <th style={{ width: "150px" }}>Start</th>
+                      <th style={{ width: "150px" }}>End</th>
                       <th>Parameters</th>
+                      <th>Depths</th>
                       <th>Description</th>
                       <th>Reporter</th>
                     </tr>
+                  </thead>
+                  <tbody>
                     {rows}
                   </tbody>
                 </table>
@@ -172,13 +201,30 @@ class Information extends Component {
               ""
             )}
           </React.Fragment>
-          <div className="readme">
-            {script.length === 1 ? (
-              <ReactMarkdown>{script[0].data}</ReactMarkdown>
+          <React.Fragment>
+            {events && events.length > 0 ? (
+              <div className="description">
+                <div className="desc-header">Reported events:</div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ width: "150px" }}>Start</th>
+                      <th style={{ width: "150px" }}>End</th>
+                      <th>Parameters</th>
+                      <th>Depths</th>
+                      <th>Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {eventRows}
+                  </tbody>
+                </table>
+                <div className="desc-warning">INFO: Data affected by reported events were removed from original data source and then do not appear in the downloadable files.</div>
+              </div>
             ) : (
-              <React.Fragment>{dataset.description}</React.Fragment>
+              ""
             )}
-          </div>
+          </React.Fragment>
           <div className="info-contact">
             <div className="contact-header">Questions about the dataset?</div>
             <div className="contact-inner">

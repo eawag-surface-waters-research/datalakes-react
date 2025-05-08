@@ -1106,3 +1106,21 @@ h2 {
   color: #38bec9;
   border-color: #38bec9;
 }
+
+.tooltip-events-header {
+  padding-top: 5px;
+}
+.tooltip-events thead {
+  background-color: #f2f5f7;
+  font-weight: bold;
+}
+.tooltip-events table, .tooltip-events th, .tooltip-events td {
+  border: 1px solid #eee;
+  border-collapse: collapse;
+}
+.tooltip-events th {
+  text-align: left;
+}
+.tooltip-events th, .tooltip-events td {
+  padding: 5px;
+}
