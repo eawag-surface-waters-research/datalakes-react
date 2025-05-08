@@ -20,6 +20,7 @@ import {
   line,
   zoomIdentity,
   zoom as d3zoom,
+  brush as d3brush,
   format,
   timeFormatDefaultLocale,
   curveNatural,
@@ -83,8 +84,15 @@ const plotlinegraph = (div, data, options = {}) => {
   if (options.legend) addLegend(svg, div, data, options);
   if (options.lines) plotLines(div, plot, data, xAxis, yAxis, options.curve);
   if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
-  if (options.zoom) addZoom(plot, context, data, div, xAxis, yAxis, options);
+  var zmbox = null;
+  var zm = null;
+  if (options.zoom) {
+    var { zoombox, zoom } = addZoom(plot, context, data, div, xAxis, yAxis, options);
+    zmbox = zoombox;
+    zm = zoom;
+  }
   if (options.tooltip) addTooltip(data, div, xAxis, yAxis, options);
+  if (options.select) addBrush(svg, xAxis, yAxis, zmbox, zm, options);
 };
 
 const addPlottingArea = (div, svg, options) => {
@@ -167,6 +175,8 @@ const processOptions = (div, data, userOptions) => {
     { name: "hover", default: false, verify: verifyFunction },
     { name: "onClick", default: false, verify: verifyFunction },
     { name: "noYear", default: false, verify: verifyBool },
+    { name: "select", default: false, verify: verifyFunction },
+    { name: "curve", default: false, verify: verifyBool },
     {
       name: "backgroundColor",
       default: false,
@@ -257,6 +267,9 @@ const processOptions = (div, data, userOptions) => {
   options.canvasHeight = Math.floor(
     options.height - options.marginTop - options.marginBottom
   );
+
+  options.ctrlPressed = false;
+
   return options;
 };
 
@@ -1287,7 +1300,129 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
   zoomboxy.on("dblclick.zoom", null);
   if (options.dualaxis === "x2") zoomboxx2.on("dblclick.zoom", null);
   if (options.dualaxis === "y2") zoomboxy2.on("dblclick.zoom", null);
-  return { zoombox };
+  return { zoombox, zoom };
+};
+
+const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options) => {
+  // Listen for keyboard events
+  select("body")
+    .on("keydown", (event) => {
+      if (event.key === "Control" && !options.ctrlPressed) {
+        options.ctrlPressed = true;
+        activateBrush();
+      }
+    })
+    .on("keyup", (event) => {
+      if (event.key === "Control") {
+        options.ctrlPressed = false;
+        deactivateBrush();
+      }
+  });
+
+  let isBrushing = false;
+  // let timeout = null;
+
+  var brushStart = (event) => {
+    // If the event is not coming from a user interaction or no selection was made
+    if (!event.sourceEvent) return;
+    // We're starting a brush action
+    isBrushing = true;
+  };
+
+  var brushEnd = (event) => {
+    if (!isBrushing) return;
+    // We're ending a brush action
+    const selection = event.selection;
+
+    // If the event is not coming from a user interaction or no selection was made
+    if (!event.sourceEvent || !selection) {
+      // Reset opacity
+      //cells.attr("opacity", 1);
+      isBrushing = false;
+
+      // If Ctrl is no longer pressed, deactivate brush
+      if (!options.ctrlPressed) {
+        deactivateBrush();
+      }
+      return;
+    }
+
+    // Get the coordinates of the brush selection
+    const [[x0, y0], [x1, y1]] = selection;
+    // Convert the coordinates to data values
+    const x0Val = xAxis.x.ax.invert(x0);
+    const x1Val = xAxis.x.ax.invert(x1);
+    const y0Val = yAxis.y.ax.invert(y0);
+    const y1Val = yAxis.y.ax.invert(y1);
+    // Call the select function with the selected box
+    options.select({
+      bbox: [[x0Val, y0Val], [x1Val, y1Val]], 
+      xTime: options.xTime,
+      yTime: options.yTime,
+      xLabel: options.xLabel,
+      yLabel: options.yLabel,
+      zLabel: null,
+      xUnit: options.xUnit,
+      yUnit: options.yUnit,
+      zUnit: null,
+    });
+  };
+
+  // Create a separate group for the brush
+  var brushGroup = svg
+    .append("g")
+    .attr("class", "brush");
+
+  // Initialize brush with event handlers
+  var brush = d3brush()
+    .extent([
+      [0, 0],
+      [options.canvasWidth, options.canvasHeight],
+    ])
+    .filter(event => event.ctrlKey) // only allow brush if Ctrl is pressed
+    .on("start", brushStart)
+    .on("end", brushEnd);
+
+  // Add brush to the brush group but hide it initially
+  brushGroup
+    .call(brush)
+    .attr("pointer-events", "all")
+    .style("display", "none");
+
+  
+  // Functions to activate/deactivate brush
+  function activateBrush() {
+    brushGroup.style("display", null);
+    if (zoombox) zoombox.on(".zoom", null); // Temporarily disable zoom
+
+    // Add a visual indicator that brush mode is active
+    select("#brush-indicator").remove(); // Remove any existing indicator
+    select(".linegraph-header")
+      .append("div")
+      .attr("id", "brush-indicator")
+      .style("position", "absolute")
+      .style("top", "0px")
+      .style("left", "60px")
+      .style("background-color", "rgba(255, 0, 0, 0.7)")
+      .style("color", "white")
+      .style("padding", "5px 10px")
+      .style("border-radius", "4px")
+      .style("font-size", "12px")
+      .text("Brush Mode Active (Ctrl + Click to select)");
+  }
+
+  function deactivateBrush() {
+    if (!isBrushing) {
+      brushGroup.style("display", "none");
+      if (zoombox) zoombox.call(zoom); // Re-enable zoom
+
+      // Remove the brush indicator
+      select("#brush-indicator").remove();
+      // Clear the brush selection
+      brushGroup.call(brush.move, null);
+      options.select(null);
+    }
+  }
 };
 
 const multiFormat = (date) => {
