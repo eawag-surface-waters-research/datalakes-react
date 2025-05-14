@@ -43,7 +43,7 @@ import {
   verifyFunction,
 } from "./verify";
 
-const plotlinegraph = (div, data, events, options = {}) => {
+const plotlinegraph = (div, data, options = {}) => {
   for (var r of ["svg", "canvas", "tooltip", "background"]) {
     try {
       select(`#${r}_${div}`).remove();
@@ -81,15 +81,15 @@ const plotlinegraph = (div, data, events, options = {}) => {
 
   var plot = addPlottingArea(div, svg, options);
   if (options.legend) addLegend(svg, div, data, options);
-  updatePlots(div, plot, svg, context, data, events, xAxis, yAxis, options);
+  updatePlots(div, plot, context, data, xAxis, yAxis, options);
   var zmbox = null;
   var zm = null;
   if (options.zoom) {
-    var { zoombox, zoom } = addZoom(svg, plot, context, data, events, div, xAxis, yAxis, options);
+    var { zoombox, zoom } = addZoom(svg, plot, context, data, div, xAxis, yAxis, options);
     zmbox = zoombox;
     zm = zoom;
   }
-  if (options.tooltip) addTooltip(data, events, div, xAxis, yAxis, options);
+  if (options.tooltip) addTooltip(data, div, xAxis, yAxis, options);
   if (options.select) addBrush(svg, xAxis, yAxis, zmbox, zm, options);
 };
 
@@ -196,6 +196,8 @@ const processOptions = (div, data, userOptions) => {
         .getBoundingClientRect().height,
       verify: verifyNumber,
     },
+    { name: "maintenance", default: [], verify: () => true },
+    { name: "events", default: [], verify: () => true },
   ];
 
   var options = {};
@@ -722,7 +724,7 @@ const addBorder = (svg, options) => {
     .attr("fill", "none");
 };
 
-const addTooltip = (data, events, div, xAxis, yAxis, options) => {
+const addTooltip = (data, div, xAxis, yAxis, options) => {
   var max_distance = 20;
   var zoombox = select(`#interact_${div}`);
   var tooltip = select("#" + div)
@@ -744,7 +746,7 @@ const addTooltip = (data, events, div, xAxis, yAxis, options) => {
       function makeActiveEventsHTML(time) {
         var activeEvents = [];
         if (time) {
-          events.forEach((evt) => {
+          options.events.forEach((evt) => {
             if (evt.interval[0] <= time && evt.interval[1] >= time) {
               activeEvents.push(...evt.events);
             }
@@ -761,6 +763,33 @@ const addTooltip = (data, events, div, xAxis, yAxis, options) => {
                 <tbody>`;
           activeEvents.forEach((evt) => {
             eventHTML += `<tr><td>${evt.parameter}</td><td style="max-width: 100px">${evt.depth ? evt.depth.split(',').join(', ') : ''}</td><td>${evt.comments}</td></tr>`;
+          });
+          eventHTML += `</tbody></table></div>`;
+          return eventHTML;
+        }
+        return "";
+      }
+
+      function makeActiveMaintenanceHTML(time) {
+        var activeEvents = [];
+        if (time) {
+          options.maintenance.forEach((evt) => {
+            if (evt.interval[0] <= time && evt.interval[1] >= time) {
+              activeEvents.push(...evt.events);
+            }
+          });
+        }
+        if (activeEvents.length > 0) {
+          var eventHTML = `
+            <div class="tooltip-events">
+              <div class="tooltip-events-header">Maintenance:</div>
+              <table>
+                <thead>
+                  <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>
+                </thead>
+                <tbody>`;
+          activeEvents.forEach((evt) => {
+            eventHTML += `<tr><td>${evt.name}</td><td style="max-width: 100px">${evt.depths ? evt.depths.split(',').join(', ') : ''}</td><td>${evt.description}</td></tr>`;
           });
           eventHTML += `</tbody></table></div>`;
           return eventHTML;
@@ -804,6 +833,7 @@ const addTooltip = (data, events, div, xAxis, yAxis, options) => {
                   <tr><td>y:</td><td>${yval} ${yu}</td></tr>
               </tbody>
           </table>
+          ${makeActiveMaintenanceHTML(time)}
           ${makeActiveEventsHTML(time)}`;
 
         if ("tooltip" in data[idx]) {
@@ -837,7 +867,9 @@ const addTooltip = (data, events, div, xAxis, yAxis, options) => {
         else if (options.yTime) {
           time = yAxis[data[idx].yaxis].ref.invert(hoverY);
         }
-        html = makeActiveEventsHTML(time);
+        html = `
+          ${makeActiveMaintenanceHTML(time)}
+          ${makeActiveEventsHTML(time)}`;
         if (html && html !== "") {
           html = `
           <table style="color:${data[idx].lineColor};">
@@ -1160,6 +1192,20 @@ const addInteractionBoxes = (svg, div, options) => {
   }
 };
 
+const plotMaintenance = (context, maintenance, xAxis, options) => {
+  maintenance.forEach(event => {
+    const x = xAxis.x.ax(event.interval[0]);
+    const w = xAxis.x.ax(event.interval[1]) - x;
+  
+    if (w > 0) {
+      context.fillStyle = "rgba(255, 3, 255, 0.1)";
+      context.fillRect(x, 0, w, options.canvasHeight);
+    }
+    
+  });
+  
+};
+
 const plotEvents = (context, events, xAxis, options) => {
   events.forEach(event => {
     const x = xAxis.x.ax(event.interval[0]);
@@ -1185,7 +1231,7 @@ const editTicks = (xAxis, yAxis) => {
     .attr("stroke-dasharray", "4");
 };
 
-const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
+const addZoom = (svg, g, context, data, div, xAxis, yAxis, options) => {
   var zoom = d3zoom()
     .extent([
       [0, 0],
@@ -1250,7 +1296,7 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
         yAxis.y2.axis.scale(yAxis.y2.ax);
         yAxis.y2.g.call(yAxis.y2.axis);
       }
-      updatePlots(div, g, svg, context, data, events, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       xAxis.x.ref = xAxis.x.ax;
       if (options.dualaxis === "x2") xAxis.x2.ref = xAxis.x2.ax;
       yAxis.y.ref = yAxis.y.ax;
@@ -1266,7 +1312,7 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
       xAxis.x.ax = t.rescaleX(xAxis.x.ref);
       xAxis.x.axis.scale(xAxis.x.ax);
       xAxis.x.g.call(xAxis.x.axis);
-      updatePlots(div, g, svg, context, data, events, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       xAxis.x.ref = xAxis.x.ax;
       zoomboxx.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1279,7 +1325,7 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
       xAxis.x2.ax = t.rescaleX(xAxis.x2.ref);
       xAxis.x2.axis.scale(xAxis.x2.ax);
       xAxis.x2.g.call(xAxis.x2.axis);
-      updatePlots(div, g, svg, context, data, events, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       xAxis.x2.ref = xAxis.x2.ax;
       zoomboxx2.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1292,7 +1338,7 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
       yAxis.y.ax = t.rescaleY(yAxis.y.ref);
       yAxis.y.axis.scale(yAxis.y.ax);
       yAxis.y.g.call(yAxis.y.axis);
-      updatePlots(div, g, svg, context, data, events, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       yAxis.y.ref = yAxis.y.ax;
       zoomboxy.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1305,7 +1351,7 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
       yAxis.y2.ax = t.rescaleY(yAxis.y2.ref);
       yAxis.y2.axis.scale(yAxis.y2.ax);
       yAxis.y2.g.call(yAxis.y2.axis);
-      updatePlots(div, g, svg, context, data, events, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       yAxis.y2.ref = yAxis.y2.ax;
       zoomboxy2.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1333,7 +1379,7 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
       yAxis.y2.axis.scale(yAxis.y2.base);
       yAxis.y2.g.call(yAxis.y2.axis);
     }
-    updatePlots(div, g, svg, context, data, events, xAxis, yAxis, options);
+    updatePlots(div, g, context, data, xAxis, yAxis, options);
     if (options.grid) editTicks(xAxis, yAxis);
   });
   zoomboxx.on("dblclick.zoom", null);
@@ -1343,12 +1389,10 @@ const addZoom = (svg, g, context, data, events, div, xAxis, yAxis, options) => {
   return { zoombox, zoom };
 };
 
-const updatePlots = (div, g, svg, context, data, events, xAxis, yAxis, options) => {
+const updatePlots = (div, g, context, data, xAxis, yAxis, options) => {
   context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
-  if (events.length > 0) {
-    //console.debug("events", events);
-    plotEvents(context, events, xAxis, options);
-  }
+  if (options.events.length > 0) plotEvents(context, options.events, xAxis, options);
+  if (options.maintenance.length > 0) plotMaintenance(context, options.maintenance, xAxis, options);
   if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
   if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
 };

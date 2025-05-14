@@ -232,6 +232,7 @@ class D3LineGraph extends Component {
       grid,
       language,
       curve,
+      maintenance,
       events,
     } = this.props;
     var { graphid, fontSize } = this.state;
@@ -273,13 +274,15 @@ class D3LineGraph extends Component {
       tooltip: !simple,
       select: this.selectData,
       setDownloadGraphDiv: "png" + graphid,
+      maintenance,
+      events,
     };
     if (xmax) options["xMax"] = xmax;
     if (xmin) options["xMin"] = xmin;
     if (ymax) options["yMax"] = ymax;
     if (ymin) options["yMin"] = ymin;
     if (curve) options["curve"] = curve;
-    plotlinegraph("vis" + graphid, data, events, options);
+    plotlinegraph("vis" + graphid, data, options);
   };
 
   componentDidMount() {

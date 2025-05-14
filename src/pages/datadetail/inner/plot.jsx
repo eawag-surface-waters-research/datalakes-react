@@ -22,7 +22,43 @@ import Display from "./display";
 
 class Graph extends Component {
   render() {
-    
+    function processMaintenance(maintenance) {
+      // process maintenance events to create distinct time intervals with associated events
+      // because some maintenance can overlap
+      if (!maintenance) return [];
+      if (!Array.isArray(maintenance)) maintenance = [maintenance];
+      var bounds = [];
+      maintenance.forEach((event) => {
+        bounds.push({ time: new Date(event.starttime), type: "start", event });
+        bounds.push({ time: new Date(event.endtime), type: "stop", event });
+      });
+      bounds.sort((a, b) => a.time - b.time);
+
+      // create intervals with active maintenance events
+      var intervals = [];
+      var activeEvents = [];
+
+      for (let i = 0; i < bounds.length - 1; i++) {
+        const { time, type, event } = bounds[i];
+
+        if (type === "start") {
+          activeEvents.push(event);
+        } else {
+          const idx = activeEvents.indexOf(event);
+          if (idx !== -1) activeEvents.splice(idx, 1);
+        }
+
+        const nextTime = bounds[i + 1].time;
+        if (time < nextTime && activeEvents.length > 0) {
+          intervals.push({
+            interval: [new Date(time), new Date(nextTime)],
+            events: [...activeEvents],
+          });
+        }
+      }
+      return intervals;
+    }
+
     function processEvents(events) {
       // process events to create distinct time intervals with associated events
       // because some events can overlap
@@ -99,6 +135,8 @@ class Graph extends Component {
       xScale,
       yScale,
       datasetparameters,
+      maintenance,
+      mask,
       events,
       withEvents,
     } = this.props;
@@ -138,7 +176,8 @@ class Graph extends Component {
               yReverse={yReverse}
               xReverse={xReverse}
               display={display}
-              events={withEvents ? processEvents(events) : []}
+              maintenance={processMaintenance(mask ? [] : maintenance)}
+              events={processEvents(withEvents ? events : [])}
             />
           </React.Fragment>
         );
@@ -229,7 +268,8 @@ class Graph extends Component {
               plotdots={plotdots}
               setDownloadGraph={this.setDownloadGraph}
               border={true}
-              events={withEvents ? processEvents(events) : []}
+              maintenance={processMaintenance(mask ? [] : maintenance)}
+              events={processEvents(withEvents ? events : [])}
             />
           </React.Fragment>
         );
@@ -1479,7 +1519,7 @@ class Plot extends Component {
         }
       }
     } catch (e) {
-      console.error("Failed to add maintenace periods.");
+      console.error("Failed to add maintenance periods.");
       console.error(e);
     }
 
