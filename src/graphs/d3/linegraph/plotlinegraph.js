@@ -1219,6 +1219,11 @@ const addInteractionBoxes = (svg, div, options) => {
 
 const plotMaintenance = (context, maintenance, xAxis, options) => {
   maintenance.forEach(event => {
+    // check if there are any event applying to the current parameter
+    if (event.events.find(e => e.name === options.yLabel) === undefined) {
+      return;
+    }
+
     const x = xAxis.x.ax(event.interval[0]);
     const w = xAxis.x.ax(event.interval[1]) - x;
   
