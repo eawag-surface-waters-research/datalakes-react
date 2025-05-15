@@ -780,6 +780,31 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
           });
         }
         if (activeEvents.length > 0) {
+          // merge events with same starttime and endtime
+          var items = activeEvents.reduce((acc, curr) => {
+            const existing = acc.find(
+              (item) =>
+                item.starttime === curr.starttime &&
+                item.endtime === curr.endtime &&
+                item.depths === curr.depths &&
+                item.description === curr.description
+            );
+            if (existing) {
+              existing.parameters = existing.parameters
+                ? existing.parameters + ", " + curr.name
+                : curr.name;
+            } else {
+              acc.push({
+                parameters: curr.name,
+                starttime: curr.starttime,
+                endtime: curr.endtime,
+                depths: curr.depths,
+                description: curr.description,
+              });
+            }
+            return acc;
+          }
+          , []);
           var eventHTML = `
             <div class="tooltip-events">
               <div class="tooltip-events-header">Maintenance:</div>
@@ -788,8 +813,8 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
                   <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>
                 </thead>
                 <tbody>`;
-          activeEvents.forEach((evt) => {
-            eventHTML += `<tr><td>${evt.name}</td><td style="max-width: 100px">${evt.depths ? evt.depths.split(',').join(', ') : ''}</td><td>${evt.description}</td></tr>`;
+          items.forEach((item) => {
+            eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depths.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
           });
           eventHTML += `</tbody></table></div>`;
           return eventHTML;
