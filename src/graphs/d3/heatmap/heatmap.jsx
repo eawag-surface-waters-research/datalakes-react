@@ -286,10 +286,10 @@ class D3HeatMap extends Component {
     if ("display" in this.props) {
       this.setState({ display: this.props.display });
     }
-    const { data, events } = this.props;
+    const { data, events, maintenance } = this.props;
     const { graphid } = this.state;
     const options = this.prepareOptions();
-    this.heatmap = new CanvasHeatmap("vis" + graphid, data, events, options);
+    this.heatmap = new CanvasHeatmap("vis" + graphid, data, events, maintenance, options);
     let firstRun = true;
     const myObserver = new ResizeObserver((entries) => {
       if (firstRun) {
@@ -305,7 +305,7 @@ class D3HeatMap extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     var { display, fontSize, fullscreen, xgraph, ygraph } = this.state;
-    const { data, events } = this.props;
+    const { data, events, maintenance } = this.props;
     var compareProps = !isEqual(prevProps, this.props);
     if (
       !isEqual(prevProps.data.z, data.z) &&
@@ -314,7 +314,7 @@ class D3HeatMap extends Component {
         { ...this.props, data: { ...data, z: undefined } }
       )
     ) {
-      this.heatmap.updateData(data, events);
+      this.heatmap.updateData(data, events, maintenance);
     } else if (
       compareProps ||
       display !== prevState.display ||
@@ -324,7 +324,7 @@ class D3HeatMap extends Component {
       ygraph !== prevState.ygraph
     ) {
       const options = this.prepareOptions();
-      this.heatmap.update(data, events, options);
+      this.heatmap.update(data, events, maintenance, options);
     }
   }
 

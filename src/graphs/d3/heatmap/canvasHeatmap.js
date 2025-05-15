@@ -38,6 +38,7 @@ import {
   prepareContours,
 } from "./functions";
 import { canvasGrid, canvasContour } from "./fillcanvas";
+import { de } from "date-fns/locale";
 
 class CanvasHeatmap {
   options = {
@@ -78,17 +79,19 @@ class CanvasHeatmap {
       { color: "#ff0000", rgba: [255, 0, 0, 255], point: 1 },
     ],
   };
-  constructor(div, data, events, options = {}) {
+  constructor(div, data, events, maintenance, options = {}) {
     this._div = div;
     this._setData(data);
     this._setEvents(events);
+    this._setMaintenance(maintenance);
     this._setOptions(options);
     this._processContour();
     this._onAdd();
   }
-  update(data, events, options) {
+  update(data, events, maintenance, options) {
     this._setData(data);
     this._setEvents(events);
+    this._setMaintenance(maintenance);
     this._setOptions(options);
     this._processContour();
     this._onAdd();
@@ -98,9 +101,10 @@ class CanvasHeatmap {
     this._processContour();
     this._onAdd();
   }
-  updateData(data, events) {
+  updateData(data, events, maintenance) {
     this._setData(data);
     this._setEvents(events);
+    this._setMaintenance(maintenance);
     this._processContour();
     this._plot();
   }
@@ -144,6 +148,9 @@ class CanvasHeatmap {
   }
   _setEvents(events) {
     this._events = events;
+  }
+  _setMaintenance(maintenance) {
+    this._maintenance = maintenance;
   }
   _processContour() {
     if (this.options.contour) {
@@ -824,7 +831,9 @@ class CanvasHeatmap {
           }
 
           if (time) {
-            html = this._makeActiveEventsHTML(time, depth);
+            html = `
+              ${this._makeActiveMaintenanceHTML(time, depth)}
+              ${this._makeActiveEventsHTML(time, depth)}`;
             if (html && html !== "") {
               html = `
                 <table>
@@ -879,6 +888,7 @@ class CanvasHeatmap {
               <tr><td>y:</td><td>${yval} ${yu}</td></tr>
               <tr><td>z:</td><td>${formatNumber(zval, this.options.decimalPlaces)} ${zu}</td></tr>
             </tbody></table>
+            ${this._makeActiveMaintenanceHTML(time, depth)}
             ${this._makeActiveEventsHTML(time, depth)}`;
         }
 
@@ -1075,6 +1085,100 @@ class CanvasHeatmap {
             <tbody>`;
       activeEvents.forEach((evt) => {
         eventHTML += `<tr><td>${evt.parameter}</td><td style="max-width: 100px">${evt.depth ? evt.depth.split(',').join(', ') : ''}</td><td>${evt.comments}</td></tr>`;
+      });
+      eventHTML += `</tbody></table></div>`;
+      return eventHTML;
+    }
+    return "";
+  }
+  _makeActiveMaintenanceHTML(time, depth) {
+    var activeMaintenances = [];
+    if (time) {
+      this._maintenance.forEach((evt) => {
+        if (evt.interval[0] <= time && evt.interval[1] >= time) {
+          if (depth !== undefined) {
+            // filter by depth in list or range
+            evt.events.forEach((e) => {
+              // all depths apply
+              if (e.depths === undefined || e.depths.trim() === "" || e.depths.trim() === "All") {
+                activeMaintenances.push(e);
+                return;
+              }
+
+              // depth range
+              var depthRange = e.depths.split("-").map((d) => d.trim());
+              if (depthRange.length > 1) {
+                try {
+                  var start = parseFloat(depthRange[0]);
+                  var end = parseFloat(depthRange[1]);
+                  if (depth >= start && depth <= end) {
+                    activeMaintenances.push(e);
+                  }
+                } catch (e) {
+                  console.error("Error parsing depth range:", e);
+                }
+                return;
+              }
+
+              // depth list
+              var depthList = e.depths.split(",").map((d) => d.trim());
+              for (var i = 0; i < depthList.length; i++) {
+                try {
+                  var reported = parseFloat(depthList[i]);
+                  var span = 0.5;
+                  if (depth >= reported - span && depth <= reported + span) {
+                    activeMaintenances.push(e);
+                    return;
+                  }
+                } catch (e) {
+                  console.error("Error parsing depth list:", e);
+                }
+              }
+            });
+          } else {
+            // no depth filter
+            activeMaintenances.push(...evt.events);
+          }
+          
+        }
+      });
+    }
+    if (activeMaintenances.length > 0) {
+      // merge events with same starttime and endtime
+      var items = activeMaintenances.reduce((acc, curr) => {
+        const existing = acc.find(
+          (item) =>
+            item.starttime === curr.starttime &&
+            item.endtime === curr.endtime &&
+            item.depths === curr.depths &&
+            item.description === curr.description
+        );
+        if (existing) {
+          existing.parameters = existing.parameters
+            ? existing.parameters + ", " + curr.name
+            : curr.name;
+        } else {
+          acc.push({
+            parameters: curr.name,
+            starttime: curr.starttime,
+            endtime: curr.endtime,
+            depths: curr.depths,
+            description: curr.description,
+          });
+        }
+        return acc;
+      }
+      , []);
+      var eventHTML = `
+        <div class="tooltip-events">
+          <div class="tooltip-events-header">Maintenance:</div>
+          <table>
+            <thead>
+              <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>
+            </thead>
+            <tbody>`;
+      items.forEach((item) => {
+        eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depth.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
       });
       eventHTML += `</tbody></table></div>`;
       return eventHTML;
