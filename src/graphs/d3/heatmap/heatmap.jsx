@@ -286,10 +286,10 @@ class D3HeatMap extends Component {
     if ("display" in this.props) {
       this.setState({ display: this.props.display });
     }
-    const { data } = this.props;
+    const { data, events, maintenance } = this.props;
     const { graphid } = this.state;
     const options = this.prepareOptions();
-    this.heatmap = new CanvasHeatmap("vis" + graphid, data, options);
+    this.heatmap = new CanvasHeatmap("vis" + graphid, data, events, maintenance, options);
     let firstRun = true;
     const myObserver = new ResizeObserver((entries) => {
       if (firstRun) {
@@ -305,15 +305,16 @@ class D3HeatMap extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     var { display, fontSize, fullscreen, xgraph, ygraph } = this.state;
+    const { data, events, maintenance } = this.props;
     var compareProps = !isEqual(prevProps, this.props);
     if (
-      !isEqual(prevProps.data.z, this.props.data.z) &&
+      !isEqual(prevProps.data.z, data.z) &&
       isEqual(
         { ...prevProps, data: { ...prevProps.data, z: undefined } },
-        { ...this.props, data: { ...this.props.data, z: undefined } }
+        { ...this.props, data: { ...data, z: undefined } }
       )
     ) {
-      this.heatmap.updateData(this.props.data);
+      this.heatmap.updateData(data, events, maintenance);
     } else if (
       compareProps ||
       display !== prevState.display ||
@@ -323,7 +324,7 @@ class D3HeatMap extends Component {
       ygraph !== prevState.ygraph
     ) {
       const options = this.prepareOptions();
-      this.heatmap.update(this.props.data, options);
+      this.heatmap.update(data, events, maintenance, options);
     }
   }
 
@@ -351,6 +352,7 @@ class D3HeatMap extends Component {
       yReverse,
       maxvalue,
       minvalue,
+      events,
     } = this.props;
 
     const TimeLabels = ["Time", "time", "datetime", "Datetime", "Date", "date"];
@@ -405,6 +407,7 @@ class D3HeatMap extends Component {
                     plotdots={false}
                     xscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                     yscale={TimeLabels.includes(ylabel) ? "Time" : ""}
+                    events={events}
                   />
                 )}
               </div>
@@ -428,6 +431,7 @@ class D3HeatMap extends Component {
                   xscale={TimeLabels.includes(xlabel) ? "Time" : ""}
                   yscale={TimeLabels.includes(zlabel) ? "Time" : ""}
                   simple={true}
+                  events={events}
                 />
               )}
             </div>

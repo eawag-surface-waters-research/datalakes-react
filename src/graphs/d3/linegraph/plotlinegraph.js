@@ -51,7 +51,6 @@ const plotlinegraph = (div, data, options = {}) => {
       console.error(e);
     }
   }
-
   verifyDiv(div);
 
   data = processData(data);
@@ -82,12 +81,11 @@ const plotlinegraph = (div, data, options = {}) => {
 
   var plot = addPlottingArea(div, svg, options);
   if (options.legend) addLegend(svg, div, data, options);
-  if (options.lines) plotLines(div, plot, data, xAxis, yAxis, options.curve);
-  if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+  updatePlots(div, plot, context, data, xAxis, yAxis, options);
   var zmbox = null;
   var zm = null;
   if (options.zoom) {
-    var { zoombox, zoom } = addZoom(plot, context, data, div, xAxis, yAxis, options);
+    var { zoombox, zoom } = addZoom(svg, plot, context, data, div, xAxis, yAxis, options);
     zmbox = zoombox;
     zm = zoom;
   }
@@ -198,6 +196,8 @@ const processOptions = (div, data, userOptions) => {
         .getBoundingClientRect().height,
       verify: verifyNumber,
     },
+    { name: "maintenance", default: [], verify: () => true },
+    { name: "events", default: [], verify: () => true },
   ];
 
   var options = {};
@@ -743,15 +743,97 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
       var hoverX = event.clientX - rect.left;
       var hoverY = event.clientY - rect.top;
 
-      var { idx, idy, distance } = closest(data, hoverX, hoverY, xAxis, yAxis);
+      function makeActiveEventsHTML(time) {
+        var activeEvents = [];
+        if (time) {
+          options.events.forEach((evt) => {
+            if (evt.interval[0] <= time && evt.interval[1] >= time) {
+              activeEvents.push(...evt.events);
+            }
+          });
+        }
+        if (activeEvents.length > 0) {
+          var eventHTML = `
+            <div class="tooltip-events">
+              <div class="tooltip-events-header">Events:</div>
+              <table>
+                <thead>
+                  <tr><th>Parameters</th><th>Depths</th><th>Comments</th></tr>
+                </thead>
+                <tbody>`;
+          activeEvents.forEach((evt) => {
+            eventHTML += `<tr><td>${evt.parameter}</td><td style="max-width: 100px">${evt.depth ? evt.depth.split(',').join(', ') : ''}</td><td>${evt.comments}</td></tr>`;
+          });
+          eventHTML += `</tbody></table></div>`;
+          return eventHTML;
+        }
+        return "";
+      }
 
+      function makeActiveMaintenanceHTML(time) {
+        var activeEvents = [];
+        if (time) {
+          options.maintenance.forEach((evt) => {
+            if (evt.interval[0] <= time && evt.interval[1] >= time) {
+              activeEvents.push(...evt.events);
+            }
+          });
+        }
+        if (activeEvents.length > 0) {
+          // merge events with same starttime and endtime
+          var items = activeEvents.reduce((acc, curr) => {
+            const existing = acc.find(
+              (item) =>
+                item.starttime === curr.starttime &&
+                item.endtime === curr.endtime &&
+                item.depths === curr.depths &&
+                item.description === curr.description
+            );
+            if (existing) {
+              existing.parameters = existing.parameters
+                ? existing.parameters + ", " + curr.name
+                : curr.name;
+            } else {
+              acc.push({
+                parameters: curr.name,
+                starttime: curr.starttime,
+                endtime: curr.endtime,
+                depths: curr.depths,
+                description: curr.description,
+              });
+            }
+            return acc;
+          }
+          , []);
+          var eventHTML = `
+            <div class="tooltip-events">
+              <div class="tooltip-events-header">Maintenance:</div>
+              <table>
+                <thead>
+                  <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>
+                </thead>
+                <tbody>`;
+          items.forEach((item) => {
+            eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depths.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
+          });
+          eventHTML += `</tbody></table></div>`;
+          return eventHTML;
+        }
+        return "";
+      }
+
+      var { idx, idy, distance } = closest(data, hoverX, hoverY, xAxis, yAxis);
+      var html;
+      var posx = hoverX;
+      var posy = hoverY;
       if (distance < max_distance) {
         var xval, yval;
-        var xu = "",
-          yu = "";
+        var xu = "", yu = "";
+        var time;
 
         if (options.xTime) {
-          xval = formatDate(data[idx].x[idy], lang, options.noYear);
+          time = data[idx].x[idy];
+          xval = formatDate(time, lang, options.noYear);
         } else {
           xval = formatNumber(data[idx].x[idy]);
           if (typeof options.xUnit === "string") {
@@ -760,7 +842,8 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
         }
 
         if (options.yTime) {
-          yval = formatDate(data[idx].y[idy], lang, options.noYear);
+          time = data[idx].y[idy];
+          yval = formatDate(time, lang, options.noYear);   
         } else {
           yval = formatNumber(data[idx].y[idy]);
           if (typeof options.yUnit === "string") {
@@ -768,59 +851,94 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
           }
         }
 
-        var html = `
-                <table style="color:${data[idx].lineColor};">
-                    <tbody>
-                        <tr><td>x:</td><td>${xval} ${xu}</td></tr>
-                        <tr><td>y:</td><td>${yval} ${yu}</td></tr>
-                    </tbody>
-                </table>`;
+        html = `
+          <table style="color:${data[idx].lineColor};">
+              <tbody>
+                  <tr><td>x:</td><td>${xval} ${xu}</td></tr>
+                  <tr><td>y:</td><td>${yval} ${yu}</td></tr>
+              </tbody>
+          </table>
+          ${makeActiveMaintenanceHTML(time)}
+          ${makeActiveEventsHTML(time)}`;
 
         if ("tooltip" in data[idx]) {
           html = data[idx].tooltip[idy] + html;
         }
+        if (hoverX > options.width / 2) {
+          posx = options.width -
+            options.marginLeft -
+            xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
+            10;
+          posy = yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
+            options.marginTop -
+            options.fontSize -
+            6;
+        } else {
+          posx = xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
+            options.marginLeft +
+            10;
+          posy = yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
+            options.marginTop -
+            options.fontSize -
+            6;
+        }
+      } else {
+        // show active events if any at the mouse position
+        var time;
 
+        if (options.xTime) {
+          time = xAxis[data[idx].xaxis].ref.invert(hoverX);
+        }
+        else if (options.yTime) {
+          time = yAxis[data[idx].yaxis].ref.invert(hoverY);
+        }
+        html = `
+          ${makeActiveMaintenanceHTML(time)}
+          ${makeActiveEventsHTML(time)}`;
+        if (html && html !== "") {
+          html = `
+          <table style="color:${data[idx].lineColor};">
+              <tbody>
+                  <tr><td>${options.xTime ? 'x' : 'y'}:</td><td>${formatDate(time, lang, options.noYear)}</td></tr>
+              </tbody>
+          </table>
+          ${html}`;
+        }
+        if (hoverX > options.width / 2) {
+          posx = options.width -
+            options.marginLeft -
+            hoverX +
+            10;
+          posy = hoverY +
+            options.marginTop -
+            options.fontSize -
+            6;
+        } else {
+          posx = hoverX +
+            options.marginLeft +
+            10;
+          posy = hoverY +
+            options.marginTop -
+            options.fontSize -
+            6;
+        }
+      }
+
+      if (html && html !== "") {
         if (hoverX > options.width / 2) {
           tooltip
             .html(html)
-            .style(
-              "right",
-              options.width -
-                options.marginLeft -
-                xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
-                10 +
-                "px"
-            )
+            .style("right", posx + "px")
             .style("left", "auto")
-            .style(
-              "top",
-              yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
-                options.marginTop -
-                options.fontSize -
-                6 +
-                "px"
-            )
+            .style("top", posy + "px")
             .attr("class", "tooltip tooltip-right")
             .style("opacity", 1);
         } else {
           tooltip
             .html(html)
-            .style(
-              "left",
-              xAxis[data[idx].xaxis].ax(data[idx].x[idy]) +
-                options.marginLeft +
-                10 +
-                "px"
-            )
+            .style("left", posx + "px")
             .style("right", "auto")
-            .style(
-              "top",
-              yAxis[data[idx].yaxis].ax(data[idx].y[idy]) +
-                options.marginTop -
-                options.fontSize -
-                6 +
-                "px"
-            )
+            .style("top", posy + "px")
             .attr("class", "tooltip tooltip-left")
             .style("opacity", 1);
         }
@@ -903,7 +1021,7 @@ const downloadGraph = (div, options) => {
   title.style("opacity", "0");
 };
 
-const plotLines = (div, g, data, xAxis, yAxis, curve) => {
+const plotLines = (div, g, data, xAxis, yAxis, options) => {
   g.selectAll("path").remove();
   for (let j = 0; j < data.length; j++) {
     plotConfidenceInterval(
@@ -914,62 +1032,34 @@ const plotLines = (div, g, data, xAxis, yAxis, curve) => {
     );
   }
   for (let j = 0; j < data.length; j++) {
-    if (curve) {
-      g.append("path")
-        .datum(data[j].x)
-        .attr("id", `line_${j}_${div}`)
-        .attr("fill", "none")
-        .attr("stroke", data[j].lineColor)
-        .attr("stroke-width", data[j].lineWeight)
-        .attr(
-          "d",
-          line()
-            .x(function (d) {
-              return xAxis[data[j].xaxis].ax(d);
-            })
-            .y(function (d, i) {
-              return yAxis[data[j].yaxis].ax(data[j].y[i]);
-            })
-            .curve(curveNatural)
-            .defined(function (d, i) {
-              if (
-                isNumeric(xAxis[data[j].xaxis].ax(d)) &&
-                isNumeric(yAxis[data[j].yaxis].ax(data[j].y[i]))
-              ) {
-                return true;
-              } else {
-                return false;
-              }
-            })
-        );
-    } else {
-      g.append("path")
-        .datum(data[j].x)
-        .attr("id", `line_${j}_${div}`)
-        .attr("fill", "none")
-        .attr("stroke", data[j].lineColor)
-        .attr("stroke-width", data[j].lineWeight)
-        .attr(
-          "d",
-          line()
-            .x(function (d) {
-              return xAxis[data[j].xaxis].ax(d);
-            })
-            .y(function (d, i) {
-              return yAxis[data[j].yaxis].ax(data[j].y[i]);
-            })
-            .defined(function (d, i) {
-              if (
-                isNumeric(xAxis[data[j].xaxis].ax(d)) &&
-                isNumeric(yAxis[data[j].yaxis].ax(data[j].y[i]))
-              ) {
-                return true;
-              } else {
-                return false;
-              }
-            })
-        );
+    // actual data
+    var lineGenerator = line()
+      .x(function (d) {
+        return xAxis[data[j].xaxis].ax(d);
+      })
+      .y(function (d, i) {
+        return yAxis[data[j].yaxis].ax(data[j].y[i]);
+      });
+    if (options.curve) {
+      lineGenerator = lineGenerator.curve(curveNatural);
     }
+    lineGenerator = lineGenerator.defined(function (d, i) {
+      if (
+        isNumeric(xAxis[data[j].xaxis].ax(d)) &&
+        isNumeric(yAxis[data[j].yaxis].ax(data[j].y[i]))
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    g.append("path")
+      .datum(data[j].x)
+      .attr("id", `line_${j}_${div}`)
+      .attr("fill", "none")
+      .attr("stroke", data[j].lineColor)
+      .attr("stroke-width", data[j].lineWeight)
+      .attr("d", lineGenerator);
   }
 };
 
@@ -1045,7 +1135,6 @@ const plotConfidenceInterval = (g, data, xAxis, yAxis) => {
 };
 
 const plotScatter = (context, data, xAxis, yAxis, options) => {
-  context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
   for (var i = 0; i < data.length; i++) {
     if ("symbol" in data[i] && data[i].symbol === "x") {
       for (let j = 0; j < data[i].x.length; j++) {
@@ -1128,6 +1217,39 @@ const addInteractionBoxes = (svg, div, options) => {
   }
 };
 
+const plotMaintenance = (context, maintenance, xAxis, options) => {
+  maintenance.forEach(event => {
+    // check if there are any event applying to the current parameter
+    if (event.events.find(e => e.name === options.yLabel) === undefined) {
+      return;
+    }
+
+    const x = xAxis.x.ax(event.interval[0]);
+    const w = xAxis.x.ax(event.interval[1]) - x;
+  
+    if (w > 0) {
+      context.fillStyle = "rgba(255, 3, 255, 0.1)";
+      context.fillRect(x, 0, w, options.canvasHeight);
+    }
+    
+  });
+  
+};
+
+const plotEvents = (context, events, xAxis, options) => {
+  events.forEach(event => {
+    const x = xAxis.x.ax(event.interval[0]);
+    const w = xAxis.x.ax(event.interval[1]) - x;
+  
+    if (w > 0) {
+      context.fillStyle = "rgba(128, 128, 128, 0.1)";
+      context.fillRect(x, 0, w, options.canvasHeight);
+    }
+    
+  });
+  
+};
+
 const editTicks = (xAxis, yAxis) => {
   xAxis.x.g
     .selectAll(".tick line")
@@ -1139,7 +1261,7 @@ const editTicks = (xAxis, yAxis) => {
     .attr("stroke-dasharray", "4");
 };
 
-const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
+const addZoom = (svg, g, context, data, div, xAxis, yAxis, options) => {
   var zoom = d3zoom()
     .extent([
       [0, 0],
@@ -1204,8 +1326,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
         yAxis.y2.axis.scale(yAxis.y2.ax);
         yAxis.y2.g.call(yAxis.y2.axis);
       }
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options.curve);
-      if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       xAxis.x.ref = xAxis.x.ax;
       if (options.dualaxis === "x2") xAxis.x2.ref = xAxis.x2.ax;
       yAxis.y.ref = yAxis.y.ax;
@@ -1221,8 +1342,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       xAxis.x.ax = t.rescaleX(xAxis.x.ref);
       xAxis.x.axis.scale(xAxis.x.ax);
       xAxis.x.g.call(xAxis.x.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options.curve);
-      if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       xAxis.x.ref = xAxis.x.ax;
       zoomboxx.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1235,8 +1355,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       xAxis.x2.ax = t.rescaleX(xAxis.x2.ref);
       xAxis.x2.axis.scale(xAxis.x2.ax);
       xAxis.x2.g.call(xAxis.x2.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options.curve);
-      if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       xAxis.x2.ref = xAxis.x2.ax;
       zoomboxx2.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1249,8 +1368,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       yAxis.y.ax = t.rescaleY(yAxis.y.ref);
       yAxis.y.axis.scale(yAxis.y.ax);
       yAxis.y.g.call(yAxis.y.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options.curve);
-      if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       yAxis.y.ref = yAxis.y.ax;
       zoomboxy.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1263,8 +1381,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       yAxis.y2.ax = t.rescaleY(yAxis.y2.ref);
       yAxis.y2.axis.scale(yAxis.y2.ax);
       yAxis.y2.g.call(yAxis.y2.axis);
-      if (options.lines) plotLines(div, g, data, xAxis, yAxis, options.curve);
-      if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+      updatePlots(div, g, context, data, xAxis, yAxis, options);
       yAxis.y2.ref = yAxis.y2.ax;
       zoomboxy2.call(zoom.transform, zoomIdentity);
       if (options.grid) editTicks(xAxis, yAxis);
@@ -1292,8 +1409,7 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
       yAxis.y2.axis.scale(yAxis.y2.base);
       yAxis.y2.g.call(yAxis.y2.axis);
     }
-    if (options.lines) plotLines(div, g, data, xAxis, yAxis, options.curve);
-    if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
+    updatePlots(div, g, context, data, xAxis, yAxis, options);
     if (options.grid) editTicks(xAxis, yAxis);
   });
   zoomboxx.on("dblclick.zoom", null);
@@ -1301,6 +1417,14 @@ const addZoom = (g, context, data, div, xAxis, yAxis, options) => {
   if (options.dualaxis === "x2") zoomboxx2.on("dblclick.zoom", null);
   if (options.dualaxis === "y2") zoomboxy2.on("dblclick.zoom", null);
   return { zoombox, zoom };
+};
+
+const updatePlots = (div, g, context, data, xAxis, yAxis, options) => {
+  context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
+  if (options.events.length > 0) plotEvents(context, options.events, xAxis, options);
+  if (options.maintenance.length > 0) plotMaintenance(context, options.maintenance, xAxis, options);
+  if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
+  if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
 };
 
 const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options) => {
