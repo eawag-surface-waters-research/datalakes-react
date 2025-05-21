@@ -2686,6 +2686,7 @@ class Plot extends Component {
                     <ReportIssue
                       id={this.props.dataset.id}
                       repositories_id={this.props.dataset.repositories_id}
+                      ssh={this.props.dataset.ssh}
                       dataset={this.state.title}
                       datasetparameters={this.props.datasetparameters}
                     />

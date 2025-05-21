@@ -6,7 +6,8 @@ import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
-import { set } from "lodash";
+import { idProviderFromSsh } from "../../functions";
+
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
@@ -14,7 +15,6 @@ class ReportIssue extends Component {
   state = {
     reported: false,
     modal: false,
-    maintenance: false,
     message: "",
     email: "",
     start: new Date(),
@@ -28,14 +28,32 @@ class ReportIssue extends Component {
     data: [],
   };
 
+  getUser = () => {
+    // get user for this dataset
+    var idProvider = idProviderFromSsh(this.props.ssh);
+    if (idProvider === "renku" && this.props.auth?.renku?.user) {
+      return this.props.auth.renku.user;
+    }
+    if (idProvider === "gitlab" && this.props.auth?.gitlab?.user) {
+      return this.props.auth.gitlab.user;
+    }
+    if (idProvider === "github" && this.props.auth?.github?.user) {
+      return this.props.auth.github.user;
+    }
+    return null;
+  };
+
   openModal = () => {
     // init maintenance form with selected data
-    var { selectedData } = this.props;
-    var { start, end, parameters, sensordepths } = this.state;
+    var { selectedData, auth } = this.props;
+    var { start, end, parameters, sensordepths, reporter, email } = this.state;
     start = new Date();
     end = new Date();
     parameters = [];
     sensordepths = "";
+    var user = this.getUser();
+    reporter = user?.name || "";
+    email = user?.email || "";
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
       if (selectedData.xTime) {
         start = selectedData.bbox[0][0];
@@ -83,7 +101,7 @@ class ReportIssue extends Component {
       }
     }
 
-    this.setState({ start, end, parameters, sensordepths, modal: true });
+    this.setState({ start, end, parameters, sensordepths, reporter, email, modal: true });
   };
 
   closeModal = (event) => {
@@ -123,23 +141,6 @@ class ReportIssue extends Component {
 
   updateEmail = (event) => {
     this.setState({ email: event.target.value });
-  };
-
-  toggleMaintenance = () => {
-    if (!this.state.maintenance) {
-      var key = "thetis";
-      var output = window.prompt(
-        "Please enter the password to report maintenance.",
-        ""
-      );
-      if (key !== output) {
-        window.alert("Incorrect password.");
-      } else {
-        this.setState({ maintenance: !this.state.maintenance });
-      }
-    } else {
-      this.setState({ maintenance: !this.state.maintenance });
-    }
   };
 
   submitReport = async () => {
@@ -229,7 +230,8 @@ class ReportIssue extends Component {
   submitMaintenance = async () => {
     var { start, end, parameters, description, reporter, sensordepths } =
       this.state;
-    var { id } = this.props;
+    var { id, auth } = this.props;
+    var user = this.getUser();
 
     if (parameters === null) {
       window.alert("You must select at least one parameter.");
@@ -256,7 +258,7 @@ class ReportIssue extends Component {
         end: new Date(),
         parameters: null,
         description: "",
-        reporter: "",
+        reporter: user?.name || "",
         sensordepths: "",
         error: false,
       });
@@ -283,6 +285,11 @@ class ReportIssue extends Component {
     return label + (unit ? " (" + unit + ")" : "");
   };
 
+  capitalizeFirstLetter = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   componentDidMount = async () => {
     this.updateMaintenance();
   };
@@ -291,7 +298,6 @@ class ReportIssue extends Component {
     var {
       reported,
       modal,
-      maintenance,
       start,
       end,
       parameters,
@@ -301,7 +307,10 @@ class ReportIssue extends Component {
       error,
       data,
     } = this.state;
-    var { dataset, datasetparameters, selectedData } = this.props;
+    var { dataset, datasetparameters, selectedData, auth } = this.props;
+    var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(this.props.ssh));
+    var user = this.getUser();
+    var maintenance = user?.name;
 
     var dp = datasetparameters
       .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id))
@@ -377,17 +386,6 @@ class ReportIssue extends Component {
                 &#215;
               </div>
               <h2>Report Issue</h2>
-              <div className="reportslider">
-                Report Maintenance
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={maintenance}
-                    onChange={this.toggleMaintenance}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </div>
               {maintenance ? (
                 <React.Fragment>
                   <p>Current maintenance periods:</p>
@@ -511,6 +509,9 @@ class ReportIssue extends Component {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
+                  {user?.name || (<p style={{color: "red"}}>
+                    If you are a Developer or Maintainer of this dataset, please login with your <b>{idProvider}</b> account for advanced reporting features.
+                  </p>)}
                   <p>
                     Thanks for filling out a data report, please add a message
                     describing the issue and your email address in case we have
@@ -570,7 +571,8 @@ class ReportIssue extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  selectedData: state.selection.selectedData
+  selectedData: state.selection.selectedData,
+  auth: state.auth,
 });
 
 export default connect(mapStateToProps)(ReportIssue);

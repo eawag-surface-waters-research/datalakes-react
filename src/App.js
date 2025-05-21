@@ -9,6 +9,9 @@ import NotFound from "./pages/notfound/notfound";
 import DataPortal from "./pages/dataportal/dataportal";
 import AddDataset from "./pages/adddataset/adddataset";
 import Monitor from "./pages/monitor/monitor";
+import User from "./pages/user/user";
+import RenkuUser from "./pages/user/renku";
+import GitlabUser from "./pages/user/gitlab";
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
 import MapViewer from "./pages/mapviewer/mapviewer";
 import "./index.css";
@@ -86,6 +89,33 @@ class App extends Component {
               render={(props) => (
                 <ErrorBoundary {...props}>
                   <Monitor {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/user"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <User {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/renku"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <RenkuUser {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/gitlab"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <GitlabUser {...props} />
                 </ErrorBoundary>
               )}
             />

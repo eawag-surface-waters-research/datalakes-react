@@ -7,6 +7,16 @@
     "name": "eawag-data",
     "url": "https://eawag-data.s3.eu-central-1.amazonaws.com"
   },
+  "auth": {
+    "renku": {
+      "clientId": "6c317282b4352e040202e1c0096bd05f9668c82b73560852fdabfbf8c29ec2b7",
+      "redirectUri": "http://localhost:3000/renku"
+    },
+    "gitlab": {
+      "clientId": "41ed2df8224278138aec50e4f5a6548cc29f2226f1ff590759bedc82477caecd",
+      "redirectUri": "http://localhost:3000/gitlab"
+    }
+  },
   "basemaps": {
     "datalakesmap": {
       "url": "https://api.mapbox.com/styles/v1/jamesrunnalls/ck96x8fhp6h2i1ik5q9xz0iqn/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiamFtZXNydW5uYWxscyIsImEiOiJjazk0ZG9zd2kwM3M5M2hvYmk3YW0wdW9yIn0.uIJUZoDgaC2LfdGtgMz0cQ",

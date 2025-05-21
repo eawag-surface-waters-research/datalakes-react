@@ -181,6 +181,51 @@ button {
   padding: 4px 8px;
 }
 
+/* User */
+
+.section.user {
+  padding: 25px 50px;
+  margin-bottom: 30px;
+  border-radius: 5px;
+  background-color: white;
+  font-size: 18px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  border: 1px solid rgba(59, 65, 81, 0.3);
+}
+
+.user h2 {
+  padding: 0;
+  margin-top: 0;
+}
+.user .container {
+  display: flex;
+  align-items: flex-start; /* Aligns items at the top */
+  margin: 10px 0;
+}
+.user .container img {
+  max-width: 200px;
+  margin-right: 20px;
+}
+.user .container .text {
+  max-width: 500px;
+}
+.user .container p {
+  margin: 10px 0;
+}
+.user button {
+  color: white;
+  border-radius: 5px;
+  font-size: medium;
+}
+.user button.login {
+  background-color: #102a43;
+  border: solid 1px #102a43;
+}
+.user button.logout {
+  background-color: #c93838;
+  border: solid 1px #c93838;
+}
+
 /* Shapes */
 
 .circle {

@@ -11,6 +11,7 @@
     "delaunator": "^4.0.1",
     "fuse.js": "^6.5.3",
     "interactive-slider": "^1.1.0",
+    "js-pkce": "^2.0.0",
     "leaflet": "^1.5.1",
     "leaflet-contour": "^1.0.0",
     "leaflet-draw": "^1.0.4",
