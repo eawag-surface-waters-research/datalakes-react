@@ -22,6 +22,89 @@ import Display from "./display";
 
 class Graph extends Component {
   render() {
+    function processMaintenance(maintenance) {
+      // process maintenance events to create distinct time intervals with associated events
+      // because some maintenance can overlap
+      if (!maintenance) return [];
+      if (!Array.isArray(maintenance)) maintenance = [maintenance];
+      var bounds = [];
+      maintenance.forEach((event) => {
+        bounds.push({ time: new Date(event.starttime), type: "start", event });
+        bounds.push({ time: new Date(event.endtime), type: "stop", event });
+      });
+      bounds.sort((a, b) => a.time - b.time);
+
+      // create intervals with active maintenance events
+      var intervals = [];
+      var activeEvents = [];
+
+      for (let i = 0; i < bounds.length - 1; i++) {
+        const { time, type, event } = bounds[i];
+
+        if (type === "start") {
+          activeEvents.push(event);
+        } else {
+          const idx = activeEvents.indexOf(event);
+          if (idx !== -1) activeEvents.splice(idx, 1);
+        }
+
+        const nextTime = bounds[i + 1].time;
+        if (time < nextTime && activeEvents.length > 0) {
+          intervals.push({
+            interval: [new Date(time), new Date(nextTime)],
+            events: [...activeEvents],
+          });
+        }
+      }
+      return intervals;
+    }
+
+    function processEvents(events) {
+      // process events to create distinct time intervals with associated events
+      // because some events can overlap
+      if (!events) return [];
+      if (!Array.isArray(events)) events = [events];
+      
+      // create bounds for each event
+      var bounds = [];
+      events.forEach((event) => {
+        bounds.push({ time: new Date(event.start), type: "start", event });
+        bounds.push({ time: new Date(event.stop), type: "stop", event });
+      });
+      // sort by time and type
+      bounds.sort((a, b) => {
+        if (a.time.getTime() !== b.time.getTime()) {
+          return a.time - b.time;
+        }
+        return a.type === "start" && b.type === "stop" ? -1 : 1;
+      });
+
+      // create intervals with active events
+      var intervals = [];
+      var activeEvents = [];
+
+      for (let i = 0; i < bounds.length - 1; i++) {
+        const { time, type, event } = bounds[i];
+    
+        if (type === "start") {
+          activeEvents.push(event);
+        } else {
+          const idx = activeEvents.indexOf(event);
+          if (idx !== -1) activeEvents.splice(idx, 1);
+        }
+    
+        const nextTime = bounds[i + 1].time;
+        if (time < nextTime && activeEvents.length > 0) {
+          intervals.push({
+            interval: [new Date(time), new Date(nextTime)],
+            events: [...activeEvents],
+          });
+        }
+      }
+
+      return intervals;
+    }
+
     var {
       graph,
       plotdata,
@@ -52,6 +135,10 @@ class Graph extends Component {
       xScale,
       yScale,
       datasetparameters,
+      maintenance,
+      mask,
+      events,
+      withEvents,
     } = this.props;
     if (
       (graph === "heatmap" && plotdata[0].z === undefined) ||
@@ -95,6 +182,8 @@ class Graph extends Component {
               yReverse={yReverse}
               xReverse={xReverse}
               display={display}
+              maintenance={processMaintenance(mask ? [] : maintenance)}
+              events={processEvents(withEvents ? events : [])}
             />
           </React.Fragment>
         );
@@ -185,6 +274,8 @@ class Graph extends Component {
               plotdots={plotdots}
               setDownloadGraph={this.setDownloadGraph}
               border={true}
+              maintenance={processMaintenance(mask ? [] : maintenance)}
+              events={processEvents(withEvents ? events : [])}
             />
           </React.Fragment>
         );
@@ -574,12 +665,17 @@ class DisplayOptions extends Component {
     decimate: this.props.decimate,
     average: this.props.average,
     plotdots: this.props.plotdots,
+    withEvents: this.props.withEvents,
     interpolate: this.props.interpolate,
     xScale: this.props.xScale,
     yScale: this.props.yScale,
   };
   toggleMask = () => {
     this.setState({ mask: !this.state.mask });
+  };
+
+  toggleEvents = () => {
+    this.setState({ withEvents: !this.state.withEvents });
   };
 
   togglePlotdots = () => {
@@ -699,6 +795,7 @@ class DisplayOptions extends Component {
       decimate,
       average,
       plotdots,
+      withEvents,
       interpolate,
       xScale,
       yScale,
@@ -844,6 +941,16 @@ class DisplayOptions extends Component {
                     />
                   </td>
                 </tr>
+                <tr>
+                  <td>Show Events</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={withEvents}
+                      onChange={this.toggleEvents}
+                    />
+                  </td>
+                </tr>
                 {graph === "linegraph" && (
                   <tr>
                     <td>Plot Points</td>
@@ -962,6 +1069,7 @@ class Plot extends Component {
       "x-nearest",
       "y-nearest",
     ],
+    withEvents: false,
     plotdots: false,
     upperY: 1,
     lowerY: 0,
@@ -1417,7 +1525,7 @@ class Plot extends Component {
         }
       }
     } catch (e) {
-      console.error("Failed to add maintenace periods.");
+      console.error("Failed to add maintenance periods.");
       console.error(e);
     }
 
@@ -2340,6 +2448,7 @@ class Plot extends Component {
       average,
       display,
       thresholdStep,
+      withEvents,
       plotdots,
       interpolate,
     } = this.state;

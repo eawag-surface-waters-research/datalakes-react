@@ -11,6 +11,7 @@ import {
   zoomIdentity,
   format,
   zoom as d3zoom,
+  brush as d3brush,
   timeFormatDefaultLocale,
 } from "d3";
 import {
@@ -37,6 +38,7 @@ import {
   prepareContours,
 } from "./functions";
 import { canvasGrid, canvasContour } from "./fillcanvas";
+import { de } from "date-fns/locale";
 
 class CanvasHeatmap {
   options = {
@@ -71,20 +73,25 @@ class CanvasHeatmap {
     setDownloadGraphDiv: false,
     hover: false,
     click: false,
+    select: false,
     colors: [
       { color: "#0000ff", rgba: [0, 0, 255, 255], point: 0 },
       { color: "#ff0000", rgba: [255, 0, 0, 255], point: 1 },
     ],
   };
-  constructor(div, data, options = {}) {
+  constructor(div, data, events, maintenance, options = {}) {
     this._div = div;
     this._setData(data);
+    this._setEvents(events);
+    this._setMaintenance(maintenance);
     this._setOptions(options);
     this._processContour();
     this._onAdd();
   }
-  update(data, options) {
+  update(data, events, maintenance, options) {
     this._setData(data);
+    this._setEvents(events);
+    this._setMaintenance(maintenance);
     this._setOptions(options);
     this._processContour();
     this._onAdd();
@@ -94,8 +101,10 @@ class CanvasHeatmap {
     this._processContour();
     this._onAdd();
   }
-  updateData(data) {
+  updateData(data, events, maintenance) {
     this._setData(data);
+    this._setEvents(events);
+    this._setMaintenance(maintenance);
     this._processContour();
     this._plot();
   }
@@ -125,6 +134,7 @@ class CanvasHeatmap {
     this._addBackground();
     this._addLegendRight();
     this._addZoom();
+    this._addBrush();
     this._addTooltip();
     this._plot();
   }
@@ -135,6 +145,12 @@ class CanvasHeatmap {
     this._yTime = data[0].y[0] instanceof Date;
     this._data = data;
     this._dataExtents();
+  }
+  _setEvents(events) {
+    this._events = events;
+  }
+  _setMaintenance(maintenance) {
+    this._maintenance = maintenance;
   }
   _processContour() {
     if (this.options.contour) {
@@ -206,6 +222,7 @@ class CanvasHeatmap {
       setDownloadGraphDiv: verifyString,
       hover: verifyFunction,
       click: verifyFunction,
+      select: verifyFunction,
       colors: verifyColors,
     };
 
@@ -260,6 +277,8 @@ class CanvasHeatmap {
         this._downloadGraph()
       );
     }
+
+    this._ctrlPressed = false;
 
     timeFormatDefaultLocale(languageOptions(this.options.language));
 
@@ -600,6 +619,122 @@ class CanvasHeatmap {
     image.src = "data:image/svg+xml;charset=utf8," + encodeURIComponent(str);
     title.style("opacity", "0");
   };
+  _addBrush() {
+    if (this.options.select === false) return;
+
+    // Listen for keyboard events
+    select("body")
+      .on("keydown", (event) => {
+        if (event.key === "Control" && !this._ctrlPressed) {
+          this._ctrlPressed = true;
+          this._activateBrush();
+        }
+      })
+      .on("keyup", (event) => {
+        if (event.key === "Control") {
+          this._ctrlPressed = false;
+          this._deactivateBrush();
+        }
+    });
+
+    this._isBrushing = false;
+
+    // Create a separate group for the brush
+    this._brushGroup = this._svg
+      .append("g")
+      .attr("class", "brush");
+
+    // Initialize brush with event handlers
+    this._brush = d3brush()
+      .extent([
+        [0, 0],
+        [this._canvasWidth, this._canvasHeight],
+      ])
+      .filter(event => event.ctrlKey) // only allow brush if Ctrl is pressed
+      .on("start", this._brushStart)
+      .on("end", this._brushEnd);
+
+    // Add brush to the brush group but hide it initially
+    this._brushGroup
+      .call(this._brush)
+      .attr("pointer-events", "all")
+      .style("display", "none");
+  }
+  _brushStart = (event) => {
+    // If the event is not coming from a user interaction or no selection was made
+    if (!event.sourceEvent) return;
+    // We're starting a brush action
+    this._isBrushing = true;
+  }
+  _brushEnd = (event) => {
+    if (!this._isBrushing) return;
+    // We're ending a brush action
+    const selection = event.selection;
+
+    // If the event is not coming from a user interaction or no selection was made
+    if (!event.sourceEvent || !selection) {
+      // Reset opacity
+      //cells.attr("opacity", 1);
+      this._isBrushing = false;
+
+      // If Ctrl is no longer pressed, deactivate brush
+      if (!this._ctrlPressed) {
+        this._deactivateBrush();
+      }
+      return;
+    }
+
+    // Get the coordinates of the brush selection
+    const [[x0, y0], [x1, y1]] = selection;
+    // Convert the coordinates to data values
+    const x0Val = this._xAxis.ax.invert(x0);
+    const x1Val = this._xAxis.ax.invert(x1);
+    const y0Val = this._yAxis.ax.invert(y0);
+    const y1Val = this._yAxis.ax.invert(y1);
+    // Call the select function with the selected box
+    this.options.select({
+      bbox: [[x0Val, y0Val], [x1Val, y1Val]], 
+      xTime: this._xTime,
+      yTime: this._yTime,
+      xLabel: this.options.xLabel,
+      yLabel: this.options.yLabel,
+      zLabel: this.options.zLabel,
+      xUnit: this.options.xUnit,
+      yUnit: this.options.yUnit,
+      zUnit: this.options.zUnit,
+    });
+  }
+  _activateBrush() {
+    this._brushGroup.style("display", null);
+    this._zoombox.on(".zoom", null); // Temporarily disable zoom
+
+    // Add a visual indicator that brush mode is active
+    select("#brush-indicator").remove(); // Remove any existing indicator
+    select(".heatmap-header")
+      .append("div")
+      .attr("id", "brush-indicator")
+      .style("position", "absolute")
+      .style("top", "0px")
+      .style("left", "60px")
+      .style("background-color", "rgba(255, 0, 0, 0.7)")
+      .style("color", "white")
+      .style("padding", "5px 10px")
+      .style("border-radius", "4px")
+      .style("font-size", "12px")
+      .text("Brush Mode Active (Ctrl + Click to select)");
+  }
+  _deactivateBrush() {
+    if (!this._isBrushing) {
+      this._brushGroup.style("display", "none");
+      this._zoombox.call(this._zoom); // Re-enable zoom
+
+      // Remove the brush indicator
+      select("#brush-indicator").remove();
+      // Clear the brush selection
+      this._brushGroup.call(this._brush.move, null);
+      this.options.select(null);
+    }
+  }
   _addTooltip() {
     if (this.options.tooltip === false) return;
     var { zMin, zMax } = this._zBounds();
@@ -656,46 +791,116 @@ class CanvasHeatmap {
         var xValue = this._xAxis.ax.invert(hoverX);
         var yValue = this._yAxis.ax.invert(hoverY);
 
+        var html = "";
+
         var idx = Math.max(
           getFileIndex(this._xFileDomain, xValue),
           getFileIndex(this._yFileDomain, yValue)
         );
         var process = this._data[idx];
 
-        var xi = closest(xValue, process.x);
-        var yi = closest(yValue, process.y);
+        if (process === undefined) {
+          // no value but we may still find have some events information to display
+          var xval, yval;
+          var xu = "";
+          var yu = "";
+          var time;
+          var depth;
 
-        var xval, yval;
-        var xu = "";
-        var yu = "";
-        var zu = "";
-        var zval = process.z[yi][xi];
+          if (this._xTime) {
+            time = xValue;
+            xval = formatDate(time, lang);
+          } else {
+            xval = formatNumber(xValue);
+            if (typeof this.options.xUnit === "string") xu = this.options.xUnit;
+            if (this.options.xLabel === "Depth") {
+              xval = formatNumber(xValue, 1);
+              depth = xval;
+            }
+          }
+          if (this._yTime) {
+            time = yValue;
+            yval = formatDate(time, lang);
+          } else {
+            yval = formatNumber(yValue);
+            if (typeof this.options.yUnit === "string") yu = this.options.yUnit;
+            if (this.options.yLabel === "Depth") {
+              yval = formatNumber(yValue, 1);
+              depth = yval;
+            }
+          }
 
-        if (this._xTime) {
-          xval = formatDate(process.x[xi], lang);
+          if (time) {
+            html = `
+              ${this._makeActiveMaintenanceHTML(time, depth)}
+              ${this._makeActiveEventsHTML(time, depth)}`;
+            if (html && html !== "") {
+              html = `
+                <table>
+                  <tbody>
+                    <tr><td>x:</td><td>${xval} ${xu}</td></tr>
+                    <tr><td>y:</td><td>${yval} ${yu}</td></tr>
+                  </tbody>
+                </table>
+                ${html}`;
+            }
+          }
         } else {
-          xval = formatNumber(process.x[xi]);
-          if (typeof this.options.xUnit === "string") xu = this.options.xUnit;
+          // display values and associated events if any
+          var xi = closest(xValue, process.x);
+          var yi = closest(yValue, process.y);
+
+          var xval, yval;
+          var xu = "";
+          var yu = "";
+          var zu = "";
+          var zval = process.z[yi][xi];
+          var time;
+          var depth;
+
+          if (this._xTime) {
+            time = process.x[xi];
+            xval = formatDate(time, lang);
+          } else {
+            xval = formatNumber(process.x[xi]);
+            if (typeof this.options.xUnit === "string") xu = this.options.xUnit;
+            if (this.options.xLabel === "Depth") {
+              depth = process.x[xi];
+            }
+          }
+
+          if (this._yTime) {
+            time = process.y[yi];
+            yval = formatDate(time, lang);
+          } else {
+            yval = formatNumber(process.y[yi]);
+            if (typeof this.options.yUnit === "string") yu = this.options.yUnit;
+            if (this.options.yLabel === "Depth") {
+              depth = process.y[yi];
+            }
+          }
+
+          if (typeof this.options.zUnit === "string") zu = this.options.zUnit;
+
+          html =`
+            <table><tbody>
+              <tr><td>x:</td><td>${xval} ${xu}</td></tr>
+              <tr><td>y:</td><td>${yval} ${yu}</td></tr>
+              <tr><td>z:</td><td>${formatNumber(zval, this.options.decimalPlaces)} ${zu}</td></tr>
+            </tbody></table>
+            ${this._makeActiveMaintenanceHTML(time, depth)}
+            ${this._makeActiveEventsHTML(time, depth)}`;
         }
 
-        if (this._yTime) {
-          yval = formatDate(process.y[yi], lang);
-        } else {
-          yval = formatNumber(process.y[yi]);
-          if (typeof this.options.yUnit === "string") yu = this.options.yUnit;
+        if (html === "") {
+          // nothing to be displayed
+          vpi.style("opacity", 0);
+          tooltip.style("opacity", 0);
+          select("#zpointer_" + this._div).style("opacity", 0);
+          if (this.options.hover)
+            this.options.hover({ mousex: false, mousey: false });
+          return;
         }
-
-        if (typeof this.options.zUnit === "string") zu = this.options.zUnit;
-
-        var html =
-          "<table><tbody>" +
-          `<tr><td>x:</td><td>${xval} ${xu}</td></tr>` +
-          `<tr><td>y:</td><td>${yval} ${yu}</td></tr>` +
-          `<tr><td>z:</td><td>${formatNumber(
-            zval,
-            this.options.decimalPlaces
-          )} ${zu}</td></tr>` +
-          "</tbody></table>";
 
         if (hoverX > this._width / 2) {
           tooltip
@@ -703,7 +908,7 @@ class CanvasHeatmap {
             .style(
               "right",
               this._width -
-                this._xAxis.ax(process.x[xi]) -
+                (process ? this._xAxis.ax(process.x[xi]) : hoverX) -
                 this.options.marginLeft +
                 10 +
                 "px"
@@ -711,7 +916,7 @@ class CanvasHeatmap {
             .style("left", "auto")
             .style(
               "top",
-              this._yAxis.ax(process.y[yi]) + this.options.marginTop - 20 + "px"
+              (process ? this._yAxis.ax(process.y[yi]) : hoverY) + this.options.marginTop - 20 + "px"
             )
             .attr("class", "tooltip tooltip-right")
             .style("opacity", 1);
@@ -720,7 +925,7 @@ class CanvasHeatmap {
             .html(html)
             .style(
               "left",
-              this._xAxis.ax(process.x[xi]) +
+              (process ? this._xAxis.ax(process.x[xi]) : hoverX) +
                 this.options.marginLeft +
                 10 +
                 "px"
@@ -728,7 +933,7 @@ class CanvasHeatmap {
             .style("right", "auto")
             .style(
               "top",
-              this._yAxis.ax(process.y[yi]) + this.options.marginTop - 20 + "px"
+              (process ? this._yAxis.ax(process.y[yi]) : hoverY) + this.options.marginTop - 20 + "px"
             )
             .attr("class", "tooltip tooltip-left")
             .style("opacity", 1);
@@ -817,7 +1022,172 @@ class CanvasHeatmap {
     this._tooltip = tooltip;
     this._vpi = vpi;
   }
+  _makeActiveEventsHTML(time, depth) {
+    var activeEvents = [];
+    if (time) {
+      this._events.forEach((evt) => {
+        if (evt.interval[0] <= time && evt.interval[1] >= time) {
+          if (depth !== undefined) {
+            // filter by depth in list or range
+            evt.events.forEach((e) => {
+              // all depths apply
+              if (e.depth === undefined || e.depth.trim() === "" || e.depth.trim() === "All") {
+                activeEvents.push(e);
+                return;
+              }
+
+              // depth range
+              var depthRange = e.depth.split("-").map((d) => d.trim());
+              if (depthRange.length > 1) {
+                try {
+                  var start = parseFloat(depthRange[0]);
+                  var end = parseFloat(depthRange[1]);
+                  if (depth >= start && depth <= end) {
+                    activeEvents.push(e);
+                  }
+                } catch (e) {
+                  console.error("Error parsing depth range:", e);
+                }
+                return;
+              }
+
+              // depth list
+              var depthList = e.depth.split(",").map((d) => d.trim());
+              for (var i = 0; i < depthList.length; i++) {
+                try {
+                  var reported = parseFloat(depthList[i]);
+                  var span = 0.5;
+                  if (depth >= reported - span && depth <= reported + span) {
+                    activeEvents.push(e);
+                    return;
+                  }
+                } catch (e) {
+                  console.error("Error parsing depth list:", e);
+                }
+              }
+            });
+          } else {
+            // no depth filter
+            activeEvents.push(...evt.events);
+          }
+          
+        }
+      });
+    }
+    if (activeEvents.length > 0) {
+      var eventHTML = `
+        <div class="tooltip-events">
+          <div class="tooltip-events-header">Events:</div>
+          <table>
+            <thead>
+              <tr><th>Parameters</th><th>Depths</th><th>Comments</th></tr>
+            </thead>
+            <tbody>`;
+      activeEvents.forEach((evt) => {
+        eventHTML += `<tr><td>${evt.parameter}</td><td style="max-width: 100px">${evt.depth ? evt.depth.split(',').join(', ') : ''}</td><td>${evt.comments}</td></tr>`;
+      });
+      eventHTML += `</tbody></table></div>`;
+      return eventHTML;
+    }
+    return "";
+  }
+  _makeActiveMaintenanceHTML(time, depth) {
+    var activeMaintenances = [];
+    if (time) {
+      this._maintenance.forEach((evt) => {
+        if (evt.interval[0] <= time && evt.interval[1] >= time) {
+          if (depth !== undefined) {
+            // filter by depth in list or range
+            evt.events.forEach((e) => {
+              // all depths apply
+              if (e.depths === undefined || e.depths.trim() === "" || e.depths.trim() === "All") {
+                activeMaintenances.push(e);
+                return;
+              }
+
+              // depth range
+              var depthRange = e.depths.split("-").map((d) => d.trim());
+              if (depthRange.length > 1) {
+                try {
+                  var start = parseFloat(depthRange[0]);
+                  var end = parseFloat(depthRange[1]);
+                  if (depth >= start && depth <= end) {
+                    activeMaintenances.push(e);
+                  }
+                } catch (e) {
+                  console.error("Error parsing depth range:", e);
+                }
+                return;
+              }
+
+              // depth list
+              var depthList = e.depths.split(",").map((d) => d.trim());
+              for (var i = 0; i < depthList.length; i++) {
+                try {
+                  var reported = parseFloat(depthList[i]);
+                  var span = 0.5;
+                  if (depth >= reported - span && depth <= reported + span) {
+                    activeMaintenances.push(e);
+                    return;
+                  }
+                } catch (e) {
+                  console.error("Error parsing depth list:", e);
+                }
+              }
+            });
+          } else {
+            // no depth filter
+            activeMaintenances.push(...evt.events);
+          }
+          
+        }
+      });
+    }
+    if (activeMaintenances.length > 0) {
+      // merge events with same starttime and endtime
+      var items = activeMaintenances.reduce((acc, curr) => {
+        const existing = acc.find(
+          (item) =>
+            item.starttime === curr.starttime &&
+            item.endtime === curr.endtime &&
+            item.depths === curr.depths &&
+            item.description === curr.description
+        );
+        if (existing) {
+          existing.parameters = existing.parameters
+            ? existing.parameters + ", " + curr.name
+            : curr.name;
+        } else {
+          acc.push({
+            parameters: curr.name,
+            starttime: curr.starttime,
+            endtime: curr.endtime,
+            depths: curr.depths,
+            description: curr.description,
+          });
+        }
+        return acc;
+      }
+      , []);
+      var eventHTML = `
+        <div class="tooltip-events">
+          <div class="tooltip-events-header">Maintenance:</div>
+          <table>
+            <thead>
+              <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>
+            </thead>
+            <tbody>`;
+      items.forEach((item) => {
+        eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depth.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
+      });
+      eventHTML += `</tbody></table></div>`;
+      return eventHTML;
+    }
+    return "";
+  }
   _addZoom() {
+    this._zoomEnabled = true;
+
     this._zoom = d3zoom()
       .extent([
         [0, 0],
@@ -838,6 +1208,20 @@ class CanvasHeatmap {
         [this._canvasWidth, this._canvasHeight],
       ])
       .on("zoom", (event) => this._normalzoomy(event));
+
+    if (this.options.select) {
+      select(window)
+        .on("keydown.zoomBrushToggle", (event) => {
+          if (event.ctrlKey) {
+            this._zoomEnabled = false;
+            this._zoombox.style("cursor", "crosshair");
+          }
+        })
+        .on("keyup.zoomBrushToggle", () => {
+          this._zoomEnabled = true;
+          this._zoombox.style("cursor", "pointer");
+        });
+    }
 
     this._zoombox = this._svg
       .append("rect")
@@ -886,6 +1270,7 @@ class CanvasHeatmap {
     this._zoomboxy.on("dblclick.zoom", null);
   }
   _normalzoom(event) {
+    if (!this._zoomEnabled) return;
     let t = event.transform;
     if (t !== zoomIdentity) {
       this._xAxis.ax = t.rescaleX(this._xAxis.ref);
@@ -901,6 +1286,7 @@ class CanvasHeatmap {
     }
   }
   _normalzoomx(event) {
+    if (!this._zoomEnabled) return;
     let t = event.transform;
     if (t !== zoomIdentity) {
       this._xAxis.ax = t.rescaleX(this._xAxis.ref);
@@ -912,6 +1298,7 @@ class CanvasHeatmap {
     }
   }
   _normalzoomy(event) {
+    if (!this._zoomEnabled) return;
     let t = event.transform;
     if (t !== zoomIdentity) {
       this._yAxis.ax = t.rescaleY(this._yAxis.ref);
