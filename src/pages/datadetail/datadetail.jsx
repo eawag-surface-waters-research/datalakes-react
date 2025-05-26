@@ -476,7 +476,7 @@ class DataDetail extends Component {
     try {
       server = await Promise.all([
         axios.get(apiUrl + "/datasets/" + dataset_id, { timeout: timeout }),
-        axios.get(apiUrl + "/files?datasets_id=" + dataset_id, {
+        axios.get(apiUrl + "/files?datasets_id=" + dataset_id + "&type=json", {
           timeout: timeout,
         }),
         axios.get(apiUrl + "/datasetparameters?datasets_id=" + dataset_id, {
@@ -489,7 +489,7 @@ class DataDetail extends Component {
       console.error("NodeJS API error switching to serverless API");
       server = await Promise.all([
         axios.get(serverlessUrl + "/datasets/" + dataset_id),
-        axios.get(serverlessUrl + "/files?datasets_id=" + dataset_id),
+        axios.get(serverlessUrl + "/files?datasets_id=" + dataset_id + "&type=json"),
         axios.get(
           serverlessUrl + "/datasetparameters?datasets_id=" + dataset_id
         ),
