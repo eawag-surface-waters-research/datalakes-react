@@ -19,7 +19,6 @@
   border: solid 1px rgb(169, 169, 169);
   border-radius: 5px;
   box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
-  z-index: 999;
 }
 
 .sidebarlayout .rightcontainer.hide {
@@ -172,6 +171,7 @@
     border-radius: 0;
     border: none;
     padding-bottom: 10px;
+    z-index: 1;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead {

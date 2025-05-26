@@ -2161,13 +2161,7 @@ class Plot extends Component {
 
   filterData = (arr) => {
     if (Array.isArray(arr)) {
-      var data = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (!isNaN(parseFloat(arr[i])) && isFinite(arr[i])) {
-          data.push(arr[i]);
-        }
-      }
-      return arr;
+      return arr.flat().filter((d) => !isNaN(parseFloat(d)) && isFinite(d));
     } else {
       return [];
     }
@@ -2250,9 +2244,9 @@ class Plot extends Component {
       pd = [pd];
     }
     for (var i = 0; i < pd.length; i++) {
-      let zdomain = d3.extent(this.filterData(pd[i].z).flat());
-      minZ = Math.min(zdomain[0], minZ);
-      maxZ = Math.max(zdomain[1], maxZ);
+      let zdomain = d3.extent(this.filterData(pd[i].z));
+      if (isFinite(zdomain[0])) minZ = Math.min(zdomain[0], minZ);
+      if (isFinite(zdomain[1])) maxZ = Math.max(zdomain[1], maxZ);
     }
     return { minZ, maxZ };
   };
