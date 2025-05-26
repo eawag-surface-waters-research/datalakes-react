@@ -50,3 +50,17 @@
 .slider-arrow:hover {
   color: grey;
 }
+
+.datetime-selector button {
+  margin: 6px 3px;
+  border-radius: 16px;
+  color: grey;
+  border-color: grey;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+}
+
+.datetime-selector button.update {
+  color: #38bec9;
+  border-color: #38bec9;
+}

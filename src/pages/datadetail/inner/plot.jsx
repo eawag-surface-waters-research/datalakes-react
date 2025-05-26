@@ -6,7 +6,7 @@ import ColorManipulation from "../../../components/colormanipulation/colormanipu
 import DataSelect from "../../../components/dataselect/dataselect";
 import Loading from "../../../components/loading/loading";
 import D3HeatMap from "../../../graphs/d3/heatmap/heatmap";
-import SliderDouble from "../../../components/sliders/sliderdouble";
+import DateSliderDouble from "../../../components/sliders/sliderdoubletime";
 import SliderSingle from "../../../components/sliders/slidersingle";
 import NumberSliderDouble from "../../../components/sliders/sliderdoublenumber";
 import LoadDataSets from "../../../components/loaddatasets/loaddatasets";
@@ -500,12 +500,11 @@ class Range extends Component {
             title={"x" === timeaxis ? xlabel + " Range" : ylabel + " Range"}
             content={
               <div className="side-date-slider">
-                <SliderDouble
-                  onChangeLower={
-                    "x" === timeaxis ? this.onChangeLowerX : this.onChangeLowerY
-                  }
-                  onChangeUpper={
-                    "x" === timeaxis ? this.onChangeUpperX : this.onChangeUpperY
+                <DateSliderDouble
+                  onChange={
+                    "x" === timeaxis
+                      ? this.props.onChangeX
+                      : this.props.onChangeY
                   }
                   min={"x" === timeaxis ? minX : minY}
                   max={"x" === timeaxis ? maxX : maxY}
