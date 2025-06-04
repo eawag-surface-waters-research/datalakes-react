@@ -120,14 +120,12 @@ class Bafu extends Component {
         lweight[1] = 2;
         var legend = [];
         if (plotdata.length > 1) {
-          var yi = dropdown.parameters.find((f) => f.id === 5);
           var yaxis_dict = {
             en: "name",
             de: "german",
             it: "italian",
             fr: "french",
           };
-          ylabel = yi[yaxis_dict[lang]];
           var dp1 = this.props.datasetparameters.find(
             (d) => d.axis === this.props.yaxis[0]
           );
