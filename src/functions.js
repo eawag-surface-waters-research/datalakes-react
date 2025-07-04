@@ -1,4 +1,4 @@
-const projectFromSsh = (ssh) => {
+export const projectFromSsh = (ssh) => {
   var group = ssh.replace(".git", "").split(":")[1].split("/")[0];
   var repository = ssh.replace(".git", "").split(":")[1].split("/")[1];
   return { group, repository };
@@ -29,10 +29,10 @@ export const urlFromSsh = (ssh, renku = false) => {
     }
   } else if (ssh.includes("git@gitlab.renkulab.io")) {
     url = `https://gitlab.renkulab.io/${group}/${repository}`;
-  } else if (ssh.includes("github.com")) {
-    url = `https://github.com/${group}/${repository}`;
   } else if (ssh.includes("gitlab.com")) {
     url = `https://gitlab.com/${group}/${repository}`;
+  } else if (ssh.includes("github.com")) {
+    url = `https://github.com/${group}/${repository}`;
   }
   return url;
 };

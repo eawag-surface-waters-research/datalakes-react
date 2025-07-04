@@ -6,6 +6,7 @@ const initialUserState = {
   user: null,
   accessToken: null,
   refreshToken: null,
+  expiresIn: null,
 };
 const initialAuthState = {
   renku: initialUserState,
@@ -24,6 +25,8 @@ function authReducer(state = initialAuthState, action) {
           user: action.payload.user,
           accessToken: action.payload.accessToken,
           refreshToken: action.payload.refreshToken,
+          expiresIn: action.payload.expiresIn,
+          tokenFetchedAt: Math.floor(Date.now() / 1000)
         }
       };
     case 'SET_AUTH_GITLAB':
@@ -34,6 +37,8 @@ function authReducer(state = initialAuthState, action) {
           user: action.payload.user,
           accessToken: action.payload.accessToken,
           refreshToken: action.payload.refreshToken,
+          expiresIn: action.payload.expiresIn,
+          tokenFetchedAt: Math.floor(Date.now() / 1000)
         }
       };
       case 'LOGOUT_RENKU':

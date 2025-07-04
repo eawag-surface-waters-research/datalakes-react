@@ -15,7 +15,7 @@ class RenkuLogin extends React.Component {
       redirect_uri: auth.renku.redirectUri,
       authorization_endpoint: "https://gitlab.renkulab.io/oauth/authorize",
       token_endpoint: "https://gitlab.renkulab.io/oauth/token",
-      requested_scopes: "read_user",
+      requested_scopes: "api read_api",
     });
   }
 
@@ -70,14 +70,9 @@ class RenkuLogin extends React.Component {
 
 const mapStateToProps = state => ({
   user: state.auth?.renku?.user,
-  accessToken: state.auth?.renku?.accessToken,
-  refreshToken: state.auth?.renku?.refreshToken,
 });
 
 const mapDispatchToProps = dispatch => ({
-  setAuth: (user, accessToken, refreshToken) => {
-    dispatch({ type: 'SET_AUTH_RENKU', payload: {user, accessToken, refreshToken} });
-  },
   logout: () => {
     dispatch({ type: 'LOGOUT_RENKU' });
   },

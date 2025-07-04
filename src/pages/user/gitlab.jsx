@@ -17,7 +17,7 @@ class GitlabUser extends Component {
       redirect_uri: auth.gitlab.redirectUri,
       authorization_endpoint: "https://gitlab.com/oauth/authorize",
       token_endpoint: "https://gitlab.com/oauth/token",
-      requested_scopes: "read_user",
+      requested_scopes: "api read_api",
     });
   }
 
@@ -28,7 +28,8 @@ class GitlabUser extends Component {
       .then((resp) => {
         const accessToken = resp.access_token;
         const refreshToken = resp.refresh_token;
-        this.props.setAuth(null, accessToken, refreshToken);
+        const expiresIn = resp.expires_in;
+        this.props.setAuth(null, accessToken, refreshToken, expiresIn);
         return fetch('https://gitlab.com/api/v4/user', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -37,7 +38,7 @@ class GitlabUser extends Component {
       })
       .then(res => res.json())
       .then(user => {
-        this.props.setAuth(user, this.props.accessToken, this.props.refreshToken);
+        this.props.setAuth(user, this.props.accessToken, this.props.refreshToken, this.props.expiresIn);
       })
       .catch(err => {
         this.setState({ error: err.message, loading: false });
@@ -69,11 +70,12 @@ const mapStateToProps = state => ({
   user: state.auth?.gitlab?.user,
   accessToken: state.auth?.gitlab?.accessToken,
   refreshToken: state.auth?.gitlab?.refreshToken,
+  expiresIn: state.auth?.gitlab?.expiresIn,
 });
 
 const mapDispatchToProps = dispatch => ({
-  setAuth: (user, accessToken, refreshToken) => {
-    dispatch({ type: 'SET_AUTH_GITLAB', payload: {user, accessToken, refreshToken} });
+  setAuth: (user, accessToken, refreshToken, expiresIn) => {
+    dispatch({ type: 'SET_AUTH_GITLAB', payload: {user, accessToken, refreshToken, expiresIn} });
   },
 });
 

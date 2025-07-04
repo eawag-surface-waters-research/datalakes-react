@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, use } from "react";
 import { connect } from 'react-redux';
 import DateTimePicker from "react-datetime-picker";
 import Select from "react-select";
@@ -7,6 +7,8 @@ import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
+import { isGitProjectMaintainer, getGitUser } from "../../git";
+import { th } from "date-fns/locale";
 
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
@@ -22,6 +24,7 @@ class ReportIssue extends Component {
     parameters: null,
     description: "",
     reporter: "",
+    maintainer: false,
     sensordepths: "",
     submitted: false,
     error: false,
@@ -30,30 +33,35 @@ class ReportIssue extends Component {
 
   getUser = () => {
     // get user for this dataset
-    var idProvider = idProviderFromSsh(this.props.ssh);
-    if (idProvider === "renku" && this.props.auth?.renku?.user) {
-      return this.props.auth.renku.user;
-    }
-    if (idProvider === "gitlab" && this.props.auth?.gitlab?.user) {
-      return this.props.auth.gitlab.user;
-    }
-    if (idProvider === "github" && this.props.auth?.github?.user) {
-      return this.props.auth.github.user;
-    }
-    return null;
+    var { ssh, auth } = this.props;
+    return getGitUser(ssh, auth);
   };
 
-  openModal = () => {
+  isMaintainer = async () => {
+    // authz check
+    var { ssh, auth } = this.props;
+    return await isGitProjectMaintainer(ssh, auth);
+  };
+
+  openModal = async () => {
     // init maintenance form with selected data
-    var { selectedData, auth } = this.props;
+    var { selectedData } = this.props;
     var { start, end, parameters, sensordepths, reporter, email } = this.state;
     start = new Date();
     end = new Date();
     parameters = [];
     sensordepths = "";
+    
+    // authz check
     var user = this.getUser();
+    console.debug("User:", user);
     reporter = user?.name || "";
     email = user?.email || "";
+    var maintainer = false;
+    if (user) {
+      maintainer = await this.isMaintainer();
+    }
+
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
       if (selectedData.xTime) {
         start = selectedData.bbox[0][0];
@@ -101,7 +109,7 @@ class ReportIssue extends Component {
       }
     }
 
-    this.setState({ start, end, parameters, sensordepths, reporter, email, modal: true });
+    this.setState({ start, end, parameters, sensordepths, reporter, email, maintainer, modal: true });
   };
 
   closeModal = (event) => {
@@ -230,7 +238,7 @@ class ReportIssue extends Component {
   submitMaintenance = async () => {
     var { start, end, parameters, description, reporter, sensordepths } =
       this.state;
-    var { id, auth } = this.props;
+    var { id } = this.props;
     var user = this.getUser();
 
     if (parameters === null) {
@@ -303,11 +311,12 @@ class ReportIssue extends Component {
       parameters,
       description,
       reporter,
+      maintainer,
       sensordepths,
       error,
       data,
     } = this.state;
-    var { dataset, datasetparameters, selectedData, auth } = this.props;
+    var { dataset, datasetparameters, selectedData } = this.props;
     var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(this.props.ssh));
     var user = this.getUser();
     var maintenance = user?.name;
@@ -388,6 +397,9 @@ class ReportIssue extends Component {
               <h2>Report Issue</h2>
               {maintenance ? (
                 <React.Fragment>
+                  {!maintainer || (<p style={{color: "green"}}>
+                    You are a Developer or Maintainer of this dataset and have access to advanced reporting features.
+                  </p>)}
                   <p>Current maintenance periods:</p>
                   <table>
                     <thead>

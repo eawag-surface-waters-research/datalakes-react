@@ -13,7 +13,7 @@ class GitlabLogin extends React.Component {
       redirect_uri: auth.gitlab.redirectUri,
       authorization_endpoint: "https://gitlab.com/oauth/authorize",
       token_endpoint: "https://gitlab.com/oauth/token",
-      requested_scopes: "read_user",
+      requested_scopes: "api read_api",
     });
   }
 
@@ -68,14 +68,9 @@ class GitlabLogin extends React.Component {
 
 const mapStateToProps = state => ({
   user: state.auth?.gitlab?.user,
-  accessToken: state.auth?.gitlab?.accessToken,
-  refreshToken: state.auth?.gitlab?.refreshToken,
 });
 
 const mapDispatchToProps = dispatch => ({
-  setAuth: (user, accessToken, refreshToken) => {
-    dispatch({ type: 'SET_AUTH_GITLAB', payload: {user, accessToken, refreshToken} });
-  },
   logout: () => {
     dispatch({ type: 'LOGOUT_GITLAB' });
   },

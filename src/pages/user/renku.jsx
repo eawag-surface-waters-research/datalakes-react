@@ -17,7 +17,7 @@ class RenkuUser extends Component {
       redirect_uri: auth.renku.redirectUri,
       authorization_endpoint: "https://gitlab.renkulab.io/oauth/authorize",
       token_endpoint: "https://gitlab.renkulab.io/oauth/token",
-      requested_scopes: "read_user",
+      requested_scopes: "api read_api",
     });
   }
 
@@ -28,7 +28,8 @@ class RenkuUser extends Component {
       .then((resp) => {
         const accessToken = resp.access_token;
         const refreshToken = resp.refresh_token;
-        this.props.setAuth(null, accessToken, refreshToken);
+        const expiresIn = resp.expires_in;
+        this.props.setAuth(null, accessToken, refreshToken, expiresIn);
         return fetch('https://gitlab.renkulab.io/api/v4/user', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -37,7 +38,7 @@ class RenkuUser extends Component {
       })
       .then(res => res.json())
       .then(user => {
-        this.props.setAuth(user, this.props.accessToken, this.props.refreshToken);
+        this.props.setAuth(user, this.props.accessToken, this.props.refreshToken, this.props.expiresIn);
       })
       .catch(err => {
         this.setState({ error: err.message, loading: false });
@@ -69,11 +70,12 @@ const mapStateToProps = state => ({
   user: state.auth?.renku?.user,
   accessToken: state.auth?.renku?.accessToken,
   refreshToken: state.auth?.renku?.refreshToken,
+  expiresIn: state.auth?.renku?.expiresIn,
 });
 
 const mapDispatchToProps = dispatch => ({
-  setAuth: (user, accessToken, refreshToken) => {
-    dispatch({ type: 'SET_AUTH_RENKU', payload: {user, accessToken, refreshToken} });
+  setAuth: (user, accessToken, refreshToken, expiresIn) => {
+    dispatch({ type: 'SET_AUTH_RENKU', payload: {user, accessToken, refreshToken, expiresIn} });
   },
 });
 
