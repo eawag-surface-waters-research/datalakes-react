@@ -8,7 +8,6 @@ import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
 import { isGitProjectMaintainer, getGitUser } from "../../git";
-import { th } from "date-fns/locale";
 
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
@@ -33,14 +32,14 @@ class ReportIssue extends Component {
 
   getUser = () => {
     // get user for this dataset
-    var { ssh, auth } = this.props;
-    return getGitUser(ssh, auth);
+    var { ssh } = this.props;
+    return getGitUser(ssh);
   };
 
   isMaintainer = async () => {
     // authz check
-    var { ssh, auth } = this.props;
-    return await isGitProjectMaintainer(ssh, auth);
+    var { ssh } = this.props;
+    return await isGitProjectMaintainer(ssh);
   };
 
   openModal = async () => {
@@ -54,7 +53,6 @@ class ReportIssue extends Component {
     
     // authz check
     var user = this.getUser();
-    console.debug("User:", user);
     reporter = user?.name || "";
     email = user?.email || "";
     var maintainer = false;
@@ -584,7 +582,6 @@ class ReportIssue extends Component {
 
 const mapStateToProps = (state) => ({
   selectedData: state.selection.selectedData,
-  auth: state.auth,
 });
 
 export default connect(mapStateToProps)(ReportIssue);

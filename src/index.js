@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import * as Sentry from "@sentry/browser";
 import { Provider } from 'react-redux';
-import store from './store';
+import store from './store/index';
 import App from "./App";
 import "./index.css";
 
