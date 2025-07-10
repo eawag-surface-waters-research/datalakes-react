@@ -24,6 +24,8 @@ class Header extends Component {
       return this.props.auth.renku.user;
     } else if (this.props.auth?.gitlab?.user) {
       return this.props.auth.gitlab.user;
+    } else if (this.props.auth?.github?.user) {
+      return this.props.auth.github.user;
     } else {
       return null;
     }

@@ -36,7 +36,7 @@ class GithubLogin extends React.Component {
             <div className="container">
               <img src={user.avatar_url} alt="Avatar" width={80} />
               <div className="text">
-                <p>Username: {user.username}</p>
+                <p>Username: {user.login}</p>
                 <p>Email: {user.email}</p>
               </div>
             </div>
