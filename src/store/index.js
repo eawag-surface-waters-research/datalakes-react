@@ -1,5 +1,5 @@
 // Stores
-import { applyMiddleware, createStore, combineReducers } from 'redux';
+import { createStore, combineReducers } from 'redux';
 import selectionReducer from './selection';
 import authReducer from './auth';
 

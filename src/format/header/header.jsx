@@ -15,7 +15,6 @@ import api_2 from "./img/api_2.svg";
 import about_2 from "./img/about_2.svg";
 
 import "./header.css";
-import { th } from "date-fns/locale";
 
 class Header extends Component {
   state = {};

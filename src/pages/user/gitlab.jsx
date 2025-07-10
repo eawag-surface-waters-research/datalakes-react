@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PKCE from 'js-pkce';
 import { auth } from "../../config.json";
 
-// Gitlab callback page: read the code from the URL, get the tokens and fetch the user data
+// GitLab callback page: read the code from the URL, get the tokens and fetch the user data
 class GitlabUser extends Component {
   constructor(props) {
     super(props);
@@ -54,7 +54,7 @@ class GitlabUser extends Component {
   }
 
   render() {
-    document.title = "Identities - Gitlab - Datalakes";
+    document.title = "Identities - GitLab - Datalakes";
      return ( 
       <div>
         <div className="user">

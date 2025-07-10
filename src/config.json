@@ -15,6 +15,10 @@
     "gitlab": {
       "clientId": "41ed2df8224278138aec50e4f5a6548cc29f2226f1ff590759bedc82477caecd",
       "redirectUri": "http://localhost:3000/gitlab"
+    },
+    "github": {
+      "clientId": "Ov23livywLQE7UaHhaal",
+      "redirectUri": "http://localhost:3000/github"
     }
   },
   "basemaps": {

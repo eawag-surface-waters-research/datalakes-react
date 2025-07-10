@@ -40,13 +40,13 @@ class GitlabLogin extends React.Component {
 
     return (
       <div className="section user">
-        <h2>Gitlab</h2>
+        <h2>GitLab</h2>
         {user ? (
           <div>
-            <h4>{user.name}, your profile will be used for the datasets hosted at <a href="https://gitlab.com/" target="_blank"><b>GitLab</b> (gitlab.com)</a>.</h4>
-            <div class="container">
+            <h4>{user.name}, your profile will be used for the datasets hosted at <a href="https://gitlab.com/" target="_blank" rel="noopener noreferrer"><b>GitLab</b> (gitlab.com)</a>.</h4>
+            <div className="container">
               <img src={user.avatar_url} alt="Avatar" width={80} />
-              <div class="text">
+              <div className="text">
                 <p>Username: {user.username}</p>
                 <p>Email: {user.email}</p>
               </div>
@@ -57,7 +57,7 @@ class GitlabLogin extends React.Component {
           </div>
         ) : (
           <div>
-            <h4>Please identify yourself using your <a href="https://gitlab.com/" target="_blank"><b>GitLab</b> (gitlab.com)</a> account.</h4>
+            <h4>Please identify yourself using your <a href="https://gitlab.com/" target="_blank" rel="noopener noreferrer"><b>GitLab</b> (gitlab.com)</a> account.</h4>
             <button onClick={this.connect} className="login">Connect to GitLab</button>
           </div>
         )}

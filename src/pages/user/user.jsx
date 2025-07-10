@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import GitlabLogin from './gitlablogin';
 import RenkuLogin from './renkulogin';
+import GithubLogin from './githublogin';
 
 class User extends Component {
-    render() { 
-        var url = window.location.href;
+    render() {
         document.title = "Identities - Datalakes";
          return ( 
             <div>
@@ -13,6 +13,7 @@ class User extends Component {
                     <h3>To access some Datalakes advanced features, please identify yourself using the account(s) where the dataset(s) of interest are hosted.</h3>
                     <RenkuLogin />
                     <GitlabLogin />
+                    <GithubLogin />
                 </div>
             </div>
         );

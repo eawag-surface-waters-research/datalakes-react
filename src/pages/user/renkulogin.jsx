@@ -45,10 +45,10 @@ class RenkuLogin extends React.Component {
         <h2>Renku</h2>
         {user ? (
           <div>
-            <h4>{user.name}, your profile will be used for the datasets hosted at <a href="https://gitlab.renkulab.io/" target="_blank"><b>Renku</b> (gitlab.renkulab.io)</a>.</h4>
-            <div class="container">
+            <h4>{user.name}, your profile will be used for the datasets hosted at <a href="https://gitlab.renkulab.io/" target="_blank" rel="noopener noreferrer"><b>Renku</b> (gitlab.renkulab.io)</a>.</h4>
+            <div className="container">
               <img src={user.avatar_url} alt="Avatar" width={80} />
-              <div class="text">
+              <div className="text">
                 <p>Username: {user.username}</p>
                 <p>Email: {user.email}</p>
               </div>
@@ -59,7 +59,7 @@ class RenkuLogin extends React.Component {
           </div>
         ) : (
           <div>
-            <h4>Please identify yourself using your <a href="https://gitlab.renkulab.io/" target="_blank"><b>Renku</b> (gitlab.renkulab.io)</a> account.</h4>
+            <h4>Please identify yourself using your <a href="https://gitlab.renkulab.io/" target="_blank" rel="noopener noreferrer"><b>Renku</b> (gitlab.renkulab.io)</a> account.</h4>
             <button onClick={this.connect} className="login">Connect to Renku</button>
           </div>
         )}

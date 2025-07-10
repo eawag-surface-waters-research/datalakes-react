@@ -1,5 +1,4 @@
 // Authentication token management and user state handling for Renku, GitLab, and GitHub.
-import { auth } from '../config.json';
 
 // Initial authentication state
 const initialUserState = {
@@ -41,6 +40,18 @@ function authReducer(state = initialAuthState, action) {
           tokenFetchedAt: Math.floor(Date.now() / 1000)
         }
       };
+    case 'SET_AUTH_GITHUB':
+      return {
+        ...state,
+        github: {
+          ...state.github,
+          user: action.payload.user,
+          accessToken: action.payload.accessToken,
+          refreshToken: action.payload.refreshToken,
+          expiresIn: action.payload.expiresIn,
+          tokenFetchedAt: Math.floor(Date.now() / 1000)
+        }
+      };
       case 'LOGOUT_RENKU':
         return {
           ...state,
@@ -50,6 +61,11 @@ function authReducer(state = initialAuthState, action) {
         return {
           ...state,
           gitlab: initialUserState
+        };
+      case 'LOGOUT_GITHUB':
+        return {
+          ...state,
+          github: initialUserState
         };
       case 'LOGOUT':
         return initialAuthState;
