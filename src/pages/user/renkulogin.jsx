@@ -12,7 +12,7 @@ class RenkuLogin extends React.Component {
 
     this.pkce = new PKCE({
       client_id: auth.renku.clientId,
-      redirect_uri: auth.renku.redirectUri,
+      redirect_uri: auth.renku.redirectUri || window.location.origin + "/renku",
       authorization_endpoint: "https://gitlab.renkulab.io/oauth/authorize",
       token_endpoint: "https://gitlab.renkulab.io/oauth/token",
       requested_scopes: "api read_api",

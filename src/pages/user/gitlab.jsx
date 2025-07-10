@@ -14,7 +14,7 @@ class GitlabUser extends Component {
 
     this.pkce = new PKCE({
       client_id: auth.gitlab.clientId,
-      redirect_uri: auth.gitlab.redirectUri,
+      redirect_uri: auth.gitlab.redirectUri || window.location.origin + "/gitlab",
       authorization_endpoint: "https://gitlab.com/oauth/authorize",
       token_endpoint: "https://gitlab.com/oauth/token",
       requested_scopes: "api read_api",

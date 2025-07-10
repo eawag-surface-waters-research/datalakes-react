@@ -10,16 +10,13 @@
   },
   "auth": {
     "renku": {
-      "clientId": "6c317282b4352e040202e1c0096bd05f9668c82b73560852fdabfbf8c29ec2b7",
-      "redirectUri": "http://localhost:3000/renku"
+      "clientId": "6c317282b4352e040202e1c0096bd05f9668c82b73560852fdabfbf8c29ec2b7"
     },
     "gitlab": {
-      "clientId": "41ed2df8224278138aec50e4f5a6548cc29f2226f1ff590759bedc82477caecd",
-      "redirectUri": "http://localhost:3000/gitlab"
+      "clientId": "41ed2df8224278138aec50e4f5a6548cc29f2226f1ff590759bedc82477caecd"
     },
     "github": {
-      "clientId": "Ov23livywLQE7UaHhaal",
-      "redirectUri": "http://localhost:3000/github"
+      "clientId": "Ov23livywLQE7UaHhaal"
     }
   },
   "basemaps": {

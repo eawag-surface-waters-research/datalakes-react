@@ -6,7 +6,7 @@ import { auth } from "../../config.json";
 class GithubLogin extends React.Component {
   
   connect = () => {
-    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${auth.github.clientId}&redirect_uri=${auth.github.redirectUri}&scope=repo,user`;
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${auth.github.clientId}&redirect_uri=${auth.github.redirectUri || window.location.origin + "/github"}&scope=repo,user`;
     window.location.replace(githubAuthUrl);
   };
 

@@ -29,7 +29,7 @@ async function refreshGitlabAccessToken(idProvider) {
 
   const host = idProvider === "renku" ? "https://gitlab.renkulab.io" : "https://gitlab.com";
   const clientId = auth[idProvider].clientId;
-  const redirectUri = auth[idProvider].redirectUri;
+  const redirectUri = auth[idProvider].redirectUri || window.location.origin + `/${idProvider}`;
 
   const response = await fetch(`${host}/oauth/token`, {
     method: "POST",
