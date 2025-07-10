@@ -3,6 +3,7 @@
   "serverlessUrl": "https://serverless.datalakes-eawag.ch",
   "serverlessUrls": "http://localhost:3000/dev",
   "password": "downloadprivatefiles",
+  "key": "ftGUqECH4LzDJHXhfwgNN5RkP3MJTeahtxkjmRcU3AfrWvQj",
   "bucket": {
     "name": "eawag-data",
     "url": "https://eawag-data.s3.eu-central-1.amazonaws.com"
