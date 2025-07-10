@@ -228,6 +228,15 @@ class ReportIssue extends Component {
     this.updateMaintenance();
   };
 
+  confirmMaintenance = async (ids) => {
+    for (let i = 0; i < ids.length; i++) {
+      await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
+        state: "confirmed",
+      });
+    }
+    this.updateMaintenance();
+  };
+
   updateMaintenance = async () => {
     var { data } = await axios.get(apiUrl + "/maintenance/" + this.props.id);
     this.setState({ data });
@@ -347,6 +356,7 @@ class ReportIssue extends Component {
           depths: data[i].depths,
           description: data[i].description,
           id: [data[i].id],
+          state: data[i].state,
           reporter: data[i].reporter,
         };
       }
@@ -364,12 +374,21 @@ class ReportIssue extends Component {
           <td>{dict[key].parameters.join(", ")}</td>
           <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
+          <td>{dict[key].state}</td>
           <td>{dict[key].reporter}</td>
           <td>
+            {maintainer && dict[key].state !== "confirmed" ? (
+              <div
+                style={{ width: "20px", cursor: "pointer" }}
+                title="Confirm report"
+                onClick={() => this.confirmMaintenance(ids)}
+              >
+                &#10003;
+              </div>
+            ) : null}
             {reporterOrMaintainer ? (
               <div
-                style={{ width: "20px" }}
-                className="close"
+                style={{ width: "20px", color: "red", cursor: "pointer" }}
                 title="Delete report"
                 onClick={() => this.deleteMaintenance(ids)}
               >
@@ -413,6 +432,7 @@ class ReportIssue extends Component {
                         <th>Parameters</th>
                         <th>Depths</th>
                         <th>Description</th>
+                        <th>State</th>
                         <th>Reporter</th>
                         <th></th>
                       </tr>
