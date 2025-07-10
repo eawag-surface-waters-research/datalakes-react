@@ -355,6 +355,8 @@ class ReportIssue extends Component {
     var rows = [];
     for (var key in dict) {
       let ids = dict[key].id;
+      // check if the user is the reporter or a maintainer
+      const reporterOrMaintainer = dict[key].reporter === user?.name || maintainer;
       rows.push(
         <tr key={key}>
           <td>{this.formatTime(dict[key].start)}</td>
@@ -363,13 +365,17 @@ class ReportIssue extends Component {
           <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
           <td>{dict[key].reporter}</td>
-          <td
-            style={{ width: "20px" }}
-            className="close"
-            title="Delete report"
-            onClick={() => this.deleteMaintenance(ids)}
-          >
-            &#10005;
+          <td>
+            {reporterOrMaintainer ? (
+              <div
+                style={{ width: "20px" }}
+                className="close"
+                title="Delete report"
+                onClick={() => this.deleteMaintenance(ids)}
+              >
+                &#10005;
+              </div>
+            ) : null}
           </td>
         </tr>
       );
