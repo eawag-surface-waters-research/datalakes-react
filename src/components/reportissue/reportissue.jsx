@@ -7,7 +7,7 @@ import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
-import { isGitProjectMaintainer, getGitUser } from "../../git";
+import { isGitProjectMaintainer, getGitUser, createGitIssue, makeGitIssueLink, closeGitIssue, applyGitIssueLabels } from "../../git";
 
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
@@ -21,6 +21,7 @@ class ReportIssue extends Component {
     start: new Date(),
     end: new Date(),
     parameters: null,
+    title: "",
     description: "",
     reporter: "",
     maintainer: false,
@@ -221,17 +222,29 @@ class ReportIssue extends Component {
     }
   };
 
-  deleteMaintenance = async (ids) => {
+  deleteMaintenance = async (ids, issueId) => {
+    await closeGitIssue(this.props.ssh, issueId);
     for (let i = 0; i < ids.length; i++) {
       await axios.delete(apiUrl + "/maintenance/" + ids[i]);
     }
     this.updateMaintenance();
   };
 
-  confirmMaintenance = async (ids) => {
+  confirmMaintenance = async (ids, issueId) => {
+    await applyGitIssueLabels(this.props.ssh, issueId, ["confirmed"]);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
         state: "confirmed",
+      });
+    }
+    this.updateMaintenance();
+  };
+
+  unconfirmMaintenance = async (ids, issueId) => {
+    await applyGitIssueLabels(this.props.ssh, issueId, []);
+    for (let i = 0; i < ids.length; i++) {
+      await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
+        state: "reported",
       });
     }
     this.updateMaintenance();
@@ -243,9 +256,23 @@ class ReportIssue extends Component {
   };
 
   submitMaintenance = async () => {
-    var { start, end, parameters, description, reporter, sensordepths } =
+    var { start, end, parameters, title, description, reporter, sensordepths } =
       this.state;
     var { id } = this.props;
+
+    if (!title) {
+      window.alert(
+        "Please enter an issue title."
+      );
+      return;
+    }
+    if (!description) {
+      window.alert(
+        "Please enter an issue description."
+      );
+      return;
+    }
+
     var user = this.getUser();
 
     if (parameters === null) {
@@ -266,6 +293,10 @@ class ReportIssue extends Component {
     };
 
     try {
+      const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
+      const message = `Please check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
+      const issueId = await createGitIssue(this.props.ssh, ttl, message);
+      content.issue = `${issueId}`;
       await axios.post(apiUrl + "/maintenance", content);
       this.updateMaintenance();
       this.setState({
@@ -290,7 +321,9 @@ class ReportIssue extends Component {
 
   formatRange = (label, unit, time, startVal, endVal) => {
     if (time) {
-      return `${label ? label : 'Time'}: from ${this.formatTime(startVal.toISOString())} to ${this.formatTime(endVal.toISOString())}`;
+      const start = typeof startVal === 'string' ? new Date(startVal) : startVal; 
+      const end = typeof endVal === 'string' ? new Date(endVal) : endVal;
+      return `${label ? label : 'Time'}: from ${this.formatTime(start.toISOString())} to ${this.formatTime(end.toISOString())}`;
     } else {
       return `${label ? label : 'Values'}${unit ? ' (' + unit + ')' : ''}: [${formatNumber(startVal < endVal ? startVal : endVal)}, ${formatNumber(startVal > endVal ? startVal : endVal)}]`;
     }
@@ -316,6 +349,7 @@ class ReportIssue extends Component {
       start,
       end,
       parameters,
+      title,
       description,
       reporter,
       maintainer,
@@ -323,7 +357,7 @@ class ReportIssue extends Component {
       error,
       data,
     } = this.state;
-    var { dataset, datasetparameters, selectedData } = this.props;
+    var { ssh, dataset, datasetparameters, selectedData } = this.props;
     var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(this.props.ssh));
     var user = this.getUser();
     var maintenance = user?.name;
@@ -357,6 +391,7 @@ class ReportIssue extends Component {
           description: data[i].description,
           id: [data[i].id],
           state: data[i].state,
+          issue: data[i].issue,
           reporter: data[i].reporter,
         };
       }
@@ -367,6 +402,7 @@ class ReportIssue extends Component {
       let ids = dict[key].id;
       // check if the user is the reporter or a maintainer
       const reporterOrMaintainer = dict[key].reporter === user?.name || maintainer;
+      const issueId = dict[key].issue;
       rows.push(
         <tr key={key}>
           <td>{this.formatTime(dict[key].start)}</td>
@@ -375,22 +411,32 @@ class ReportIssue extends Component {
           <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
           <td>{dict[key].state}</td>
+          <td>{issueId ? <a href={makeGitIssueLink(ssh, issueId)} target="_blank" rel="noopener noreferrer">{issueId}</a> : ''}</td>
           <td>{dict[key].reporter}</td>
           <td>
             {maintainer && dict[key].state !== "confirmed" ? (
               <div
                 style={{ width: "20px", cursor: "pointer" }}
                 title="Confirm report"
-                onClick={() => this.confirmMaintenance(ids)}
+                onClick={() => this.confirmMaintenance(ids, issueId)}
               >
-                &#10003;
+                &#8631;
+              </div>
+            ) : null}
+            {maintainer && dict[key].state === "confirmed" ? (
+              <div
+                style={{ width: "20px", cursor: "pointer" }}
+                title="Revert confirm report"
+                onClick={() => this.unconfirmMaintenance(ids, issueId)}
+              >
+                &#8630;
               </div>
             ) : null}
             {reporterOrMaintainer ? (
               <div
                 style={{ width: "20px", color: "red", cursor: "pointer" }}
                 title="Delete report"
-                onClick={() => this.deleteMaintenance(ids)}
+                onClick={() => this.deleteMaintenance(ids, issueId)}
               >
                 &#10005;
               </div>
@@ -433,6 +479,7 @@ class ReportIssue extends Component {
                         <th>Depths</th>
                         <th>Description</th>
                         <th>State</th>
+                        <th>Issue</th>
                         <th>Reporter</th>
                         <th></th>
                       </tr>
@@ -496,17 +543,6 @@ class ReportIssue extends Component {
                           </div>
                         </td>
                       </tr>
-                      <tr>
-                        <th>Description</th>
-                        <td>
-                          <textarea
-                            value={description}
-                            onChange={(event) =>
-                              this.updateInput("description", event)
-                            }
-                          />
-                        </td>
-                      </tr>
                       {sd && (
                         <tr>
                           <th>Sensor Depths</th>
@@ -521,6 +557,29 @@ class ReportIssue extends Component {
                           </td>
                         </tr>
                       )}
+                      <tr>
+                        <th>Title</th>
+                        <td>
+                          <input
+                            value={title}
+                            type="text"
+                            onChange={(event) =>
+                              this.updateInput("title", event)
+                            }
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Description</th>
+                        <td>
+                          <textarea
+                            value={description}
+                            onChange={(event) =>
+                              this.updateInput("description", event)
+                            }
+                          />
+                        </td>
+                      </tr>
                       <tr>
                         <th>Reporter</th>
                         <td>

@@ -71,6 +71,7 @@ class Information extends Component {
           depths: maintenance[i].depths,
           description: maintenance[i].description,
           id: [maintenance[i].id],
+          state: maintenance[i].state,
           reporter: maintenance[i].reporter,
         };
       }
@@ -85,6 +86,7 @@ class Information extends Component {
           <td>{dict[key].parameters.join(", ")}</td>
           <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
+          <td>{dict[key].state}</td>
           <td>{dict[key].reporter}</td>
         </tr>
       );
@@ -188,6 +190,7 @@ class Information extends Component {
                       <th>Parameters</th>
                       <th>Depths</th>
                       <th>Description</th>
+                      <th style={{ width: "150px" }}>State</th>
                       <th>Reporter</th>
                     </tr>
                   </thead>

@@ -1470,14 +1470,18 @@ class Plot extends Component {
     }
 
     try {
-      var maintenance_ids = maintenance.map((m) => m.datasetparameters_id);
+      var maintenance_ids = maintenance
+        .filter((m) => m.state !== "reported")
+        .map((m) => m.datasetparameters_id);
       if (graph === "linegraph") {
         if (String([timeaxis]) === String(xaxis)) {
           for (let i = 0; i < yaxis.length; i++) {
             let a = dp.find((d) => d.axis === yaxis[i]).id;
             if (maintenance_ids.includes(a)) {
               let idx = axis.findIndex((e) => e === yaxis[i]);
-              let m = maintenance.filter((m) => m.datasetparameters_id === a);
+              let m = maintenance
+                .filter((m) => m.state !== "reported")
+                .filter((m) => m.datasetparameters_id === a);
               for (let i of iter) {
                 if (data[i] !== 0) {
                   if (maskaxis[idx] === false) {
@@ -1499,8 +1503,9 @@ class Plot extends Component {
           let a = dp.find((d) => d.axis === zaxis).id;
           if (maintenance_ids.includes(a)) {
             let idx = axis.findIndex((e) => e === zaxis);
-            let m = maintenance.filter(
-              (m) => m.datasetparameters_id === a && m.depths === ""
+            let m = maintenance
+              .filter((m) => m.state !== "reported")
+              .filter((m) => m.datasetparameters_id === a && m.depths === ""
             );
             for (let i of iter) {
               if (data[i] !== 0) {

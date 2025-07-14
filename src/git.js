@@ -5,6 +5,18 @@ import { use } from "react";
 
 const TOKEN_EXPIRY_BUFFER = 60; // seconds before actual expiry to refresh
 
+function idProviderHost(idProvider) {
+  if (idProvider === "renku") {
+    return "https://gitlab.renkulab.io";
+  } else if (idProvider === "gitlab") {
+    return "https://gitlab.com";
+  } else if (idProvider === "github") {
+    return "https://api.github.com";
+  } else {
+    throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+  }
+}
+
 /**
  * Refreshes the GitLab access token if it is expiring soon.
  * @param {string} idProvider - The ID provider, either "renku" or "gitlab".
@@ -27,7 +39,7 @@ async function refreshGitlabAccessToken(idProvider) {
     return accessToken; // no need to refresh
   }
 
-  const host = idProvider === "renku" ? "https://gitlab.renkulab.io" : "https://gitlab.com";
+  const host = idProviderHost(idProvider);
   const clientId = auth[idProvider].clientId;
   const redirectUri = auth[idProvider].redirectUri || window.location.origin + `/${idProvider}`;
 
@@ -70,15 +82,7 @@ async function refreshGitlabAccessToken(idProvider) {
 async function projectMembersFromGitlab(ssh) {
   const idProvider = idProviderFromSsh(ssh);
   const { group, repository } = projectFromSsh(ssh);
-
-  let host = null;
-  if (idProvider === "renku") {
-    host = "https://gitlab.renkulab.io";
-  } else if (idProvider === "gitlab") {
-    host = "https://gitlab.com";
-  } else {
-    throw new Error("Unsupported ID provider. Only 'renku' and 'gitlab' are supported.");
-  }
+  const host = idProviderHost(idProvider);
 
   try {
     const accessToken = await refreshGitlabAccessToken(idProvider);
@@ -112,15 +116,7 @@ async function projectMembersFromGitlab(ssh) {
 async function isGitlabProjectMaintainer(ssh, user) {
   const idProvider = idProviderFromSsh(ssh);
   const { group, repository } = projectFromSsh(ssh);
-
-  let host = null;
-  if (idProvider === "renku") {
-    host = "https://gitlab.renkulab.io";
-  } else if (idProvider === "gitlab") {
-    host = "https://gitlab.com";
-  } else {
-    throw new Error("Unsupported ID provider. Only 'renku' and 'gitlab' are supported.");
-  }
+  const host = idProviderHost(idProvider);
 
   try {
     const accessToken = await refreshGitlabAccessToken(idProvider);
@@ -250,3 +246,244 @@ export function getGitUser(ssh) {
   }
   return null;
 };
+
+/**
+ * Creates a new issue in a GitLab project.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {string} title - The title of the issue.
+ * @param {string} body - The body of the issue.
+ * @returns {Promise<number>} - A promise that resolves to the issue ID.
+ */
+async function createGitlabIssue(ssh, title, body) {
+  const idProvider = idProviderFromSsh(ssh);
+  const { group, repository } = projectFromSsh(ssh);
+  const host = idProviderHost(idProvider);
+
+  try {
+    const accessToken = await refreshGitlabAccessToken(idProvider);
+    const projectId = encodeURIComponent(`${group}/${repository}`);
+    const response = await fetch(`${host}/api/v4/projects/${projectId}/issues`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: title,
+        description: body,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitLab API error: ${response.status}`);
+    }
+
+    const issue = await response.json();
+    console.debug("GitLab issue created:", issue);
+    return issue.iid;
+  } catch (err) {
+    console.error("Error creating GitLab issue:", err);
+    throw err;
+  }
+}
+
+/**
+ * Creates a new issue in a Git project.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {string} title - The title of the issue.
+ * @param {string} body - The body of the issue.
+ * @returns {Promise<number>} - A promise that resolves to the issue number.
+ */
+export async function createGitIssue(ssh, title, body) {
+  const idProvider = idProviderFromSsh(ssh);
+  if (idProvider === "renku" || idProvider === "gitlab") {
+    return await createGitlabIssue(ssh, title, body);
+  }
+  else if (idProvider === "github") {
+    // TODO: implement GitHub issue creation
+    // return await createGithubIssue(ssh, title, body);
+  }
+  throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+}
+
+/**
+ * Closes a GitLab issue by its ID and optionally adds a comment.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to close.
+ * @param {string} [comment] - Optional comment to add before closing the issue.
+ * @returns {Promise<void>} - A promise that resolves when the issue is closed.
+ * @throws {Error} - Throws an error if the GitLab API request fails.
+ */
+export async function closeGitlabIssue(ssh, issue_id, comment) {
+  const idProvider = idProviderFromSsh(ssh);
+  const { group, repository } = projectFromSsh(ssh);
+  const host = idProviderHost(idProvider);
+
+  try {
+    const accessToken = await refreshGitlabAccessToken(idProvider);
+    const projectId = encodeURIComponent(`${group}/${repository}`);
+    // Add a comment to the issue before closing it
+    if (comment) {
+      const commentResponse = await fetch(`${host}/api/v4/projects/${projectId}/issues/${issue_id}/notes`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          body: comment,
+        }),
+      });
+      if (!commentResponse.ok) {
+        console.error(`GitLab API error while adding comment: ${commentResponse.status}`);
+      }
+    }
+    const response = await fetch(`${host}/api/v4/projects/${projectId}/issues/${issue_id}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        state_event: "close",
+        labels: ["wontfix"],
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`GitLab API error while closing issue: ${response.status}`);
+    }
+  } catch (err) {
+    console.error("Error closing GitLab issue:", err);
+    throw err;
+  }
+}
+
+/**
+ * Closes a Git issue by its ID and optionally adds a comment.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to close.
+ * @param {string} [comment] - Optional comment to add before closing the issue.
+ * @returns {Promise<void>} - A promise that resolves when the issue is closed.
+ * @throws {Error} - Throws an error if the GitHub API request fails.
+ */
+export async function closeGitIssue(ssh, issue_id, comment) {
+  if (!issue_id) return;
+  const idProvider = idProviderFromSsh(ssh);
+  if (idProvider === "renku" || idProvider === "gitlab") {
+    return await closeGitlabIssue(ssh, issue_id, comment);
+  }
+  else if (idProvider === "github") {
+    // TODO: implement GitHub issue closing
+    // return await closeGithubIssue(ssh, issue_id, comment);
+  }
+  throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+}
+
+/**
+ * Applies labels to a GitLab issue.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to apply labels to.
+ * @param {string|Array} labels - The label(s) to apply to the issue
+ * @returns {Promise<void>} - A promise that resolves when the labels are applied.
+ * @throws {Error} - Throws an error if the GitLab API request fails.
+ */
+export async function applyGitlabIssueLabels(ssh, issue_id, labels) {
+  const idProvider = idProviderFromSsh(ssh);
+  const { group, repository } = projectFromSsh(ssh);
+  const host = idProviderHost(idProvider);
+
+  try {
+    const accessToken = await refreshGitlabAccessToken(idProvider);
+    const projectId = encodeURIComponent(`${group}/${repository}`);
+    const response = await fetch(`${host}/api/v4/projects/${projectId}/issues/${issue_id}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        labels: Array.isArray(labels) ? labels : [labels],
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitLab API error while applying labels: ${response.status}`);
+    }
+  } catch (err) {
+    console.error("Error applying GitLab issue labels:", err);
+    throw err;
+  }
+}
+
+/**
+ * Applies labels to a Git issue.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to apply labels to.
+ * @param {string|Array} labels - The label(s) to apply to the issue
+ * @returns {Promise<void>} - A promise that resolves when the labels are applied.
+ * @throws {Error} - Throws an error if the ID provider is unsupported or if the API request fails.
+ */
+export async function applyGitIssueLabels(ssh, issue_id, labels) {
+  if (!issue_id) return;
+  const idProvider = idProviderFromSsh(ssh);
+  if (idProvider === "renku" || idProvider === "gitlab") {
+    return await applyGitlabIssueLabels(ssh, issue_id, labels);
+  }
+  else if (idProvider === "github") {
+    // TODO: implement GitHub issue closing
+    // return await applyGithubIssueLabels(ssh, issue_id);
+  }
+  throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+}
+
+/**
+ * Generates a web link to a GitLab issue based on the SSH URL and issue ID.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} id - The ID of the issue.
+ * @returns {string} - The issue web link.
+ * @throws {Error} - Throws an error if the ID provider is unsupported.
+ */
+function makeGitlabIssueLink(ssh, id) {
+  const idProvider = idProviderFromSsh(ssh);
+  const { group, repository } = projectFromSsh(ssh);
+  let host = null;
+  if (idProvider === "renku") {
+    host = "https://gitlab.renkulab.io";
+  }
+  else if (idProvider === "gitlab") {
+    host = "https://gitlab.com";
+  }
+  else {
+    throw new Error("Unsupported ID provider. Only 'renku' and 'gitlab' are supported.");
+  }
+  return `${host}/${group}/${repository}/-/issues/${id}`;
+}
+
+/**
+ * Generates a web link to a GitHub issue based on the SSH URL and issue ID.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} id - The ID of the issue.
+ * @returns {string} - The issue web link.
+ */
+function makeGithubIssueLink(ssh, id) {
+  const { group, repository } = projectFromSsh(ssh);
+  return `https://github.com/${group}/${repository}/issues/${id}`;
+}
+
+/**
+ * Generates a web link to a Git issue based on the SSH URL and issue ID.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} id - The ID of the issue.
+ * @returns {string} - The issue web link.
+ * @throws {Error} - Throws an error if the ID provider is unsupported.
+ */
+export function makeGitIssueLink(ssh, id) {
+  const idProvider = idProviderFromSsh(ssh);
+  if (idProvider === "renku" || idProvider === "gitlab") {
+    return makeGitlabIssueLink(ssh, id);
+  }
+  else if (idProvider === "github") {
+    return makeGithubIssueLink(ssh, id);
+  }
+  throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+}
