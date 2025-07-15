@@ -17,7 +17,7 @@ class GithubUser extends Component {
     // Check if redirected back with a code
     if (!this.props.user && window.location.search.includes('code=')) {
       const code = new URLSearchParams(window.location.search).get('code');
-      console.debug("GitHub code:", code);
+      //console.debug("GitHub code:", code);
       
       axios.post(`${apiUrl}/auth/github/token`, { code })
         .then(response => {

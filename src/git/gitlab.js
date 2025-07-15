@@ -207,7 +207,7 @@ export async function createGitlabIssue(ssh, title, body) {
     }
 
     const issue = await response.json();
-    console.debug("GitLab issue created:", issue);
+    //console.debug("GitLab issue created:", issue);
     return issue.iid;
   } catch (err) {
     console.error("Error creating GitLab issue:", err);

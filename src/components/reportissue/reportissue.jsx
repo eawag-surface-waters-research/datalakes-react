@@ -8,6 +8,7 @@ import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
 import { isGitProjectMaintainer, getGitUser, createGitIssue, makeGitIssueLink, closeGitIssue, applyGitIssueLabels } from "../../git";
+import { is } from "date-fns/locale";
 
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
@@ -231,6 +232,21 @@ class ReportIssue extends Component {
   };
 
   confirmMaintenance = async (ids, issueId) => {
+    if (!issueId) {
+      // create issue if not exists
+      // find the first maintenance request in the list
+      var { data } = this.state;
+      var content = data.find((d) => ids.includes(d.id));
+      if (!content) {
+        window.alert("No maintenance request found to confirm.");
+        return;
+      }
+      const ttl = `[maintenance] ${content.description.slice(0, 50)}`;
+      const message = `Please check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
+      issueId = await createGitIssue(this.props.ssh, ttl, message);
+      // update the content with the issue ID
+      await axios.put(apiUrl + "/maintenance/" + content.id + "/issue", { issue: issueId });
+    }
     await applyGitIssueLabels(this.props.ssh, issueId, ["confirmed"]);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
