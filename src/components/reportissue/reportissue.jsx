@@ -605,7 +605,7 @@ class ReportIssue extends Component {
               ) : (
                 <React.Fragment>
                   {user?.name || (<p style={{color: "red"}}>
-                    If you are a Developer or Maintainer of this dataset, please login with your <b>{idProvider}</b> account for advanced reporting features.
+                    Please login with your <b>{idProvider}</b> account for advanced reporting features.
                   </p>)}
                   <p>
                     Thanks for filling out a data report, please add a message
