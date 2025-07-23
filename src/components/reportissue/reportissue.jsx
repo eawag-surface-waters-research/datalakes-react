@@ -320,7 +320,7 @@ class ReportIssue extends Component {
 
     try {
       const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
-      const message = `Please check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
+      const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
       const issueId = await createGitIssue(this.props.ssh, ttl, message);
       content.issue = `${issueId}`;
       await axios.post(apiUrl + "/maintenance", content);
