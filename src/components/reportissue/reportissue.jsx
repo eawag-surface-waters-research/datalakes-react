@@ -7,7 +7,7 @@ import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
-import { isGitProjectMaintainer, getGitUser, createGitIssue, makeGitIssueLink, closeGitIssue, applyGitIssueLabels } from "../../git";
+import { isGitProjectMaintainer, getGitUser, commentGitIssue, createGitIssue, makeGitIssueLink, closeGitIssue, applyGitIssueLabels } from "../../git";
 import { is } from "date-fns/locale";
 
 
@@ -30,6 +30,8 @@ class ReportIssue extends Component {
     submitted: false,
     error: false,
     data: [],
+    edited_ids: [],
+    edited_issue: null,
   };
 
   getUser = () => {
@@ -109,7 +111,21 @@ class ReportIssue extends Component {
       }
     }
 
-    this.setState({ start, end, parameters, sensordepths, reporter, email, maintainer, modal: true });
+    this.setState({
+      start,
+      end,
+      parameters,
+      sensordepths,
+      reporter,
+      email,
+      maintainer,
+      modal: true,
+      error: false,
+      edited_ids: [],
+      edited_issue: null,
+      title: "",
+      description: "",
+    });
   };
 
   closeModal = (event) => {
@@ -231,6 +247,39 @@ class ReportIssue extends Component {
     this.updateMaintenances();
   };
 
+  editMaintenance = (ids, issueId) => {
+    // find the first maintenance request in the list
+    var { data } = this.state;
+    var maintenances = data.filter((d) => ids.includes(d.id));
+    if (!maintenances || maintenances.length === 0) {
+      window.alert("No maintenance request found to edit.");
+      return;
+    }
+    const content = maintenances[0];
+    var pids = maintenances.map((m) => m.datasetparameters_id);
+    var parameters = this.props.datasetparameters
+      .filter((d) => pids.includes(d.id))
+      .map((p) => {
+        return {
+          value: p.id,
+          label: p.name + (p.detail !== "none" ? ` (${p.detail})` : ""),
+          id: p.parameters_id,
+        };
+      });
+    this.setState({
+      start: new Date(content.starttime),
+      end: new Date(content.endtime),
+      parameters,
+      title: "",
+      description: content.description,
+      reporter: content.reporter,
+      sensordepths: content.depths || "",
+      error: false,
+      edited_ids: ids,
+      edited_issue: issueId || null,
+    });
+  };
+
   confirmMaintenance = async (ids, issueId) => {
     if (!issueId) {
       // create issue if not exists
@@ -266,11 +315,12 @@ class ReportIssue extends Component {
     this.updateMaintenances();
   };
 
-  validateMaintenance = async (ids, issueId) => {
-    await applyGitIssueLabels(this.props.ssh, issueId, ["validated"]);
+  resolveMaintenance = async (ids, issueId) => {
+    await applyGitIssueLabels(this.props.ssh, issueId, ["resolved"]);
+    await closeGitIssue(this.props.ssh, issueId);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
-        state: "validated",
+        state: "resolved",
       });
     }
     this.updateMaintenances();
@@ -282,11 +332,11 @@ class ReportIssue extends Component {
   };
 
   submitMaintenance = async () => {
-    var { start, end, parameters, title, description, reporter, sensordepths } =
+    var { start, end, parameters, title, description, reporter, sensordepths, edited_ids, edited_issue } =
       this.state;
     var { id } = this.props;
 
-    if (!title) {
+    if (!edited_issue && !title) {
       window.alert(
         "Please enter an issue title."
       );
@@ -318,11 +368,25 @@ class ReportIssue extends Component {
       datasetparameters: dp,
     };
 
+    if (edited_ids && edited_ids.length > 0) {
+      // delete obsolete maintenance reports
+      for (let i = 0; i < edited_ids.length; i++) {
+        await axios.delete(apiUrl + "/maintenance/" + edited_ids[i]);
+      }
+    }
     try {
-      const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
       const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
-      const issueId = await createGitIssue(this.props.ssh, ttl, message);
-      content.issue = `${issueId}`;
+      if (edited_issue) {
+        // comment issue
+        await commentGitIssue(this.props.ssh, edited_issue, message);
+        content.issue = `${edited_issue}`;
+      } else {
+        // create issue
+        const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
+        const issueId = await createGitIssue(this.props.ssh, ttl, message);
+        content.issue = `${issueId}`;
+      }
+      // create maintenance reports
       await axios.post(apiUrl + "/maintenance", content);
       this.updateMaintenances();
       this.setState({
@@ -383,6 +447,7 @@ class ReportIssue extends Component {
       error,
       data,
     } = this.state;
+    console.log("ReportIssue render", this.state);
     var { ssh, dataset, datasetparameters, selectedData } = this.props;
     var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(this.props.ssh));
     var user = this.getUser();
@@ -442,7 +507,17 @@ class ReportIssue extends Component {
           <td>{issueId ? <a href={makeGitIssueLink(ssh, issueId)} target="_blank" rel="noopener noreferrer">#{issueId}</a> : ''}</td>
           <td>{row.reporter}</td>
           <td>
-            {maintainer && row.state !== "confirmed" ? (
+            {maintainer && row.state !== "confirmed" && row.state !== "resolved" ? (
+              <div
+                className="inline"
+                style={{ width: "20px", cursor: "pointer" }}
+                title="Edit report"
+                onClick={() => this.editMaintenance(ids, issueId)}
+              >
+                &#9998;
+              </div>
+            ) : null}
+            {maintainer && row.state !== "confirmed" && row.state !== "resolved" ? (
               <div
                 className="inline"
                 style={{ width: "20px", cursor: "pointer" }}
@@ -462,7 +537,17 @@ class ReportIssue extends Component {
                 &#8630;
               </div>
             ) : null}
-            {reporterOrMaintainer ? (
+            {maintainer && row.state === "confirmed" ? (
+              <div
+                className="inline"
+                style={{ width: "20px", cursor: "pointer" }}
+                title="Resolve report"
+                onClick={() => this.resolveMaintenance(ids, issueId)}
+              >
+                &#10003;
+              </div>
+            ) : null}
+            {reporterOrMaintainer && row.state !== "resolved" ? (
               <div
                 className="inline"
                 style={{ width: "20px", color: "red", cursor: "pointer" }}
@@ -597,6 +682,7 @@ class ReportIssue extends Component {
                             onChange={(event) =>
                               this.updateInput("title", event)
                             }
+                            disabled={!!this.state.edited_issue}
                           />
                         </td>
                       </tr>

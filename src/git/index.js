@@ -1,7 +1,7 @@
 import { idProviderFromSsh } from "../functions";
 import store from "../store/index";
-import { applyGitlabIssueLabels, closeGitlabIssue, createGitlabIssue, isGitlabProjectMaintainer, makeGitlabIssueLink } from "./gitlab";
-import { isGithubProjectMaintainer, createGithubIssue, makeGithubIssueLink } from "./github";
+import { applyGitlabIssueLabels, closeGitlabIssue, commentGitlabIssue, createGitlabIssue, isGitlabProjectMaintainer, makeGitlabIssueLink } from "./gitlab";
+import { applyGithubIssueLabels, isGithubProjectMaintainer, commentGithubIssue, createGithubIssue, makeGithubIssueLink } from "./github";
 
 /** 
  * Checks if the authenticated user is a maintainer of the project.
@@ -98,8 +98,27 @@ export async function applyGitIssueLabels(ssh, issue_id, labels) {
     return await applyGitlabIssueLabels(ssh, issue_id, labels);
   }
   else if (idProvider === "github") {
-    // TODO: implement GitHub issue closing
-    // return await applyGithubIssueLabels(ssh, issue_id, labels);
+    return await applyGithubIssueLabels(ssh, issue_id, labels);
+  }
+  throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+}
+
+/**
+ * Comments on a Git issue.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to comment on.
+ * @param {string} comment - The comment to add to the issue.
+ * @returns {Promise<void>} - A promise that resolves when the comment is added.
+ * @throws {Error} - Throws an error if the GitLab API request fails.
+ */
+export async function commentGitIssue(ssh, issue_id, comment) {
+  if (!issue_id) return;
+  const idProvider = idProviderFromSsh(ssh);
+  if (idProvider === "renku" || idProvider === "gitlab") {
+    return await commentGitlabIssue(ssh, issue_id, comment);
+  }
+  else if (idProvider === "github") {
+    return await commentGithubIssue(ssh, issue_id, comment);
   }
   throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
 }

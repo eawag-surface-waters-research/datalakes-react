@@ -268,6 +268,41 @@ export async function closeGitlabIssue(ssh, issue_id, comment) {
 }
 
 /**
+ * Comments on a GitLab issue.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to comment on.
+ * @param {string} comment - The comment to add to the issue.
+ * @returns {Promise<void>} - A promise that resolves when the comment is added.
+ * @throws {Error} - Throws an error if the GitLab API request fails.
+ */
+export async function commentGitlabIssue(ssh, issue_id, comment) {
+  const idProvider = idProviderFromSsh(ssh);
+  const { group, repository } = projectFromSsh(ssh);
+  const host = idProviderHost(idProvider);
+  try {
+    const accessToken = await refreshGitlabAccessToken(idProvider);
+    const projectId = encodeURIComponent(`${group}/${repository}`);
+    const response = await fetch(`${host}/api/v4/projects/${projectId}/issues/${issue_id}/notes`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        body: comment,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitLab API error while commenting on issue: ${response.status}`);
+    }
+  } catch (err) {
+    console.error("Error commenting on GitLab issue:", err);
+    throw err;
+  }
+}
+
+/**
  * Generates a web link to a GitLab issue based on the SSH URL and issue ID.
  * @param {string} ssh - The SSH URL of the Git project.
  * @param {number} id - The ID of the issue.

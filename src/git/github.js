@@ -199,3 +199,39 @@ export async function closeGithubIssue(ssh, issue_id, comment) {
     throw err;
   }
 }
+
+/**
+ * Comments on a GitHub issue.
+ * @param {string} ssh - The SSH URL of the Git project.
+ * @param {number} issue_id - The ID of the issue to comment on.
+ * @param {string} comment - The comment to add to the issue.
+ * @returns {Promise<void>} - A promise that resolves when the comment is added.
+ * @throws {Error} - Throws an error if the GitHub API request fails.
+ */
+export async function commentGithubIssue(ssh, issue_id, comment) {
+  const { group, repository } = projectFromSsh(ssh);
+
+  const accessToken = store.getState().auth.github?.accessToken;
+  if (!accessToken) {
+    throw new Error("GitHub access token is not available");
+  }
+
+  try {
+    const response = await fetch(`https://api.github.com/repos/${group}/${repository}/issues/${issue_id}/comments`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ body: comment }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error while commenting: ${response.status}`);
+    }
+  } catch (err) {
+    console.error("Error commenting on GitHub issue:", err);
+    throw err;
+  }
+}
