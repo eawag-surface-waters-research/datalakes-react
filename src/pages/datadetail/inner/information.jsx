@@ -86,7 +86,7 @@ class Information extends Component {
           <td>{dict[key].parameters.join(", ")}</td>
           <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
-          <td>{dict[key].state}</td>
+          <td><span className="badge badge-info">{dict[key].state}</span></td>
           <td>{dict[key].reporter}</td>
         </tr>
       );
@@ -182,7 +182,7 @@ class Information extends Component {
             {maintenance.length > 0 ? (
               <div className="description">
                 <div className="desc-header">Reported maintenance periods:</div>
-                <table>
+                <table className="table table-striped">
                   <thead>
                     <tr>
                       <th style={{ width: "150px" }}>Start</th>
@@ -198,7 +198,7 @@ class Information extends Component {
                     {rows}
                   </tbody>
                 </table>
-                <div className="desc-warning">WARNING: Reported maintenance periods are masked on Datalakes however may not be in the downloadable files.</div>
+                <div className="desc-warning">WARNING: Confirmed reported maintenance periods are masked on Datalakes however may not be in the downloadable files.</div>
               </div>
             ) : (
               ""
@@ -208,7 +208,7 @@ class Information extends Component {
             {events && events.length > 0 ? (
               <div className="description">
                 <div className="desc-header">Reported events:</div>
-                <table>
+                <table className="table table-striped">
                   <thead>
                     <tr>
                       <th style={{ width: "150px" }}>Start</th>

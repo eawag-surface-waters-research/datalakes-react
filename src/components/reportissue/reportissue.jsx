@@ -426,12 +426,13 @@ class ReportIssue extends Component {
           <td>{dict[key].parameters.join(", ")}</td>
           <td>{dict[key].depths}</td>
           <td>{dict[key].description}</td>
-          <td>{dict[key].state}</td>
-          <td>{issueId ? <a href={makeGitIssueLink(ssh, issueId)} target="_blank" rel="noopener noreferrer">{issueId}</a> : ''}</td>
+          <td><span className="badge badge-info">{dict[key].state}</span></td>
+          <td>{issueId ? <a href={makeGitIssueLink(ssh, issueId)} target="_blank" rel="noopener noreferrer">#{issueId}</a> : ''}</td>
           <td>{dict[key].reporter}</td>
           <td>
             {maintainer && dict[key].state !== "confirmed" ? (
               <div
+                className="inline"
                 style={{ width: "20px", cursor: "pointer" }}
                 title="Confirm report"
                 onClick={() => this.confirmMaintenance(ids, issueId)}
@@ -441,6 +442,7 @@ class ReportIssue extends Component {
             ) : null}
             {maintainer && dict[key].state === "confirmed" ? (
               <div
+                className="inline"
                 style={{ width: "20px", cursor: "pointer" }}
                 title="Revert confirm report"
                 onClick={() => this.unconfirmMaintenance(ids, issueId)}
@@ -450,6 +452,7 @@ class ReportIssue extends Component {
             ) : null}
             {reporterOrMaintainer ? (
               <div
+                className="inline"
                 style={{ width: "20px", color: "red", cursor: "pointer" }}
                 title="Delete report"
                 onClick={() => this.deleteMaintenance(ids, issueId)}
@@ -482,11 +485,11 @@ class ReportIssue extends Component {
               <h2>Report Issue</h2>
               {maintenance ? (
                 <React.Fragment>
-                  {!maintainer || (<p style={{color: "green"}}>
+                  {!maintainer || (<p className="alert alert-success">
                     You are a Developer or Maintainer of this dataset and have access to advanced reporting features.
                   </p>)}
                   <p>Current maintenance periods:</p>
-                  <table>
+                  <table className="table table-striped">
                     <thead>
                       <tr>
                         <th>Start</th>
@@ -497,7 +500,7 @@ class ReportIssue extends Component {
                         <th>State</th>
                         <th>Issue</th>
                         <th>Reporter</th>
-                        <th></th>
+                        <th style={{ width: "60px" }}></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -620,7 +623,7 @@ class ReportIssue extends Component {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  {user?.name || (<p style={{color: "red"}}>
+                  {user?.name || (<p className="alert alert-warning">
                     Please login with your <b>{idProvider}</b> account for advanced reporting features.
                   </p>)}
                   <p>
@@ -641,7 +644,7 @@ class ReportIssue extends Component {
                       </ul>
                     </div>
                   ) : (
-                    <p style={{color: "red"}}>
+                    <p className="alert alert-danger">
                       Please select a data region on the graph to report an issue
                       with (use Ctrl and Click to select).
                     </p>
