@@ -228,7 +228,7 @@ class ReportIssue extends Component {
     for (let i = 0; i < ids.length; i++) {
       await axios.delete(apiUrl + "/maintenance/" + ids[i]);
     }
-    this.updateMaintenance();
+    this.updateMaintenances();
   };
 
   confirmMaintenance = async (ids, issueId) => {
@@ -253,7 +253,7 @@ class ReportIssue extends Component {
         state: "confirmed",
       });
     }
-    this.updateMaintenance();
+    this.updateMaintenances();
   };
 
   unconfirmMaintenance = async (ids, issueId) => {
@@ -263,10 +263,20 @@ class ReportIssue extends Component {
         state: "reported",
       });
     }
-    this.updateMaintenance();
+    this.updateMaintenances();
   };
 
-  updateMaintenance = async () => {
+  validateMaintenance = async (ids, issueId) => {
+    await applyGitIssueLabels(this.props.ssh, issueId, ["validated"]);
+    for (let i = 0; i < ids.length; i++) {
+      await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
+        state: "validated",
+      });
+    }
+    this.updateMaintenances();
+  };
+
+  updateMaintenances = async () => {
     var { data } = await axios.get(apiUrl + "/maintenance/" + this.props.id);
     this.setState({ data });
   };
@@ -314,7 +324,7 @@ class ReportIssue extends Component {
       const issueId = await createGitIssue(this.props.ssh, ttl, message);
       content.issue = `${issueId}`;
       await axios.post(apiUrl + "/maintenance", content);
-      this.updateMaintenance();
+      this.updateMaintenances();
       this.setState({
         start: new Date(),
         end: new Date(),
@@ -355,7 +365,7 @@ class ReportIssue extends Component {
   }
 
   componentDidMount = async () => {
-    this.updateMaintenance();
+    this.updateMaintenances();
   };
 
   render() {
@@ -394,12 +404,13 @@ class ReportIssue extends Component {
 
     var dict = {};
     for (let i = 0; i < data.length; i++) {
-      let dt = data[i].starttime.toString() + data[i].endtime.toString();
-      if (dt in dict) {
-        dict[dt]["parameters"].push(data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : ""));
-        dict[dt]["id"].push(data[i].id);
+      // use issue if exists, otherwise use start and end time as key
+      let key = data[i].issue ? data[i].issue : data[i].starttime.toString() + data[i].endtime.toString();
+      if (key in dict) {
+        dict[key]["parameters"].push(data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : ""));
+        dict[key]["id"].push(data[i].id);
       } else {
-        dict[dt] = {
+        dict[key] = {
           start: data[i].starttime,
           end: data[i].endtime,
           parameters: [data[i].name + (data[i].detail !== "none" ? ` (${data[i].detail})` : "")],
@@ -415,22 +426,23 @@ class ReportIssue extends Component {
 
     var rows = [];
     for (var key in dict) {
-      let ids = dict[key].id;
+      const row = dict[key];
+      let ids = row.id;
       // check if the user is the reporter or a maintainer
-      const reporterOrMaintainer = dict[key].reporter === user?.name || maintainer;
-      const issueId = dict[key].issue;
+      const reporterOrMaintainer = row.reporter === user?.name || maintainer;
+      const issueId = row.issue;
       rows.push(
         <tr key={key}>
-          <td>{this.formatTime(dict[key].start)}</td>
-          <td>{this.formatTime(dict[key].end)}</td>
-          <td>{dict[key].parameters.join(", ")}</td>
-          <td>{dict[key].depths}</td>
-          <td>{dict[key].description}</td>
-          <td><span className="badge badge-info">{dict[key].state}</span></td>
+          <td>{this.formatTime(row.start)}</td>
+          <td>{this.formatTime(row.end)}</td>
+          <td>{row.parameters.join(", ")}</td>
+          <td>{row.depths}</td>
+          <td>{row.description}</td>
+          <td><span className="badge badge-info">{row.state}</span></td>
           <td>{issueId ? <a href={makeGitIssueLink(ssh, issueId)} target="_blank" rel="noopener noreferrer">#{issueId}</a> : ''}</td>
-          <td>{dict[key].reporter}</td>
+          <td>{row.reporter}</td>
           <td>
-            {maintainer && dict[key].state !== "confirmed" ? (
+            {maintainer && row.state !== "confirmed" ? (
               <div
                 className="inline"
                 style={{ width: "20px", cursor: "pointer" }}
@@ -440,7 +452,7 @@ class ReportIssue extends Component {
                 &#8631;
               </div>
             ) : null}
-            {maintainer && dict[key].state === "confirmed" ? (
+            {maintainer && row.state === "confirmed" ? (
               <div
                 className="inline"
                 style={{ width: "20px", cursor: "pointer" }}

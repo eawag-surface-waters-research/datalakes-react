@@ -48,18 +48,21 @@ class Information extends Component {
     var script = scripts.filter((s) => s.name.includes(".md"));
     var dict = {};
     for (let i = 0; i < maintenance.length; i++) {
-      let dt =
+      // use issue if exists, otherwise use start and end time as key
+      let key = maintenance[i].issue
+        ? maintenance[i].issue
+        :
         maintenance[i].starttime.toString() + maintenance[i].endtime.toString();
-      if (dt in dict) {
-        dict[dt]["parameters"].push(
+      if (key in dict) {
+        dict[key]["parameters"].push(
           maintenance[i].name +
             (maintenance[i].detail !== "none"
               ? ` (${maintenance[i].detail})`
               : "")
         );
-        dict[dt]["id"].push(maintenance[i].id);
+        dict[key]["id"].push(maintenance[i].id);
       } else {
-        dict[dt] = {
+        dict[key] = {
           start: maintenance[i].starttime,
           end: maintenance[i].endtime,
           parameters: [
@@ -79,15 +82,16 @@ class Information extends Component {
 
     var rows = [];
     for (var key in dict) {
+      const row = dict[key];
       rows.push(
         <tr key={key}>
-          <td>{this.formatTime(dict[key].start)}</td>
-          <td>{this.formatTime(dict[key].end)}</td>
-          <td>{dict[key].parameters.join(", ")}</td>
-          <td>{dict[key].depths}</td>
-          <td>{dict[key].description}</td>
-          <td><span className="badge badge-info">{dict[key].state}</span></td>
-          <td>{dict[key].reporter}</td>
+          <td>{this.formatTime(row.start)}</td>
+          <td>{this.formatTime(row.end)}</td>
+          <td>{row.parameters.join(", ")}</td>
+          <td>{row.depths}</td>
+          <td>{row.description}</td>
+          <td><span className="badge badge-info">{row.state}</span></td>
+          <td>{row.reporter}</td>
         </tr>
       );
     }
