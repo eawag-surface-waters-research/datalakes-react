@@ -547,7 +547,7 @@ class ReportIssue extends Component {
                 &#10003;
               </div>
             ) : null}
-            {reporterOrMaintainer && row.state !== "resolved" ? (
+            {reporterOrMaintainer ? (
               <div
                 className="inline"
                 style={{ width: "20px", color: "red", cursor: "pointer" }}
