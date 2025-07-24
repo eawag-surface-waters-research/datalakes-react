@@ -52,23 +52,23 @@ function authReducer(state = initialAuthState, action) {
           tokenFetchedAt: Math.floor(Date.now() / 1000)
         }
       };
-      case 'LOGOUT_RENKU':
-        return {
-          ...state,
-          renku: initialUserState
-        };
-      case 'LOGOUT_GITLAB':
-        return {
-          ...state,
-          gitlab: initialUserState
-        };
-      case 'LOGOUT_GITHUB':
-        return {
-          ...state,
-          github: initialUserState
-        };
-      case 'LOGOUT':
-        return initialAuthState;
+    case 'LOGOUT_RENKU':
+      return {
+        ...state,
+        renku: initialUserState
+      };
+    case 'LOGOUT_GITLAB':
+      return {
+        ...state,
+        gitlab: initialUserState
+      };
+    case 'LOGOUT_GITHUB':
+      return {
+        ...state,
+        github: initialUserState
+      };
+    case 'LOGOUT':
+      return initialAuthState;
     default:
       return state;
   }

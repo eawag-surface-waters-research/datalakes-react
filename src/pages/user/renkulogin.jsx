@@ -1,4 +1,4 @@
-// GitLabLogin.js
+// RenkuLogin.js
 import React from 'react';
 import { connect } from 'react-redux';
 import PKCE from 'js-pkce';

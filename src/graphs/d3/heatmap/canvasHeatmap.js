@@ -38,7 +38,6 @@ import {
   prepareContours,
 } from "./functions";
 import { canvasGrid, canvasContour } from "./fillcanvas";
-import { de } from "date-fns/locale";
 
 class CanvasHeatmap {
   options = {
@@ -1178,7 +1177,7 @@ class CanvasHeatmap {
             </thead>
             <tbody>`;
       items.forEach((item) => {
-        eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depth.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
+        eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depths.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
       });
       eventHTML += `</tbody></table></div>`;
       return eventHTML;
