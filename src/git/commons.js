@@ -1,43 +1,10 @@
-import { idProviderFromSsh } from "../functions";
-import store from "../store/index";
-import { GitlabService } from "./gitlab";
-import { GithubService } from "./github";
-
-export class GitService {
+export class GitServiceInterface {
 
   constructor(ssh = "") {
     if (!ssh) {
       throw new Error("SSH URL is required to initialize GitService");
     }
     this.ssh = ssh;
-    var idProvider = idProviderFromSsh(this.ssh);
-    if (idProvider === "renku" || idProvider === "gitlab") {
-      this.service = new GitlabService(ssh);
-    } else if (idProvider === "github") {
-      this.service = new GithubService(ssh);
-    } else {
-      throw new Error("Unsupported ID provider: " + idProvider);
-    }
-  }
-
-  /**
-   * Gets the user information from the authentication object based on the SSH URL.
-   * @returns {Object|null} - The user object if found, otherwise null.
-   */
-  getGitUser() {
-    // get user for this dataset
-    var idProvider = idProviderFromSsh(this.ssh);
-    const authState = store.getState().auth;
-    if (idProvider === "renku" && authState?.renku?.user) {
-      return authState.renku.user;
-    }
-    if (idProvider === "gitlab" && authState?.gitlab?.user) {
-      return authState.gitlab.user;
-    }
-    if (idProvider === "github" && authState?.github?.user) {
-      return authState.github.user;
-    }
-    return null;
   }
 
   /** 
@@ -45,12 +12,7 @@ export class GitService {
    * @returns {Promise<boolean>} - A promise that resolves to true if the user is a maintainer, false otherwise.
    */
   async isGitProjectMaintainer() {
-    // get user for this dataset
-    const user = this.getGitUser();
-    if (!user) {
-      return false;
-    }
-    return await this.service.isGitProjectMaintainer(user);
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
@@ -60,7 +22,7 @@ export class GitService {
    * @returns {Promise<number>} - A promise that resolves to the issue number.
    */
   async createGitIssue(title, body) {
-    return await this.service.createGitIssue(title, body);
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
@@ -71,8 +33,7 @@ export class GitService {
    * @throws {Error} - Throws an error if the GitHub API request fails.
    */
   async closeGitIssue(issue_id, comment) {
-    if (!issue_id) return;
-    return await this.service.closeGitIssue(issue_id, comment);
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
@@ -83,8 +44,7 @@ export class GitService {
    * @throws {Error} - Throws an error if the ID provider is unsupported or if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
-    if (!issue_id) return;
-    return await this.service.applyGitIssueLabels(issue_id, labels);
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
@@ -95,8 +55,7 @@ export class GitService {
    * @throws {Error} - Throws an error if the GitLab API request fails.
    */
   async commentGitIssue(issue_id, comment) {
-    if (!issue_id) return;
-    return await this.service.commentGitIssue(issue_id, comment);
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
@@ -106,6 +65,6 @@ export class GitService {
    * @throws {Error} - Throws an error if the ID provider is unsupported.
    */
   makeGitIssueLink(id) {
-    return this.service.makeGitIssueLink(id);
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 }

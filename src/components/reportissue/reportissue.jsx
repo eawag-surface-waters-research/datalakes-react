@@ -7,9 +7,7 @@ import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
-import { isGitProjectMaintainer, getGitUser, commentGitIssue, createGitIssue, makeGitIssueLink, closeGitIssue, applyGitIssueLabels } from "../../git";
-import { is } from "date-fns/locale";
-
+import { GitService } from "../../git";
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
@@ -32,18 +30,17 @@ class ReportIssue extends Component {
     data: [],
     edited_ids: [],
     edited_issue: null,
+    git_service: new GitService(this.props.ssh),
   };
 
   getUser = () => {
     // get user for this dataset
-    var { ssh } = this.props;
-    return getGitUser(ssh);
+    return this.state.git_service.getGitUser();
   };
 
   isMaintainer = async () => {
     // authz check
-    var { ssh } = this.props;
-    return await isGitProjectMaintainer(ssh);
+    return await this.state.git_service.isGitProjectMaintainer();
   };
 
   openModal = async () => {
@@ -240,7 +237,7 @@ class ReportIssue extends Component {
   };
 
   deleteMaintenance = async (ids, issueId) => {
-    await closeGitIssue(this.props.ssh, issueId);
+    await this.state.git_service.closeGitIssue(issueId);
     for (let i = 0; i < ids.length; i++) {
       await axios.delete(apiUrl + "/maintenance/" + ids[i]);
     }
@@ -292,11 +289,11 @@ class ReportIssue extends Component {
       }
       const ttl = `[maintenance] ${content.description.slice(0, 50)}`;
       const message = `Please check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
-      issueId = await createGitIssue(this.props.ssh, ttl, message);
+      issueId = await this.state.git_service.createGitIssue(ttl, message);
       // update the content with the issue ID
       await axios.put(apiUrl + "/maintenance/" + content.id + "/issue", { issue: issueId });
     }
-    await applyGitIssueLabels(this.props.ssh, issueId, ["confirmed"]);
+    await this.state.git_service.applyGitIssueLabels(issueId, ["confirmed"]);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
         state: "confirmed",
@@ -306,7 +303,7 @@ class ReportIssue extends Component {
   };
 
   unconfirmMaintenance = async (ids, issueId) => {
-    await applyGitIssueLabels(this.props.ssh, issueId, []);
+    await this.state.git_service.applyGitIssueLabels(issueId, []);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
         state: "reported",
@@ -316,8 +313,8 @@ class ReportIssue extends Component {
   };
 
   resolveMaintenance = async (ids, issueId) => {
-    await applyGitIssueLabels(this.props.ssh, issueId, ["resolved"]);
-    await closeGitIssue(this.props.ssh, issueId);
+    await this.state.git_service.applyGitIssueLabels(issueId, ["resolved"]);
+    await this.state.git_service.closeGitIssue(issueId);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
         state: "resolved",
@@ -378,12 +375,12 @@ class ReportIssue extends Component {
       const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
       if (edited_issue) {
         // comment issue
-        await commentGitIssue(this.props.ssh, edited_issue, message);
+        await this.state.git_service.commentGitIssue(edited_issue, message);
         content.issue = `${edited_issue}`;
       } else {
         // create issue
         const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
-        const issueId = await createGitIssue(this.props.ssh, ttl, message);
+        const issueId = await this.state.git_service.createGitIssue(ttl, message);
         content.issue = `${issueId}`;
       }
       // create maintenance reports
@@ -447,9 +444,8 @@ class ReportIssue extends Component {
       error,
       data,
     } = this.state;
-    console.log("ReportIssue render", this.state);
     var { ssh, dataset, datasetparameters, selectedData } = this.props;
-    var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(this.props.ssh));
+    var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(ssh));
     var user = this.getUser();
     var maintenance = user?.name;
 
@@ -504,7 +500,7 @@ class ReportIssue extends Component {
           <td>{row.depths}</td>
           <td>{row.description}</td>
           <td><span className="badge badge-info">{row.state}</span></td>
-          <td>{issueId ? <a href={makeGitIssueLink(ssh, issueId)} target="_blank" rel="noopener noreferrer">#{issueId}</a> : ''}</td>
+          <td>{issueId ? <a href={this.state.git_service.makeGitIssueLink(issueId)} target="_blank" rel="noopener noreferrer">#{issueId}</a> : ''}</td>
           <td>{row.reporter}</td>
           <td>
             {maintainer && row.state !== "confirmed" && row.state !== "resolved" ? (
