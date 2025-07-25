@@ -60,11 +60,21 @@ export class GitServiceInterface {
 
   /**
    * Generates a web link to a Git issue based on the SSH URL and issue ID.
-   * @param {number} id - The ID of the issue.
+   * @param {number} issue_id - The ID of the issue.
    * @returns {string} - The issue web link.
    * @throws {Error} - Throws an error if the ID provider is unsupported.
    */
-  makeGitIssueLink(id) {
+  makeGitIssueLink(issue_id) {
+    throw new Error("Not implemented. Please use a subclass that implements this method.");
+  }
+
+  /**
+   * Creates a new branch for a Git issue.
+   * @param {number} issue_id - The ID of the issue for which to create the branch.
+   * @returns {Promise<void>} - A promise that resolves when the branch is created.
+   * @throws {Error} - Throws an error if the ID provider is unsupported or if the API request fails.
+   */
+  async createGitIssueBranch(issue_id) {
     throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 }

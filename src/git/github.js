@@ -9,47 +9,7 @@ export class GithubService extends GitServiceInterface {
     const { group, repository } = projectFromSsh(this.ssh);
     this.projectPath = `${group}/${repository}`;
     this.host = "https://api.github.com";
-  }
-
-  /**
-   * Fetches project members from a GitHub project using its SSH URL.
-   * @param {string} ssh - The SSH URL of the Git project.
-   * @returns {Promise<Array>} - A promise that resolves to an array of project members.
-   * @throws {Error} - Throws an error if the GitHub access token is not available or if the API request fails.
-   */
-  async projectMembersFromGit(ssh) {
-    const { group, repository } = projectFromSsh(ssh);
-    const accessToken = this.getAccessToken();
-    try {
-      const response = await fetch(`https://api.github.com/repos/${group}/${repository}/collaborators`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Accept": "application/vnd.github+json",
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
-      }
-      const collaborators = await response.json();
-      return collaborators;
-    } catch (err) {
-      console.error("Error fetching Github project collaborators:", err);
-      return [];
-    }
-  }
-
-  /**
-   * Gets the access token from the store.
-   * @returns {string} - The GitHub access token.
-   * @throws {Error} - Throws an error if the access token is not available.
-   */
-  getAccessToken() {
-    const accessToken = store.getState().auth.github?.accessToken;
-    if (!accessToken) {
-      throw new Error("GitHub access token is not available");
-    }
-    return accessToken;
+    this.contentHost = "https://raw.githubusercontent.com";
   }
 
   /**
@@ -209,10 +169,152 @@ export class GithubService extends GitServiceInterface {
 
   /**
    * Generates a web link to a GitHub issue based on the SSH URL and issue ID.
-   * @param {number} id - The ID of the issue.
+   * @param {number} issue_id - The ID of the issue.
    * @returns {string} - The issue web link.
    */
-  makeGitIssueLink(id) {
-    return `https://github.com/${this.projectPath}/issues/${id}`;
+  makeGitIssueLink(issue_id) {
+    return `https://github.com/${this.projectPath}/issues/${issue_id}`;
+  }
+
+  /**
+   * Creates a new branch for a GitHub issue.
+   * @param {number} issue_id - The ID of the issue to create a branch for.
+   * @returns {Promise<void>} - A promise that resolves when the branch is created.
+   * @throws {Error} - Throws an error if the GitHub API request fails.
+   */
+  async createGitIssueBranch(issue_id) {
+    const accessToken = this.getAccessToken();
+    try {
+      const project = await this.getProject();
+      const defaultBranch = project.default_branch;
+      const branchName = `issue-${issue_id}`;
+
+      // Get last sha from default branch
+      const response = await fetch(`${this.host}/repos/${this.projectPath}/git/refs/heads/${defaultBranch}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+      const defaultBranchData = await response.json();
+
+      // Create a new branch from the default branch
+      await fetch(`${this.host}/repos/${this.projectPath}/git/refs`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ref: `refs/heads/${branchName}`,
+          sha: defaultBranchData.object.sha,
+        }),
+      });
+    } catch (err) {
+      console.error("Error creating GitHub issue branch:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Downloads a raw file from a GitHub issue branch.
+   * @param {number} issue_id - The ID of the issue associated with the file.
+   * @param {string} file_path - The path to the file in the repository.
+   * @returns {Promise<string>} - A promise that resolves to the raw file content.
+   * @throws {Error} - Throws an error if the GitHub API request fails.
+   */
+  async downloadRawFile(issue_id, file_path) {
+    const accessToken = this.getAccessToken();
+    try {
+      const branchName = `issue-${issue_id}`;
+      const response = await fetch(`${this.contentHost}/${this.projectPath}/${branchName}/${file_path}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+      if (response.status === 404) {
+        return ''; // File not found, return empty string
+      }
+      if (!response.ok) {
+        throw new Error(`GitHub API error while downloading file: ${response.status}`);
+      }
+      return await response.text();
+    } catch (err) {
+      console.error("Error downloading raw file from GitHub:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Get the project object from GitHub.
+   * @returns {Promise<Object>} - A promise that resolves to the project details.
+   * @throws {Error} - Throws an error if the GitHub access token is not available or if the API request fails.
+   */
+  async getProject() {
+    const accessToken = this.getAccessToken();
+    try {
+      const response = await fetch(`${this.host}/repos/${this.projectPath}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+      return await response.json();
+    } catch (err) {
+      console.error("Error fetching GitHub project:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Gets the access token from the store.
+   * @returns {string} - The GitHub access token.
+   * @throws {Error} - Throws an error if the access token is not available.
+   */
+  getAccessToken() {
+    const accessToken = store.getState().auth.github?.accessToken;
+    if (!accessToken) {
+      throw new Error("GitHub access token is not available");
+    }
+    return accessToken;
+  }
+
+  /**
+   * Fetches project members from a GitHub project using its SSH URL.
+   * @param {string} ssh - The SSH URL of the Git project.
+   * @returns {Promise<Array>} - A promise that resolves to an array of project members.
+   * @throws {Error} - Throws an error if the GitHub access token is not available or if the API request fails.
+   */
+  async projectMembersFromGit(ssh) {
+    const { group, repository } = projectFromSsh(ssh);
+    const accessToken = this.getAccessToken();
+    try {
+      const response = await fetch(`https://api.github.com/repos/${group}/${repository}/collaborators`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+      const collaborators = await response.json();
+      return collaborators;
+    } catch (err) {
+      console.error("Error fetching Github project collaborators:", err);
+      return [];
+    }
   }
 }

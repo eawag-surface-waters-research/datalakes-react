@@ -252,6 +252,17 @@ class ReportIssue extends Component {
       window.alert("No maintenance request found to edit.");
       return;
     }
+    const event = this.makeEvent(maintenances);
+    this.setState({
+      ...event,
+      title: "",
+      error: false,
+      edited_ids: ids,
+      edited_issue: issueId || null,
+    });
+  };
+
+  makeEvent = async (maintenances) => {
     const content = maintenances[0];
     var pids = maintenances.map((m) => m.datasetparameters_id);
     var parameters = this.props.datasetparameters
@@ -263,18 +274,15 @@ class ReportIssue extends Component {
           id: p.parameters_id,
         };
       });
-    this.setState({
+
+    return {
       start: new Date(content.starttime),
       end: new Date(content.endtime),
       parameters,
-      title: "",
       description: content.description,
       reporter: content.reporter,
       sensordepths: content.depths || "",
-      error: false,
-      edited_ids: ids,
-      edited_issue: issueId || null,
-    });
+    };
   };
 
   confirmMaintenance = async (ids, issueId) => {
@@ -313,8 +321,15 @@ class ReportIssue extends Component {
   };
 
   resolveMaintenance = async (ids, issueId) => {
-    await this.state.git_service.applyGitIssueLabels(issueId, ["resolved"]);
-    await this.state.git_service.closeGitIssue(issueId);
+    var { data, git_service } = this.state;
+    var maintenances = data.filter((d) => ids.includes(d.id));
+    if (!maintenances || maintenances.length === 0) {
+      window.alert("No maintenance request found to edit.");
+      return;
+    }
+    const event = this.makeEvent(maintenances);
+    const requestId = await git_service.makeEventsMergeRequest(issueId, event);
+    await git_service.applyGitIssueLabels(issueId, ["resolved"]);
     for (let i = 0; i < ids.length; i++) {
       await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
         state: "resolved",

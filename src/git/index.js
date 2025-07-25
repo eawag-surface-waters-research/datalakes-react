@@ -108,4 +108,18 @@ export class GitService {
   makeGitIssueLink(id) {
     return this.service.makeGitIssueLink(id);
   }
+
+  /**
+   * Creates a new merge request for events from a Git issue.
+   * @param {number} issue_id - The ID of the issue for which to create the branch.
+   * @param {Object} event - The event object containing details for the merge request creation.
+   * @returns {Promise<number>} - A promise that resolves to the merge request number.
+   * @throws {Error} - Throws an error if the ID provider is unsupported or if the API request fails.
+   */
+  async makeEventsMergeRequest(issue_id, event) {
+    if (!issue_id) return;
+    await this.service.createGitIssueBranch(issue_id);
+    // TODO: Implement the logic to create a merge request for the event
+    return Promise.resolve(0);
+  }
 }
