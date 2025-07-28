@@ -110,6 +110,16 @@ export class GitService {
   }
 
   /**
+   * Generates a web link to a Git request based on the SSH URL and request ID.
+   * @param {number} request_id - The ID of the request.
+   * @returns {string} - The request web link.
+   * @throws {Error} - Throws an error if the ID provider is unsupported.
+   */
+  makeGitRequestLink(request_id) {
+    return this.service.makeGitRequestLink(request_id);
+  }
+
+  /**
    * Creates a new merge request for events from a Git issue.
    * @param {number} issue_id - The ID of the issue for which to create the branch.
    * @param {Object} event - The event object containing details for the merge request creation.

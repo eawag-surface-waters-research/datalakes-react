@@ -177,6 +177,15 @@ export class GithubService extends GitServiceInterface {
   }
 
   /**
+   * Generates a web link to a GitHub request based on the SSH URL and request ID.
+   * @param {number} request_id - The ID of the request.
+   * @returns {string} - The request web link.
+   */
+  makeGitRequestLink(request_id) {
+    return `https://github.com/${this.projectPath}/pulls/${request_id}`;
+  }
+
+  /**
    * Creates a new branch for a GitHub issue.
    * @param {number} issue_id - The ID of the issue to create a branch for.
    * @returns {Promise<void>} - A promise that resolves when the branch is created.

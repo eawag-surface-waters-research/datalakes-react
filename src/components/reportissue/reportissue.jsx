@@ -347,6 +347,7 @@ class ReportIssue extends Component {
       for (let i = 0; i < ids.length; i++) {
         await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
           state: "resolved",
+          request: `${requestId}`,
         });
       }
       this.updateMaintenances();
@@ -518,6 +519,7 @@ class ReportIssue extends Component {
           id: [data[i].id],
           state: data[i].state,
           issue: data[i].issue,
+          request: data[i].request,
           reporter: data[i].reporter,
         };
       }
@@ -530,6 +532,7 @@ class ReportIssue extends Component {
       // check if the user is the reporter or a maintainer
       const reporterOrMaintainer = row.reporter === user?.name || maintainer;
       const issueId = row.issue;
+      const requestId = row.request;
       rows.push(
         <tr key={key}>
           <td>{this.formatTime(row.start)}</td>
@@ -538,7 +541,10 @@ class ReportIssue extends Component {
           <td>{row.depths}</td>
           <td>{row.description}</td>
           <td><span className="badge badge-info">{row.state}</span></td>
-          <td>{issueId ? <a href={this.state.git_service.makeGitIssueLink(issueId)} target="_blank" rel="noopener noreferrer">#{issueId}</a> : ''}</td>
+          <td>
+            {issueId ? <a href={this.state.git_service.makeGitIssueLink(issueId)} target="_blank" title="Issue" rel="noopener noreferrer">#{issueId}</a> : ''}
+            {requestId ? (<a href={this.state.git_service.makeGitRequestLink(requestId)} target="_blank" rel="noopener noreferrer" title="Merge request" style={{ marginLeft: "5px" }}>(#{requestId})</a>) : ''}
+          </td>
           <td>{row.reporter}</td>
           <td>
             {maintainer && row.state !== "confirmed" && row.state !== "resolved" ? (
