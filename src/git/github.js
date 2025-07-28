@@ -74,7 +74,7 @@ export class GithubService extends GitServiceInterface {
    * @param {number} issue_id - The ID of the issue to close.
    * @param {string} [comment] - Optional comment to add before closing the issue.
    * @returns {Promise<void>} - A promise that resolves when the issue is closed.
-   * @throws {Error} - Throws an error if the GitHub API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async closeGitIssue(issue_id, comment) {
     if (!issue_id) return;
@@ -114,7 +114,7 @@ export class GithubService extends GitServiceInterface {
    * @param {number} issue_id - The ID of the issue to apply labels to.
    * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
-   * @throws {Error} - Throws an error if the GitHub API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
     const accessToken = this.getAccessToken();
@@ -143,7 +143,7 @@ export class GithubService extends GitServiceInterface {
    * @param {number} issue_id - The ID of the issue to comment on.
    * @param {string} comment - The comment to add to the issue.
    * @returns {Promise<void>} - A promise that resolves when the comment is added.
-   * @throws {Error} - Throws an error if the GitHub API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async commentGitIssue(issue_id, comment) {
     const accessToken = this.getAccessToken();
@@ -180,7 +180,7 @@ export class GithubService extends GitServiceInterface {
    * Creates a new branch for a GitHub issue.
    * @param {number} issue_id - The ID of the issue to create a branch for.
    * @returns {Promise<void>} - A promise that resolves when the branch is created.
-   * @throws {Error} - Throws an error if the GitHub API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async createGitIssueBranch(issue_id) {
     const accessToken = this.getAccessToken();
@@ -222,11 +222,70 @@ export class GithubService extends GitServiceInterface {
   }
 
   /**
+   * Merge event into the provided events file and make a merge request for this update.
+   * @param {number} issue_id - The ID of the issue for which a branch is defined.
+   * @param {Object} event - The event object containing details for the merge request creation.
+   * @param {string} file_path - The path to the events file, to be created if it does not exist.
+   * @returns {Promise<number>} - A promise that resolves to the merge request number.
+   * @throws {Error} - Throws an error if the API request fails.
+   */
+  async makeEventsMergeRequest(issue_id, event, file_path) {
+    const { content } = await this.mergeEvents(issue_id, event, file_path);
+    const accessToken = this.getAccessToken();
+    try {
+      const branchName = `issue-${issue_id}`;
+      // Create or update the file in the branch
+      const response = await fetch(`${this.contentHost}/${this.projectPath}/${branchName}/${file_path}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `feat:add event for issue #${issue_id}`,
+          content: window.btoa(content), // Base64 encode the content
+          branch: branchName,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`GitHub API error while updating file: ${response.status}`);
+      }
+      const fileUpdate = await response.json();
+      // Create a pull request for the changes
+      const project = await this.getProject();
+      const defaultBranch = project.default_branch;
+      const prResponse = await fetch(`${this.host}/repos/${this.projectPath}/pulls`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: `Update events for issue #${issue_id}`,
+          body: `This pull request updates the events file for issue #${issue_id}.`,
+          head: branchName,
+          base: defaultBranch,
+        }),
+      });
+      if (!prResponse.ok) {
+        throw new Error(`GitHub API error while creating pull request: ${prResponse.status}`);
+      }
+      const pullRequest = await prResponse.json();
+      return pullRequest.number; // Return the pull request number
+    } catch (err) {
+      console.error("Error making events merge request on GitHub:", err);
+      throw err;
+    }
+  }
+
+  /**
    * Downloads a raw file from a GitHub issue branch.
    * @param {number} issue_id - The ID of the issue associated with the file.
    * @param {string} file_path - The path to the file in the repository.
    * @returns {Promise<string>} - A promise that resolves to the raw file content.
-   * @throws {Error} - Throws an error if the GitHub API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async downloadRawFile(issue_id, file_path) {
     const accessToken = this.getAccessToken();

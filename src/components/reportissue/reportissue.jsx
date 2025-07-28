@@ -262,7 +262,7 @@ class ReportIssue extends Component {
     });
   };
 
-  makeEvent = async (maintenances) => {
+  makeEvent = (maintenances) => {
     const content = maintenances[0];
     var pids = maintenances.map((m) => m.datasetparameters_id);
     var parameters = this.props.datasetparameters

@@ -52,7 +52,7 @@ export class GitlabService extends GitServiceInterface {
    * @param {number} issue_id - The ID of the issue to apply labels to.
    * @param {string|Array} labels - The label(s) to apply to the issue
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
-   * @throws {Error} - Throws an error if the GitLab API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
     try {
@@ -83,6 +83,7 @@ export class GitlabService extends GitServiceInterface {
    * @param {string} title - The title of the issue.
    * @param {string} body - The body of the issue.
    * @returns {Promise<number>} - A promise that resolves to the issue ID.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async createGitIssue(title, body) {
     try {
@@ -118,7 +119,7 @@ export class GitlabService extends GitServiceInterface {
    * @param {number} issue_id - The ID of the issue to close.
    * @param {string} [comment] - Optional comment to add before closing the issue.
    * @returns {Promise<void>} - A promise that resolves when the issue is closed.
-   * @throws {Error} - Throws an error if the GitLab API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async closeGitIssue(issue_id, comment) {
     try {
@@ -165,7 +166,7 @@ export class GitlabService extends GitServiceInterface {
    * @param {number} issue_id - The ID of the issue to comment on.
    * @param {string} comment - The comment to add to the issue.
    * @returns {Promise<void>} - A promise that resolves when the comment is added.
-   * @throws {Error} - Throws an error if the GitLab API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async commentGitIssue(issue_id, comment) {
     try {
@@ -205,7 +206,7 @@ export class GitlabService extends GitServiceInterface {
    * Creates a new branch for a GitLab issue.
    * @param {number} issue_id - The ID of the issue for which to create the branch.
    * @returns {Promise<void>} - A promise that resolves when the branch is created.
-   * @throws {Error} - Throws an error if the GitLab API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async createGitIssueBranch(issue_id) {
     try {
@@ -233,12 +234,70 @@ export class GitlabService extends GitServiceInterface {
     }
   }
 
+
+  /**
+   * Merge event into the provided events file and make a merge request for this update.
+   * @param {number} issue_id - The ID of the issue for which a branch is defined.
+   * @param {Object} event - The event object containing details for the merge request creation.
+   * @param {string} file_path - The path to the events file, to be created if it does not exist.
+   * @returns {Promise<number>} - A promise that resolves to the merge request number.
+   * @throws {Error} - Throws an error if the API request fails.
+   */
+  async makeEventsMergeRequest(issue_id, event, file_path) {
+    const { exists, content } = await this.mergeEvents(issue_id, event, file_path);
+    const branchName = `issue-${issue_id}`;
+    const accessToken = await this.refreshGitlabAccessToken();
+    const projectId = encodeURIComponent(`${this.projectPath}`);
+    // Create or update the events file in the repository
+    // Use the GitLab API to create or update the file
+    // If the file does not exist, it will be created; if it exists, it will be updated
+    const response = await fetch(`${this.host}/api/v4/projects/${projectId}/repository/files/${encodeURIComponent(file_path)}`, {
+      method: exists ? "PUT" : "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        branch: branchName,
+        content: content,
+        commit_message: `feat: add event for issue #${issue_id}`,
+        encoding: "text",
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`GitLab API error while creating events file: ${response.status}`);
+    }
+    // Create a merge request for the new branch
+    const project = await this.getProject();
+    const defaultBranch = project.default_branch;
+    const mergeRequestResponse = await fetch(`${this.host}/api/v4/projects/${projectId}/merge_requests`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source_branch: branchName,
+        target_branch: defaultBranch,
+        title: `Merge events for issue #${issue_id}`,
+        description: `This merge request contains events for issue #${issue_id}.`,
+        remove_source_branch: true,
+      }),
+    });
+    if (!mergeRequestResponse.ok) {
+      throw new Error(`GitLab API error while creating merge request: ${mergeRequestResponse.status}`);
+    }
+    const mergeRequest = await mergeRequestResponse.json();
+    console.debug("GitLab merge request created:", mergeRequest);
+    return mergeRequest.iid; // Return the merge request ID
+  }
+
   /**
    * Downloads a raw file from a GitLab project.
    * @param {number} issue_id - The ID of the issue associated with the file.
    * @param {string} file_path - The path to the file in the repository.
    * @returns {Promise<string>} - A promise that resolves to the raw file content.
-   * @throws {Error} - Throws an error if the GitLab API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async downloadRawFile(issue_id, file_path) {
     try {
@@ -269,7 +328,7 @@ export class GitlabService extends GitServiceInterface {
   /**
    * Get the project object from GitLab.
    * @returns {Promise<Object>} - A promise that resolves to the project object.
-   * @throws {Error} - Throws an error if the GitLab API request fails.
+   * @throws {Error} - Throws an error if the API request fails.
    */
   async getProject() {
     try {
@@ -356,10 +415,8 @@ export class GitlabService extends GitServiceInterface {
       return "https://gitlab.renkulab.io";
     } else if (this.idProvider === "gitlab") {
       return "https://gitlab.com";
-    } else if (this.idProvider === "github") {
-      return "https://api.github.com";
     } else {
-      throw new Error("Unsupported ID provider. Only 'renku', 'gitlab', and 'github' are supported.");
+      throw new Error("Unsupported ID provider. Only 'renku' and 'gitlab' are supported.");
     }
   }
 

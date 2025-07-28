@@ -2447,7 +2447,6 @@ class Plot extends Component {
       average,
       display,
       thresholdStep,
-      withEvents,
       plotdots,
       interpolate,
     } = this.state;
