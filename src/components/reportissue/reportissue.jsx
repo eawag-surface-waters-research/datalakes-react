@@ -8,6 +8,7 @@ import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
 import { idProviderFromSsh } from "../../functions";
 import { GitService } from "../../git";
+import Loading from "../../components/loading/loading";
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
@@ -31,6 +32,7 @@ class ReportIssue extends Component {
     edited_ids: [],
     edited_issue: null,
     git_service: new GitService(this.props.ssh),
+    loading: false,
   };
 
   getUser = () => {
@@ -286,56 +288,71 @@ class ReportIssue extends Component {
   };
 
   confirmMaintenance = async (ids, issueId) => {
-    if (!issueId) {
-      // create issue if not exists
-      // find the first maintenance request in the list
-      var { data } = this.state;
-      var content = data.find((d) => ids.includes(d.id));
-      if (!content) {
-        window.alert("No maintenance request found to confirm.");
-        return;
+    this.setState({ loading: true });
+    try {
+      if (!issueId) {
+        // create issue if not exists
+        // find the first maintenance request in the list
+        var { data } = this.state;
+        var content = data.find((d) => ids.includes(d.id));
+        if (!content) {
+          window.alert("No maintenance request found to confirm.");
+          return;
+        }
+        const ttl = `[maintenance] ${content.description.slice(0, 50)}`;
+        const message = `Please check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
+        issueId = await this.state.git_service.createGitIssue(ttl, message);
+        // update the content with the issue ID
+        await axios.put(apiUrl + "/maintenance/" + content.id + "/issue", { issue: issueId });
       }
-      const ttl = `[maintenance] ${content.description.slice(0, 50)}`;
-      const message = `Please check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
-      issueId = await this.state.git_service.createGitIssue(ttl, message);
-      // update the content with the issue ID
-      await axios.put(apiUrl + "/maintenance/" + content.id + "/issue", { issue: issueId });
+      await this.state.git_service.applyGitIssueLabels(issueId, ["confirmed"]);
+      for (let i = 0; i < ids.length; i++) {
+        await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
+          state: "confirmed",
+        });
+      }
+      this.updateMaintenances();
+    } finally {
+      this.setState({ loading: false });
     }
-    await this.state.git_service.applyGitIssueLabels(issueId, ["confirmed"]);
-    for (let i = 0; i < ids.length; i++) {
-      await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
-        state: "confirmed",
-      });
-    }
-    this.updateMaintenances();
   };
 
   unconfirmMaintenance = async (ids, issueId) => {
-    await this.state.git_service.applyGitIssueLabels(issueId, []);
-    for (let i = 0; i < ids.length; i++) {
-      await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
-        state: "reported",
-      });
+    this.setState({ loading: true });
+    try {
+      await this.state.git_service.applyGitIssueLabels(issueId, []);
+      for (let i = 0; i < ids.length; i++) {
+        await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
+          state: "reported",
+        });
+      }
+      this.updateMaintenances();
+    } finally {
+      this.setState({ loading: false });
     }
-    this.updateMaintenances();
   };
 
   resolveMaintenance = async (ids, issueId) => {
-    var { data, git_service } = this.state;
-    var maintenances = data.filter((d) => ids.includes(d.id));
-    if (!maintenances || maintenances.length === 0) {
-      window.alert("No maintenance request found to edit.");
-      return;
+    this.setState({ loading: true });
+    try {
+      var { data, git_service } = this.state;
+      var maintenances = data.filter((d) => ids.includes(d.id));
+      if (!maintenances || maintenances.length === 0) {
+        window.alert("No maintenance request found to edit.");
+        return;
+      }
+      const event = this.makeEvent(maintenances);
+      const requestId = await git_service.makeEventsMergeRequest(issueId, event);
+      await git_service.applyGitIssueLabels(issueId, ["resolved"]);
+      for (let i = 0; i < ids.length; i++) {
+        await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
+          state: "resolved",
+        });
+      }
+      this.updateMaintenances();
+    } finally {
+      this.setState({ loading: false });
     }
-    const event = this.makeEvent(maintenances);
-    const requestId = await git_service.makeEventsMergeRequest(issueId, event);
-    await git_service.applyGitIssueLabels(issueId, ["resolved"]);
-    for (let i = 0; i < ids.length; i++) {
-      await axios.put(apiUrl + "/maintenance/" + ids[i] + "/state", {
-        state: "resolved",
-      });
-    }
-    this.updateMaintenances();
   };
 
   updateMaintenances = async () => {
@@ -344,75 +361,80 @@ class ReportIssue extends Component {
   };
 
   submitMaintenance = async () => {
-    var { start, end, parameters, title, description, reporter, sensordepths, edited_ids, edited_issue } =
-      this.state;
-    var { id } = this.props;
-
-    if (!edited_issue && !title) {
-      window.alert(
-        "Please enter an issue title."
-      );
-      return;
-    }
-    if (!description) {
-      window.alert(
-        "Please enter an issue description."
-      );
-      return;
-    }
-
-    var user = this.getUser();
-
-    if (parameters === null) {
-      window.alert("You must select at least one parameter.");
-      return;
-    }
-    var p = parameters.map((p) => p.id);
-    var dp = parameters.map((p) => p.value);
-    var content = {
-      id,
-      start,
-      end,
-      parameters: p,
-      description,
-      reporter,
-      sensordepths,
-      datasetparameters: dp,
-    };
-
-    if (edited_ids && edited_ids.length > 0) {
-      // delete obsolete maintenance reports
-      for (let i = 0; i < edited_ids.length; i++) {
-        await axios.delete(apiUrl + "/maintenance/" + edited_ids[i]);
-      }
-    }
+    this.setState({ loading: true });
     try {
-      const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
-      if (edited_issue) {
-        // comment issue
-        await this.state.git_service.commentGitIssue(edited_issue, message);
-        content.issue = `${edited_issue}`;
-      } else {
-        // create issue
-        const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
-        const issueId = await this.state.git_service.createGitIssue(ttl, message);
-        content.issue = `${issueId}`;
+      var { start, end, parameters, title, description, reporter, sensordepths, edited_ids, edited_issue } =
+        this.state;
+      var { id } = this.props;
+
+      if (!edited_issue && !title) {
+        window.alert(
+          "Please enter an issue title."
+        );
+        return;
       }
-      // create maintenance reports
-      await axios.post(apiUrl + "/maintenance", content);
-      this.updateMaintenances();
-      this.setState({
-        start: new Date(),
-        end: new Date(),
-        parameters: null,
-        description: "",
-        reporter: user?.name || "",
-        sensordepths: "",
-        error: false,
-      });
-    } catch (e) {
-      console.error(e);
-      this.setState({ error: true });
+      if (!description) {
+        window.alert(
+          "Please enter an issue description."
+        );
+        return;
+      }
+
+      var user = this.getUser();
+
+      if (parameters === null) {
+        window.alert("You must select at least one parameter.");
+        return;
+      }
+      var p = parameters.map((p) => p.id);
+      var dp = parameters.map((p) => p.value);
+      var content = {
+        id,
+        start,
+        end,
+        parameters: p,
+        description,
+        reporter,
+        sensordepths,
+        datasetparameters: dp,
+      };
+
+      if (edited_ids && edited_ids.length > 0) {
+        // delete obsolete maintenance reports
+        for (let i = 0; i < edited_ids.length; i++) {
+          await axios.delete(apiUrl + "/maintenance/" + edited_ids[i]);
+        }
+      }
+      try {
+        const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${window.location.href}\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
+        if (edited_issue) {
+          // comment issue
+          await this.state.git_service.commentGitIssue(edited_issue, message);
+          content.issue = `${edited_issue}`;
+        } else {
+          // create issue
+          const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
+          const issueId = await this.state.git_service.createGitIssue(ttl, message);
+          content.issue = `${issueId}`;
+        }
+        // create maintenance reports
+        await axios.post(apiUrl + "/maintenance", content);
+        this.updateMaintenances();
+        this.setState({
+          start: new Date(),
+          end: new Date(),
+          parameters: null,
+          description: "",
+          reporter: user?.name || "",
+          sensordepths: "",
+          error: false,
+        });
+      } catch (e) {
+        console.error(e);
+        this.setState({ error: true });
+      }
+    } finally {
+      this.setState({ loading: false });
     }
   };
 
@@ -458,6 +480,7 @@ class ReportIssue extends Component {
       sensordepths,
       error,
       data,
+      loading,
     } = this.state;
     var { ssh, dataset, datasetparameters, selectedData } = this.props;
     var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(ssh));
@@ -521,9 +544,9 @@ class ReportIssue extends Component {
             {maintainer && row.state !== "confirmed" && row.state !== "resolved" ? (
               <div
                 className="inline"
-                style={{ width: "20px", cursor: "pointer" }}
+                style={{ width: "20px", cursor: "pointer", color: loading ? "#ccc" : "inherit" }}
                 title="Edit report"
-                onClick={() => this.editMaintenance(ids, issueId)}
+                onClick={() => loading ? null : this.editMaintenance(ids, issueId)}
               >
                 &#9998;
               </div>
@@ -531,9 +554,9 @@ class ReportIssue extends Component {
             {maintainer && row.state !== "confirmed" && row.state !== "resolved" ? (
               <div
                 className="inline"
-                style={{ width: "20px", cursor: "pointer" }}
+                style={{ width: "20px", cursor: "pointer", color: loading ? "#ccc" : "inherit" }}
                 title="Confirm report"
-                onClick={() => this.confirmMaintenance(ids, issueId)}
+                onClick={() => loading ? null : this.confirmMaintenance(ids, issueId)}
               >
                 &#8631;
               </div>
@@ -541,9 +564,9 @@ class ReportIssue extends Component {
             {maintainer && row.state === "confirmed" ? (
               <div
                 className="inline"
-                style={{ width: "20px", cursor: "pointer" }}
+                style={{ width: "20px", cursor: "pointer", color: loading ? "#ccc" : "inherit" }}
                 title="Revert confirm report"
-                onClick={() => this.unconfirmMaintenance(ids, issueId)}
+                onClick={() => loading ? null : this.unconfirmMaintenance(ids, issueId)}
               >
                 &#8630;
               </div>
@@ -551,9 +574,9 @@ class ReportIssue extends Component {
             {maintainer && row.state === "confirmed" ? (
               <div
                 className="inline"
-                style={{ width: "20px", cursor: "pointer" }}
+                style={{ width: "20px", cursor: "pointer", color: loading ? "#ccc" : "inherit" }}
                 title="Resolve report"
-                onClick={() => this.resolveMaintenance(ids, issueId)}
+                onClick={() => loading ? null : this.resolveMaintenance(ids, issueId)}
               >
                 &#10003;
               </div>
@@ -561,9 +584,9 @@ class ReportIssue extends Component {
             {reporterOrMaintainer ? (
               <div
                 className="inline"
-                style={{ width: "20px", color: "red", cursor: "pointer" }}
+                style={{ width: "20px", color: loading ? "#ccc" : "red", cursor: "pointer" }}
                 title="Delete report"
-                onClick={() => this.deleteMaintenance(ids, issueId)}
+                onClick={() => loading ? null : this.deleteMaintenance(ids, issueId)}
               >
                 &#10005;
               </div>
@@ -590,7 +613,7 @@ class ReportIssue extends Component {
               <div className="close-modal" onClick={this.closeModal}>
                 &#215;
               </div>
-              <h2>Report Issue</h2>
+              <h2>Report Issue {loading && <Loading size="sm" inline />}</h2>
               {maintenance ? (
                 <React.Fragment>
                   {!maintainer || (<p className="alert alert-success">
@@ -725,7 +748,7 @@ class ReportIssue extends Component {
                   <div className="modal-submit">
                     {error &&
                       "Failed to submit please refresh the page and try again."}
-                    <button className="click" onClick={this.submitMaintenance}>
+                    <button className="click" onClick={loading ? null : this.submitMaintenance}>
                       Submit Report
                     </button>
                   </div>

@@ -234,7 +234,6 @@ export class GitlabService extends GitServiceInterface {
     }
   }
 
-
   /**
    * Merge event into the provided events file and make a merge request for this update.
    * @param {number} issue_id - The ID of the issue for which a branch is defined.
