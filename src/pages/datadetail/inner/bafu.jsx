@@ -37,6 +37,7 @@ class Bafu extends Component {
       maxX,
       lowerX,
       upperX,
+      display,
       files,
       onChangeX,
       dropdown,
@@ -92,7 +93,7 @@ class Bafu extends Component {
                 thresholdStep={thresholdStep}
                 yReverse={yReverse}
                 xReverse={xReverse}
-                display={"contour"}
+                display={display}
                 header={false}
                 language={lang}
                 levels={true}
