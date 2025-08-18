@@ -2336,6 +2336,7 @@ class Plot extends Component {
       plotdots,
       interpolate,
     } = this.state;
+    const params = new URLSearchParams(window.location.search);
 
     if (data[0] === false) {
       this.setState({ failed: true });
@@ -2376,8 +2377,14 @@ class Plot extends Component {
         upperX
       ));
 
-      if ("interpolate" in dataset.plotproperties)
+      if (
+        params.get("interpolate") &&
+        this.state.interpolate_options.includes(params.get("interpolate"))
+      ) {
+        interpolate = params.get("interpolate");
+      } else if ("interpolate" in dataset.plotproperties) {
         interpolate = dataset.plotproperties.interpolate;
+      }
 
       var { plotdata, lowerZ, upperZ } = this.processPlotData(
         xaxis,
@@ -2399,8 +2406,15 @@ class Plot extends Component {
         interpolate
       );
 
-      if ("display" in dataset.plotproperties)
+      if (
+        params.get("display") &&
+        ["heatmap", "contour"].includes(params.get("display"))
+      ) {
+        display = params.get("display");
+      } else if ("display" in dataset.plotproperties) {
         display = dataset.plotproperties.display;
+      }
+
       if ("thresholdStep" in dataset.plotproperties)
         thresholdStep = dataset.plotproperties.thresholdStep;
       if (plotdata[0].x.length < 100) plotdots = true;
@@ -2548,7 +2562,7 @@ class Plot extends Component {
           <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX} />
         </React.Fragment>
       );
-    } else if (this.props.search.toLowerCase().includes("display")) {
+    } else if (this.props.search.toLowerCase().includes("display=true")) {
       return (
         <React.Fragment>
           <div className="detailloading" id="detailloading">
