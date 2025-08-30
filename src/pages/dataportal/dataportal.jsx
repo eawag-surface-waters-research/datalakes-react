@@ -726,7 +726,7 @@ class DataPortal extends Component {
             id="dataportalsearchbar"
             onChange={this.searchDatasets}
             className="SearchBar"
-            placeholder="Search using keywords e.g. ctd or geneva or salinity"
+            placeholder="Search datasets"
             type="search"
             ref="search"
             value={search}
@@ -736,42 +736,6 @@ class DataPortal extends Component {
           sidebartitle="Filters"
           left={
             <React.Fragment>
-              <div className="sortbar">
-                <table className="sortbar-table">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div
-                          title="Download multiple datasets"
-                          onClick={this.download}
-                        >
-                          {selected.length} selected of {fDatasets.length}{" "}
-                          datasets
-                        </div>
-                      </td>
-                      <td>
-                        <div
-                          title="Clear selected datasets"
-                          onClick={this.clearSelected}
-                        >
-                          &#10005;
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                {search === "" && (
-                  <select
-                    title="Sort by"
-                    onChange={this.setSelect}
-                    defaultValue={sortby}
-                  >
-                    <option value="az">A-Z</option>
-                    <option value="recent">Recent</option>
-                    <option value="downloads">Downloads</option>
-                  </select>
-                )}
-              </div>
               <FilterBar filters={filters} removeFilter={this.removeFilter} />
 
               <div className={download ? "popup" : "hidepopup"}>

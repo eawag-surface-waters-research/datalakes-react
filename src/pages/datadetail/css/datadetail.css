@@ -130,6 +130,7 @@
 .ch2018graph .selections table td {
   width: 150px;
 }
+
 .ch2018graph .selections table td select {
   width: 100%;
 }
@@ -680,13 +681,16 @@ h2 {
   .data-subnav .subnav-item .subnav-text {
     display: none;
   }
+
   .data-subnav .subnav-item .subnav-img {
     padding: 0 5px;
     height: 22px;
   }
+
   .data-subnav .subnav-item {
     margin: 0 15px -1px 0;
   }
+
   .data-subnav {
     padding: 8px 0 10px 15px;
   }
@@ -696,6 +700,7 @@ h2 {
     padding: 0 10px;
     height: auto;
   }
+
   .ch2018graph .left {
     width: 100%;
     height: 400px;
@@ -733,24 +738,38 @@ h2 {
     display: none;
   }
 
+  .datadetail-plot {
+    position: fixed;
+    height: calc(100% - 104px);
+    top: 40px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
   .detailgraph {
-    height: calc(100vh - 350px);
-    min-height: 300px;
     box-shadow: none;
     border: none;
-    border-radius: none;
+    border-radius: 0;
+    padding-top: 12px;
+    padding-bottom: 30px;
+    min-height: 0;
+    box-sizing: border-box;
+    height: 100%;
   }
 
   .data-subnav .subnav-item .subnav-text {
     display: none;
   }
+
   .data-subnav .subnav-item .subnav-img {
     padding: 0 3px;
   }
+
   .data-subnav .subnav-item {
-    margin: 0 0 -1px 0;
     border-color: white;
   }
+
   .data-subnav {
     padding: 10px;
     margin: 0;
@@ -760,15 +779,23 @@ h2 {
     background-color: white;
     margin-top: -5px;
   }
+
+  .datadetail-padding {
+    flex: 1;
+  }
+
   .info-inner {
     margin: 0;
   }
+
   .info-width {
     margin: 0;
   }
+
   .pipeline img {
     height: 30px;
   }
+
   .separator {
     width: 20px !important;
     margin: 10px 10px;
@@ -787,9 +814,9 @@ h2 {
   }
 
   .datadetail-title {
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 400;
-    max-height: 30px;
+    margin: 12px 0;
   }
 }
 
@@ -889,6 +916,7 @@ h2 {
     width: 100%;
     padding-right: 0;
   }
+
   .pipeline-left {
     width: 100%;
     margin-top: 0;
@@ -1084,8 +1112,7 @@ h2 {
   background-color: white;
 }
 
-.remotesensingdownload .downloadinner tbody {
-}
+.remotesensingdownload .downloadinner tbody {}
 
 .remotesensingdownload .downloadinner button.download-rs {
   margin: 2px;

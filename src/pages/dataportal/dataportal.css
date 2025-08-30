@@ -1,5 +1,5 @@
 .dataset {
-  margin: 20px 0;
+  margin-bottom: 20px;
   background-color: white;
   border-radius: 10px;
   width: 100%;
@@ -127,17 +127,16 @@ input.SearchBar {
   width: calc(100% - 10px);
   border: solid 1px rgb(169, 169, 169);
   box-sizing: border-box;
-  padding: 6px 15px 6px 15px;
+  padding: 12px 15px 12px 15px;
   margin-bottom: 15px;
   margin-top: 10px;
-  border-radius: 5px;
+  border-radius: 22px;
   font-size: 18px;
-  box-shadow: rgb(149 157 165 / 20%) 0px 8px 24px;
   margin-left: 5px;
 }
 
 input.SearchBar::placeholder {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .download-selected .download-item {
@@ -335,7 +334,8 @@ table.sortbar-table td {
   margin: 3px 8px 3px 0px;
   cursor: pointer;
   background-color: white;
-  border-radius: 5px;
+  border-radius: 10px;
+  margin-bottom: 20px;
 }
 
 .filterbar .filterbar-text {
@@ -413,6 +413,9 @@ table.sortbar-table td {
 }
 
 @media screen and (max-width: 500px) {
+  .dataset {
+    margin-bottom: 12px;
+  }
   .sortbar select {
     padding: 4px 0;
   }
@@ -424,18 +427,18 @@ table.sortbar-table td {
     height: 14px;
   }
   .datalist {
-    padding: 0 10px;
+    padding: 0 12px;
   }
   .sortbar {
-    padding: 0 4px;
-    box-sizing: border-box;
+    display: none;
   }
   .filterbar {
-    padding: 0 5px;
+    padding: 0 12px;
   }
   input.SearchBar {
-    margin-bottom: 4px;
-    margin-top: 2px;
+    border-radius: 22px;
+    margin: 12px 12px;
+    width: calc(100% - 24px);
   }
   .search img {
     left: 15px;

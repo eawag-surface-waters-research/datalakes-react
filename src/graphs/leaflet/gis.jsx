@@ -1292,19 +1292,6 @@ class GIS extends Component {
             plotDatasets={this.state.plotDatasets}
             addSelected={this.addSelected}
           />
-          <DatetimeDepthSelector
-            selectedlayers={this.state.selectedlayers}
-            mindatetime={this.state.mindatetime}
-            maxdatetime={this.state.maxdatetime}
-            mindepth={this.state.mindepth}
-            maxdepth={this.state.maxdepth}
-            datetime={this.state.datetime}
-            depth={this.state.depth}
-            timestep={this.state.timestep}
-            onChangeDatetime={this.onChangeDatetime}
-            onChangeDepth={this.onChangeDepth}
-            onChangeTimestep={this.onChangeTimestep}
-          />
           <BasemapSelector
             center={this.state.center}
             zoom={this.state.zoom}

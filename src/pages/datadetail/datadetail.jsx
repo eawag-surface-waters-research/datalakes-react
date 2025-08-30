@@ -813,7 +813,7 @@ class DataDetail extends Component {
         );
       case "plot":
         return (
-          <React.Fragment>
+          <div className="datadetail-plot">
             {!iframe && (
               <React.Fragment>
                 {title}
@@ -844,7 +844,7 @@ class DataDetail extends Component {
                 maintenance={maintenance}
               />
             </div>
-          </React.Fragment>
+          </div>
         );
       case "locationmap":
         return (
