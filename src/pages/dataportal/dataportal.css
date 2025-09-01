@@ -30,8 +30,7 @@
   right: 10px;
 }
 
-.dataset .dataset-top .buttons {
-}
+.dataset .dataset-top .buttons {}
 
 .dataset .dataset-top .buttons .button-main {
   display: inline-block;
@@ -416,48 +415,80 @@ table.sortbar-table td {
   .dataset {
     margin-bottom: 12px;
   }
+
   .sortbar select {
     padding: 4px 0;
   }
+
   table.sortbar-table td {
     padding: 6px 4px;
   }
+
+  .dataset .dataset-top .dataset-live {
+    bottom: 10px;
+    top: unset;
+  }
+
   .checkbox {
     width: 14px;
     height: 14px;
   }
+
   .datalist {
     padding: 0 12px;
+    margin-top: 80px;
   }
+
   .sortbar {
     display: none;
   }
+
   .filterbar {
     padding: 0 12px;
   }
+
   input.SearchBar {
-    border-radius: 22px;
+    border-radius: 10px;
     margin: 12px 12px;
     width: calc(100% - 24px);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    border: none;
   }
-  .search img {
+
+  .search {
+    position: fixed;
+    z-index: 9;
+    width: 100%;
+    top: 36px;
+    border-radius: 0 0 18px 18px;
+    background: #F9F9F9;
+    background: linear-gradient(180deg, rgba(249, 249, 249, 1) 0%, rgba(249, 249, 249, 0.2) 100%);
+  }
+
+  .search .search img {
     left: 15px;
     top: 10px;
   }
+
   .dataset .dataset-top .dataset-title {
     font-size: 18px;
     margin: 0;
     font-weight: 700;
   }
+
   .dataset .dataset-top .buttons .button-main {
     margin-top: 10px;
   }
+
   .dataset .dataset-top {
     padding: 20px 15px 15px 10px;
   }
+
   .dataset .dataset-right {
     width: 120px;
+    display: none;
   }
+
   .dataset .dataset-top .buttons .button-sub {
     width: 60px;
     padding: 6px;
