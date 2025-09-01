@@ -100,13 +100,15 @@ class DateSliderDouble extends Component {
           onChangeUpper={this.onChangeUpper}
           language={language}
         />
-        <button
-          className={update ? "grey" : "update"}
-          title="Update time period"
-          onClick={this.updatePlot}
-        >
-          Update Plot
-        </button>
+        <div className="datetime-update">
+          <button
+            className={update ? "grey" : "update"}
+            title="Update time period"
+            onClick={this.updatePlot}
+          >
+            Update Plot
+          </button>
+        </div>
       </div>
     );
   }

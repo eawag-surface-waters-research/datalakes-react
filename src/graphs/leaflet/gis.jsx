@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import axios from "axios";
 import { apiUrl, basemaps } from "../../config.json";
 import Basemap from "./basemap";
-import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
 import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
 import LayerGroups from "../../components/layergroups/layergroups";
 import MapLayers from "../../components/maplayers/maplayers";

@@ -26,8 +26,11 @@
 }
 
 .react-datetime-picker__calendar {
-  width: 300px;
   z-index: 9;
+}
+
+.react-calendar {
+  border-radius: 4px;
 }
 
 .single-value {
@@ -51,7 +54,7 @@
   color: grey;
 }
 
-.datetime-selector button {
+.datetime-selector .datetime-update button {
   margin: 6px 3px;
   border-radius: 16px;
   color: grey;
@@ -60,7 +63,7 @@
   width: 100%;
 }
 
-.datetime-selector button.update {
+.datetime-selector .datetime-update button.update {
   color: #38bec9;
   border-color: #38bec9;
 }
