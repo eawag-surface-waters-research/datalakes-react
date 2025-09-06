@@ -436,7 +436,7 @@ table.sortbar-table td {
 
   .datalist {
     padding: 0 12px;
-    margin-top: 80px;
+    margin-top: 67px;
   }
 
   .sortbar {
@@ -453,6 +453,7 @@ table.sortbar-table td {
     width: calc(100% - 24px);
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border: none;
+    background-color: white;
   }
 
   .search {

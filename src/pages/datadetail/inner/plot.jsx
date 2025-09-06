@@ -1108,6 +1108,7 @@ class Plot extends Component {
   };
 
   setAxisOptions = (datasetparameters, xaxis, yaxis) => {
+    const reverseID = [2, 18, 43, 94, 95, 126, 128, 130];
     var xoptions = [];
     var yoptions = [];
     var zoptions = [];
@@ -1116,8 +1117,8 @@ class Plot extends Component {
     var ydp = datasetparameters.find((dp) => dp.axis === yaxis[0]);
     var yReverse = false;
     var xReverse = false;
-    if ([2, 18, 43].includes(xdp.parameters_id)) xReverse = true;
-    if ([2, 18, 43].includes(ydp.parameters_id)) yReverse = true;
+    if (reverseID.includes(xdp.parameters_id)) xReverse = true;
+    if (reverseID.includes(ydp.parameters_id)) yReverse = true;
     for (var j = 0; j < datasetparameters.length; j++) {
       var detail = datasetparameters[j]["detail"];
       var link = datasetparameters[j]["link"];
