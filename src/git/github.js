@@ -260,7 +260,6 @@ export class GithubService extends GitServiceInterface {
       if (!response.ok) {
         throw new Error(`GitHub API error while updating file: ${response.status}`);
       }
-      const fileUpdate = await response.json();
       // Create a pull request for the changes
       const project = await this.getProject();
       const defaultBranch = project.default_branch;

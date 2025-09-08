@@ -634,14 +634,12 @@ class CanvasHeatmap {
           this._ctrlPressed = false;
           this._deactivateBrush();
         }
-    });
+      });
 
     this._isBrushing = false;
 
     // Create a separate group for the brush
-    this._brushGroup = this._svg
-      .append("g")
-      .attr("class", "brush");
+    this._brushGroup = this._svg.append("g").attr("class", "brush");
 
     // Initialize brush with event handlers
     this._brush = d3brush()
@@ -649,7 +647,7 @@ class CanvasHeatmap {
         [0, 0],
         [this._canvasWidth, this._canvasHeight],
       ])
-      .filter(event => event.ctrlKey) // only allow brush if Ctrl is pressed
+      .filter((event) => event.ctrlKey) // only allow brush if Ctrl is pressed
       .on("start", this._brushStart)
       .on("end", this._brushEnd);
 
@@ -664,7 +662,7 @@ class CanvasHeatmap {
     if (!event.sourceEvent) return;
     // We're starting a brush action
     this._isBrushing = true;
-  }
+  };
   _brushEnd = (event) => {
     if (!this._isBrushing) return;
     // We're ending a brush action
@@ -692,7 +690,10 @@ class CanvasHeatmap {
     const y1Val = this._yAxis.ax.invert(y1);
     // Call the select function with the selected box
     this.options.select({
-      bbox: [[x0Val, y0Val], [x1Val, y1Val]], 
+      bbox: [
+        [x0Val, y0Val],
+        [x1Val, y1Val],
+      ],
       xTime: this._xTime,
       yTime: this._yTime,
       xLabel: this.options.xLabel,
@@ -702,7 +703,7 @@ class CanvasHeatmap {
       yUnit: this.options.yUnit,
       zUnit: this.options.zUnit,
     });
-  }
+  };
   _activateBrush() {
     this._brushGroup.style("display", null);
     this._zoombox.on(".zoom", null); // Temporarily disable zoom
@@ -791,6 +792,11 @@ class CanvasHeatmap {
         var yValue = this._yAxis.ax.invert(hoverY);
 
         var html = "";
+        var xu = "";
+        var yu = "";
+        var xval, yval;
+        var time;
+        var depth;
 
         var idx = Math.max(
           getFileIndex(this._xFileDomain, xValue),
@@ -800,11 +806,6 @@ class CanvasHeatmap {
 
         if (process === undefined) {
           // no value but we may still find have some events information to display
-          var xval, yval;
-          var xu = "";
-          var yu = "";
-          var time;
-          var depth;
 
           if (this._xTime) {
             time = xValue;
@@ -849,13 +850,8 @@ class CanvasHeatmap {
           var xi = closest(xValue, process.x);
           var yi = closest(yValue, process.y);
 
-          var xval, yval;
-          var xu = "";
-          var yu = "";
           var zu = "";
           var zval = process.z[yi][xi];
-          var time;
-          var depth;
 
           if (this._xTime) {
             time = process.x[xi];
@@ -881,11 +877,14 @@ class CanvasHeatmap {
 
           if (typeof this.options.zUnit === "string") zu = this.options.zUnit;
 
-          html =`
+          html = `
             <table><tbody>
               <tr><td>x:</td><td>${xval} ${xu}</td></tr>
               <tr><td>y:</td><td>${yval} ${yu}</td></tr>
-              <tr><td>z:</td><td>${formatNumber(zval, this.options.decimalPlaces)} ${zu}</td></tr>
+              <tr><td>z:</td><td>${formatNumber(
+                zval,
+                this.options.decimalPlaces
+              )} ${zu}</td></tr>
             </tbody></table>
             ${this._makeActiveMaintenanceHTML(time, depth)}
             ${this._makeActiveEventsHTML(time, depth)}`;
@@ -915,7 +914,10 @@ class CanvasHeatmap {
             .style("left", "auto")
             .style(
               "top",
-              (process ? this._yAxis.ax(process.y[yi]) : hoverY) + this.options.marginTop - 20 + "px"
+              (process ? this._yAxis.ax(process.y[yi]) : hoverY) +
+                this.options.marginTop -
+                20 +
+                "px"
             )
             .attr("class", "tooltip tooltip-right")
             .style("opacity", 1);
@@ -932,7 +934,10 @@ class CanvasHeatmap {
             .style("right", "auto")
             .style(
               "top",
-              (process ? this._yAxis.ax(process.y[yi]) : hoverY) + this.options.marginTop - 20 + "px"
+              (process ? this._yAxis.ax(process.y[yi]) : hoverY) +
+                this.options.marginTop -
+                20 +
+                "px"
             )
             .attr("class", "tooltip tooltip-left")
             .style("opacity", 1);
@@ -1030,7 +1035,11 @@ class CanvasHeatmap {
             // filter by depth in list or range
             evt.events.forEach((e) => {
               // all depths apply
-              if (e.depth === undefined || e.depth.trim() === "" || e.depth.trim() === "All") {
+              if (
+                e.depth === undefined ||
+                e.depth.trim() === "" ||
+                e.depth.trim() === "All"
+              ) {
                 activeEvents.push(e);
                 return;
               }
@@ -1069,7 +1078,6 @@ class CanvasHeatmap {
             // no depth filter
             activeEvents.push(...evt.events);
           }
-          
         }
       });
     }
@@ -1083,7 +1091,11 @@ class CanvasHeatmap {
             </thead>
             <tbody>`;
       activeEvents.forEach((evt) => {
-        eventHTML += `<tr><td>${evt.parameter}</td><td style="max-width: 100px">${evt.depth ? evt.depth.split(',').join(', ') : ''}</td><td>${evt.comments}</td></tr>`;
+        eventHTML += `<tr><td>${
+          evt.parameter
+        }</td><td style="max-width: 100px">${
+          evt.depth ? evt.depth.split(",").join(", ") : ""
+        }</td><td>${evt.comments}</td></tr>`;
       });
       eventHTML += `</tbody></table></div>`;
       return eventHTML;
@@ -1099,7 +1111,11 @@ class CanvasHeatmap {
             // filter by depth in list or range
             evt.events.forEach((e) => {
               // all depths apply
-              if (e.depths === undefined || e.depths.trim() === "" || e.depths.trim() === "All") {
+              if (
+                e.depths === undefined ||
+                e.depths.trim() === "" ||
+                e.depths.trim() === "All"
+              ) {
                 activeMaintenances.push(e);
                 return;
               }
@@ -1138,7 +1154,6 @@ class CanvasHeatmap {
             // no depth filter
             activeMaintenances.push(...evt.events);
           }
-          
         }
       });
     }
@@ -1166,8 +1181,7 @@ class CanvasHeatmap {
           });
         }
         return acc;
-      }
-      , []);
+      }, []);
       var eventHTML = `
         <div class="tooltip-events">
           <div class="tooltip-events-header">Maintenance:</div>
@@ -1177,7 +1191,11 @@ class CanvasHeatmap {
             </thead>
             <tbody>`;
       items.forEach((item) => {
-        eventHTML += `<tr><td>${item.parameters}</td><td style="max-width: 100px">${item.depths ? item.depths.split(',').join(', ') : ''}</td><td>${item.description}</td></tr>`;
+        eventHTML += `<tr><td>${
+          item.parameters
+        }</td><td style="max-width: 100px">${
+          item.depths ? item.depths.split(",").join(", ") : ""
+        }</td><td>${item.description}</td></tr>`;
       });
       eventHTML += `</tbody></table></div>`;
       return eventHTML;

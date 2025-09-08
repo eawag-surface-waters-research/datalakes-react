@@ -823,14 +823,12 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
       }
 
       var { idx, idy, distance } = closest(data, hoverX, hoverY, xAxis, yAxis);
-      var html;
+      var html, time;
       var posx = hoverX;
       var posy = hoverY;
       if (distance < max_distance) {
         var xval, yval;
         var xu = "", yu = "";
-        var time;
-
         if (options.xTime) {
           time = data[idx].x[idy];
           xval = formatDate(time, lang, options.noYear);
@@ -884,8 +882,6 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
         }
       } else {
         // show active events if any at the mouse position
-        var time;
-
         if (options.xTime) {
           time = xAxis[data[idx].xaxis].ref.invert(hoverX);
         }

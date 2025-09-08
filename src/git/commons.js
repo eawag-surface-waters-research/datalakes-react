@@ -1,5 +1,3 @@
-import { de } from "date-fns/locale";
-
 export class GitServiceInterface {
 
   constructor(ssh = "") {
