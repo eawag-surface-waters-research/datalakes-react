@@ -3,9 +3,21 @@
   "serverlessUrl": "https://serverless.datalakes-eawag.ch",
   "serverlessUrls": "http://localhost:3000/dev",
   "password": "downloadprivatefiles",
+  "key": "ftGUqECH4LzDJHXhfwgNN5RkP3MJTeahtxkjmRcU3AfrWvQj",
   "bucket": {
     "name": "eawag-data",
     "url": "https://eawag-data.s3.eu-central-1.amazonaws.com"
+  },
+  "auth": {
+    "renku": {
+      "clientId": "649033f91b612db85cfb0576048e5decccc4a66600dd12283bf849a776188b8b"
+    },
+    "gitlab": {
+      "clientId": "3bba51d2b09023535e2070c3451c3904a1ba74a34b4ab699b2851cee6d2535fb"
+    },
+    "github": {
+      "clientId": "Ov23liQmoldDsSBlzUDa"
+    }
   },
   "basemaps": {
     "datalakesmap": {

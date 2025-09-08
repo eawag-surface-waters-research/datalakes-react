@@ -44,22 +44,25 @@ class Information extends Component {
   };
 
   render() {
-    const { dataset, getLabel, scripts, maintenance } = this.props;
+    const { dataset, getLabel, scripts, maintenance, events } = this.props;
     var script = scripts.filter((s) => s.name.includes(".md"));
     var dict = {};
     for (let i = 0; i < maintenance.length; i++) {
-      let dt =
+      // use issue if exists, otherwise use start and end time as key
+      let key = maintenance[i].issue
+        ? maintenance[i].issue
+        :
         maintenance[i].starttime.toString() + maintenance[i].endtime.toString();
-      if (dt in dict) {
-        dict[dt]["parameters"].push(
+      if (key in dict) {
+        dict[key]["parameters"].push(
           maintenance[i].name +
             (maintenance[i].detail !== "none"
               ? ` (${maintenance[i].detail})`
               : "")
         );
-        dict[dt]["id"].push(maintenance[i].id);
+        dict[key]["id"].push(maintenance[i].id);
       } else {
-        dict[dt] = {
+        dict[key] = {
           start: maintenance[i].starttime,
           end: maintenance[i].endtime,
           parameters: [
@@ -68,8 +71,10 @@ class Information extends Component {
                 ? ` (${maintenance[i].detail})`
                 : ""),
           ],
+          depths: maintenance[i].depths,
           description: maintenance[i].description,
           id: [maintenance[i].id],
+          state: maintenance[i].state,
           reporter: maintenance[i].reporter,
         };
       }
@@ -77,16 +82,36 @@ class Information extends Component {
 
     var rows = [];
     for (var key in dict) {
+      const row = dict[key];
       rows.push(
         <tr key={key}>
-          <td>{this.formatTime(dict[key].start)}</td>
-          <td>{this.formatTime(dict[key].end)}</td>
-          <td>{dict[key].parameters.join(", ")}</td>
-          <td>{dict[key].description}</td>
-          <td>{dict[key].reporter}</td>
+          <td>{this.formatTime(row.start)}</td>
+          <td>{this.formatTime(row.end)}</td>
+          <td>{row.parameters.join(", ")}</td>
+          <td>{row.depths}</td>
+          <td>{row.description}</td>
+          <td><span className="badge badge-info">{row.state}</span></td>
+          <td>{row.reporter}</td>
         </tr>
       );
     }
+
+    var eventRows = [];
+    if (events && events.length > 0) {
+      for (var i = 0; i < events.length; i++) {
+        var event = events[i];
+        eventRows.push(
+          <tr>
+            <td>{this.formatTime(event.start)}</td>
+            <td>{this.formatTime(event.stop)}</td> 
+            <td>{event.parameter}</td>
+            <td>{event.depth ? event.depth.split(",").join(", ") : ""}</td>
+            <td>{event.comments}</td>
+          </tr>
+        );
+      }
+    }
+    
     urlFromSsh(dataset.ssh)
     return (
       <React.Fragment>
@@ -150,28 +175,6 @@ class Information extends Component {
               {dataset.citation}
             </div>
           </div>
-          <React.Fragment>
-            {maintenance.length > 0 ? (
-              <div className="description">
-                <div className="desc-header">Reported maintenance periods:</div>
-                <table>
-                  <tbody>
-                    <tr>
-                      <th>Start</th>
-                      <th>End</th>
-                      <th>Parameters</th>
-                      <th>Description</th>
-                      <th>Reporter</th>
-                    </tr>
-                    {rows}
-                  </tbody>
-                </table>
-                <div className="desc-warning">WARNING: Reported maintenance periods are masked on Datalakes however may not be in the downloadable files.</div>
-              </div>
-            ) : (
-              ""
-            )}
-          </React.Fragment>
           <div className="readme">
             {script.length === 1 ? (
               <ReactMarkdown>{script[0].data}</ReactMarkdown>
@@ -179,6 +182,56 @@ class Information extends Component {
               <React.Fragment>{dataset.description}</React.Fragment>
             )}
           </div>
+          <React.Fragment>
+            {maintenance.length > 0 ? (
+              <div className="description">
+                <div className="desc-header">Reported maintenance periods:</div>
+                <table className="table table-striped">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "150px" }}>Start</th>
+                      <th style={{ width: "150px" }}>End</th>
+                      <th>Parameters</th>
+                      <th>Depths</th>
+                      <th>Description</th>
+                      <th style={{ width: "150px" }}>State</th>
+                      <th>Reporter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows}
+                  </tbody>
+                </table>
+                <div className="desc-warning">WARNING: Confirmed reported maintenance periods are masked on Datalakes however may not be in the downloadable files.</div>
+              </div>
+            ) : (
+              ""
+            )}
+          </React.Fragment>
+          <React.Fragment>
+            {events && events.length > 0 ? (
+              <div className="description">
+                <div className="desc-header">Reported events:</div>
+                <table className="table table-striped">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "150px" }}>Start</th>
+                      <th style={{ width: "150px" }}>End</th>
+                      <th>Parameters</th>
+                      <th>Depths</th>
+                      <th>Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {eventRows}
+                  </tbody>
+                </table>
+                <div className="desc-warning">INFO: Data affected by reported events were removed from original data source and then do not appear in the downloadable files.</div>
+              </div>
+            ) : (
+              ""
+            )}
+          </React.Fragment>
           <div className="info-contact">
             <div className="contact-header">Questions about the dataset?</div>
             <div className="contact-inner">

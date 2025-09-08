@@ -1,10 +1,13 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
 import { Link, NavLink } from "react-router-dom";
 import logo from "./img/logo.svg";
 import map from "./img/map.svg";
 import data from "./img/data.svg";
 import home from "./img/home.svg";
 import about from "./img/about.svg";
+import anonymous from "./img/anonymous.svg";
+import user from "./img/user.svg";
 
 import map_2 from "./img/map_2.svg";
 import data_2 from "./img/data_2.svg";
@@ -16,7 +19,23 @@ import "./header.css";
 class Header extends Component {
   state = {};
 
+  getUser = () => {
+    if (this.props.auth?.renku?.user) {
+      return this.props.auth.renku.user;
+    } else if (this.props.auth?.gitlab?.user) {
+      return this.props.auth.gitlab.user;
+    } else if (this.props.auth?.github?.user) {
+      return this.props.auth.github.user;
+    } else {
+      return null;
+    }
+  }
+
   render() {
+
+    const userObj = this.getUser();
+    const isAnonymous = userObj === null;
+
     return (
       <header id="header">
         <div className="header">
@@ -58,6 +77,19 @@ class Header extends Component {
                     <img alt="About" src={about_2} />
                     About
                   </Link>
+                  {
+                    isAnonymous ? (
+                      <Link className="header-item" to="/user">
+                        <img alt="Login" src={anonymous} />
+                        Login
+                      </Link>
+                    ) : (
+                      <Link className="header-item" to="/user">
+                        <img alt="Logout" src={user} />
+                        {userObj.name}
+                      </Link>
+                    )
+                  }
                 </div>
               </div>
             </div>
@@ -87,4 +119,8 @@ class Header extends Component {
   }
 }
 
-export default Header;
+const mapStateToProps = state => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps)(Header);

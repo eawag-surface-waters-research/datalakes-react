@@ -9,9 +9,9 @@
 .box-loader::before {
   content: '';  
   box-sizing: border-box;
+  border: 2px solid #102a43;
   width: 48px;
   height: 48px;
-  border: 2px solid #102a43;
   position: absolute;
   left: 0;
   top: 0;
@@ -20,6 +20,18 @@
 .box-loader::after {
   border-color: #38bec9;
   animation-direction: alternate-reverse;
+}
+.box-loader-sm, .box-loader-sm::after, .box-loader-sm::before {
+  width: 24px;
+  height: 24px;
+}
+.box-loader-xs, .box-loader-xs::after, .box-loader-xs::before {
+  width: 12px;
+  height: 12px;
+}
+.box-loader-inline {
+  display: inline-block;
+  margin-bottom: 0;
 }
 
 @keyframes rotationBreak {
