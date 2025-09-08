@@ -37,6 +37,7 @@ class Bafu extends Component {
       maxX,
       lowerX,
       upperX,
+      display,
       files,
       onChangeX,
       dropdown,
@@ -92,7 +93,7 @@ class Bafu extends Component {
                 thresholdStep={thresholdStep}
                 yReverse={yReverse}
                 xReverse={xReverse}
-                display={"contour"}
+                display={display}
                 header={false}
                 language={lang}
                 levels={true}
@@ -120,14 +121,12 @@ class Bafu extends Component {
         lweight[1] = 2;
         var legend = [];
         if (plotdata.length > 1) {
-          var yi = dropdown.parameters.find((f) => f.id === 5);
           var yaxis_dict = {
             en: "name",
             de: "german",
             it: "italian",
             fr: "french",
           };
-          ylabel = yi[yaxis_dict[lang]];
           var dp1 = this.props.datasetparameters.find(
             (d) => d.axis === this.props.yaxis[0]
           );

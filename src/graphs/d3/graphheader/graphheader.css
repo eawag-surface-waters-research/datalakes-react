@@ -92,6 +92,7 @@
   border-radius: 4px;
   z-index: 999999;
 }
+
 .fontsize .fontsize-dropdown div:hover {
   font-weight: bold;
 }
@@ -151,4 +152,23 @@
 .vis-header .downloadbar button.blue {
   border-color: #28b5f5;
   color: #28b5f5;
+}
+
+@media screen and (max-width: 500px) {
+  .vis-header table.downloadtable td.title {
+    display: none;
+  }
+
+  .vis-header table.downloadtable {
+    width: unset;
+    float: right;
+  }
+
+  .vis-header table td {
+    padding-left: 6px;
+  }
+
+  .vis-main.full {
+    height: calc(100% - 104px);
+  }
 }

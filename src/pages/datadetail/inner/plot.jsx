@@ -6,7 +6,7 @@ import ColorManipulation from "../../../components/colormanipulation/colormanipu
 import DataSelect from "../../../components/dataselect/dataselect";
 import Loading from "../../../components/loading/loading";
 import D3HeatMap from "../../../graphs/d3/heatmap/heatmap";
-import SliderDouble from "../../../components/sliders/sliderdouble";
+import DateSliderDouble from "../../../components/sliders/sliderdoubletime";
 import SliderSingle from "../../../components/sliders/slidersingle";
 import NumberSliderDouble from "../../../components/sliders/sliderdoublenumber";
 import LoadDataSets from "../../../components/loaddatasets/loaddatasets";
@@ -140,6 +140,12 @@ class Graph extends Component {
       events,
       withEvents,
     } = this.props;
+    if (
+      (graph === "heatmap" && plotdata[0].z === undefined) ||
+      (graph === "linegraph" && plotdata[0].z !== undefined)
+    ) {
+      graph = false;
+    }
     switch (graph) {
       default:
         return (
@@ -585,12 +591,11 @@ class Range extends Component {
             title={"x" === timeaxis ? xlabel + " Range" : ylabel + " Range"}
             content={
               <div className="side-date-slider">
-                <SliderDouble
-                  onChangeLower={
-                    "x" === timeaxis ? this.onChangeLowerX : this.onChangeLowerY
-                  }
-                  onChangeUpper={
-                    "x" === timeaxis ? this.onChangeUpperX : this.onChangeUpperY
+                <DateSliderDouble
+                  onChange={
+                    "x" === timeaxis
+                      ? this.props.onChangeX
+                      : this.props.onChangeY
                   }
                   min={"x" === timeaxis ? minX : minY}
                   max={"x" === timeaxis ? maxX : maxY}
@@ -1211,6 +1216,7 @@ class Plot extends Component {
   };
 
   setAxisOptions = (datasetparameters, xaxis, yaxis) => {
+    const reverseID = [2, 18, 43, 94, 95, 126, 128, 130];
     var xoptions = [];
     var yoptions = [];
     var zoptions = [];
@@ -1219,8 +1225,8 @@ class Plot extends Component {
     var ydp = datasetparameters.find((dp) => dp.axis === yaxis[0]);
     var yReverse = false;
     var xReverse = false;
-    if ([2, 18, 43].includes(xdp.parameters_id)) xReverse = true;
-    if ([2, 18, 43].includes(ydp.parameters_id)) yReverse = true;
+    if (reverseID.includes(xdp.parameters_id)) xReverse = true;
+    if (reverseID.includes(ydp.parameters_id)) yReverse = true;
     for (var j = 0; j < datasetparameters.length; j++) {
       var detail = datasetparameters[j]["detail"];
       var link = datasetparameters[j]["link"];
@@ -2268,13 +2274,7 @@ class Plot extends Component {
 
   filterData = (arr) => {
     if (Array.isArray(arr)) {
-      var data = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (!isNaN(parseFloat(arr[i])) && isFinite(arr[i])) {
-          data.push(arr[i]);
-        }
-      }
-      return arr;
+      return arr.flat().filter((d) => !isNaN(parseFloat(d)) && isFinite(d));
     } else {
       return [];
     }
@@ -2357,9 +2357,9 @@ class Plot extends Component {
       pd = [pd];
     }
     for (var i = 0; i < pd.length; i++) {
-      let zdomain = d3.extent(this.filterData(pd[i].z).flat());
-      minZ = Math.min(zdomain[0], minZ);
-      maxZ = Math.max(zdomain[1], maxZ);
+      let zdomain = d3.extent(this.filterData(pd[i].z));
+      if (isFinite(zdomain[0])) minZ = Math.min(zdomain[0], minZ);
+      if (isFinite(zdomain[1])) maxZ = Math.max(zdomain[1], maxZ);
     }
     return { minZ, maxZ };
   };
@@ -2450,6 +2450,7 @@ class Plot extends Component {
       plotdots,
       interpolate,
     } = this.state;
+    const params = new URLSearchParams(window.location.search);
 
     if (data[0] === false) {
       this.setState({ failed: true });
@@ -2490,8 +2491,14 @@ class Plot extends Component {
         upperX
       ));
 
-      if ("interpolate" in dataset.plotproperties)
+      if (
+        params.get("interpolate") &&
+        this.state.interpolate_options.includes(params.get("interpolate"))
+      ) {
+        interpolate = params.get("interpolate");
+      } else if ("interpolate" in dataset.plotproperties) {
         interpolate = dataset.plotproperties.interpolate;
+      }
 
       var { plotdata, lowerZ, upperZ } = this.processPlotData(
         xaxis,
@@ -2513,8 +2520,15 @@ class Plot extends Component {
         interpolate
       );
 
-      if ("display" in dataset.plotproperties)
+      if (
+        params.get("display") &&
+        ["heatmap", "contour"].includes(params.get("display"))
+      ) {
+        display = params.get("display");
+      } else if ("display" in dataset.plotproperties) {
         display = dataset.plotproperties.display;
+      }
+
       if ("thresholdStep" in dataset.plotproperties)
         thresholdStep = dataset.plotproperties.thresholdStep;
       if (plotdata[0].x.length < 100) plotdots = true;
@@ -2662,7 +2676,7 @@ class Plot extends Component {
           <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX} />
         </React.Fragment>
       );
-    } else if (this.props.search.toLowerCase().includes("display")) {
+    } else if (this.props.search.toLowerCase().includes("display=true")) {
       return (
         <React.Fragment>
           <div className="detailloading" id="detailloading">

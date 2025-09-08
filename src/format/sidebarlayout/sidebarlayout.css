@@ -17,9 +17,7 @@
   background-color: white;
   min-height: 500px;
   border: solid 1px rgb(169, 169, 169);
-  border-radius: 5px;
-  box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
-  z-index: 999;
+  border-radius: 10px;
 }
 
 .sidebarlayout .rightcontainer.hide {
@@ -36,10 +34,6 @@
   font-family: "The Serif Bold", Arial, sans-serif;
   padding: 10px 15px;
   border-radius: 5px 5px 0 0;
-}
-
-.sidebarlayout .rightcontainer .righthead:hover {
-  background-color: hsl(0, 0%, 95%);
 }
 
 .sidebarlayout .rightcontainer.hide .righthead {
@@ -145,21 +139,24 @@
     margin-left: 0px;
     padding: 0;
     margin-top: 8px;
+    height: 100%;
   }
 
   .sidebarlayout .rightcontainer.hide {
     width: 150px;
     min-height: 0;
     padding: 2px 5px;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
     margin-top: -10px;
     position: fixed;
     bottom: 65px;
     top: unset;
     left: unset;
-    right: 5px;
-    border-radius: 30px;
+    right: 0px;
+    border-radius: 22px 22px 0 0;
     z-index: 999;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    height: unset;
   }
 
   .sidebarlayout .rightcontainer {
@@ -168,10 +165,14 @@
     min-height: 0;
     order: 1;
     position: fixed;
-    top: 41px;
+    bottom: 64px;
     border-radius: 0;
     border: none;
     padding-bottom: 10px;
+    z-index: 1;
+    height: 70%;
+    border-radius: 20px 20px 0 0;
+    box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
   }
 
   .sidebarlayout .rightcontainer.hide .righthead {
@@ -189,11 +190,6 @@
     font-size: 20px;
     padding: 20px;
   }
-
-  .sidebarlayout .rightcontainer .righthead:hover {
-    background-color: white;
-  }
-
 
   .sidebarlayout .rightcontainer .righthead .sidebartitle {
     padding: 0;
@@ -233,6 +229,7 @@
 
   .sidebarlayout.wide .leftcontainer.full {
     width: 100%;
+    height: 100%;
     padding: 0;
   }
 

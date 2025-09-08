@@ -13,6 +13,7 @@ header {
 @media screen and (max-width: 500px) {
   header {
     box-shadow: none;
+    border: none;
   }
 }
 
@@ -44,6 +45,9 @@ header .logo img {
 @media screen and (max-width: 500px) {
   header .logo {
     height: 20px;
+    opacity: 1;
+    padding-bottom: 8px;
+    margin-left: 10px;
   }
 }
 

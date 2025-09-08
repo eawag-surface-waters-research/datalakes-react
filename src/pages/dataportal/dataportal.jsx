@@ -412,6 +412,22 @@ class DataPortal extends Component {
     return dataset;
   };
 
+  removeLake = (base) => {
+    const removeList = [
+      "upper lake",
+      "lower lake",
+      "lake",
+      "lac de",
+      "lac d'",
+      "lac",
+    ];
+    let result = base.toLowerCase();
+    removeList.forEach((str) => {
+      result = result.replaceAll(str, "");
+    });
+    return result.trim();
+  };
+
   filterList = (params, name, label, exclude = "") => {
     var distinct = [];
     var dp = [...new Set(params.map((x) => x[name]))];
@@ -422,15 +438,16 @@ class DataPortal extends Component {
         distinct.push({
           id: p,
           name: namelabel,
+          sortName: this.removeLake(namelabel),
           count: this.count(name, p, params),
         });
       }
     }
     distinct.sort((a, b) => {
-      if (a.name < b.name) {
+      if (a.sortName < b.sortName) {
         return -1;
       }
-      if (a.name > b.name) {
+      if (a.sortName > b.sortName) {
         return 1;
       }
       return 0;
@@ -634,17 +651,19 @@ class DataPortal extends Component {
     }
     for (var dataset of datasets) {
       dataset["parameters"] = dict[dataset["id"]];
-      dataset["lake_name"] = this.getLabelInitial(
-        "lakes",
-        dataset["lakes_id"],
-        dropdown
+      dataset["lake_name"] = this.removeLake(
+        this.getLabelInitial("lakes", dataset["lakes_id"], dropdown)
       );
     }
     const options = {
       shouldSort: true,
-      threshold: 0.6,
+      threshold: 0.5,
       useExtendedSearch: true,
-      keys: ["title", "description", "parameters", "lake_name"],
+      keys: [
+        { name: "title", weight: 0.4 },
+        { name: "description", weight: 0.1 },
+        { name: "lake_name", weight: 0.5 },
+      ],
     };
     var fuse_datasets = JSON.parse(JSON.stringify(datasets));
     const fuse = new Fuse(fuse_datasets, options);
@@ -679,11 +698,11 @@ class DataPortal extends Component {
       selected,
       dropdown,
       parameters,
-      sortby,
       download,
       map,
       loading,
       connect,
+      sortby,
     } = this.state;
 
     // Filter by filters
@@ -726,7 +745,7 @@ class DataPortal extends Component {
             id="dataportalsearchbar"
             onChange={this.searchDatasets}
             className="SearchBar"
-            placeholder="Search using keywords e.g. ctd or geneva or salinity"
+            placeholder="Search datasets"
             type="search"
             ref="search"
             value={search}
@@ -736,42 +755,6 @@ class DataPortal extends Component {
           sidebartitle="Filters"
           left={
             <React.Fragment>
-              <div className="sortbar">
-                <table className="sortbar-table">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div
-                          title="Download multiple datasets"
-                          onClick={this.download}
-                        >
-                          {selected.length} selected of {fDatasets.length}{" "}
-                          datasets
-                        </div>
-                      </td>
-                      <td>
-                        <div
-                          title="Clear selected datasets"
-                          onClick={this.clearSelected}
-                        >
-                          &#10005;
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                {search === "" && (
-                  <select
-                    title="Sort by"
-                    onChange={this.setSelect}
-                    defaultValue={sortby}
-                  >
-                    <option value="az">A-Z</option>
-                    <option value="recent">Recent</option>
-                    <option value="downloads">Downloads</option>
-                  </select>
-                )}
-              </div>
               <FilterBar filters={filters} removeFilter={this.removeFilter} />
 
               <div className={download ? "popup" : "hidepopup"}>

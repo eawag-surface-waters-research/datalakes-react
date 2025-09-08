@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import axios from "axios";
 import { apiUrl, basemaps } from "../../config.json";
 import Basemap from "./basemap";
-import DatetimeDepthSelector from "../../components/datetimedepthselector/datetimedepthselector";
 import SidebarDatetime from "../../components/sidebardatetime/sidebardatetime";
 import LayerGroups from "../../components/layergroups/layergroups";
 import MapLayers from "../../components/maplayers/maplayers";
@@ -1291,19 +1290,6 @@ class GIS extends Component {
             setZoomOut={this.setZoomOut}
             plotDatasets={this.state.plotDatasets}
             addSelected={this.addSelected}
-          />
-          <DatetimeDepthSelector
-            selectedlayers={this.state.selectedlayers}
-            mindatetime={this.state.mindatetime}
-            maxdatetime={this.state.maxdatetime}
-            mindepth={this.state.mindepth}
-            maxdepth={this.state.maxdepth}
-            datetime={this.state.datetime}
-            depth={this.state.depth}
-            timestep={this.state.timestep}
-            onChangeDatetime={this.onChangeDatetime}
-            onChangeDepth={this.onChangeDepth}
-            onChangeTimestep={this.onChangeTimestep}
           />
           <BasemapSelector
             center={this.state.center}
