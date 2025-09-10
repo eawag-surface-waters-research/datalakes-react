@@ -4,7 +4,6 @@ import { GitlabService } from "./gitlab";
 import { GithubService } from "./github";
 
 export class GitService {
-
   constructor(ssh = "") {
     if (!ssh) {
       throw new Error("SSH URL is required to initialize GitService");
@@ -16,7 +15,7 @@ export class GitService {
     } else if (idProvider === "github") {
       this.service = new GithubService(ssh);
     } else {
-      throw new Error("Unsupported ID provider: " + idProvider);
+      console.error("Unsupported ID provider: " + idProvider);
     }
   }
 
@@ -40,7 +39,7 @@ export class GitService {
     return null;
   }
 
-  /** 
+  /**
    * Checks if the authenticated user is a maintainer of the project.
    * @returns {Promise<boolean>} - A promise that resolves to true if the user is a maintainer, false otherwise.
    */
@@ -130,6 +129,10 @@ export class GitService {
     if (!issue_id) return;
     await this.service.createGitIssueBranch(issue_id);
     // create a merge request for the event
-    return this.service.makeEventsMergeRequest(issue_id, event, "notes/events.csv");
+    return this.service.makeEventsMergeRequest(
+      issue_id,
+      event,
+      "notes/events.csv"
+    );
   }
 }
