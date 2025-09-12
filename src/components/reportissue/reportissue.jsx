@@ -629,8 +629,8 @@ class ReportIssue extends Component {
                   <table className="table table-striped">
                     <thead>
                       <tr>
-                        <th>Start</th>
-                        <th>End</th>
+                        <th>Start (UTC)</th>
+                        <th>End (UTC)</th>
                         <th>Parameters</th>
                         <th>Depths</th>
                         <th>Description</th>

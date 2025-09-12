@@ -189,8 +189,8 @@ class Information extends Component {
                 <table className="table table-striped">
                   <thead>
                     <tr>
-                      <th style={{ width: "150px" }}>Start</th>
-                      <th style={{ width: "150px" }}>End</th>
+                      <th style={{ width: "150px" }}>Start (UTC)</th>
+                      <th style={{ width: "150px" }}>End (UTC)</th>
                       <th>Parameters</th>
                       <th>Depths</th>
                       <th>Description</th>
@@ -215,8 +215,8 @@ class Information extends Component {
                 <table className="table table-striped">
                   <thead>
                     <tr>
-                      <th style={{ width: "150px" }}>Start</th>
-                      <th style={{ width: "150px" }}>End</th>
+                      <th style={{ width: "150px" }}>Start (UTC)</th>
+                      <th style={{ width: "150px" }}>End (UTC)</th>
                       <th>Parameters</th>
                       <th>Depths</th>
                       <th>Comments</th>
