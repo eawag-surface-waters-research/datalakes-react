@@ -1,7 +1,7 @@
 // GithubLogin.js
 import React from 'react';
 import { connect } from 'react-redux';
-import { auth } from "../../config.json";
+import { auth } from "../../auth";
 
 class GithubLogin extends React.Component {
   

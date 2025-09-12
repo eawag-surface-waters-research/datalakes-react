@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PKCE from 'js-pkce';
-import { auth } from "../../config.json";
+import { auth } from "../../auth";
 
 // Renku callback page: read the code from the URL, get the tokens and fetch the user data
 class RenkuUser extends Component {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PKCE from 'js-pkce';
-import { auth } from "../../config.json";
+import { auth } from "../../auth";
 
 
 

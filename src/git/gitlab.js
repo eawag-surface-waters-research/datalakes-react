@@ -1,13 +1,11 @@
 import { projectFromSsh, idProviderFromSsh } from "../functions";
-import { auth } from "../config.json";
+import { auth } from "../auth";
 import store from "../store/index";
 import { GitServiceInterface } from "./commons";
-
 
 const TOKEN_EXPIRY_BUFFER = 60; // seconds before actual expiry to refresh
 
 export class GitlabService extends GitServiceInterface {
-
   constructor(ssh = "") {
     super(ssh);
     this.idProvider = idProviderFromSsh(this.ssh);
@@ -28,12 +26,15 @@ export class GitlabService extends GitServiceInterface {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/members/all/${user.id}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/members/all/${user.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         return false; // Case private repo or user not found
@@ -58,19 +59,24 @@ export class GitlabService extends GitServiceInterface {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          labels: Array.isArray(labels) ? labels : [labels],
-        }),
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            labels: Array.isArray(labels) ? labels : [labels],
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`GitLab API error while applying labels: ${response.status}`);
+        throw new Error(
+          `GitLab API error while applying labels: ${response.status}`
+        );
       }
     } catch (err) {
       console.error("Error applying GitLab issue labels:", err);
@@ -89,17 +95,20 @@ export class GitlabService extends GitServiceInterface {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/issues`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: title,
-          description: body,
-        }),
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: title,
+            description: body,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`GitLab API error: ${response.status}`);
@@ -127,33 +136,43 @@ export class GitlabService extends GitServiceInterface {
       const projectId = encodeURIComponent(`${this.projectPath}`);
       // Add a comment to the issue before closing it
       if (comment) {
-        const commentResponse = await fetch(`${this.host}/api/v4/projects/${projectId}/issues/${issue_id}/notes`, {
-          method: "POST",
+        const commentResponse = await fetch(
+          `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}/notes`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              body: comment,
+            }),
+          }
+        );
+        if (!commentResponse.ok) {
+          console.error(
+            `GitLab API error while adding comment: ${commentResponse.status}`
+          );
+        }
+      }
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`,
+        {
+          method: "PUT",
           headers: {
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            body: comment,
+            state_event: "close",
+            labels: ["wontfix"],
           }),
-        });
-        if (!commentResponse.ok) {
-          console.error(`GitLab API error while adding comment: ${commentResponse.status}`);
         }
-      }
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          state_event: "close",
-          labels: ["wontfix"],
-        }),
-      });
+      );
       if (!response.ok) {
-        throw new Error(`GitLab API error while closing issue: ${response.status}`);
+        throw new Error(
+          `GitLab API error while closing issue: ${response.status}`
+        );
       }
     } catch (err) {
       console.error("Error closing GitLab issue:", err);
@@ -172,19 +191,24 @@ export class GitlabService extends GitServiceInterface {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/issues/${issue_id}/notes`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          body: comment,
-        }),
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}/notes`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            body: comment,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`GitLab API error while commenting on issue: ${response.status}`);
+        throw new Error(
+          `GitLab API error while commenting on issue: ${response.status}`
+        );
       }
     } catch (err) {
       console.error("Error commenting on GitLab issue:", err);
@@ -227,16 +251,21 @@ export class GitlabService extends GitServiceInterface {
       const defaultBranch = project.default_branch;
       const branchName = `issue-${issue_id}`;
 
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${defaultBranch}`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${defaultBranch}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`GitLab API error while creating branch: ${response.status}`);
+        throw new Error(
+          `GitLab API error while creating branch: ${response.status}`
+        );
       }
     } catch (err) {
       console.error("Error creating GitLab issue branch:", err);
@@ -253,48 +282,66 @@ export class GitlabService extends GitServiceInterface {
    * @throws {Error} - Throws an error if the API request fails.
    */
   async makeEventsMergeRequest(issue_id, event, file_path) {
-    const { exists, content } = await this.mergeEvents(issue_id, event, file_path);
+    const { exists, content } = await this.mergeEvents(
+      issue_id,
+      event,
+      file_path
+    );
     const branchName = `issue-${issue_id}`;
     const accessToken = await this.refreshGitlabAccessToken();
     const projectId = encodeURIComponent(`${this.projectPath}`);
     // Create or update the events file in the repository
     // Use the GitLab API to create or update the file
     // If the file does not exist, it will be created; if it exists, it will be updated
-    const response = await fetch(`${this.host}/api/v4/projects/${projectId}/repository/files/${encodeURIComponent(file_path)}`, {
-      method: exists ? "PUT" : "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        branch: branchName,
-        content: content,
-        commit_message: `feat: add event for issue #${issue_id}`,
-        encoding: "text",
-      }),
-    });
+    const response = await fetch(
+      `${
+        this.host
+      }/api/v4/projects/${projectId}/repository/files/${encodeURIComponent(
+        file_path
+      )}`,
+      {
+        method: exists ? "PUT" : "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          branch: branchName,
+          content: content,
+          commit_message: `feat: add event for issue #${issue_id}`,
+          encoding: "text",
+        }),
+      }
+    );
     if (!response.ok) {
-      throw new Error(`GitLab API error while creating events file: ${response.status}`);
+      throw new Error(
+        `GitLab API error while creating events file: ${response.status}`
+      );
     }
     // Create a merge request for the new branch
     const project = await this.getProject();
     const defaultBranch = project.default_branch;
-    const mergeRequestResponse = await fetch(`${this.host}/api/v4/projects/${projectId}/merge_requests`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        source_branch: branchName,
-        target_branch: defaultBranch,
-        title: `Merge events for issue #${issue_id}`,
-        description: `This merge request contains events for issue #${issue_id}.`,
-        remove_source_branch: true,
-      }),
-    });
+    const mergeRequestResponse = await fetch(
+      `${this.host}/api/v4/projects/${projectId}/merge_requests`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          source_branch: branchName,
+          target_branch: defaultBranch,
+          title: `Merge events for issue #${issue_id}`,
+          description: `This merge request contains events for issue #${issue_id}.`,
+          remove_source_branch: true,
+        }),
+      }
+    );
     if (!mergeRequestResponse.ok) {
-      throw new Error(`GitLab API error while creating merge request: ${mergeRequestResponse.status}`);
+      throw new Error(
+        `GitLab API error while creating merge request: ${mergeRequestResponse.status}`
+      );
     }
     const mergeRequest = await mergeRequestResponse.json();
     console.debug("GitLab merge request created:", mergeRequest);
@@ -314,17 +361,22 @@ export class GitlabService extends GitServiceInterface {
       const projectId = encodeURIComponent(`${this.projectPath}`);
       const filePath = encodeURIComponent(file_path);
       const branchName = `issue-${issue_id}`;
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/repository/files/${filePath}/raw?ref=${branchName}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/repository/files/${filePath}/raw?ref=${branchName}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       if (response.status === 404) {
-        return ''; // File not found, return empty string
+        return ""; // File not found, return empty string
       }
       if (!response.ok) {
-        throw new Error(`GitLab API error while downloading raw file: ${response.status}`);
+        throw new Error(
+          `GitLab API error while downloading raw file: ${response.status}`
+        );
       }
       // Return the raw file content as text
       return await response.text();
@@ -343,14 +395,19 @@ export class GitlabService extends GitServiceInterface {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       if (!response.ok) {
-        throw new Error(`GitLab API error while fetching project: ${response.status}`);
+        throw new Error(
+          `GitLab API error while fetching project: ${response.status}`
+        );
       }
       const project = await response.json();
       return project;
@@ -367,7 +424,8 @@ export class GitlabService extends GitServiceInterface {
    */
   async refreshGitlabAccessToken() {
     const state = store.getState();
-    const { accessToken, refreshToken, expiresIn, tokenFetchedAt } = state.auth[this.idProvider] || {};
+    const { accessToken, refreshToken, expiresIn, tokenFetchedAt } =
+      state.auth[this.idProvider] || {};
 
     const now = Math.floor(Date.now() / 1000);
     const isExpiringSoon =
@@ -382,7 +440,9 @@ export class GitlabService extends GitServiceInterface {
     }
 
     const clientId = auth[this.idProvider].clientId;
-    const redirectUri = auth[this.idProvider].redirectUri || window.location.origin + `/${this.idProvider}`;
+    const redirectUri =
+      auth[this.idProvider].redirectUri ||
+      window.location.origin + `/${this.idProvider}`;
 
     const response = await fetch(`${this.host}/oauth/token`, {
       method: "POST",
@@ -408,7 +468,8 @@ export class GitlabService extends GitServiceInterface {
       expiresIn: data.expires_in,
     };
 
-    const actionType = this.idProvider === "renku" ? "SET_AUTH_RENKU" : "SET_AUTH_GITLAB";
+    const actionType =
+      this.idProvider === "renku" ? "SET_AUTH_RENKU" : "SET_AUTH_GITLAB";
     store.dispatch({ type: actionType, payload: updatedToken });
 
     return updatedToken.accessToken;
@@ -425,7 +486,9 @@ export class GitlabService extends GitServiceInterface {
     } else if (this.idProvider === "gitlab") {
       return "https://gitlab.com";
     } else {
-      throw new Error("Unsupported ID provider. Only 'renku' and 'gitlab' are supported.");
+      throw new Error(
+        "Unsupported ID provider. Only 'renku' and 'gitlab' are supported."
+      );
     }
   }
 
@@ -434,16 +497,18 @@ export class GitlabService extends GitServiceInterface {
    * @returns {Promise<Array>} - A promise that resolves to an array of project members.
    */
   async projectMembersFromGit() {
-
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
-      const response = await fetch(`${this.host}/api/v4/projects/${projectId}/members/all`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/members/all`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`GitLab API error: ${response.status}`);
