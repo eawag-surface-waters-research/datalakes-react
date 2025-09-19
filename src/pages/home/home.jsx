@@ -275,88 +275,94 @@ class Home extends Component {
           </div>
 
           <div className="section about" ref={this.about}>
-            <h1>About Datalakes</h1>
+            <h1>About</h1>
             <div className="home-text">
-              <div>
-                <b>
-                  Heterogeneous data platform for operational modeling and
-                  forecasting of Swiss lakes
-                </b>
-              </div>
               <p>
-                Developer:{" "}
-                <a
-                  href="https://www.eawag.ch/en/aboutus/portrait/organisation/staff/profile/james-runnalls/show/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  James Runnalls
+                Datalakes is an open-access sensor-to-front-end platform
+                designed to search, visualize, and download data on Swiss lakes.
+                It offers an interactive map viewer, a comprehensive data
+                portal, and an API that serve researchers, public authorities,
+                and citizens alike. Built on the principles of open science and
+                FAIR data, Datalakes ensures that environmental information is
+                transparent, reproducible, and ready for advanced analysis.
+              </p>
+              <h2>Vison</h2>
+              <p>
+                Data is the foundation of informed environmental action.
+                Scientists, policymakers, and stakeholders rely on accurate and
+                timely information to make decisions that impact ecosystems and
+                society. However, data must be accessible, understandable, and
+                interoperable to unlock its full potential—especially in the
+                context of surface waters, where disciplines such as chemistry,
+                physics, and biology intersect. With Datalakes, our vision is to
+                provide the most advanced, user-friendly platform for accessing
+                and exploring lake data in Switzerland. Currently supported
+                primarily by Eawag, Datalakes’ vision is to evolve into a
+                nationwide data infrastructure for Swiss lakes.
+              </p>
+              <h2>Contributing projects</h2>
+              <p>
+                <b>FLAKE (2025)</b>. This project aims to improve data quality
+                assurance and quality control by enabling direct user
+                interaction with an informed community. PI: N. Pasche, EPFL
+                Partners. ENAC4IT, Eawag Funding ETH domain
+              </p>
+              <p>
+                <b>Lake Monitoring on Swiss Lakes (2019 - ongoing)</b>. This
+                initiative aims to establish a national long-term monitoring
+                system for lake water temperatures in response to climate change
+                impacts. PI: M. Schmid & D. Bouffard , Eawag Partners. Eawag,
+                FOEN, Cantons Aargau, Bern, Fribourg, Ticino, Zug. Funding:
+                FOEN, Cantons Aargau, Bern, Fribourg, Ticino, Zug Link:
+                <a href="https://www.bafu.admin.ch/bafu/en/home/topics/water/state-of-lakes/wassertemperatur-seen.html">
+                  https://www.bafu.admin.ch/bafu/en/home/topics/water/state-of-lakes/wassertemperatur-seen.html
                 </a>
               </p>
               <p>
-                Principle Investigators:{" "}
-                <a
-                  href="https://www.eawag.ch/en/aboutus/portrait/organisation/staff/profile/damien-bouffard/show/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Damien Bouffard
-                </a>{" "}
-                &{" "}
-                <a
-                  href="https://www.eawag.ch/en/aboutus/portrait/organisation/staff/profile/jonas-sukys/show/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Jonas Šukys
+                <b>LéXPLORE (2019 - ongoing)</b> is an innovative open-water
+                research platform on Lake Geneva, delivering high-frequency,
+                multidisciplinary observations. Partners: Eawag, EPFL, UNIL,
+                UNIGE, INRAE Link:{" "}
+                <a href="https://lexplore.info">https://lexplore.info</a>
+              </p>
+              <p>
+                <b>Greifensee (2020- ongoing)</b> is an innovative open-water
+                research platform on Lake Greifen, delivering high-frequency,
+                multidisciplinary observations. Partners Eawag
+              </p>
+              <p>
+                <b>Aquascope (2021 - ongoing)</b>. The goal of this project is
+                to Icollect high frequency images of planktonic microbes in
+                their natural environment with an underwater plankton camera PI:
+                F. Pomati, Eawag Partners Eawag Link:{" "}
+                <a href="http://aquascope.ch">http://aquascope.ch</a>
+              </p>
+              <p>
+                <b>Alplakes (2016- ongoing)</b>is a research initiative that
+                provides accurate predictions of the condition of lakes
+                throughout the European Alpine region. We integrate models and
+                remote sensing products developed by the research community to
+                provide the most up-to-date and accurate information possible.
+                Partners Eawag Link:{" "}
+                <a href="https://www.alplakes.eawag.ch/about">
+                  https://www.alplakes.eawag.ch/about
                 </a>
               </p>
-              <p>
-                Remote Sensing:{" "}
-                <a
-                  href="https://www.eawag.ch/en/aboutus/portrait/organisation/staff/profile/daniel-odermatt/show/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Daniel Odermatt
-                </a>
-              </p>
-              <p>
-                This project is a collaboration between Eawag and the Swiss Data
-                Science Center (SDSC)
-              </p>
-              <p>
-                Predicting the evolution of freshwater systems is the impetus of
-                many limnologists. Technological developments have opened
-                countless ways to investigate these systems, with the drawback
-                that scientists are today overwhelmed by data. Efficiently
-                utilizing the benefits of present-day data and technology
-                requires optimizing the way data is shared and reused. The means
-                of acquisition and computational processing of third-party data
-                are often non transparent, and hence irreproducible after the
-                end of the project’s timeframe.
-              </p>
-              <p>
-                With the recent development of an operational interdisciplinary
-                in-situ floating laboratory (LéXPLORE, https://lexplore.info/)
-                on Lake Geneva, we identified the need for a user-friendly web
-                based open access data platform to foster scientific data
-                exchange: https://www.datalakes-eawag.ch/. The main objective
-                was to provide a fully open access sensor-to-front end platform
-                for scientific data in Swiss lakes. The Datalakes platform
-                incorporates continuous in-situ acquisition, storage, curation,
-                patching, visualization, and extraction frameworks of
-                environmental data and model output, together with an accessible
-                online interface for visualization of historical data, future
-                predictions, and user-friendly online data extraction.
-              </p>
-              <p>
-                We invite interested scientists to use Datalakes, and to
-                visualize and download our initial datasets. We also welcome
-                feedback and the inclusion of new data, products or models that
-                will be of use to the Swiss freshwater community via this newly
-                developed open access data infrastructure.
-              </p>
+              <h2>Contributors 2025</h2>
+              <ul>
+                <li>Canton Aargau</li>
+                <li>Canton Bern</li>
+                <li>Canton Fribourg</li>
+                <li>Canton Ticino</li>
+                <li>Canton Vaud</li>
+                <li>Canton Zug</li>
+                <li>Eawag</li>
+                <li>EPFL</li>
+                <li>FOEN</li>
+                <li>INRAE</li>
+                <li>UNIGE</li>
+                <li>UNIL</li>
+              </ul>
             </div>
             <div className="contacts">
               <div className="contact">

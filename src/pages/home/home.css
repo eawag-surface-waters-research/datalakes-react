@@ -492,6 +492,14 @@
   box-sizing: border-box;
 }
 
+.section.about h1 {
+  padding: 0;
+}
+
+.section.about h2 {
+  padding: 0;
+}
+
 .section.insitudata button {
   border: none;
   display: block;
