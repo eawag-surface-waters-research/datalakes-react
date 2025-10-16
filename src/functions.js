@@ -1,8 +1,6 @@
 export const projectFromSsh = (ssh) => {
-  var group = ssh.replace(".git", "").split(":")[1].split("/")[0];
-  var repository = ssh.replace(".git", "").split(":")[1].split("/")[1];
-  return { group, repository };
-}
+  return ssh.replace(".git", "").split(":")[1];
+};
 
 export const idProviderFromSsh = (ssh) => {
   if (ssh.includes("renkulab.io")) {
@@ -15,24 +13,26 @@ export const idProviderFromSsh = (ssh) => {
     return "github";
   }
   return null;
-}
+};
 
 export const urlFromSsh = (ssh, renku = false) => {
   var url;
-  var { group, repository } = projectFromSsh(ssh);
+  var project = projectFromSsh(ssh);
 
   if (ssh.includes("git@renkulab.io")) {
     if (renku) {
-      url = `https://renkulab.io/projects/${group}/${repository}`;
+      url = `https://renkulab.io/projects/${project}`;
     } else {
-      url = `https://renkulab.io/gitlab/${group}/${repository}`;
+      url = `https://renkulab.io/gitlab/${project}`;
     }
   } else if (ssh.includes("git@gitlab.renkulab.io")) {
-    url = `https://gitlab.renkulab.io/${group}/${repository}`;
+    url = `https://gitlab.renkulab.io/${project}`;
   } else if (ssh.includes("gitlab.com")) {
-    url = `https://gitlab.com/${group}/${repository}`;
+    url = `https://gitlab.com/${project}`;
   } else if (ssh.includes("github.com")) {
-    url = `https://github.com/${group}/${repository}`;
+    url = `https://github.com/${project}`;
+  } else if (ssh.includes("gitlab.eawag.ch")) {
+    url = `https://gitlab.eawag.ch/${project}`;
   }
   return url;
 };

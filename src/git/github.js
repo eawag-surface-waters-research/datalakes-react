@@ -6,8 +6,7 @@ export class GithubService extends GitServiceInterface {
 
   constructor(ssh = "") {
     super(ssh);
-    const { group, repository } = projectFromSsh(this.ssh);
-    this.projectPath = `${group}/${repository}`;
+    this.projectPath = projectFromSsh(this.ssh);
     this.host = "https://api.github.com";
     this.contentHost = "https://raw.githubusercontent.com";
   }
@@ -364,10 +363,10 @@ export class GithubService extends GitServiceInterface {
    * @throws {Error} - Throws an error if the GitHub access token is not available or if the API request fails.
    */
   async projectMembersFromGit(ssh) {
-    const { group, repository } = projectFromSsh(ssh);
+    const projectPath = projectFromSsh(ssh);
     const accessToken = this.getAccessToken();
     try {
-      const response = await fetch(`https://api.github.com/repos/${group}/${repository}/collaborators`, {
+      const response = await fetch(`https://api.github.com/repos/${projectPath}/collaborators`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${accessToken}`,

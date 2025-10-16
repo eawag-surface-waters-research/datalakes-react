@@ -13,8 +13,7 @@ export class GitlabService extends GitServiceInterface {
       throw new Error("Unsupported ID provider for GitLab service");
     }
     this.host = this.idProviderHost();
-    const { group, repository } = projectFromSsh(this.ssh);
-    this.projectPath = `${group}/${repository}`;
+    this.projectPath = projectFromSsh(this.ssh);
   }
 
   /**
