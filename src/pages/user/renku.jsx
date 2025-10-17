@@ -23,7 +23,6 @@ class RenkuUser extends Component {
 
   componentDidMount() {
     // Check if redirected back with a code
-    console.log(window.location)
     if (!this.props.user && window.location.search.includes('code=')) {
     this.pkce.exchangeForAccessToken(window.location.href)
       .then((resp) => {
@@ -42,13 +41,12 @@ class RenkuUser extends Component {
         this.props.setAuth(user, this.props.accessToken, this.props.refreshToken, this.props.expiresIn);
       })
       .catch(err => {
-        console.error(err)
         this.setState({ error: err.message, loading: false });
       })
       .finally(() => {
         this.setState({ loading: false });
         // redirect to user page
-        //window.location.replace('/user');
+        window.location.replace('/user');
       });
     } else {
       this.setState({ loading: false });
