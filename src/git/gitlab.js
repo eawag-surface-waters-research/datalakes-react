@@ -467,8 +467,13 @@ export class GitlabService extends GitServiceInterface {
       expiresIn: data.expires_in,
     };
 
-    const actionType =
-      this.idProvider === "renku" ? "SET_AUTH_RENKU" : "SET_AUTH_GITLAB";
+    const actions = {
+      renku: "SET_AUTH_RENKU",
+      gitlab: "SET_AUTH_GITLAB",
+      eawag: "SET_AUTH_EAWAG",
+    };
+
+    const actionType = actions[this.idProvider];
     store.dispatch({ type: actionType, payload: updatedToken });
 
     return updatedToken.accessToken;
@@ -484,6 +489,8 @@ export class GitlabService extends GitServiceInterface {
       return "https://gitlab.renkulab.io";
     } else if (this.idProvider === "gitlab") {
       return "https://gitlab.com";
+    } else if (this.idProvider === "eawag") {
+      return "https://gitlab.eawag.ch";
     } else {
       throw new Error(
         "Unsupported ID provider. Only 'renku' and 'gitlab' are supported."

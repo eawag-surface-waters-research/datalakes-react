@@ -1,4 +1,4 @@
-// Authentication token management and user state handling for Renku, GitLab, and GitHub.
+// Authentication token management and user state handling for Eawag, Renku, GitLab, and GitHub.
 
 // Initial authentication state
 const initialUserState = {
@@ -11,12 +11,13 @@ const initialAuthState = {
   renku: initialUserState,
   gitlab: initialUserState,
   github: initialUserState,
+  eawag: initialUserState,
 };
 
 // Reducer for authentication
 function authReducer(state = initialAuthState, action) {
   switch (action.type) {
-    case 'SET_AUTH_RENKU':
+    case "SET_AUTH_RENKU":
       return {
         ...state,
         renku: {
@@ -25,10 +26,22 @@ function authReducer(state = initialAuthState, action) {
           accessToken: action.payload.accessToken,
           refreshToken: action.payload.refreshToken,
           expiresIn: action.payload.expiresIn,
-          tokenFetchedAt: Math.floor(Date.now() / 1000)
-        }
+          tokenFetchedAt: Math.floor(Date.now() / 1000),
+        },
       };
-    case 'SET_AUTH_GITLAB':
+    case "SET_AUTH_EAWAG":
+      return {
+        ...state,
+        eawag: {
+          ...state.eawag,
+          user: action.payload.user,
+          accessToken: action.payload.accessToken,
+          refreshToken: action.payload.refreshToken,
+          expiresIn: action.payload.expiresIn,
+          tokenFetchedAt: Math.floor(Date.now() / 1000),
+        },
+      };
+    case "SET_AUTH_GITLAB":
       return {
         ...state,
         gitlab: {
@@ -37,10 +50,10 @@ function authReducer(state = initialAuthState, action) {
           accessToken: action.payload.accessToken,
           refreshToken: action.payload.refreshToken,
           expiresIn: action.payload.expiresIn,
-          tokenFetchedAt: Math.floor(Date.now() / 1000)
-        }
+          tokenFetchedAt: Math.floor(Date.now() / 1000),
+        },
       };
-    case 'SET_AUTH_GITHUB':
+    case "SET_AUTH_GITHUB":
       return {
         ...state,
         github: {
@@ -49,25 +62,30 @@ function authReducer(state = initialAuthState, action) {
           accessToken: action.payload.accessToken,
           refreshToken: action.payload.refreshToken,
           expiresIn: action.payload.expiresIn,
-          tokenFetchedAt: Math.floor(Date.now() / 1000)
-        }
+          tokenFetchedAt: Math.floor(Date.now() / 1000),
+        },
       };
-    case 'LOGOUT_RENKU':
+    case "LOGOUT_RENKU":
       return {
         ...state,
-        renku: initialUserState
+        renku: initialUserState,
       };
-    case 'LOGOUT_GITLAB':
+    case "LOGOUT_EAWAG":
       return {
         ...state,
-        gitlab: initialUserState
+        eawag: initialUserState,
       };
-    case 'LOGOUT_GITHUB':
+    case "LOGOUT_GITLAB":
       return {
         ...state,
-        github: initialUserState
+        gitlab: initialUserState,
       };
-    case 'LOGOUT':
+    case "LOGOUT_GITHUB":
+      return {
+        ...state,
+        github: initialUserState,
+      };
+    case "LOGOUT":
       return initialAuthState;
     default:
       return state;

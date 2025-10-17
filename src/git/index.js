@@ -10,7 +10,7 @@ export class GitService {
     }
     this.ssh = ssh;
     var idProvider = idProviderFromSsh(this.ssh);
-    if (idProvider === "renku" || idProvider === "gitlab") {
+    if (idProvider === "renku" || idProvider === "gitlab" || idProvider === "eawag") {
       this.service = new GitlabService(ssh);
     } else if (idProvider === "github") {
       this.service = new GithubService(ssh);
@@ -29,6 +29,9 @@ export class GitService {
     const authState = store.getState().auth;
     if (idProvider === "renku" && authState?.renku?.user) {
       return authState.renku.user;
+    }
+    if (idProvider === "eawag" && authState?.eawag?.user) {
+      return authState.eawag.user;
     }
     if (idProvider === "gitlab" && authState?.gitlab?.user) {
       return authState.gitlab.user;

@@ -12,6 +12,9 @@ export const idProviderFromSsh = (ssh) => {
   if (ssh.includes("github.com")) {
     return "github";
   }
+  if (ssh.includes("gitlab.eawag.ch")) {
+    return "eawag";
+  }
   return null;
 };
 

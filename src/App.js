@@ -12,6 +12,7 @@ import Monitor from "./pages/monitor/monitor";
 import User from "./pages/user/user";
 import RenkuUser from "./pages/user/renku";
 import GitlabUser from "./pages/user/gitlab";
+import EawagUser from "./pages/user/eawag";
 import GithubUser from "./pages/user/github";
 import LakeMorphology from "./pages/lakemorphology/lakemorphology";
 import MapViewer from "./pages/mapviewer/mapviewer";
@@ -48,7 +49,7 @@ class App extends Component {
                 </ErrorBoundary>
               )}
             />
-            
+
             <Route
               path="/datadetail"
               render={(props) => (
@@ -117,6 +118,15 @@ class App extends Component {
               render={(props) => (
                 <ErrorBoundary {...props}>
                   <GitlabUser {...props} />
+                </ErrorBoundary>
+              )}
+            />
+
+            <Route
+              path="/eawag"
+              render={(props) => (
+                <ErrorBoundary {...props}>
+                  <EawagUser {...props} />
                 </ErrorBoundary>
               )}
             />

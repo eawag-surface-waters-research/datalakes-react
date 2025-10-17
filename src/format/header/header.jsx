@@ -26,6 +26,8 @@ class Header extends Component {
       return this.props.auth.gitlab.user;
     } else if (this.props.auth?.github?.user) {
       return this.props.auth.github.user;
+    } else if (this.props.auth?.eawag?.user) {
+      return this.props.auth.eawag.user;
     } else {
       return null;
     }

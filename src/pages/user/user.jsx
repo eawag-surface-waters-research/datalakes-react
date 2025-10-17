@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import GitlabLogin from './gitlablogin';
 import RenkuLogin from './renkulogin';
 import GithubLogin from './githublogin';
+import EawagLogin from './eawaglogin';
 
 class User extends Component {
     render() {
@@ -13,6 +14,7 @@ class User extends Component {
                     <h3>To access some Datalakes advanced features, please identify yourself using the account(s) where the dataset(s) of interest are hosted.</h3>
                     <RenkuLogin />
                     <GitlabLogin />
+                    <EawagLogin />
                     <GithubLogin />
                 </div>
             </div>
