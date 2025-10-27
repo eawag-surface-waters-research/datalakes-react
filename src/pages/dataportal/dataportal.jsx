@@ -9,6 +9,7 @@ import MapSelect from "../../graphs/leaflet/mapselect.jsx";
 import Loading from "../../components/loading/loading.jsx";
 import calendar from "./img/calendar.svg";
 import location from "./img/location.svg";
+import search_icon from "./img/search.svg";
 import model from "./img/model.svg";
 import satellite from "./img/satellite.svg";
 import measurement from "./img/measurement.svg";
@@ -101,7 +102,7 @@ class Dataset extends Component {
   };
 
   render() {
-    const { dataset, selected, onSelectDataset, getLabel, editUrl } =
+    const { dataset, getLabel, editUrl } =
       this.props;
     var url;
     if (dataset.id === 1) {
@@ -129,67 +130,55 @@ class Dataset extends Component {
       typetext = "Satellite Data";
     }
     return (
-      <table className="dataset">
-        <tbody>
-          <tr>
-            <td className="dataset-top">
-              <div className="dataset-title">{dataset.title}</div>
-              {Number.isInteger(dataset.monitor) && (
-                <div className="dataset-live">LIVE</div>
-              )}
-              <div>{dataset.description}</div>
-              <div className="buttons">
-                <Link
-                  to={url}
-                  key={dataset.id}
-                  title="Click to explore plots, lineage, downloads and metadata"
-                  className="text"
-                  onClick={editUrl}
-                >
-                  <div className="button-main">View Dataset</div>
-                </Link>
-                {dataset.mapplot !== "other" && (
-                  <div
-                    className={
-                      selected.includes(dataset)
-                        ? "button-sub grey"
-                        : "button-sub"
-                    }
-                    onClick={() => onSelectDataset(dataset)}
-                  >
-                    {selected.includes(dataset) ? "Deselect" : "Select"}
-                  </div>
-                )}
+      <div className="dataset">
+        <div className="dataset-left">
+          <div className="dataset-top">
+            <div className="dataset-title">{dataset.title}</div>
+            {Number.isInteger(dataset.monitor) && (
+              <div className="dataset-live">LIVE</div>
+            )}
+            <div>{dataset.description}</div>
+            <div className="buttons">
+              <Link
+                to={url}
+                key={dataset.id}
+                title="Click to explore plots, lineage, downloads and metadata"
+                className="text"
+                onClick={editUrl}
+              >
+                <div className="button-main">View Dataset</div>
+              </Link>
+            </div>
+          </div>
+
+          <div className="dataset-bottom">
+            <div className="date-highlight">
+              <img className="icon" src={location} alt="location" /> {lake}
+            </div>
+            <div className="date-highlight">
+              <img className="icon" src={calendar} alt="calendar" />
+              {this.parseDate(dataset.mindatetime)} to{" "}
+              {this.parseDate(dataset.maxdatetime)}
+            </div>
+            <img
+              className="type"
+              alt={typetext}
+              title={typetext}
+              src={typeimg}
+            />
+          </div>
+        </div>
+
+        <div className="dataset-right">
+          <div className="dataset-right-inner">
+            {param_names.map((param) => (
+              <div className="params" key={param}>
+                {param}
               </div>
-            </td>
-            <td rowSpan={2} className="dataset-right">
-              {param_names.map((param) => (
-                <div className="params" key={param}>
-                  {param}
-                </div>
-              ))}
-            </td>
-          </tr>
-          <tr>
-            <td className="dataset-bottom">
-              <div className="date-highlight">
-                <img className="icon" src={location} alt="location" /> {lake}
-              </div>
-              <div className="date-highlight">
-                <img className="icon" src={calendar} alt="calendar" />
-                {this.parseDate(dataset.mindatetime)} to{" "}
-                {this.parseDate(dataset.maxdatetime)}
-              </div>
-              <img
-                className="type"
-                alt={typetext}
-                title={typetext}
-                src={typeimg}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            ))}
+          </div>
+        </div>
+      </div>
     );
   }
 }
@@ -245,7 +234,8 @@ class FilterBoxInner extends Component {
                 checked={param.name in filters}
                 readOnly
               ></input>
-              {this.capitalizeFirstLetter(param.name) + " "}({param.count})
+              {this.capitalizeFirstLetter(param.name) + " "}
+              <div className="parameter-count">{param.count}</div>
             </div>
           ))}
         </div>
@@ -695,10 +685,8 @@ class DataPortal extends Component {
       search,
       filters,
       datasets,
-      selected,
       dropdown,
       parameters,
-      download,
       map,
       loading,
       connect,
@@ -729,14 +717,6 @@ class DataPortal extends Component {
       fDatasets = this.sortDatasets(fDatasets, sortby);
     }
 
-    // Selected link
-    var sids = selected.map((x) => x.id);
-    var p = JSON.parse(JSON.stringify(parameters));
-    p = p.filter((x) => sids.includes(x.datasets_id));
-    p = p.filter((x) => ![1, 2, 3, 4].includes(x.parameters_id));
-    p = p.map((x) => [x.datasets_id, x.parameters_id]);
-    var link = "/map?selected=" + JSON.stringify(p);
-
     return (
       <React.Fragment>
         <h1>Data Portal</h1>
@@ -745,43 +725,18 @@ class DataPortal extends Component {
             id="dataportalsearchbar"
             onChange={this.searchDatasets}
             className="SearchBar"
-            placeholder="Search datasets"
+            placeholder="Search by dataset name, location or keyword..."
             type="search"
             ref="search"
             value={search}
           />
+          <img src={search_icon} alt="Search" />
         </div>
         <SidebarLayout
           sidebartitle="Filters"
           left={
             <React.Fragment>
               <FilterBar filters={filters} removeFilter={this.removeFilter} />
-
-              <div className={download ? "popup" : "hidepopup"}>
-                <div className="download-inner">
-                  <h3>Selected Datasets</h3>
-                  {selected.length > 0 ? (
-                    <div>
-                      <div className="download-selected">
-                        {selected.map((s) => {
-                          return (
-                            <div key={s.title} className="download-item">
-                              {s.title}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <Link to={link}>
-                        <button title="See datasets on web GIS">
-                          Plot datasets in the Map Viewer
-                        </button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <div>No datasets selected</div>
-                  )}
-                </div>
-              </div>
 
               <div
                 className={map ? "popup" : "hidepopup"}

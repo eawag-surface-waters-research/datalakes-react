@@ -1,21 +1,33 @@
 .dataset {
+  display: flex;
+  width: 100%;
   margin-bottom: 20px;
   background-color: white;
   border-radius: 10px;
-  width: 100%;
   overflow: hidden;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  border-collapse: collapse;
+  font-family: inherit;
 }
 
 .dataset:hover {
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  box-shadow: 0 7px 29px 0 rgba(100, 100, 111, .2);
+}
+
+.dataset-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .dataset .dataset-top {
   padding: 20px 35px 20px 20px;
   position: relative;
-  vertical-align: top;
+}
+
+.dataset .dataset-top .dataset-title {
+  font-size: 26px;
+  margin-bottom: 10px;
 }
 
 .dataset .dataset-top .dataset-live {
@@ -29,8 +41,6 @@
   top: 10px;
   right: 10px;
 }
-
-.dataset .dataset-top .buttons {}
 
 .dataset .dataset-top .buttons .button-main {
   display: inline-block;
@@ -48,25 +58,6 @@
 
 .dataset .dataset-top .buttons .button-main:hover {
   transform: scale(1.05);
-}
-
-.dataset .dataset-top .buttons .button-sub {
-  cursor: pointer;
-  border: 1px solid #38bec9;
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 16px;
-  margin-left: 16px;
-  color: #38bec9;
-  width: 90px;
-  box-sizing: border-box;
-  text-align: center;
-  margin-top: 10px;
-}
-
-.dataset .dataset-top .buttons .button-sub.grey {
-  color: grey;
-  border-color: grey;
 }
 
 .dataset .dataset-bottom {
@@ -94,18 +85,31 @@
   max-width: calc(100% - 40px);
 }
 
-.dataset .dataset-top .dataset-title {
-  font-size: 26px;
-  margin-bottom: 10px;
-}
-
 .dataset .dataset-right {
   width: 160px;
   background-color: #102a43;
-  vertical-align: top;
-  padding: 20px 20px;
   box-sizing: border-box;
   color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.dataset .dataset-right .dataset-right-inner {
+  position: absolute;
+  padding: 0 20px;
+  width: 100%;
+  height: calc(100% - 40px);
+  box-sizing: border-box;
+  overflow: auto;
+  top: 20px;
+  left: 0;
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For IE and Edge */
+}
+
+.dataset .dataset-right .dataset-right-inner::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
 
 .dataset .dataset-right .params {
@@ -118,15 +122,16 @@
 
 .search img {
   position: absolute;
-  left: 20px;
-  top: 17px;
+  right: 20px;
+  top: 20px;
+  height: 25px;
 }
 
 input.SearchBar {
   width: calc(100% - 10px);
   border: solid 1px rgb(169, 169, 169);
   box-sizing: border-box;
-  padding: 12px 15px 12px 15px;
+  padding: 12px 54px 12px 15px;
   margin-bottom: 15px;
   margin-top: 10px;
   border-radius: 22px;
@@ -326,7 +331,7 @@ table.sortbar-table td {
 }
 
 .filterbar .filterbar-item {
-  padding: 2px 6px;
+  padding: 6px 12px;
   width: fit-content;
   display: inline-block;
   border: 1px solid rgb(169, 169, 169);
@@ -348,10 +353,20 @@ table.sortbar-table td {
 
 .filterboxinner {
   cursor: pointer;
+  line-height: 22px;
 }
 
 .filterboxinner:hover {
   text-decoration: underline;
+}
+
+.filterboxinner .checkboxfilter {
+  margin-right: 6px;
+}
+
+.filterboxinner .parameter-count {
+  float: right;
+  color: grey;
 }
 
 .popup {
@@ -454,6 +469,7 @@ table.sortbar-table td {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border: none;
     background-color: white;
+    padding: 12px 34px 12px 15px;
   }
 
   .search {
