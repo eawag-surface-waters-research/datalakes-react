@@ -42,10 +42,11 @@ class Monitor extends Component {
   };
 
   async componentDidMount() {
-    var { data } = await axios.get(apiUrl + "/monitor").catch((error) => {
+    var { data } = await axios.get(apiUrl + "/datasets").catch((error) => {
       console.error(error);
     });
     var now = new Date().getTime();
+    data = data.filter((d) => d.monitor !== null);
     data.map((d) => {
       d.maxdatetime = new Date(d.maxdatetime);
       d.latest = (now - d.maxdatetime.getTime()) / 1000;
