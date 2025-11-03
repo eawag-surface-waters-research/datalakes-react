@@ -45,6 +45,12 @@
   overflow: auto;
 }
 
+.report-issue .person-name {
+  font-weight: bold;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
 .report-issue .report-modal .report-modal-box table {
   width: 100%;
 }

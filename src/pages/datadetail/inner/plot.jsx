@@ -64,7 +64,7 @@ class Graph extends Component {
       // because some events can overlap
       if (!events) return [];
       if (!Array.isArray(events)) events = [events];
-      
+
       // create bounds for each event
       var bounds = [];
       events.forEach((event) => {
@@ -85,14 +85,14 @@ class Graph extends Component {
 
       for (let i = 0; i < bounds.length - 1; i++) {
         const { time, type, event } = bounds[i];
-    
+
         if (type === "start") {
           activeEvents.push(event);
         } else {
           const idx = activeEvents.indexOf(event);
           if (idx !== -1) activeEvents.splice(idx, 1);
         }
-    
+
         const nextTime = bounds[i + 1].time;
         if (time < nextTime && activeEvents.length > 0) {
           intervals.push({
@@ -1511,8 +1511,7 @@ class Plot extends Component {
             let idx = axis.findIndex((e) => e === zaxis);
             let m = maintenance
               .filter((m) => m.state !== "reported")
-              .filter((m) => m.datasetparameters_id === a && m.depths === ""
-            );
+              .filter((m) => m.datasetparameters_id === a && m.depths === "");
             for (let i of iter) {
               if (data[i] !== 0) {
                 if (maskaxis[idx] === false) {
@@ -2687,6 +2686,9 @@ class Plot extends Component {
         </React.Fragment>
       );
     } else {
+      const person = this.props.dropdown.persons.find(
+        (p) => p.id === this.props.dataset.persons_id
+      );
       return (
         <React.Fragment>
           <SidebarLayout
@@ -2707,6 +2709,7 @@ class Plot extends Component {
                       ssh={this.props.dataset.ssh}
                       dataset={this.state.title}
                       datasetparameters={this.props.datasetparameters}
+                      person={person}
                     />
                   )}
                 </div>

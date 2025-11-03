@@ -14,7 +14,6 @@ const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
 class ReportIssue extends Component {
   state = {
-    reported: false,
     modal: false,
     message: "",
     email: "",
@@ -154,99 +153,6 @@ class ReportIssue extends Component {
 
   updateInput = (parameter, event) => {
     this.setState({ [parameter]: event.target.value });
-  };
-
-  updateMessage = (event) => {
-    this.setState({ message: event.target.value });
-  };
-
-  updateEmail = (event) => {
-    this.setState({ email: event.target.value });
-  };
-
-  submitReport = async () => {
-    var { message, email } = this.state;
-    var { dataset, repositories_id, selectedData } = this.props;
-
-    if (!message) {
-      window.alert("Please enter an issue description.");
-      return;
-    }
-
-    if (!email) {
-      window.alert("Please enter a contact email.");
-      return;
-    }
-
-    var dataDetails = "";
-    if (selectedData?.bbox && selectedData.bbox.length > 0) {
-      dataDetails =
-        "Data region:\n* " +
-        this.formatRange(
-          selectedData.xLabel,
-          selectedData.xUnit,
-          selectedData.xTime,
-          selectedData.bbox[0][0],
-          selectedData.bbox[1][0]
-        );
-      dataDetails +=
-        "\n* " +
-        this.formatRange(
-          selectedData.yLabel,
-          selectedData.yUnit,
-          selectedData.yTime,
-          selectedData.bbox[0][1],
-          selectedData.bbox[1][1]
-        );
-      if (selectedData.zLabel) {
-        dataDetails +=
-          "\n* " + this.formatLabel(selectedData.zLabel, selectedData.zUnit);
-      }
-    } else {
-      window.alert(
-        "Please select a data region on the graph to report an issue with (use Ctrl and Click to select)."
-      );
-      return;
-    }
-
-    var content = {
-      from: {
-        email: "runnalls.james@gmail.com",
-      },
-      personalizations: [
-        {
-          to: [
-            {
-              email: "james.runnalls@eawag.ch",
-            },
-          ],
-          dynamic_template_data: {
-            dataset: dataset,
-            email: email,
-            url: window.location.href,
-            message: message + (message ? "\n\n" : "") + dataDetails,
-          },
-        },
-      ],
-      template_id: "d-819e0202b4724bbb99069fdff49d667a",
-    };
-    var issues = {
-      title: message,
-      description: "Reported by: " + email + "\n\n" + dataDetails,
-      repo_id: repositories_id,
-    };
-    try {
-      await axios.post(apiUrl + "/contact", content);
-      try {
-        await axios.post(apiUrl + "/issues", issues);
-      } catch (e) {
-        console.error(e);
-      }
-      this.setState({ reported: true, error: false });
-    } catch (e) {
-      console.error(e);
-      this.setState({ error: true });
-    }
   };
 
   deleteMaintenance = async (ids, issueId) => {
@@ -504,7 +410,6 @@ class ReportIssue extends Component {
 
   render() {
     var {
-      reported,
       modal,
       start,
       end,
@@ -518,7 +423,7 @@ class ReportIssue extends Component {
       data,
       loading,
     } = this.state;
-    var { ssh, dataset, datasetparameters, selectedData } = this.props;
+    var { ssh, datasetparameters, person } = this.props;
     var show = false;
     try {
       var idProvider = this.capitalizeFirstLetter(idProviderFromSsh(ssh));
@@ -881,74 +786,25 @@ class ReportIssue extends Component {
                     </p>
                   )}
                   <p>
-                    Thanks for filling out a data report, please add a message
-                    describing the issue and your email address in case we have
-                    further questions.
+                    Don't use <b>{idProvider}</b>? No worries, you can still
+                    report issues directly to the dataset maintainer:
                   </p>
-                  <p>Dataset: {dataset}</p>
-                  {selectedData?.bbox && selectedData.bbox.length > 0 ? (
-                    <div>
-                      <p>Selected data:</p>
-                      <ul>
-                        <li>
-                          {this.formatRange(
-                            selectedData.xLabel,
-                            selectedData.xUnit,
-                            selectedData.xTime,
-                            selectedData.bbox[0][0],
-                            selectedData.bbox[1][0]
-                          )}
-                        </li>
-                        <li>
-                          {this.formatRange(
-                            selectedData.yLabel,
-                            selectedData.yUnit,
-                            selectedData.yTime,
-                            selectedData.bbox[0][1],
-                            selectedData.bbox[1][1]
-                          )}
-                        </li>
-                        {selectedData.zLabel ? (
-                          <li>
-                            {this.formatLabel(
-                              selectedData.zLabel,
-                              selectedData.zUnit
-                            )}
-                          </li>
-                        ) : null}
-                      </ul>
-                    </div>
-                  ) : (
-                    <p className="alert alert-danger">
-                      Please select a data region on the graph to report an
-                      issue with (use Ctrl and Click to select).
-                    </p>
-                  )}
-                  <textarea
-                    placeholder="Please type your report here."
-                    onChange={this.updateMessage}
-                    readOnly={reported}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Email address"
-                    onChange={this.updateEmail}
-                    readOnly={reported}
-                  />
-                  {reported ? (
-                    <p>
-                      Thanks for submitting a data report. We will look into it
-                      as soon as possible.
-                    </p>
-                  ) : (
-                    <div className="modal-submit">
-                      {error &&
-                        "Failed to submit please refresh the page and try again."}
-                      <button className="click" onClick={this.submitReport}>
-                        Submit Report
-                      </button>
-                    </div>
-                  )}
+                  <div className="person-name">{person.name}</div>
+                  <div className="person-email">
+                    <a href={`mailto:${person.email}`}>{person.email}</a>
+                  </div>
+                  <p>
+                    If possible, please include the following information:
+                    <ul>
+                      <li>Dataset ID (The number in the URL)</li>
+                      <li>Parameters impacted (e.g. Temperature)</li>
+                      <li>Time period concerned</li>
+                    </ul>
+                  </p>
+                  <p>
+                    Thanks for helping us ensure data on Datalakes is high
+                    quality!
+                  </p>
                 </React.Fragment>
               )}
             </div>
