@@ -83,14 +83,14 @@ class Ch2018Graph extends Component {
 
   async componentDidMount() {
     var { data: lakes } = await axios
-      .get(apiUrl + "/externaldata/ch2018/lakes", {
+      .get("https://datalakes-eawag.s3.eu-central-1.amazonaws.com/ch2018/lakes.json", {
         timeout: 10000,
       })
       .catch((error) => {
         console.error(error);
       });
     var { data: lakedata } = await axios
-      .get(apiUrl + "/externaldata/ch2018/" + lakes[0].id, {
+      .get("https://datalakes-eawag.s3.eu-central-1.amazonaws.com/ch2018/files/" + lakes[0].id + ".json", {
         timeout: 10000,
       })
       .catch((error) => {

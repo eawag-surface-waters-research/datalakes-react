@@ -19,7 +19,7 @@ class Ch2018Download extends Component {
 
   async componentDidMount() {
     var { data: lakes } = await axios
-      .get(apiUrl + "/externaldata/ch2018/lakes", {
+      .get("https://datalakes-eawag.s3.eu-central-1.amazonaws.com/ch2018/lakes.json", {
         timeout: 10000,
       })
       .catch((error) => {
@@ -37,7 +37,7 @@ class Ch2018Download extends Component {
         {l.name}
       </option>
     ));
-    var download = apiUrl + "/externaldata/ch2018/" + lake;
+    var download = "https://datalakes-eawag.s3.eu-central-1.amazonaws.com/ch2018/files/" + lake + ".json";
     return (
       <div className="download">
         <div className="info-title">Licence</div>
@@ -88,9 +88,6 @@ class Ch2018Download extends Component {
             ERIC Open
           </a>
         </p>
-        <div className="info-title">API</div>
-        <p>Download list of lakes: <a href="https://api.datalakes-eawag.ch/externaldata/ch2018/lakes">https://api.datalakes-eawag.ch/externaldata/ch2018/lakes</a></p>
-        <p>Download lake statistics: <a href="https://api.datalakes-eawag.ch/externaldata/ch2018/Maggiore">https://api.datalakes-eawag.ch/externaldata/ch2018/{"{lakeid}"}</a></p>
       </div>
     );
   }
