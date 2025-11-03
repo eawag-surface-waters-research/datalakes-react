@@ -92,7 +92,7 @@ class LakeMorphologyGraph extends Component {
     var { interpolated } = this.state;
     if (lake.morphology) {
       var { data: morphology } = await axios.get(
-        `${apiUrl}/externaldata/morphology/${lake.id}`
+        `https://datalakes-eawag.s3.eu-central-1.amazonaws.com/morphology/files/${lake.id}.json`
       );
       for (var key of Object.keys(morphology)) {
         if (!["id", "interpolated", "source"].includes(key.toLowerCase())) {
@@ -295,7 +295,7 @@ class LakeMorphology extends Component {
   async componentDidMount() {
     let server = await Promise.all([
       axios.get(apiUrl + "/selectiontables/lakes"),
-      axios.get(apiUrl + "/externaldata/lakejson"),
+      axios.get("https://datalakes-eawag.s3.eu-central-1.amazonaws.com/morphology/lakes.json"),
     ]).catch((error) => {
       console.error(error);
     });

@@ -871,7 +871,7 @@ class GIS extends Component {
         // Special case download lakejson
         if ([23].includes(datasets_id)) {
           ({ data: lakejson } = await axios.get(
-            apiUrl + "/externaldata/lakejson"
+            "https://datalakes-eawag.s3.eu-central-1.amazonaws.com/morphology/lakes.json"
           ));
         }
 

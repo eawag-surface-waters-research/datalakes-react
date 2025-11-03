@@ -24,7 +24,7 @@ class Ch2018Graph extends Component {
     var lake = event.target.value;
     if (!Object.keys(data).includes(lake)) {
       var { data: lakedata } = await axios
-        .get(apiUrl + "/externaldata/ch2018/" + lake, {
+        .get("https://datalakes-eawag.s3.eu-central-1.amazonaws.com/ch2018/files/" + lake + ".json", {
           timeout: 10000,
         })
         .catch((error) => {
