@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { apiUrl } from "../../../config.json";
 import D3LineGraph from "../../../graphs/d3/linegraph/linegraph";
 import D3GroupedBarGraph from "../../../graphs/d3/groupedbargraph/groupedbargraph";
 import "../css/datadetail.css";
