@@ -111,21 +111,25 @@ export class GithubService extends GitServiceInterface {
   /**
    * Applies labels to a GitHub issue.
    * @param {number} issue_id - The ID of the issue to apply labels to.
-   * @param {string|Array} labels - The label(s) to apply to the issue.
+   * @param {string|Array} labels - The label(s) to apply to the issue. Pass an empty array to remove all labels.
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
    * @throws {Error} - Throws an error if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
+
     const accessToken = this.getAccessToken();
     try {
+      // Use PUT to set/replace all labels (including removing all with empty array)
       const response = await fetch(`${this.host}/repos/${this.projectPath}/issues/${issue_id}/labels`, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Accept": "application/vnd.github+json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ labels: Array.isArray(labels) ? labels : [labels] }),
+        body: JSON.stringify({ labels: labelsArray }),
       });
 
       if (!response.ok) {
