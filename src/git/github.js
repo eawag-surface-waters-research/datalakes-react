@@ -8,7 +8,6 @@ export class GithubService extends GitServiceInterface {
     super(ssh);
     this.projectPath = projectFromSsh(this.ssh);
     this.host = "https://api.github.com";
-    this.contentHost = "https://raw.githubusercontent.com";
   }
 
   /**
@@ -247,22 +246,23 @@ export class GithubService extends GitServiceInterface {
     try {
       const branchName = `issue-${issue_id}`;
       
-      // Check if file exists to get its SHA (required for updates)
-      let fileSha = null;
-      try {
-        const fileCheckResponse = await fetch(`${this.host}/repos/${this.projectPath}/contents/${file_path}?ref=${branchName}`, {
-          method: "GET",
+      const treeResponse = await fetch(
+        `${this.host}/repos/${this.projectPath}/git/trees/${branchName}?recursive=1`,
+        {
           headers: {
             "Authorization": `Bearer ${accessToken}`,
             "Accept": "application/vnd.github+json",
           },
-        });
-        if (fileCheckResponse.ok) {
-          const fileData = await fileCheckResponse.json();
-          fileSha = fileData.sha;
         }
-      } catch (err) {
-        // File doesn't exist, will be created
+      );
+
+      let fileSha = null;
+      if (treeResponse.ok) {
+        const treeData = await treeResponse.json();
+        const fileEntry = treeData.tree.find(item => item.path === file_path);
+        if (fileEntry) {
+          fileSha = fileEntry.sha;
+        }
       }
       
       // Create or update the file in the branch using the GitHub API
@@ -327,29 +327,36 @@ export class GithubService extends GitServiceInterface {
    * @returns {Promise<string>} - A promise that resolves to the raw file content.
    * @throws {Error} - Throws an error if the API request fails.
    */
+
   async downloadRawFile(issue_id, file_path) {
-    const accessToken = this.getAccessToken();
-    try {
-      const branchName = `issue-${issue_id}`;
-      const response = await fetch(`${this.contentHost}/${this.projectPath}/${branchName}/${file_path}`, {
+  const accessToken = this.getAccessToken();
+  try {
+    const branchName = `issue-${issue_id}`;
+    const response = await fetch(
+      `https://api.github.com/repos/${this.projectPath}/contents/${file_path}?ref=${branchName}`,
+      {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
-          "Accept": "application/vnd.github+json",
+          "Accept": "application/vnd.github.v3.raw",
         },
-      });
-      if (response.status === 404) {
-        return ''; // File not found, return empty string
       }
-      if (!response.ok) {
-        throw new Error(`GitHub API error while downloading file: ${response.status}`);
-      }
-      return await response.text();
-    } catch (err) {
-      console.error("Error downloading raw file from GitHub:", err);
-      throw err;
+    );
+    
+    if (response.status === 404) {
+      return ''; // File not found, return empty string
     }
+    
+    if (!response.ok) {
+      throw new Error(`GitHub API error while downloading file: ${response.status}`);
+    }
+    
+    return await response.text();
+  } catch (err) {
+    console.error("Error downloading raw file from GitHub:", err);
+    throw err;
   }
+}
 
   /**
    * Get the project object from GitHub.
