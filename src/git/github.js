@@ -111,21 +111,25 @@ export class GithubService extends GitServiceInterface {
   /**
    * Applies labels to a GitHub issue.
    * @param {number} issue_id - The ID of the issue to apply labels to.
-   * @param {string|Array} labels - The label(s) to apply to the issue.
+   * @param {string|Array} labels - The label(s) to apply to the issue. Pass an empty array to remove all labels.
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
    * @throws {Error} - Throws an error if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
+
     const accessToken = this.getAccessToken();
     try {
+      // Use PUT to set/replace all labels (including removing all with empty array)
       const response = await fetch(`${this.host}/repos/${this.projectPath}/issues/${issue_id}/labels`, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Accept": "application/vnd.github+json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ labels: Array.isArray(labels) ? labels : [labels] }),
+        body: JSON.stringify({ labels: labelsArray }),
       });
 
       if (!response.ok) {
@@ -242,23 +246,51 @@ export class GithubService extends GitServiceInterface {
     const accessToken = this.getAccessToken();
     try {
       const branchName = `issue-${issue_id}`;
-      // Create or update the file in the branch
-      const response = await fetch(`${this.contentHost}/${this.projectPath}/${branchName}/${file_path}`, {
+      
+      // Check if file exists to get its SHA (required for updates)
+      let fileSha = null;
+      try {
+        const fileCheckResponse = await fetch(`${this.host}/repos/${this.projectPath}/contents/${file_path}?ref=${branchName}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/vnd.github+json",
+          },
+        });
+        if (fileCheckResponse.ok) {
+          const fileData = await fileCheckResponse.json();
+          fileSha = fileData.sha;
+        }
+      } catch (err) {
+        // File doesn't exist, will be created
+      }
+      
+      // Create or update the file in the branch using the GitHub API
+      const updateBody = {
+        message: `feat:add event for issue #${issue_id}`,
+        content: window.btoa(content), // Base64 encode the content
+        branch: branchName,
+      };
+      
+      // Include SHA if file exists (required for updates)
+      if (fileSha) {
+        updateBody.sha = fileSha;
+      }
+      
+      const response = await fetch(`${this.host}/repos/${this.projectPath}/contents/${file_path}`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Accept": "application/vnd.github+json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          message: `feat:add event for issue #${issue_id}`,
-          content: window.btoa(content), // Base64 encode the content
-          branch: branchName,
-        }),
+        body: JSON.stringify(updateBody),
       });
       if (!response.ok) {
-        throw new Error(`GitHub API error while updating file: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(`GitHub API error while updating file: ${response.status} - ${JSON.stringify(errorData)}`);
       }
+      
       // Create a pull request for the changes
       const project = await this.getProject();
       const defaultBranch = project.default_branch;
@@ -277,7 +309,8 @@ export class GithubService extends GitServiceInterface {
         }),
       });
       if (!prResponse.ok) {
-        throw new Error(`GitHub API error while creating pull request: ${prResponse.status}`);
+        const errorData = await prResponse.json();
+        throw new Error(`GitHub API error while creating pull request: ${prResponse.status} - ${JSON.stringify(errorData)}`);
       }
       const pullRequest = await prResponse.json();
       return pullRequest.number; // Return the pull request number
