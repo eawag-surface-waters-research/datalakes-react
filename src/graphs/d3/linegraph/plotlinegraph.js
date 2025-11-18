@@ -138,6 +138,8 @@ const processOptions = (div, data, userOptions) => {
     { name: "tooltip", default: true, verify: verifyBool },
     { name: "yReverse", default: false, verify: verifyBool },
     { name: "xReverse", default: false, verify: verifyBool },
+    { name: "y2Reverse", default: false, verify: verifyBool },
+    { name: "x2Reverse", default: false, verify: verifyBool },
     { name: "xLabel", default: false, verify: verifyString },
     { name: "yLabel", default: false, verify: verifyString },
     { name: "x2Label", default: false, verify: verifyString },
@@ -449,7 +451,7 @@ const addTopAxis = (svg, x2Domain, options) => {
     "" +
     (options.x2Label ? options.x2Label : "") +
     (options.x2Unit ? " (" + options.x2Unit + ")" : "");
-  if (options.xReverse) xrange = [options.canvasWidth, 0];
+  if (options.x2Reverse) xrange = [options.canvasWidth, 0];
   if (options.xTime) {
     xAxisLabel = "";
     ax = scaleTime().range(xrange).domain(x2Domain);
@@ -582,7 +584,7 @@ const addRightAxis = (svg, y2Domain, options) => {
     "" +
     (options.y2Label ? options.y2Label : "") +
     (options.y2Unit ? " (" + options.y2Unit + ")" : "");
-  if (options.yReverse) yrange = [0, options.canvasHeight];
+  if (options.y2Reverse) yrange = [0, options.canvasHeight];
   if (options.yTime) {
     yAxisLabel = "";
     ax = scaleTime().range(yrange).domain(y2Domain);

@@ -128,6 +128,8 @@ class Graph extends Component {
       timeaxis,
       xReverse,
       yReverse,
+      y2Reverse,
+      x2Reverse,
       file,
       files,
       xaxis,
@@ -271,6 +273,8 @@ class Graph extends Component {
               yscale={yScale}
               yReverse={yReverse}
               xReverse={xReverse}
+              y2Reverse={y2Reverse}
+              x2Reverse={x2Reverse}
               plotdots={plotdots}
               setDownloadGraph={this.setDownloadGraph}
               border={true}
@@ -1227,6 +1231,24 @@ class Plot extends Component {
     var xReverse = false;
     if (reverseID.includes(xdp.parameters_id)) xReverse = true;
     if (reverseID.includes(ydp.parameters_id)) yReverse = true;
+    var y2Reverse = false;
+    var x2Reverse = false;
+    if (xaxis.length > 1) {
+      for (let i = 1; i < xaxis.length; i++) {
+        let dp = datasetparameters.find((d) => d.axis === xaxis[i]);
+        if (xdp.unit !== dp.unit && reverseID.includes(dp.parameters_id)) {
+          x2Reverse = true;
+        }
+      }
+    }
+    if (yaxis.length > 1) {
+      for (let i = 1; i < yaxis.length; i++) {
+        let dp = datasetparameters.find((d) => d.axis === yaxis[i]);
+        if (ydp.unit !== dp.unit && reverseID.includes(dp.parameters_id)) {
+          y2Reverse = true;
+        }
+      }
+    }
     for (var j = 0; j < datasetparameters.length; j++) {
       var detail = datasetparameters[j]["detail"];
       var link = datasetparameters[j]["link"];
@@ -1273,7 +1295,7 @@ class Plot extends Component {
         }
       }
     }
-    return { xoptions, yoptions, zoptions, graph, yReverse, xReverse };
+    return { xoptions, yoptions, zoptions, graph, yReverse, xReverse, y2Reverse, x2Reverse };
   };
 
   getAxisLabels = (datasetparameters, xaxis, yaxis, zaxis) => {
@@ -1322,7 +1344,7 @@ class Plot extends Component {
   axisEdit = (xaxis, yaxis, zaxis) => {
     var { datasetparameters, data } = this.props;
     var { timeaxis, lowerY, lowerX, upperY, upperX } = this.state;
-    var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
+    var { xoptions, yoptions, zoptions, graph, yReverse, xReverse, y2Reverse, x2Reverse } =
       this.setAxisOptions(datasetparameters, xaxis, yaxis);
     if (zoptions.length > 0 && !zoptions.map((z) => z.value).includes(zaxis))
       zaxis = zoptions[0].value;
@@ -1367,6 +1389,8 @@ class Plot extends Component {
       lowerY,
       yReverse,
       xReverse,
+      y2Reverse,
+      x2Reverse,
       minX,
       maxX,
       minY,
@@ -2462,7 +2486,7 @@ class Plot extends Component {
         zaxis
       ));
 
-      var { xoptions, yoptions, zoptions, graph, yReverse, xReverse } =
+      var { xoptions, yoptions, zoptions, graph, yReverse, xReverse, y2Reverse, x2Reverse } =
         this.setAxisOptions(datasetparameters, xaxis, yaxis);
 
       var { xlabel, ylabel, zlabel, xunits, yunits, zunits } =
@@ -2549,6 +2573,8 @@ class Plot extends Component {
         zunits,
         yReverse,
         xReverse,
+        y2Reverse,
+        x2Reverse,
         title,
         colors,
         minZ,
