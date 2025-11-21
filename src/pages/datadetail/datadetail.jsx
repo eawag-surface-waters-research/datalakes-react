@@ -10,14 +10,11 @@ import External from "./inner/external";
 import Preview from "./inner/preview";
 import DataSubMenu from "./datasubmenu";
 import Loading from "../../components/loading/loading";
-import ThreeDModelDownload from "./inner/threedmodeldownload";
 import Ch2018Graph from "./inner/ch2018graph";
 import Ch2018Download from "./inner/ch2018download";
-import RemoteSensingDownload from "./inner/remotesensingdownload";
 import LocationMap from "./inner/locationmap";
 import Plot from "./inner/plot";
 import isArray from "lodash/isArray";
-import MapComponent from "./inner/mapcomponent";
 import "./css/datadetail.css";
 
 class DataDetail extends Component {
@@ -983,111 +980,6 @@ class DataDetail extends Component {
                 dataset={dataset}
                 datasetparameters={datasetparameters}
                 getLabel={this.getLabel}
-                link={link}
-              />
-            </div>
-          </React.Fragment>
-        );
-      case "threedmodel":
-        return (
-          <React.Fragment>
-            {title}
-            <DataSubMenu
-              step={step}
-              allowedStep={allowedStep}
-              updateSelectedState={this.updateSelectedState}
-              link={link}
-            />
-            <div className="datadetail-padding">
-              <MapComponent
-                dataset={dataset}
-                datasetparameters={datasetparameters}
-                getLabel={this.getLabel}
-                files={files}
-                link={link}
-              />
-            </div>
-          </React.Fragment>
-        );
-      case "threedmodeldownload":
-        return (
-          <React.Fragment>
-            {title}
-            <DataSubMenu
-              step={step}
-              allowedStep={allowedStep}
-              updateSelectedState={this.updateSelectedState}
-              link={link}
-            />
-            <div className="datadetail-padding">
-              <ThreeDModelDownload
-                dataset={dataset}
-                datasetparameters={datasetparameters}
-                getLabel={this.getLabel}
-                files={files}
-                link={link}
-              />
-            </div>
-          </React.Fragment>
-        );
-      case "remotesensingdownload":
-        return (
-          <React.Fragment>
-            {title}
-            <DataSubMenu
-              step={step}
-              allowedStep={allowedStep}
-              updateSelectedState={this.updateSelectedState}
-              link={link}
-            />
-            <div className="datadetail-padding">
-              <RemoteSensingDownload
-                dataset={dataset}
-                datasetparameters={datasetparameters}
-                getLabel={this.getLabel}
-                files={files}
-                link={link}
-              />
-            </div>
-          </React.Fragment>
-        );
-      case "remotesensing":
-        return (
-          <React.Fragment>
-            {title}
-            <DataSubMenu
-              step={step}
-              allowedStep={allowedStep}
-              updateSelectedState={this.updateSelectedState}
-              link={link}
-            />
-            <div className="datadetail-padding">
-              <MapComponent
-                dataset={dataset}
-                datasetparameters={datasetparameters}
-                getLabel={this.getLabel}
-                files={files}
-                link={link}
-              />
-            </div>
-          </React.Fragment>
-        );
-      case "simstrat":
-        return (
-          <React.Fragment>
-            {title}
-            <DataSubMenu
-              step={step}
-              allowedStep={allowedStep}
-              updateSelectedState={this.updateSelectedState}
-              link={link}
-            />
-            <div className="datadetail-padding">
-              <MapComponent
-                dataset={dataset}
-                datasetparameters={datasetparameters}
-                getLabel={this.getLabel}
-                files={files}
                 link={link}
               />
             </div>
