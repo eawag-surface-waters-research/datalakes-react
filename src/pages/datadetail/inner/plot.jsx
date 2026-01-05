@@ -667,6 +667,7 @@ class DisplayOptions extends Component {
     thresholdStep: this.props.thresholdStep,
     decimate: this.props.decimate,
     average: this.props.average,
+    averageType: this.props.averageType,
     plotdots: this.props.plotdots,
     withEvents: this.props.withEvents,
     interpolate: this.props.interpolate,
@@ -706,6 +707,10 @@ class DisplayOptions extends Component {
   onChangeAverage = (event) => {
     var average = event.target.value;
     this.setState({ average });
+  };
+  onChangeAverageType = (event) => {
+    var averageType = event.target.value;
+    this.setState({ averageType });
   };
   onChangexScale = (event) => {
     var xScale = event.target.value;
@@ -751,6 +756,7 @@ class DisplayOptions extends Component {
       thresholdStep,
       decimate,
       average,
+      averageType,
       plotdots,
       interpolate,
     } = this.props;
@@ -769,6 +775,7 @@ class DisplayOptions extends Component {
       prevProps.thresholdStep !== thresholdStep ||
       prevProps.decimate !== decimate ||
       prevProps.average !== average ||
+      prevProps.averageType !== averageType ||
       prevProps.plotdots !== plotdots ||
       prevProps.interpolate !== interpolate
     ) {
@@ -781,6 +788,7 @@ class DisplayOptions extends Component {
         thresholdStep,
         decimate,
         average,
+        averageType,
         plotdots,
         interpolate,
       });
@@ -797,6 +805,7 @@ class DisplayOptions extends Component {
       mask,
       decimate,
       average,
+      averageType,
       plotdots,
       withEvents,
       interpolate,
@@ -919,6 +928,7 @@ class DisplayOptions extends Component {
                   <tr>
                     <td>Averaging</td>
                     <td>
+                      <div style={{ display: 'flex', gap: '10px' }}>
                       <select
                         id="average"
                         value={average}
@@ -931,6 +941,17 @@ class DisplayOptions extends Component {
                         <option value="Monthly">Monthly</option>
                         <option value="Yearly">Yearly</option>
                       </select>
+                      <select
+                        id="averageType"
+                        value={averageType}
+                        onChange={this.onChangeAverageType}
+                        className="scale-select"
+                      >
+                        <option value="Mean">Mean</option>
+                        <option value="Min">Min</option>
+                        <option value="Max">Max</option>
+                      </select>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -1063,6 +1084,7 @@ class Plot extends Component {
     lweight: Array.from({ length: 20 }).map((x) => "1"),
     decimate: 1,
     average: "None",
+    averageType: "Mean",
     mask: true,
     interpolate: "none",
     interpolate_options: [
@@ -1109,8 +1131,14 @@ class Plot extends Component {
     return index;
   };
 
-  average = (nums) => {
-    return d3.mean(nums);
+  average = (nums, averageType) => {
+    if (averageType === "Mean") {
+      return d3.mean(nums);
+    } else if (averageType === "Min") {
+      return d3.min(nums);
+    } else if (averageType === "Max") {
+      return d3.max(nums);
+    }
   };
 
   toggleAddNewFile = () => {
@@ -1752,7 +1780,7 @@ class Plot extends Component {
     }
   };
 
-  average1D = (arr, factor, tx) => {
+  average1D = (arr, factor, averageType, tx) => {
     var ox = "y";
     if (tx === "y") ox = "x";
     var data = {};
@@ -1769,7 +1797,7 @@ class Plot extends Component {
     for (var key in data) {
       arrDict.push({
         [tx]: new Date(parseInt(key)),
-        [ox]: this.average(data[key]),
+        [ox]: this.average(data[key], averageType),
       });
     }
     arrDict.sort((a, b) => (a[tx] > b[tx] ? 1 : b[tx] > a[tx] ? -1 : 0));
@@ -1782,7 +1810,7 @@ class Plot extends Component {
     return { x, y, z: undefined };
   };
 
-  average2D = (arr, factor, tx, bounds) => {
+  average2D = (arr, factor, averageType, tx, bounds) => {
     var ox = "y";
     var data = {};
     var arrDict = [];
@@ -1804,7 +1832,7 @@ class Plot extends Component {
       for (let key in data) {
         arrDict.push({
           [tx]: new Date(parseInt(key)),
-          z: data[key].map((d) => this.average(d)),
+          z: data[key].map((d) => this.average(d, averageType)),
         });
       }
       arrDict.sort((a, b) => (a[tx] > b[tx] ? 1 : b[tx] > a[tx] ? -1 : 0));
@@ -1835,7 +1863,7 @@ class Plot extends Component {
           for (let j = 0; j < data[key].length; j++) {
             zt.push(data[key][j][i]);
           }
-          zz.push(this.average(zt));
+          zz.push(this.average(zt, averageType));
         }
         arrDict.push({
           [tx]: new Date(parseInt(key)),
@@ -1856,27 +1884,27 @@ class Plot extends Component {
     }
   };
 
-  averageData = (plotdata, timeaxis, average, graph, bounds) => {
+  averageData = (plotdata, timeaxis, average, averageType, graph, bounds) => {
     var out;
     if ((plotdata && ["x", "y"].includes(timeaxis), average !== "None")) {
       if (graph === "linegraph") {
         if (Array.isArray(plotdata)) {
           out = [];
           for (let i = 0; i < plotdata.length; i++) {
-            out.push(this.average1D(plotdata[i], average, timeaxis));
+            out.push(this.average1D(plotdata[i], average, averageType, timeaxis));
           }
         } else {
-          out = this.average1D(plotdata, average, timeaxis);
+          out = this.average1D(plotdata, average, averageType, timeaxis);
         }
         return out;
       } else if (graph === "heatmap") {
         if (Array.isArray(plotdata)) {
           out = [];
           for (let i = 0; i < plotdata.length; i++) {
-            out.push(this.average2D(plotdata[i], average, timeaxis, bounds));
+            out.push(this.average2D(plotdata[i], average, averageType, timeaxis, bounds));
           }
         } else {
-          out = this.average2D(plotdata, average, timeaxis, bounds);
+          out = this.average2D(plotdata, average, averageType, timeaxis, bounds);
         }
         return out;
       } else {
@@ -2192,6 +2220,7 @@ class Plot extends Component {
     maxX,
     decimate,
     average,
+    averageType,
     datasetparameters,
     timeaxis,
     graph,
@@ -2257,7 +2286,7 @@ class Plot extends Component {
         yaxis[0]
       );
       try {
-        plotdata = this.averageData(plotdata, timeaxis, average, graph, {
+        plotdata = this.averageData(plotdata, timeaxis, average, averageType, graph, {
           lowerX,
           lowerY,
           upperX,
@@ -2468,6 +2497,7 @@ class Plot extends Component {
       zaxis,
       decimate,
       average,
+      averageType,
       display,
       thresholdStep,
       plotdots,
@@ -2537,6 +2567,7 @@ class Plot extends Component {
         maxX,
         decimate,
         average,
+        averageType,
         datasetparameters,
         timeaxis,
         graph,
@@ -2645,6 +2676,7 @@ class Plot extends Component {
         maxX,
         this.state.decimate,
         this.state.average,
+        this.state.averageType,
         this.props.datasetparameters,
         timeaxis,
         graph,
