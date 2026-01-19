@@ -30,6 +30,8 @@ class ReportIssue extends Component {
     data: [],
     edited_ids: [],
     edited_issue: null,
+    missing_issues: [],
+    checking_issues: false,
     git_service: new GitService(this.props.ssh),
     loading: false,
   };
@@ -47,11 +49,12 @@ class ReportIssue extends Component {
   openModal = async () => {
     // init maintenance form with selected data
     var { selectedData } = this.props;
-    var { start, end, parameters, sensordepths, reporter, email } = this.state;
+    var { start, end, parameters, sensordepths, reporter, email, data } = this.state;
     start = new Date();
     end = new Date();
     parameters = [];
     sensordepths = "";
+    var checking_issues = false;
 
     // authz check
     var user = this.getUser();
@@ -60,6 +63,23 @@ class ReportIssue extends Component {
     var maintainer = false;
     if (user) {
       maintainer = await this.isMaintainer();
+    }
+
+    if (user && maintainer) {
+      const allIssuesIds = data
+        ? new Set(data
+            .map((d) => d.issue)
+            .filter((id) => id))
+        : [];
+        checking_issues = true;
+      this.checkGitIssuesExist([...allIssuesIds]).then(({ missing, valid }) => {
+        // Inform user about missing issues
+        console.warn(`The following issues are missing or inaccessible: ${missing.join(", ")}`);
+        this.setState({ missing_issues: missing, checking_issues: false });
+      }).catch((error) => {
+        console.error("Error while checking Git issues existence:", error);
+        this.setState({ missing_issues: [], checking_issues: false });
+      });
     }
 
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
@@ -119,6 +139,8 @@ class ReportIssue extends Component {
       error: false,
       edited_ids: [],
       edited_issue: null,
+      missing_issues: [],
+      checking_issues,
       title: "",
       description: "",
     });
@@ -153,6 +175,23 @@ class ReportIssue extends Component {
 
   updateInput = (parameter, event) => {
     this.setState({ [parameter]: event.target.value });
+  };
+
+  checkGitIssuesExist = async (issueIds) => {
+    const validIssues = [];
+    const missingIssues = [];
+    for (let i = 0; i < issueIds.length; i++) {
+      const issueId = issueIds[i];
+      try {
+        if (!issueId) continue;
+        const exists =await this.state.git_service.checkGitIssueExist(issueId);
+        if (exists) validIssues.push(issueId);
+        else missingIssues.push(issueId);
+      } catch (e) {
+        missingIssues.push(issueId);
+      }
+    }
+    return { missing: missingIssues, valid: validIssues };
   };
 
   deleteMaintenance = async (ids, issueId) => {
@@ -316,6 +355,7 @@ class ReportIssue extends Component {
         sensordepths,
         edited_ids,
         edited_issue,
+        missing_issues,
       } = this.state;
       var { id } = this.props;
 
@@ -347,17 +387,11 @@ class ReportIssue extends Component {
         datasetparameters: dp,
       };
 
-      if (edited_ids && edited_ids.length > 0) {
-        // delete obsolete maintenance reports
-        for (let i = 0; i < edited_ids.length; i++) {
-          await axios.delete(apiUrl + "/maintenance/" + edited_ids[i]);
-        }
-      }
       try {
         const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${
           window.location.href
         }\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
-        if (edited_issue) {
+        if (edited_issue && !missing_issues.includes(edited_issue)) {
           // comment issue
           await this.state.git_service.commentGitIssue(edited_issue, message);
           content.issue = `${edited_issue}`;
@@ -370,8 +404,15 @@ class ReportIssue extends Component {
           );
           content.issue = `${issueId}`;
         }
+
         // create maintenance reports
         await axios.post(apiUrl + "/maintenance", content);
+        if (edited_ids && edited_ids.length > 0) {
+          // delete obsolete maintenance reports
+          for (let i = 0; i < edited_ids.length; i++) {
+            await axios.delete(apiUrl + "/maintenance/" + edited_ids[i]);
+          }
+        }
         this.updateMaintenances();
         this.setState({
           start: new Date(),
@@ -440,6 +481,8 @@ class ReportIssue extends Component {
       error,
       data,
       loading,
+      missing_issues,
+      checking_issues,
     } = this.state;
     var { ssh, datasetparameters, person } = this.props;
     var show = false;
@@ -494,6 +537,7 @@ class ReportIssue extends Component {
       }
 
       var rows = [];
+
       for (var key in dict) {
         const row = dict[key];
         let ids = row.id;
@@ -501,6 +545,13 @@ class ReportIssue extends Component {
         const reporterOrMaintainer = row.reporter === user?.name || maintainer;
         const issueId = row.issue;
         const requestId = row.request;
+        const issueExists = issueId ? !missing_issues.includes(issueId) : false;
+        const canEdit = reporterOrMaintainer && !checking_issues && (!issueExists || (row.state !== "confirmed" && row.state !== "resolved"));
+        const canConfirm = maintainer && !checking_issues && row.state !== "confirmed" && row.state !== "resolved" && issueExists;
+        const canUnConfirm = maintainer && !checking_issues && row.state === "confirmed" && issueExists;
+        const canResolve = maintainer && !checking_issues && row.state === "confirmed" && issueExists;
+        const canDuplicate = reporterOrMaintainer && !checking_issues;
+        const canDelete = reporterOrMaintainer && !checking_issues;
         rows.push(
           <tr key={key}>
             <td>{this.formatTime(row.start)}</td>
@@ -509,7 +560,7 @@ class ReportIssue extends Component {
             <td>{row.depths}</td>
             <td>{row.description}</td>
             <td>
-              <span className="badge badge-info">{row.state}</span>
+              <span className={checking_issues ? "badge" : (issueExists ? "badge badge-info" : "badge badge-danger")}>{row.state}</span>
             </td>
             <td>
               {issueId ? (
@@ -518,6 +569,7 @@ class ReportIssue extends Component {
                   target="_blank"
                   title="Issue"
                   rel="noopener noreferrer"
+                  style={{ color: issueExists ? "inherit" : "red" }}
                 >
                   #{issueId}
                 </a>
@@ -540,9 +592,10 @@ class ReportIssue extends Component {
             </td>
             <td>{row.reporter}</td>
             <td>
-              {maintainer &&
-              row.state !== "confirmed" &&
-              row.state !== "resolved" ? (
+              {reporterOrMaintainer && checking_issues ? (
+                <span>...</span>
+              ) : null}
+              {canEdit ? (
                 <div
                   className="inline"
                   style={{
@@ -558,9 +611,7 @@ class ReportIssue extends Component {
                   &#9998;
                 </div>
               ) : null}
-              {maintainer &&
-              row.state !== "confirmed" &&
-              row.state !== "resolved" ? (
+              {canConfirm ? (
                 <div
                   className="inline"
                   style={{
@@ -576,7 +627,7 @@ class ReportIssue extends Component {
                   &#8631;
                 </div>
               ) : null}
-              {maintainer && row.state === "confirmed" ? (
+              {canUnConfirm ? (
                 <div
                   className="inline"
                   style={{
@@ -592,7 +643,7 @@ class ReportIssue extends Component {
                   &#8630;
                 </div>
               ) : null}
-              {maintainer && row.state === "confirmed" ? (
+              {canResolve ? (
                 <div
                   className="inline"
                   style={{
@@ -608,7 +659,7 @@ class ReportIssue extends Component {
                   &#10003;
                 </div>
               ) : null}
-              {reporterOrMaintainer ? (
+              {canDuplicate ? (
                 <div
                   className="inline"
                   style={{
@@ -624,7 +675,7 @@ class ReportIssue extends Component {
                   &#10011;
                 </div>
               ) : null}
-              {reporterOrMaintainer ? (
+              {canDelete ? (
                 <div
                   className="inline"
                   style={{
@@ -676,27 +727,31 @@ class ReportIssue extends Component {
                       access to advanced reporting features.
                     </p>
                   )}
-                  <p>Current maintenance periods:</p>
-                  <table className="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Parameters</th>
-                        <th>Depths</th>
-                        <th>Description</th>
-                        <th>State</th>
-                        <th>Issue</th>
-                        <th>Reporter</th>
-                        <th style={{ width: "80px" }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>{rows}</tbody>
-                  </table>
-                  <div style={{color: "gray"}}>
-                    Actions hint: &#9998; Edit | &#8631; Confirm | &#8630; Revert Confirm | 
-                    &#10003; Resolve | &#10011; Duplicate | &#10005; Delete
-                  </div>
+                  {rows.length > 0 && (
+                    <>
+                      <p>Current maintenance periods: {checking_issues && <span style={{color: "red"}}>[checking Git issues...]</span>}</p>
+                      <table className="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Parameters</th>
+                            <th>Depths</th>
+                            <th>Description</th>
+                            <th>State</th>
+                            <th>Issue</th>
+                            <th>Reporter</th>
+                            <th style={{ width: "80px" }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                      </table>
+                      <div style={{color: "gray"}}>
+                        Actions hint: &#9998; Edit | &#8631; Confirm | &#8630; Revert Confirm | 
+                        &#10003; Resolve | &#10011; Duplicate | &#10005; Delete
+                      </div>
+                    </>
+                  )}
                   <p>
                     Please complete the form below to suggest a maintenance
                     period for the dataset.

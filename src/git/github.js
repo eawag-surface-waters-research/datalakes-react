@@ -68,6 +68,57 @@ export class GithubService extends GitServiceInterface {
   }
 
   /**
+   * Retrieves a Git issue by its ID.
+   * @param {number} issue_id - The ID of the issue to retrieve.
+   * @returns {Promise<Object>} - A promise that resolves to the issue object.
+   * @throws {Error} - Throws an error if the GitHub API request fails.
+   */
+  async getGitIssue(issue_id) {
+    const accessToken = this.getAccessToken();
+    try {
+      const response = await fetch(`${this.host}/repos/${this.projectPath}/issues/${issue_id}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error("Error fetching GitHub issue:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Checks if a Git issue exists by its ID.
+   * @param {number} issue_id 
+   * @returns {Promise<boolean>}
+   */
+  async checkGitIssueExist(issue_id) {
+    const accessToken = this.getAccessToken();
+    try {
+      const response = await fetch(`${this.host}/repos/${this.projectPath}/issues/${issue_id}`, {
+        method: "HEAD",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+
+      return response.ok;
+    } catch (err) {
+      console.error("Error checking GitHub issue existence:", err);
+      return false;
+    }
+  }
+
+  /**
    * Closes a GitHub issue by its ID and optionally adds a comment.
    * @param {number} issue_id - The ID of the issue to close.
    * @param {string} [comment] - Optional comment to add before closing the issue.

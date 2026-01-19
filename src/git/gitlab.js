@@ -123,6 +123,63 @@ export class GitlabService extends GitServiceInterface {
   }
 
   /**
+   * Retrieves a Git issue by its ID.
+   * @param {number} issue_id - The ID of the issue to retrieve.
+   * @returns {Promise<Object>} - A promise that resolves to the issue object.
+   * @throws {Error} - Throws an error if the GitHub API request fails.
+   */
+  async getGitIssue(issue_id) {
+    try {
+      const accessToken = await this.refreshGitlabAccessToken();
+      const projectId = encodeURIComponent(`${this.projectPath}`);
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`GitLab API error: ${response.status}`);
+      }
+
+      const issue = await response.json();
+      return issue;
+    } catch (err) {
+      console.error("Error fetching GitLab issue:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Checks if a Git issue exists by its ID.
+   * @param {number} issue_id 
+   * @returns {Promise<boolean>}
+   */
+  async checkGitIssueExist(issue_id) {
+    try {
+      const accessToken = await this.refreshGitlabAccessToken();
+      const projectId = encodeURIComponent(`${this.projectPath}`);
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`,
+        {
+          method: "HEAD",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return response.ok;
+    } catch (err) {
+      console.error("Error checking GitLab issue existence:", err);
+      throw err;
+    }
+  }
+
+  /**
    * Closes a GitLab issue by its ID and optionally adds a comment.
    * @param {number} issue_id - The ID of the issue to close.
    * @param {string} [comment] - Optional comment to add before closing the issue.

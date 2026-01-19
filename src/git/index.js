@@ -66,6 +66,25 @@ export class GitService {
   }
 
   /**
+   * Retrieves a Git issue by its ID.
+   * @param {number} issue_id - The ID of the issue to retrieve.
+   * @returns {Promise<Object>} - A promise that resolves to the issue object.
+   * @throws {Error} - Throws an error if the GitHub API request fails.
+   */
+  async getGitIssue(issue_id) {
+    return await this.service.getGitIssue(issue_id);
+  }
+
+  /**
+   * Checks if a Git issue exists by its ID.
+   * @param {number} issue_id - The ID of the issue to check.
+   * @returns {Promise<boolean>} - A promise that resolves to true if the issue exists, false otherwise.
+   */
+  async checkGitIssueExist(issue_id) {
+    return await this.service.checkGitIssueExist(issue_id);
+  }
+
+  /**
    * Closes a Git issue by its ID and optionally adds a comment.
    * @param {number} issue_id - The ID of the issue to close.
    * @param {string} [comment] - Optional comment to add before closing the issue.
