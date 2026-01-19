@@ -181,6 +181,24 @@ class ReportIssue extends Component {
     });
   };
 
+  duplicateMaintenance = (ids) => {
+    // find the first maintenance request in the list
+    var { data } = this.state;
+    var maintenances = data.filter((d) => ids.includes(d.id));
+    if (!maintenances || maintenances.length === 0) {
+      window.alert("No maintenance request found to edit.");
+      return;
+    }
+    const event = this.makeEvent(maintenances);
+    this.setState({
+      ...event,
+      title: "",
+      error: false,
+      edited_ids: [],
+      edited_issue: null,
+    });
+  };
+
   makeEvent = (maintenances) => {
     const content = maintenances[0];
     var pids = maintenances.map((m) => m.datasetparameters_id);
@@ -595,6 +613,22 @@ class ReportIssue extends Component {
                   className="inline"
                   style={{
                     width: "20px",
+                    color: loading ? "#ccc" : "green",
+                    cursor: "pointer",
+                  }}
+                  title="Duplicate report"
+                  onClick={() =>
+                    loading ? null : this.duplicateMaintenance(ids)
+                  }
+                >
+                  &#10011;
+                </div>
+              ) : null}
+              {reporterOrMaintainer ? (
+                <div
+                  className="inline"
+                  style={{
+                    width: "20px",
                     color: loading ? "#ccc" : "red",
                     cursor: "pointer",
                   }}
@@ -654,11 +688,15 @@ class ReportIssue extends Component {
                         <th>State</th>
                         <th>Issue</th>
                         <th>Reporter</th>
-                        <th style={{ width: "60px" }}></th>
+                        <th style={{ width: "80px" }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>{rows}</tbody>
                   </table>
+                  <div style={{color: "gray"}}>
+                    Actions hint: &#9998; Edit | &#8631; Confirm | &#8630; Revert Confirm | 
+                    &#10003; Resolve | &#10011; Duplicate | &#10005; Delete
+                  </div>
                   <p>
                     Please complete the form below to suggest a maintenance
                     period for the dataset.
