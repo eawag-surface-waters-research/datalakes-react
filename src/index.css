@@ -344,6 +344,8 @@ button {
   font-size: 12px;
   border-radius: 3px;
   text-transform: capitalize;
+  color: #fff;
+  background-color: #888;
 }
 .badge-info {
   color: #fff;

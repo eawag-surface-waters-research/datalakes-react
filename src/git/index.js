@@ -59,10 +59,11 @@ export class GitService {
    * Creates a new issue in a Git project.
    * @param {string} title - The title of the issue.
    * @param {string} body - The body of the issue.
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<number>} - A promise that resolves to the issue number.
    */
-  async createGitIssue(title, body) {
-    return await this.service.createGitIssue(title, body);
+  async createGitIssue(title, body, labels = []) {
+    return await this.service.createGitIssue(title, body, labels);
   }
 
   /**
@@ -99,7 +100,7 @@ export class GitService {
   /**
    * Applies labels to a Git issue.
    * @param {number} issue_id - The ID of the issue to apply labels to.
-   * @param {string|Array} labels - The label(s) to apply to the issue
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
    * @throws {Error} - Throws an error if the ID provider is unsupported or if the API request fails.
    */

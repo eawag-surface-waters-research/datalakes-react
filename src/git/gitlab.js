@@ -50,11 +50,13 @@ export class GitlabService extends GitServiceInterface {
   /**
    * Applies labels to a GitLab issue.
    * @param {number} issue_id - The ID of the issue to apply labels to.
-   * @param {string|Array} labels - The label(s) to apply to the issue
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
    * @throws {Error} - Throws an error if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
@@ -67,7 +69,7 @@ export class GitlabService extends GitServiceInterface {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            labels: Array.isArray(labels) ? labels : [labels],
+            labels: labelsArray.join(","),
           }),
         }
       );
@@ -87,10 +89,13 @@ export class GitlabService extends GitServiceInterface {
    * Creates a new issue in a GitLab project.
    * @param {string} title - The title of the issue.
    * @param {string} body - The body of the issue.
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<number>} - A promise that resolves to the issue ID.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async createGitIssue(title, body) {
+  async createGitIssue(title, body, labels = []) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
@@ -105,6 +110,7 @@ export class GitlabService extends GitServiceInterface {
           body: JSON.stringify({
             title: title,
             description: body,
+            labels: labelsArray.join(","),
           }),
         }
       );

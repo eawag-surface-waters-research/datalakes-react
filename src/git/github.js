@@ -40,9 +40,12 @@ export class GithubService extends GitServiceInterface {
    * Creates a new issue in a Git project.
    * @param {string} title - The title of the issue.
    * @param {string} body - The body of the issue.
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<number>} - A promise that resolves to the issue number.
    */
-  async createGitIssue(title, body) {
+  async createGitIssue(title, body, labels = []) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
     const accessToken = this.getAccessToken();
     try {
       const response = await fetch(`${this.host}/repos/${this.projectPath}/issues`, {
@@ -52,7 +55,7 @@ export class GithubService extends GitServiceInterface {
           "Accept": "application/vnd.github+json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, body }),
+        body: JSON.stringify({ title, body, labels: labelsArray }),
       });
 
       if (!response.ok) {

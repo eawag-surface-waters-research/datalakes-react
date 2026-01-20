@@ -398,9 +398,11 @@ class ReportIssue extends Component {
         } else {
           // create issue
           const ttl = `[maintenance] ${title || description.slice(0, 50)}`;
+          const labels = ["reported"];
           const issueId = await this.state.git_service.createGitIssue(
             ttl,
-            message
+            message,
+            labels
           );
           content.issue = `${issueId}`;
         }
