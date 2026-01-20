@@ -235,7 +235,7 @@ export class GithubService extends GitServiceInterface {
    * @returns {string} - The request web link.
    */
   makeGitRequestLink(request_id) {
-    return `https://github.com/${this.projectPath}/pulls/${request_id}`;
+    return `https://github.com/${this.projectPath}/pull/${request_id}`;
   }
 
   /**
