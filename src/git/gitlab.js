@@ -299,22 +299,35 @@ export class GitlabService extends GitServiceInterface {
   }
 
   /**
-   * Creates a new branch for a GitLab issue.
-   * @param {number} issue_id - The ID of the issue for which to create the branch.
+   * Creates a new branch for a GitHub issue.
+   * @param {string} branch_name - The name of the branch to create if it does not exist.
    * @returns {Promise<void>} - A promise that resolves when the branch is created.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async createGitIssueBranch(issue_id) {
+  async createGitBranch(branch_name) {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
 
       const project = await this.getProject();
-      const defaultBranch = project.default_branch;
-      const branchName = `issue-${issue_id}`;
 
+      // if branch already exists, do nothing
+      const branchResponse = await fetch(`${this.host}/api/v4/projects/${projectId}/repository/branches/${branch_name}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (branchResponse.ok) {
+        // Branch exists
+        return;
+      }
+
+      // Create the branch from the default branch
+      const defaultBranch = project.default_branch;
       const response = await fetch(
-        `${this.host}/api/v4/projects/${projectId}/repository/branches?branch=${branchName}&ref=${defaultBranch}`,
+        `${this.host}/api/v4/projects/${projectId}/repository/branches?branch=${branch_name}&ref=${defaultBranch}`,
         {
           method: "POST",
           headers: {
@@ -330,26 +343,26 @@ export class GitlabService extends GitServiceInterface {
         );
       }
     } catch (err) {
-      console.error("Error creating GitLab issue branch:", err);
+      console.error("Error creating GitLab branch:", err);
       throw err;
     }
   }
 
   /**
    * Merge event into the provided events file and make a merge request for this update.
+   * @param {string} branch_name - The name of the branch from which to create the merge request.
    * @param {number} issue_id - The ID of the issue for which a branch is defined.
    * @param {Object} event - The event object containing details for the merge request creation.
    * @param {string} file_path - The path to the events file, to be created if it does not exist.
    * @returns {Promise<number>} - A promise that resolves to the merge request number.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async makeEventsMergeRequest(issue_id, event, file_path) {
+  async makeEventsMergeRequest(branch_name, issue_id, event, file_path) {
     const { exists, content } = await this.mergeEvents(
-      issue_id,
+      branch_name,
       event,
       file_path
     );
-    const branchName = `issue-${issue_id}`;
     const accessToken = await this.refreshGitlabAccessToken();
     const projectId = encodeURIComponent(`${this.projectPath}`);
     // Create or update the events file in the repository
@@ -368,7 +381,7 @@ export class GitlabService extends GitServiceInterface {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          branch: branchName,
+          branch: branch_name,
           content: content,
           commit_message: `feat: add event for issue #${issue_id}`,
           encoding: "text",
@@ -380,9 +393,34 @@ export class GitlabService extends GitServiceInterface {
         `GitLab API error while creating events file: ${response.status}`
       );
     }
-    // Create a merge request for the new branch
     const project = await this.getProject();
     const defaultBranch = project.default_branch;
+
+    // Check if there is already an open pull request for this branch
+    const mrResponse = await fetch(
+      `${this.host}/api/v4/projects/${projectId}/merge_requests?state=opened&source_branch=${branch_name}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (!mrResponse.ok) {
+      throw new Error(
+        `GitLab API error while checking merge requests: ${mrResponse.status}`
+      );
+    }
+    const mergeRequests = await mrResponse.json();
+    if (mergeRequests.length > 0) {
+      console.debug(
+        "GitLab merge request already exists:",
+        mergeRequests[0]
+      );
+      return mergeRequests[0].iid; // Return the existing merge request ID
+    }
+    
+    // Create a merge request for the new branch
     const mergeRequestResponse = await fetch(
       `${this.host}/api/v4/projects/${projectId}/merge_requests`,
       {
@@ -392,10 +430,10 @@ export class GitlabService extends GitServiceInterface {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          source_branch: branchName,
+          source_branch: branch_name,
           target_branch: defaultBranch,
-          title: `Merge events for issue #${issue_id}`,
-          description: `This merge request contains events for issue #${issue_id}.`,
+          title: "Update events from reported issues",
+          description: `This merge request updates the events file from reported and confirmed issues.\n\nRelates to #${issue_id}`,
           remove_source_branch: true,
         }),
       }
@@ -412,19 +450,18 @@ export class GitlabService extends GitServiceInterface {
 
   /**
    * Downloads a raw file from a GitLab project.
-   * @param {number} issue_id - The ID of the issue associated with the file.
+   * @param {string} branch_name - The name of the branch associated with the file.
    * @param {string} file_path - The path to the file in the repository.
    * @returns {Promise<string>} - A promise that resolves to the raw file content.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async downloadRawFile(issue_id, file_path) {
+  async downloadRawFile(branch_name, file_path) {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
       const filePath = encodeURIComponent(file_path);
-      const branchName = `issue-${issue_id}`;
       const response = await fetch(
-        `${this.host}/api/v4/projects/${projectId}/repository/files/${filePath}/raw?ref=${branchName}`,
+        `${this.host}/api/v4/projects/${projectId}/repository/files/${filePath}/raw?ref=${branch_name}`,
         {
           method: "GET",
           headers: {
