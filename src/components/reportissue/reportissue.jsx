@@ -86,6 +86,14 @@ class ReportIssue extends Component {
       if (selectedData.xTime) {
         start = selectedData.bbox[0][0];
         end = selectedData.bbox[1][0];
+      } else if (selectedData.times && selectedData.times.length > 0) {
+        // ensure Date objects
+        selectedData.times = selectedData.times.map((t) =>
+          t instanceof Date ? t : new Date(t)
+        );
+        // get min/max from selected times array
+        start = new Date(Math.min(...selectedData.times));
+        end = new Date(Math.max(...selectedData.times));
       }
       if (selectedData.yLabel === "Depth") {
         sensordepths = `${formatNumber(selectedData.bbox[0][1])}-${formatNumber(
