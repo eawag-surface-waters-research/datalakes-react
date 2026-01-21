@@ -50,11 +50,13 @@ export class GitlabService extends GitServiceInterface {
   /**
    * Applies labels to a GitLab issue.
    * @param {number} issue_id - The ID of the issue to apply labels to.
-   * @param {string|Array} labels - The label(s) to apply to the issue
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<void>} - A promise that resolves when the labels are applied.
    * @throws {Error} - Throws an error if the API request fails.
    */
   async applyGitIssueLabels(issue_id, labels) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
@@ -67,7 +69,7 @@ export class GitlabService extends GitServiceInterface {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            labels: Array.isArray(labels) ? labels : [labels],
+            labels: labelsArray.join(","),
           }),
         }
       );
@@ -87,10 +89,13 @@ export class GitlabService extends GitServiceInterface {
    * Creates a new issue in a GitLab project.
    * @param {string} title - The title of the issue.
    * @param {string} body - The body of the issue.
+   * @param {string|Array} labels - The label(s) to apply to the issue.
    * @returns {Promise<number>} - A promise that resolves to the issue ID.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async createGitIssue(title, body) {
+  async createGitIssue(title, body, labels = []) {
+    // Convert to array if not already
+    const labelsArray = Array.isArray(labels) ? labels : [labels];
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
@@ -105,6 +110,7 @@ export class GitlabService extends GitServiceInterface {
           body: JSON.stringify({
             title: title,
             description: body,
+            labels: labelsArray.join(","),
           }),
         }
       );
@@ -118,6 +124,63 @@ export class GitlabService extends GitServiceInterface {
       return issue.iid;
     } catch (err) {
       console.error("Error creating GitLab issue:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieves a Git issue by its ID.
+   * @param {number} issue_id - The ID of the issue to retrieve.
+   * @returns {Promise<Object>} - A promise that resolves to the issue object.
+   * @throws {Error} - Throws an error if the GitHub API request fails.
+   */
+  async getGitIssue(issue_id) {
+    try {
+      const accessToken = await this.refreshGitlabAccessToken();
+      const projectId = encodeURIComponent(`${this.projectPath}`);
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`GitLab API error: ${response.status}`);
+      }
+
+      const issue = await response.json();
+      return issue;
+    } catch (err) {
+      console.error("Error fetching GitLab issue:", err);
+      throw err;
+    }
+  }
+
+  /**
+   * Checks if a Git issue exists by its ID.
+   * @param {number} issue_id 
+   * @returns {Promise<boolean>}
+   */
+  async checkGitIssueExist(issue_id) {
+    try {
+      const accessToken = await this.refreshGitlabAccessToken();
+      const projectId = encodeURIComponent(`${this.projectPath}`);
+      const response = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/issues/${issue_id}`,
+        {
+          method: "HEAD",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      return response.ok;
+    } catch (err) {
+      console.error("Error checking GitLab issue existence:", err);
       throw err;
     }
   }
