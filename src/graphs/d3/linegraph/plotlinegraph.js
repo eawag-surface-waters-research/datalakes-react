@@ -90,7 +90,10 @@ const plotlinegraph = (div, data, options = {}) => {
     zm = zoom;
   }
   if (options.tooltip) addTooltip(data, div, xAxis, yAxis, options);
-  if (options.select) addBrush(svg, xAxis, yAxis, zmbox, zm, options);
+  if (options.select) {
+    const times = data.map(d => d.time).filter(t => t instanceof Date);
+    addBrush(svg, xAxis, yAxis, zmbox, zm, options, times);
+  }
 };
 
 const addPlottingArea = (div, svg, options) => {
@@ -1425,7 +1428,7 @@ const updatePlots = (div, g, context, data, xAxis, yAxis, options) => {
   if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
 };
 
-const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options) => {
+const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options, times) => {
   // Listen for keyboard events
   select("body")
     .on("keydown", (event) => {
@@ -1487,6 +1490,7 @@ const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options) => {
       xUnit: options.xUnit,
       yUnit: options.yUnit,
       zUnit: null,
+      times: times,
     });
   };
 

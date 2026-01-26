@@ -150,9 +150,11 @@ export class GitService {
    */
   async makeEventsMergeRequest(issue_id, event) {
     if (!issue_id) return;
-    await this.service.createGitIssueBranch(issue_id);
+    const branch_name = "feat/events-report-update";
+    await this.service.createGitBranch(branch_name);
     // create a merge request for the event
     return this.service.makeEventsMergeRequest(
+      branch_name,
       issue_id,
       event,
       "notes/events.csv"

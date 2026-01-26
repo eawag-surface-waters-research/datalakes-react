@@ -242,6 +242,7 @@ class D3LineGraph extends Component {
     for (var i = 0; i < data.length; i++) {
       data[i]["lineColor"] = lcolor[i] ? lcolor[i] : "black";
       data[i]["lineWeight"] = lweight[i] ? lweight[i] : 1;
+      data[i]["time"] = legend && legend[i] && legend[i].value instanceof Date ? legend[i].value : "";
       data[i]["name"] = legend && legend[i] ? legend[i].text : "";
       data[i]["xaxis"] = legend && legend[i] ? legend[i].xaxis : "x";
       data[i]["yaxis"] = legend && legend[i] ? legend[i].yaxis : "y";
