@@ -80,51 +80,52 @@ export class GitServiceInterface {
   }
 
   /**
-   * Creates a new branch for a Git issue.
-   * @param {number} issue_id - The ID of the issue for which to create the branch.
+   * Creates a new branch for a GitHub issue.
+   * @param {string} branch_name - The name of the branch to create if it does not exist.
    * @returns {Promise<void>} - A promise that resolves when the branch is created.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async createGitIssueBranch(issue_id) {
+  async createGitBranch(branch_name) {
     throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
    * Merge event into the provided events file and make a merge request for this update.
+   * @param {string} branch_name - The name of the branch from which to create the merge request.
    * @param {number} issue_id - The ID of the issue for which a branch is defined.
    * @param {Object} event - The event object containing details for the merge request creation.
    * @param {string} file_path - The path to the events file, to be created if it does not exist.
    * @returns {Promise<number>} - A promise that resolves to the merge request number.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async makeEventsMergeRequest(issue_id, event, file_path) {
+  async makeEventsMergeRequest(branch_name, issue_id, event, file_path) {
     throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
-   * Downloads a raw file from a Git issue branch.
-   * @param {number} issue_id - The ID of the issue associated with the file.
+   * Downloads a raw file from a Git branch.
+   * @param {string} branch_name - The name of the branch associated with the file.
    * @param {string} file_path - The path to the file in the repository.
    * @returns {Promise<string>} - A promise that resolves to the raw file content.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async downloadRawFile(issue_id, file_path) {
+  async downloadRawFile(branch_name, file_path) {
     throw new Error("Not implemented. Please use a subclass that implements this method.");
   }
 
   /**
-   * Merges an event into the provided events file and updates the file in the Git issue branch.
-   * @param {number} issue_id - The ID of the issue for which a branch is defined.
+   * Merges an event into the provided events file and updates the file in the Git branch.
+   * @param {string} branch_name - The name of the branch associated with the file.
    * @param {Object} event - The event object containing details for the merge request creation.
    * @param {string} file_path - The path to the events file, to be created if it does not exist.
    * @returns {Promise<void>} - A promise that resolves when the event is merged into the file.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async mergeEvents(issue_id, event, file_path) {
+  async mergeEvents(branch_name, event, file_path) {
     if (!file_path.endsWith(".csv")) {
       throw new Error("File path must end with .csv");
     }
-    let content = await this.downloadRawFile(issue_id, file_path);
+    let content = await this.downloadRawFile(branch_name, file_path);
     const exists = content.trim() !== '';
     if (!exists) {
       // new or empty file: add csv header

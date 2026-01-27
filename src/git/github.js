@@ -243,16 +243,27 @@ export class GithubService extends GitServiceInterface {
 
   /**
    * Creates a new branch for a GitHub issue.
-   * @param {number} issue_id - The ID of the issue to create a branch for.
+   * @param {string} branch_name - The name of the branch to create if it does not exist.
    * @returns {Promise<void>} - A promise that resolves when the branch is created.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async createGitIssueBranch(issue_id) {
+  async createGitBranch(branch_name) {
     const accessToken = this.getAccessToken();
     try {
       const project = await this.getProject();
       const defaultBranch = project.default_branch;
-      const branchName = `issue-${issue_id}`;
+
+      // if branch already exists, do nothing
+      const branchResponse = await fetch(`${this.host}/repos/${this.projectPath}/git/refs/heads/${branch_name}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/vnd.github+json",
+        },
+      });
+      if (branchResponse.ok) {
+        return;
+      }
 
       // Get last sha from default branch
       const response = await fetch(`${this.host}/repos/${this.projectPath}/git/refs/heads/${defaultBranch}`, {
@@ -276,32 +287,31 @@ export class GithubService extends GitServiceInterface {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ref: `refs/heads/${branchName}`,
+          ref: `refs/heads/${branch_name}`,
           sha: defaultBranchData.object.sha,
         }),
       });
     } catch (err) {
-      console.error("Error creating GitHub issue branch:", err);
+      console.error("Error creating GitHub branch:", err);
       throw err;
     }
   }
 
   /**
    * Merge event into the provided events file and make a merge request for this update.
+   * @param {string} branch_name - The name of the branch from which to create the merge request.
    * @param {number} issue_id - The ID of the issue for which a branch is defined.
    * @param {Object} event - The event object containing details for the merge request creation.
    * @param {string} file_path - The path to the events file, to be created if it does not exist.
    * @returns {Promise<number>} - A promise that resolves to the merge request number.
    * @throws {Error} - Throws an error if the API request fails.
    */
-  async makeEventsMergeRequest(issue_id, event, file_path) {
-    const { content } = await this.mergeEvents(issue_id, event, file_path);
+  async makeEventsMergeRequest(branch_name, issue_id, event, file_path) {
+    const { content } = await this.mergeEvents(branch_name, event, file_path);
     const accessToken = this.getAccessToken();
     try {
-      const branchName = `issue-${issue_id}`;
-      
       const treeResponse = await fetch(
-        `${this.host}/repos/${this.projectPath}/git/trees/${branchName}?recursive=1`,
+        `${this.host}/repos/${this.projectPath}/git/trees/${branch_name}?recursive=1`,
         {
           headers: {
             "Authorization": `Bearer ${accessToken}`,
@@ -323,7 +333,7 @@ export class GithubService extends GitServiceInterface {
       const updateBody = {
         message: `feat:add event for issue #${issue_id}`,
         content: window.btoa(content), // Base64 encode the content
-        branch: branchName,
+        branch: branch_name,
       };
       
       // Include SHA if file exists (required for updates)
@@ -345,9 +355,28 @@ export class GithubService extends GitServiceInterface {
         throw new Error(`GitHub API error while updating file: ${response.status} - ${JSON.stringify(errorData)}`);
       }
       
-      // Create a pull request for the changes
       const project = await this.getProject();
       const defaultBranch = project.default_branch;
+
+      // Check if there is already an open pull request for this branch
+      const prCheckResponse = await fetch(
+        `${this.host}/repos/${this.projectPath}/pulls?head=${this.projectPath.split('/')[0]}:${branch_name}&base=${defaultBranch}&state=open`,
+        {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/vnd.github+json",
+          },
+        }
+      );
+      if (!prCheckResponse.ok) {
+        throw new Error(`GitHub API error while checking existing pull requests: ${prCheckResponse.status}`);
+      }
+      const existingPRs = await prCheckResponse.json();
+      if (existingPRs.length > 0) {
+        return existingPRs[0].number; // Return the existing pull request number
+      }
+
+      // Create a pull request for the changes
       const prResponse = await fetch(`${this.host}/repos/${this.projectPath}/pulls`, {
         method: "POST",
         headers: {
@@ -356,9 +385,9 @@ export class GithubService extends GitServiceInterface {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: `Update events for issue #${issue_id}`,
-          body: `This pull request updates the events file for issue #${issue_id}.`,
-          head: branchName,
+          title: "Update events from reported issues",
+          body: `This pull request updates the events file from reported and confirmed issues.\n\nRelates to #${issue_id}`,
+          head: branch_name,
           base: defaultBranch,
         }),
       });
@@ -376,18 +405,17 @@ export class GithubService extends GitServiceInterface {
 
   /**
    * Downloads a raw file from a GitHub issue branch.
-   * @param {number} issue_id - The ID of the issue associated with the file.
+   * @param {string} branch_name - The name of the branch associated with the file.
    * @param {string} file_path - The path to the file in the repository.
    * @returns {Promise<string>} - A promise that resolves to the raw file content.
    * @throws {Error} - Throws an error if the API request fails.
    */
 
-  async downloadRawFile(issue_id, file_path) {
+  async downloadRawFile(branch_name, file_path) {
   const accessToken = this.getAccessToken();
   try {
-    const branchName = `issue-${issue_id}`;
     const response = await fetch(
-      `https://api.github.com/repos/${this.projectPath}/contents/${file_path}?ref=${branchName}`,
+      `https://api.github.com/repos/${this.projectPath}/contents/${file_path}?ref=${branch_name}`,
       {
         method: "GET",
         headers: {
