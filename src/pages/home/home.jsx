@@ -1,17 +1,20 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import epfl from "../../img/epfl.png";
 import epflc from "../../img/epflc.png";
-import eawag from "../../img/eawag.png";
 import eawagc from "../../img/eawagc.png";
-import unil from "../../img/unil.png";
 import unilc from "../../img/unilc.png";
-import geneve from "../../img/geneve.png";
 import genevec from "../../img/genevec.png";
-import carrtel from "../../img/carrtel.png";
 import carrtelc from "../../img/carrtelc.png";
-import sdsc from "../../img/sdsc.png";
 import sdscc from "../../img/sdscc.png";
+import bafu from "../../img/bafu.png";
+import tessin from "../../img/tessin.png";
+import bern from "../../img/bern.png";
+import fribourg from "../../img/fribourg.jpg";
+import vaud from "../../img/vaud.png";
+import aargau from "../../img/aarau.png";
+import zug from "../../img/zug.png";
+import zurich from "../../img/zurich.png";
+import lucerne from "../../img/lucerne.png";
 import james from "../../img/james.png";
 import damien from "../../img/damien.jpg";
 import map from "../../img/map.png";
@@ -33,7 +36,6 @@ class PartnerBanner extends Component {
             target="_blank"
             title="Visit the Eawag project page for datalakes"
           >
-            <img alt="Eawag Logo" src={eawag} className="black" />
             <img alt="Eawag Logo" src={eawagc} className="color" />
           </a>
           <a
@@ -43,7 +45,6 @@ class PartnerBanner extends Component {
             target="_blank"
             title="Visit the SDSC project page for datalakes"
           >
-            <img alt="SDSC Logo" src={sdsc} className="black" />
             <img alt="SDSC Logo" src={sdscc} className="color" />
           </a>
           <a
@@ -53,7 +54,6 @@ class PartnerBanner extends Component {
             target="_blank"
             title="Visit the EPFL project page for the L'EXPLORE platform"
           >
-            <img alt="EPFL Logo" src={epfl} className="black" />
             <img alt="EPFL Logo" src={epflc} className="color" />
           </a>
           <a
@@ -63,7 +63,6 @@ class PartnerBanner extends Component {
             target="_blank"
             title="Visit the UNIL project page for the L'EXPLORE platform"
           >
-            <img alt="UNIL Logo" src={unil} className="black" />
             <img alt="UNIL Logo" src={unilc} className="color" />
           </a>
           <a
@@ -73,11 +72,6 @@ class PartnerBanner extends Component {
             target="_blank"
             title="Visit the UNIGE news page for the L'EXPLORE platform"
           >
-            <img
-              alt="Universite de Geneve Logo"
-              src={geneve}
-              className="black"
-            />
             <img
               alt="Universite de Geneve Logo"
               src={genevec}
@@ -91,8 +85,89 @@ class PartnerBanner extends Component {
             target="_blank"
             title="Visit the CARRTEL news page for the L'EXPLORE platform"
           >
-            <img alt="Carrtel Logo" src={carrtel} className="black" />
             <img alt="Carrtel Logo" src={carrtelc} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.bafu.admin.ch/de"
+            target="_blank"
+            title="Visit the BAFU website"
+          >
+            <img alt="BAFU Logo" src={bafu} className="color" />
+          </a>
+
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www4.ti.ch/"
+            target="_blank"
+            title="Visit the Canton Tessin website"
+          >
+            <img alt="Tessin Logo" src={tessin} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.be.ch/de/start.html"
+            target="_blank"
+            title="Visit the Canton Bern website"
+          >
+            <img alt="Bern Logo" src={bern} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.vaud.ch/"
+            target="_blank"
+            title="Visit the Canton Vaud website"
+          >
+            <img alt="Vaud Logo" src={vaud} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.fr.ch/de"
+            target="_blank"
+            title="Visit the Canton Fribourg website"
+          >
+            <img alt="Fribourg Logo" src={fribourg} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.lu.ch/"
+            target="_blank"
+            title="Visit the Canton Lucerne website"
+          >
+            <img alt="Lucerne Logo" src={lucerne} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.ag.ch/"
+            target="_blank"
+            title="Visit the Canton Aargau website"
+          >
+            <img alt="Aargau Logo" src={aargau} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://zg.ch/de"
+            target="_blank"
+            title="Visit the Canton Zug website"
+          >
+            <img alt="Zug Logo" src={zug} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.zh.ch/de.html"
+            target="_blank"
+            title="Visit the Canton Zurich website"
+          >
+            <img alt="Zurich Logo" src={zurich} className="color" />
           </a>
         </div>
       </React.Fragment>

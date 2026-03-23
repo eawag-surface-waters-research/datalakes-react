@@ -16,21 +16,18 @@ footer .container {
   max-width: 100%;
 }
 
-footer .container .partners {
-  padding: 15px 0 10px 0;
-  text-align: center;
+footer .container .partner-logo {
+  display: inline-block;
 }
 
-footer .container .partners img {
+footer .container .partner-logo img {
+  opacity: 0.5;
   height: 30px;
   margin: 5px 3%;
+  vertical-align: middle;
 }
 
-footer .container .partners .partner-logo img {
-  opacity: 0.5;
-}
-
-footer .container .partners .partner-logo img:hover {
+footer .container .partner-logo img:hover {
   opacity: 1;
 }
 
@@ -38,19 +35,22 @@ footer .container .copyright {
   width: 100%;
   text-align: right;
   box-sizing: border-box;
-  padding: 0 50px 10px 0;
+  padding: 4px 50px 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 footer .container .copyright .contact {
-  float: left;
+  margin-right: auto;
   padding-left: 50px;
 }
 
 footer .container .copyright .contact img {
   height: 20px;
-  margin-top: -4px;
   padding-right: 20px;
   opacity: 0.5;
+  vertical-align: middle;
 }
 
 footer .container .copyright .contact img:hover {

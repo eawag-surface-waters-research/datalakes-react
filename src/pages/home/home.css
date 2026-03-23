@@ -121,23 +121,12 @@
 .home-partners img {
   height: 26px;
   margin: 5px 3%;
+  padding-bottom: 10px;
+  filter: grayscale(100%);
 }
 
-.home-partners .partner-logo .black {
-  display: inline-block;
-  opacity: 0.7;
-}
-
-.home-partners .partner-logo .color {
-  display: none;
-}
-
-.home-partners .partner-logo:hover .black {
-  display: none;
-}
-
-.home-partners .partner-logo:hover .color {
-  display: inline-block;
+.home-partners img:hover {
+  filter: none;
 }
 
 .sectiontitle {
