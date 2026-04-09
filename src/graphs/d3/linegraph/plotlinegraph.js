@@ -21,6 +21,7 @@ import {
   zoomIdentity,
   zoom as d3zoom,
   brush as d3brush,
+  drag as d3drag,
   format,
   timeFormatDefaultLocale,
   curveNatural,
@@ -661,12 +662,15 @@ const addLegend = (svg, div, data, options) => {
       .append("g")
       .attr("id", "legend_" + div)
       .attr("class", "legend")
-      .attr("pointer-events", "none");
+      .attr("pointer-events", "all")
+      .style("cursor", "grab");
 
     var legendbackground = legendblock
       .append("rect")
-      .style("fill", "currentColor")
-      .style("opacity", 0.1);
+      .style("fill", "white")
+      .style("stroke", "#ccc")
+      .style("stroke-width", 1)
+      .style("opacity", 0.9);
 
     var x = options.canvasWidth - 10;
     var textAnchor = "end";
@@ -714,6 +718,25 @@ const addLegend = (svg, div, data, options) => {
       .attr("y", legend_size.y - 5)
       .attr("width", legend_size.width + 10)
       .attr("height", legend_size.height + 10);
+
+    var dragOffset = { x: 0, y: 0 };
+    legendblock.call(
+      d3drag()
+        .on("start", function () {
+          select(this).style("cursor", "grabbing");
+        })
+        .on("drag", function (event) {
+          dragOffset.x += event.dx;
+          dragOffset.y += event.dy;
+          select(this).attr(
+            "transform",
+            `translate(${dragOffset.x},${dragOffset.y})`
+          );
+        })
+        .on("end", function () {
+          select(this).style("cursor", "grab");
+        })
+    );
   }
 };
 

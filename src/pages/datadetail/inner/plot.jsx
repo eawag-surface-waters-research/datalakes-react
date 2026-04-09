@@ -379,7 +379,7 @@ class AxisSelect extends Component {
         {graph === "linegraph" && !addNewFiles && (
           <FilterBox
             title="Compare"
-            newFeature="true"
+            newFeature="false"
             preopen="false"
             content={<Compare {...this.props} />}
           />
@@ -950,6 +950,7 @@ class DisplayOptions extends Component {
                         <option value="Mean">Mean</option>
                         <option value="Min">Min</option>
                         <option value="Max">Max</option>
+                        <option value="Sum">Sum</option>
                       </select>
                       </div>
                     </td>
@@ -1138,6 +1139,8 @@ class Plot extends Component {
       return d3.min(nums);
     } else if (averageType === "Max") {
       return d3.max(nums);
+    } else if (averageType === "Sum") {
+      return d3.sum(nums);
     }
   };
 
