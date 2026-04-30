@@ -18,6 +18,7 @@ import isInteger from "lodash/isInteger";
 import ReportIssue from "../../../components/reportissue/reportissue";
 import Connect from "../img/connect.svg";
 import Bafu from "./bafu";
+import Minimal from "./minimal";
 import Display from "./display";
 
 class Graph extends Component {
@@ -2453,20 +2454,19 @@ class Plot extends Component {
     var search = url.replace("?", "").split("&");
     var validAxis = datasetparameters.map((d) => d.axis);
     for (let s of search) {
+      try {
+        s = decodeURIComponent(s);
+      } catch (e) {}
       if (s.includes("axis")) {
         try {
           var xxaxis = [];
           var yyaxis = [];
           let axis = s
-            .replace("axis:[", "")
-            .replace("axis:(", "")
-            .replace("axis:%5B", "")
-            .replace("axis:%5b", "")
-            .replace("]", "")
-            .replace(")", "")
-            .replace("%5D", "")
-            .replace("%5d", "")
-            .split(",");
+            .replace(/^axis[:=]/, "")
+            .replace(/^[[(]/, "")
+            .replace(/[\])]$/, "")
+            .split(",")
+            .map((a) => a.trim());
           for (let a of axis) {
             if (validAxis.includes(a)) {
               if (a.includes("x")) xxaxis.push(a);
@@ -2734,6 +2734,16 @@ class Plot extends Component {
             Downloading extra files.
           </div>
           <Bafu {...this.state} {...this.props} onChangeX={this.onChangeX} />
+        </React.Fragment>
+      );
+    } else if (this.props.search.toLowerCase().includes("minimal")) {
+      return (
+        <React.Fragment>
+          <div className="detailloading" id="detailloading">
+            <Loading />
+            Downloading extra files.
+          </div>
+          <Minimal {...this.state} {...this.props} onChangeX={this.onChangeX} />
         </React.Fragment>
       );
     } else if (this.props.search.toLowerCase().includes("display=true")) {
