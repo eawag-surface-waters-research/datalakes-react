@@ -32,7 +32,7 @@ export class GitlabService extends GitServiceInterface {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -71,12 +71,12 @@ export class GitlabService extends GitServiceInterface {
           body: JSON.stringify({
             labels: labelsArray.join(","),
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         throw new Error(
-          `GitLab API error while applying labels: ${response.status}`
+          `GitLab API error while applying labels: ${response.status}`,
         );
       }
     } catch (err) {
@@ -112,7 +112,7 @@ export class GitlabService extends GitServiceInterface {
             description: body,
             labels: labelsArray.join(","),
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -145,7 +145,7 @@ export class GitlabService extends GitServiceInterface {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -162,7 +162,7 @@ export class GitlabService extends GitServiceInterface {
 
   /**
    * Checks if a Git issue exists by its ID.
-   * @param {number} issue_id 
+   * @param {number} issue_id
    * @returns {Promise<boolean>}
    */
   async checkGitIssueExist(issue_id) {
@@ -176,7 +176,7 @@ export class GitlabService extends GitServiceInterface {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       return response.ok;
     } catch (err) {
@@ -209,11 +209,11 @@ export class GitlabService extends GitServiceInterface {
             body: JSON.stringify({
               body: comment,
             }),
-          }
+          },
         );
         if (!commentResponse.ok) {
           console.error(
-            `GitLab API error while adding comment: ${commentResponse.status}`
+            `GitLab API error while adding comment: ${commentResponse.status}`,
           );
         }
       }
@@ -229,11 +229,11 @@ export class GitlabService extends GitServiceInterface {
             state_event: "close",
             labels: ["wontfix"],
           }),
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(
-          `GitLab API error while closing issue: ${response.status}`
+          `GitLab API error while closing issue: ${response.status}`,
         );
       }
     } catch (err) {
@@ -264,12 +264,12 @@ export class GitlabService extends GitServiceInterface {
           body: JSON.stringify({
             body: comment,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         throw new Error(
-          `GitLab API error while commenting on issue: ${response.status}`
+          `GitLab API error while commenting on issue: ${response.status}`,
         );
       }
     } catch (err) {
@@ -308,16 +308,20 @@ export class GitlabService extends GitServiceInterface {
     try {
       const accessToken = await this.refreshGitlabAccessToken();
       const projectId = encodeURIComponent(`${this.projectPath}`);
+      const branchRef = encodeURIComponent(`${branch_name}`);
 
       const project = await this.getProject();
 
       // if branch already exists, do nothing
-      const branchResponse = await fetch(`${this.host}/api/v4/projects/${projectId}/repository/branches/${branch_name}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const branchResponse = await fetch(
+        `${this.host}/api/v4/projects/${projectId}/repository/branches/${branchRef}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      });
+      );
 
       if (branchResponse.ok) {
         // Branch exists
@@ -327,19 +331,24 @@ export class GitlabService extends GitServiceInterface {
       // Create the branch from the default branch
       const defaultBranch = project.default_branch;
       const response = await fetch(
-        `${this.host}/api/v4/projects/${projectId}/repository/branches?branch=${branch_name}&ref=${defaultBranch}`,
+        `${
+          this.host
+        }/api/v4/projects/${projectId}/repository/branches?branch=${branchRef}&ref=${encodeURIComponent(
+          defaultBranch,
+        )}`,
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
+        const detail = await response.text();
         throw new Error(
-          `GitLab API error while creating branch: ${response.status}`
+          `GitLab API error while creating branch: ${response.status} ${detail}`,
         );
       }
     } catch (err) {
@@ -361,7 +370,7 @@ export class GitlabService extends GitServiceInterface {
     const { exists, content } = await this.mergeEvents(
       branch_name,
       event,
-      file_path
+      file_path,
     );
     const accessToken = await this.refreshGitlabAccessToken();
     const projectId = encodeURIComponent(`${this.projectPath}`);
@@ -372,7 +381,7 @@ export class GitlabService extends GitServiceInterface {
       `${
         this.host
       }/api/v4/projects/${projectId}/repository/files/${encodeURIComponent(
-        file_path
+        file_path,
       )}`,
       {
         method: exists ? "PUT" : "POST",
@@ -386,11 +395,11 @@ export class GitlabService extends GitServiceInterface {
           commit_message: `feat: add event for issue #${issue_id}`,
           encoding: "text",
         }),
-      }
+      },
     );
     if (!response.ok) {
       throw new Error(
-        `GitLab API error while creating events file: ${response.status}`
+        `GitLab API error while creating events file: ${response.status}`,
       );
     }
     const project = await this.getProject();
@@ -404,22 +413,19 @@ export class GitlabService extends GitServiceInterface {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
     if (!mrResponse.ok) {
       throw new Error(
-        `GitLab API error while checking merge requests: ${mrResponse.status}`
+        `GitLab API error while checking merge requests: ${mrResponse.status}`,
       );
     }
     const mergeRequests = await mrResponse.json();
     if (mergeRequests.length > 0) {
-      console.debug(
-        "GitLab merge request already exists:",
-        mergeRequests[0]
-      );
+      console.debug("GitLab merge request already exists:", mergeRequests[0]);
       return mergeRequests[0].iid; // Return the existing merge request ID
     }
-    
+
     // Create a merge request for the new branch
     const mergeRequestResponse = await fetch(
       `${this.host}/api/v4/projects/${projectId}/merge_requests`,
@@ -436,11 +442,11 @@ export class GitlabService extends GitServiceInterface {
           description: `This merge request updates the events file from reported and confirmed issues.\n\nRelates to #${issue_id}`,
           remove_source_branch: true,
         }),
-      }
+      },
     );
     if (!mergeRequestResponse.ok) {
       throw new Error(
-        `GitLab API error while creating merge request: ${mergeRequestResponse.status}`
+        `GitLab API error while creating merge request: ${mergeRequestResponse.status}`,
       );
     }
     const mergeRequest = await mergeRequestResponse.json();
@@ -467,14 +473,14 @@ export class GitlabService extends GitServiceInterface {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       if (response.status === 404) {
         return ""; // File not found, return empty string
       }
       if (!response.ok) {
         throw new Error(
-          `GitLab API error while downloading raw file: ${response.status}`
+          `GitLab API error while downloading raw file: ${response.status}`,
         );
       }
       // Return the raw file content as text
@@ -501,11 +507,11 @@ export class GitlabService extends GitServiceInterface {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       if (!response.ok) {
         throw new Error(
-          `GitLab API error while fetching project: ${response.status}`
+          `GitLab API error while fetching project: ${response.status}`,
         );
       }
       const project = await response.json();
@@ -593,7 +599,7 @@ export class GitlabService extends GitServiceInterface {
       return "https://gitlab.eawag.ch";
     } else {
       throw new Error(
-        "Unsupported ID provider. Only 'renku' and 'gitlab' are supported."
+        "Unsupported ID provider. Only 'renku' and 'gitlab' are supported.",
       );
     }
   }
@@ -613,7 +619,7 @@ export class GitlabService extends GitServiceInterface {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
