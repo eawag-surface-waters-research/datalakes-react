@@ -15,6 +15,7 @@ import aargau from "../../img/aarau.png";
 import zug from "../../img/zug.png";
 import zurich from "../../img/zurich.png";
 import lucerne from "../../img/lucerne.png";
+import supsi from "../../img/supsi.png";
 import james from "../../img/james.png";
 import damien from "../../img/damien.jpg";
 import map from "../../img/map.png";
@@ -168,6 +169,15 @@ class PartnerBanner extends Component {
             title="Visit the Canton Zurich website"
           >
             <img alt="Zurich Logo" src={zurich} className="color" />
+          </a>
+          <a
+            className="partner-logo"
+            rel="noopener noreferrer"
+            href="https://www.supsi.ch/"
+            target="_blank"
+            title="Visit the SUPSI website"
+          >
+            <img alt="SUPSI Logo" src={supsi} className="color" />
           </a>
         </div>
       </React.Fragment>
