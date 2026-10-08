@@ -332,7 +332,12 @@ export class GithubService extends GitServiceInterface {
       // Create or update the file in the branch using the GitHub API
       const updateBody = {
         message: `feat:add event for issue #${issue_id}`,
-        content: window.btoa(content), // Base64 encode the content
+        // Base64 encode as UTF-8 (btoa alone fails on non-Latin1 characters)
+        content: window.btoa(
+          Array.from(new TextEncoder().encode(content), (b) =>
+            String.fromCharCode(b)
+          ).join("")
+        ),
         branch: branch_name,
       };
       
