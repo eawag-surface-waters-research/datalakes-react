@@ -143,7 +143,7 @@ export class GitServiceInterface {
   eventToCSV(event) {
     const start = this.formatDate(event.start);
     const end = this.formatDate(event.end);
-    const parameters = event.parameters?.map(p => p.label).join(",") || "All";
+    const parameters = event.parameters?.map(p => p.parseparameter).filter(Boolean).join(",") || "All";
     const depth = event.sensordepths || "";
     let description = event.description || "";
     if (description.includes(";")) {

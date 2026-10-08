@@ -256,6 +256,7 @@ class ReportIssue extends Component {
           value: p.id,
           label: p.name + (p.detail !== "none" ? ` (${p.detail})` : ""),
           id: p.parameters_id,
+          parseparameter: p.parseparameter,
         };
       });
 
