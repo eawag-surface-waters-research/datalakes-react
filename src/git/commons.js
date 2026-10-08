@@ -145,9 +145,10 @@ export class GitServiceInterface {
     const end = this.formatDate(event.end);
     const parameters = event.parameters?.map(p => p.parseparameter).filter(Boolean).join(",") || "All";
     const depth = event.sensordepths || "";
-    let description = event.description || "";
-    if (description.includes(";")) {
-      description = `"${description}"`; // escape semicolons in description
+    // flatten line breaks so each event stays on a single CSV line
+    let description = (event.description || "").replace(/\s*[\r\n]+\s*/g, " ").trim();
+    if (description.includes(";") || description.includes('"')) {
+      description = `"${description.replace(/"/g, '""')}"`; // quote and escape for CSV
     }
     return `${start};${end};${parameters};${depth};${description}`;
   }
