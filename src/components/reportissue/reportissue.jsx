@@ -6,7 +6,11 @@ import axios from "axios";
 import { apiUrl } from "../../config.json";
 import "./reportissue.css";
 import { formatNumber } from "../../graphs/d3/linegraph/functions";
-import { idProviderFromSsh } from "../../functions";
+import {
+  idProviderFromSsh,
+  groupMaintenance,
+  formatLocalTime,
+} from "../../functions";
 import { GitService } from "../../git";
 import Loading from "../../components/loading/loading";
 
@@ -36,6 +40,12 @@ class ReportIssue extends Component {
     loading: false,
   };
 
+  defaultTime = () => {
+    // latest time in the current plot, otherwise now
+    var maxTime = this.props.getMaxTime ? this.props.getMaxTime() : undefined;
+    return maxTime ? new Date(maxTime) : new Date();
+  };
+
   getUser = () => {
     // get user for this dataset
     return this.state.git_service.getGitUser();
@@ -50,8 +60,8 @@ class ReportIssue extends Component {
     // init maintenance form with selected data
     var { selectedData } = this.props;
     var { start, end, parameters, sensordepths, reporter, email, data } = this.state;
-    start = new Date();
-    end = new Date();
+    start = this.defaultTime();
+    end = this.defaultTime();
     parameters = [];
     sensordepths = "";
     var checking_issues = false;
@@ -83,9 +93,16 @@ class ReportIssue extends Component {
     }
 
     if (selectedData?.bbox && selectedData.bbox.length > 0) {
-      if (selectedData.xTime) {
-        start = selectedData.bbox[0][0];
-        end = selectedData.bbox[1][0];
+      // brush corners are in screen order, so sort them
+      const bboxRange = (dim) => {
+        const a = selectedData.bbox[0][dim];
+        const b = selectedData.bbox[1][dim];
+        return a <= b ? [a, b] : [b, a];
+      };
+      if (selectedData.xTime || selectedData.yTime) {
+        [start, end] = bboxRange(selectedData.xTime ? 0 : 1).map(
+          (t) => new Date(t)
+        );
       } else if (selectedData.times && selectedData.times.length > 0) {
         // ensure Date objects
         selectedData.times = selectedData.times.map((t) =>
@@ -95,10 +112,15 @@ class ReportIssue extends Component {
         start = new Date(Math.min(...selectedData.times));
         end = new Date(Math.max(...selectedData.times));
       }
-      if (selectedData.yLabel === "Depth") {
-        sensordepths = `${formatNumber(selectedData.bbox[0][1])}-${formatNumber(
-          selectedData.bbox[1][1]
-        )}`;
+      const depthDim =
+        selectedData.yLabel === "Depth"
+          ? 1
+          : selectedData.xLabel === "Depth"
+          ? 0
+          : undefined;
+      if (depthDim !== undefined) {
+        const [d0, d1] = bboxRange(depthDim);
+        sensordepths = `${formatNumber(d0)}-${formatNumber(d1)}`;
       }
     }
     if (selectedData?.yLabel) {
@@ -215,7 +237,7 @@ class ReportIssue extends Component {
     var { data } = this.state;
     var maintenances = data.filter((d) => ids.includes(d.id));
     if (!maintenances || maintenances.length === 0) {
-      window.alert("No maintenance request found to edit.");
+      window.alert("No issue report found to edit.");
       return;
     }
     const event = this.makeEvent(maintenances);
@@ -233,7 +255,7 @@ class ReportIssue extends Component {
     var { data } = this.state;
     var maintenances = data.filter((d) => ids.includes(d.id));
     if (!maintenances || maintenances.length === 0) {
-      window.alert("No maintenance request found to edit.");
+      window.alert("No issue report found to edit.");
       return;
     }
     const event = this.makeEvent(maintenances);
@@ -279,7 +301,7 @@ class ReportIssue extends Component {
         var { data } = this.state;
         var content = data.find((d) => ids.includes(d.id));
         if (!content) {
-          window.alert("No maintenance request found to confirm.");
+          window.alert("No issue report found to confirm.");
           return;
         }
         const ttl = `[maintenance] ${content.description.slice(0, 50)}`;
@@ -325,7 +347,7 @@ class ReportIssue extends Component {
       var { data, git_service } = this.state;
       var maintenances = data.filter((d) => ids.includes(d.id));
       if (!maintenances || maintenances.length === 0) {
-        window.alert("No maintenance request found to edit.");
+        window.alert("No issue report found to edit.");
         return;
       }
       const event = this.makeEvent(maintenances);
@@ -346,9 +368,12 @@ class ReportIssue extends Component {
     }
   };
 
-  updateMaintenances = async () => {
+  updateMaintenances = async (notify = true) => {
     var { data } = await axios.get(apiUrl + "/maintenance/" + this.props.id);
     this.setState({ data });
+    // let the plot re-apply masks after a report changed
+    if (notify && this.props.onMaintenanceChange)
+      this.props.onMaintenanceChange(data);
   };
 
   submitMaintenance = async () => {
@@ -426,8 +451,8 @@ class ReportIssue extends Component {
         }
         this.updateMaintenances();
         this.setState({
-          start: new Date(),
-          end: new Date(),
+          start: this.defaultTime(),
+          end: this.defaultTime(),
           parameters: null,
           description: "",
           reporter: user?.name || "",
@@ -443,28 +468,6 @@ class ReportIssue extends Component {
     }
   };
 
-  formatTime = (time) => {
-    let parts = time.split("T");
-    return parts[0] + " " + parts[1].slice(0, 5);
-  };
-
-  formatRange = (label, unit, time, startVal, endVal) => {
-    if (time) {
-      const start =
-        typeof startVal === "string" ? new Date(startVal) : startVal;
-      const end = typeof endVal === "string" ? new Date(endVal) : endVal;
-      return `${label ? label : "Time"}: from ${this.formatTime(
-        start.toISOString()
-      )} to ${this.formatTime(end.toISOString())}`;
-    } else {
-      return `${label ? label : "Values"}${
-        unit ? " (" + unit + ")" : ""
-      }: [${formatNumber(
-        startVal < endVal ? startVal : endVal
-      )}, ${formatNumber(startVal > endVal ? startVal : endVal)}]`;
-    }
-  };
-
   formatLabel = (label, unit) => {
     return label + (unit ? " (" + unit + ")" : "");
   };
@@ -475,7 +478,7 @@ class ReportIssue extends Component {
   };
 
   componentDidMount = async () => {
-    this.updateMaintenances();
+    this.updateMaintenances(false);
   };
 
   render() {
@@ -513,39 +516,10 @@ class ReportIssue extends Component {
         });
       var sd =
         datasetparameters.filter(
-          (dp) => dp.parameters_id === 2 && dp.axis === "y"
+          (dp) => dp.parameters_id === 2 && ["x", "y"].includes(dp.axis)
         ).length > 0;
 
-      var dict = {};
-      for (let i = 0; i < data.length; i++) {
-        // use issue if exists, otherwise use start and end time as key
-        let key = data[i].issue
-          ? data[i].issue
-          : data[i].starttime.toString() + data[i].endtime.toString();
-        if (key in dict) {
-          dict[key]["parameters"].push(
-            data[i].name +
-              (data[i].detail !== "none" ? ` (${data[i].detail})` : "")
-          );
-          dict[key]["id"].push(data[i].id);
-        } else {
-          dict[key] = {
-            start: data[i].starttime,
-            end: data[i].endtime,
-            parameters: [
-              data[i].name +
-                (data[i].detail !== "none" ? ` (${data[i].detail})` : ""),
-            ],
-            depths: data[i].depths,
-            description: data[i].description,
-            id: [data[i].id],
-            state: data[i].state,
-            issue: data[i].issue,
-            request: data[i].request,
-            reporter: data[i].reporter,
-          };
-        }
-      }
+      var dict = groupMaintenance(data);
 
       var rows = [];
 
@@ -565,8 +539,8 @@ class ReportIssue extends Component {
         const canDelete = reporterOrMaintainer && !checking_issues;
         rows.push(
           <tr key={key}>
-            <td>{this.formatTime(row.start)}</td>
-            <td>{this.formatTime(row.end)}</td>
+            <td>{formatLocalTime(row.start)}</td>
+            <td>{formatLocalTime(row.end)}</td>
             <td>{row.parameters.join(", ")}</td>
             <td>{row.depths}</td>
             <td>{row.description}</td>
@@ -740,7 +714,7 @@ class ReportIssue extends Component {
                   )}
                   {rows.length > 0 && (
                     <>
-                      <p>Current maintenance periods: {checking_issues && <span style={{color: "red"}}>[checking Git issues...]</span>}</p>
+                      <p>Current data issues: {checking_issues && <span style={{color: "red"}}>[checking Git issues...]</span>}</p>
                       <table className="table table-striped">
                         <thead>
                           <tr>
@@ -764,8 +738,8 @@ class ReportIssue extends Component {
                     </>
                   )}
                   <p>
-                    Please complete the form below to suggest a maintenance
-                    period for the dataset.
+                    Please complete the form below to report a period of bad
+                    or missing data (e.g. sensor fault, maintenance, outliers).
                   </p>
                   <table className="report">
                     <tbody>

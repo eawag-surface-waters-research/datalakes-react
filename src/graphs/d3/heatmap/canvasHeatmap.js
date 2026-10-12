@@ -627,6 +627,11 @@ class CanvasHeatmap {
         if (event.key === "Control" && !this._ctrlPressed) {
           this._ctrlPressed = true;
           this._activateBrush();
+        } else if (event.key === "Escape") {
+          // force exit, even if a selection is being kept
+          this._isBrushing = false;
+          this._ctrlPressed = false;
+          this._deactivateBrush();
         }
       })
       .on("keyup", (event) => {
@@ -721,7 +726,7 @@ class CanvasHeatmap {
       .style("padding", "5px 10px")
       .style("border-radius", "4px")
       .style("font-size", "12px")
-      .text("Brush Mode Active (Ctrl + Click to select)");
+      .text("Brush Mode Active (Ctrl + Click to select, Esc to exit)");
   }
   _deactivateBrush() {
     if (!this._isBrushing) {
@@ -1084,7 +1089,7 @@ class CanvasHeatmap {
     if (activeEvents.length > 0) {
       var eventHTML = `
         <div class="tooltip-events">
-          <div class="tooltip-events-header">Events:</div>
+          <div class="tooltip-events-header">Masked in processing:</div>
           <table>
             <thead>
               <tr><th>Parameters</th><th>Depths</th><th>Comments</th></tr>
@@ -1184,7 +1189,7 @@ class CanvasHeatmap {
       }, []);
       var eventHTML = `
         <div class="tooltip-events">
-          <div class="tooltip-events-header">Maintenance:</div>
+          <div class="tooltip-events-header">Reported issue:</div>
           <table>
             <thead>
               <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>

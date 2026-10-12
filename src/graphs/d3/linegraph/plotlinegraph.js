@@ -783,7 +783,7 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
         if (activeEvents.length > 0) {
           var eventHTML = `
             <div class="tooltip-events">
-              <div class="tooltip-events-header">Events:</div>
+              <div class="tooltip-events-header">Masked in processing:</div>
               <table>
                 <thead>
                   <tr><th>Parameters</th><th>Depths</th><th>Comments</th></tr>
@@ -835,7 +835,7 @@ const addTooltip = (data, div, xAxis, yAxis, options) => {
           , []);
           var eventHTML = `
             <div class="tooltip-events">
-              <div class="tooltip-events-header">Maintenance:</div>
+              <div class="tooltip-events-header">Reported issue:</div>
               <table>
                 <thead>
                   <tr><th>Parameters</th><th>Depths</th><th>Description</th></tr>
@@ -1241,37 +1241,40 @@ const addInteractionBoxes = (svg, div, options) => {
   }
 };
 
-const plotMaintenance = (context, maintenance, xAxis, options) => {
-  maintenance.forEach(event => {
-    // check if there are any event applying to the current parameter
-    if (event.events.find(e => e.name === options.yLabel) === undefined) {
-      return;
+const plotBand = (context, interval, xAxis, yAxis, options, color) => {
+  // shade a time interval along whichever axis is time
+  context.fillStyle = color;
+  if (options.yTime) {
+    const y0 = yAxis.y.ax(interval[0]);
+    const y1 = yAxis.y.ax(interval[1]);
+    if (y0 !== y1) {
+      context.fillRect(0, Math.min(y0, y1), options.canvasWidth, Math.abs(y1 - y0));
     }
-
-    const x = xAxis.x.ax(event.interval[0]);
-    const w = xAxis.x.ax(event.interval[1]) - x;
-  
+  } else {
+    const x = xAxis.x.ax(interval[0]);
+    const w = xAxis.x.ax(interval[1]) - x;
     if (w > 0) {
-      context.fillStyle = "rgba(255, 3, 255, 0.1)";
       context.fillRect(x, 0, w, options.canvasHeight);
     }
-    
-  });
-  
+  }
 };
 
-const plotEvents = (context, events, xAxis, options) => {
-  events.forEach(event => {
-    const x = xAxis.x.ax(event.interval[0]);
-    const w = xAxis.x.ax(event.interval[1]) - x;
-  
-    if (w > 0) {
-      context.fillStyle = "rgba(128, 128, 128, 0.1)";
-      context.fillRect(x, 0, w, options.canvasHeight);
+const plotMaintenance = (context, maintenance, xAxis, yAxis, options) => {
+  // the parameter is on the axis that is not time
+  const label = options.yTime ? options.xLabel : options.yLabel;
+  maintenance.forEach(event => {
+    // check if there are any event applying to the current parameter
+    if (event.events.find(e => e.name === label) === undefined) {
+      return;
     }
-    
+    plotBand(context, event.interval, xAxis, yAxis, options, "rgba(255, 3, 255, 0.1)");
   });
-  
+};
+
+const plotEvents = (context, events, xAxis, yAxis, options) => {
+  events.forEach(event => {
+    plotBand(context, event.interval, xAxis, yAxis, options, "rgba(128, 128, 128, 0.1)");
+  });
 };
 
 const editTicks = (xAxis, yAxis) => {
@@ -1445,8 +1448,8 @@ const addZoom = (svg, g, context, data, div, xAxis, yAxis, options) => {
 
 const updatePlots = (div, g, context, data, xAxis, yAxis, options) => {
   context.clearRect(0, 0, options.canvasWidth, options.canvasHeight);
-  if (options.events.length > 0) plotEvents(context, options.events, xAxis, options);
-  if (options.maintenance.length > 0) plotMaintenance(context, options.maintenance, xAxis, options);
+  if (options.events.length > 0) plotEvents(context, options.events, xAxis, yAxis, options);
+  if (options.maintenance.length > 0) plotMaintenance(context, options.maintenance, xAxis, yAxis, options);
   if (options.lines) plotLines(div, g, data, xAxis, yAxis, options);
   if (options.scatter) plotScatter(context, data, xAxis, yAxis, options);
 };
@@ -1458,6 +1461,11 @@ const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options, times) => {
       if (event.key === "Control" && !options.ctrlPressed) {
         options.ctrlPressed = true;
         activateBrush();
+      } else if (event.key === "Escape") {
+        // force exit, even if a selection is being kept
+        isBrushing = false;
+        options.ctrlPressed = false;
+        deactivateBrush();
       }
     })
     .on("keyup", (event) => {
@@ -1557,7 +1565,7 @@ const addBrush = (svg, xAxis, yAxis, zoombox, zoom, options, times) => {
       .style("padding", "5px 10px")
       .style("border-radius", "4px")
       .style("font-size", "12px")
-      .text("Brush Mode Active (Ctrl + Click to select)");
+      .text("Brush Mode Active (Ctrl + Click to select, Esc to exit)");
   }
 
   function deactivateBrush() {

@@ -16,6 +16,7 @@ import colorlist from "../../../components/colorramp/colors";
 import isArray from "lodash/isArray";
 import isInteger from "lodash/isInteger";
 import ReportIssue from "../../../components/reportissue/reportissue";
+import { isActiveMaintenance, depthMatches } from "../../../functions";
 import Connect from "../img/connect.svg";
 import Bafu from "./bafu";
 import Minimal from "./minimal";
@@ -968,7 +969,7 @@ class DisplayOptions extends Component {
                   </td>
                 </tr>
                 <tr>
-                  <td>Show Events</td>
+                  <td>Highlight masked periods</td>
                   <td>
                     <input
                       type="checkbox"
@@ -1432,65 +1433,100 @@ class Plot extends Component {
   };
 
   maskArray = (arr, maskArr, mask) => {
-    var out = [];
-    if (mask && isArray(maskArr) && arr.length === maskArr.length) {
-      if (isArray(arr[0])) {
-        for (let i = 0; i < arr.length; i++) {
-          let inner = [];
-          for (let j = 0; j < arr[i].length; j++) {
-            if (maskArr[i][j] === 0) {
-              inner.push(arr[i][j]);
-            } else {
-              inner.push(null);
-            }
-          }
-          out.push(inner);
-        }
-      } else {
-        for (let i = 0; i < arr.length; i++) {
-          if (maskArr[i] < 1) {
-            out.push(arr[i]);
-          } else {
-            out.push(null);
+    // hide values whose mask value is >= 1
+    if (!mask || !isArray(maskArr) || !isArray(arr) || arr.length !== maskArr.length) {
+      return arr;
+    }
+    const hide = (m) => m >= 1;
+    if (isArray(arr[0])) {
+      return arr.map((row, i) =>
+        isArray(maskArr[i]) && row.length === maskArr[i].length
+          ? row.map((v, j) => (hide(maskArr[i][j]) ? null : v))
+          : row
+      );
+    }
+    return arr.map((v, i) => (hide(maskArr[i]) ? null : v));
+  };
+
+  buildMaintenanceMask = (values, time, depth, maintenance, timeDim = 1) => {
+    // returns a new mask (1 = in maintenance) without modifying the inputs.
+    // 2D values are [depth][time] (timeDim 1) or [time][depth] (timeDim 0),
+    // 1D values are [time].
+    const inPeriod = (t) =>
+      maintenance.filter((m) => m.start <= t && t <= m.end);
+    if (isArray(values[0])) {
+      const out = values.map((row) => new Array(row.length).fill(0));
+      const depthCount = timeDim === 1 ? values.length : values[0].length;
+      for (let i = 0; i < time.length; i++) {
+        const active = inPeriod(time[i]);
+        if (active.length === 0) continue;
+        for (let k = 0; k < depthCount; k++) {
+          const d = depth ? depth[k] : undefined;
+          if (active.some((m) => !depth || depthMatches(m.depths, d))) {
+            if (timeDim === 1) out[k][i] = 1;
+            else out[i][k] = 1;
           }
         }
       }
       return out;
-    } else {
-      return arr;
     }
+    return time.map((t) => (inPeriod(t).length > 0 ? 1 : 0));
   };
 
-  addMaintenance = (data, mask, time, maintenance) => {
-    if (mask === undefined) {
-      if (isArray(data[0])) {
-        mask = Array(data.length)
-          .fill()
-          .map(() => Array(data[0].length).fill(0));
-      } else {
-        mask = new Array(time.length).fill(0);
-      }
+  combineMasks = (a, b) => {
+    // element-wise max of two masks, either may be undefined
+    if (!isArray(a)) return b;
+    if (!isArray(b) || a.length !== b.length) return a;
+    if (isArray(a[0])) {
+      return a.map((row, i) =>
+        isArray(b[i]) ? row.map((v, j) => Math.max(v || 0, b[i][j] || 0)) : row
+      );
     }
-    for (let i = 0; i < time.length; i++) {
-      for (let j = 0; j < maintenance.length; j++) {
-        if (maintenance[j].start < time[i] && time[i] < maintenance[j].end) {
-          if (isArray(data[0])) {
-            if (time.length === data.length) {
-              for (let k = 0; k < data.length; k++) {
-                mask[i][k] = 1;
-              }
-            } else if (time.length === data[0].length) {
-              for (let k = 0; k < data.length; k++) {
-                mask[k][i] = 1;
-              }
-            }
-          } else {
-            mask[i] = 1;
-          }
+    return a.map((v, i) => Math.max(v || 0, b[i] || 0));
+  };
+
+  getPlotMaxTime = () => {
+    // latest time shown in the current plot, used to prefill issue reports
+    var { plotdata, timeaxis } = this.state;
+    var { files, file } = this.props;
+    var max = -Infinity;
+    if (["x", "y"].includes(timeaxis) && isArray(plotdata)) {
+      for (let d of plotdata) {
+        let times = d && d[timeaxis];
+        if (!isArray(times)) continue;
+        for (let t of times) {
+          let v = t instanceof Date ? t.getTime() : t * 1000;
+          if (Number.isFinite(v) && v > max) max = v;
         }
       }
+    } else if (timeaxis === "M" && isArray(file)) {
+      for (let i of file) {
+        let v = files[i] && files[i].maxdt * 1000;
+        if (Number.isFinite(v) && v > max) max = v;
+      }
     }
-    return mask;
+    return Number.isFinite(max) ? new Date(max) : undefined;
+  };
+
+  buildProfileMask = (values, depthValues, depthDim, fileSpan, maintenance) => {
+    // profiles have one time span per file: the whole file is in maintenance
+    // when its span overlaps a report, filtered by depth when known.
+    // depthDim 0: 1D points or z rows, depthDim 1: z columns.
+    const active = maintenance.filter(
+      (m) => m.start <= fileSpan[1] && fileSpan[0] <= m.end
+    );
+    const hit = (k) =>
+      active.some(
+        (m) => !depthValues || depthMatches(m.depths, depthValues[k])
+      )
+        ? 1
+        : 0;
+    if (isArray(values[0])) {
+      return values.map((row, r) =>
+        row.map((v, c) => (active.length > 0 ? hit(depthDim === 0 ? r : c) : 0))
+      );
+    }
+    return values.map((v, k) => (active.length > 0 ? hit(k) : 0));
   };
 
   selectAxisAndMask = (
@@ -1507,104 +1543,108 @@ class Plot extends Component {
     graph
   ) => {
     var plotdata = [];
-    var maskaxis = [];
     var axis = [].concat.apply([], [xaxis, yaxis, zaxis]);
-    const findaxis = (dp, ax) => {
-      return dp.find((p) => p.axis === ax);
-    };
-    const findmask = (dp, axp) => {
-      return dp.find((dp) => dp.link === axp.id && dp.parameters_id === 27);
-    };
-    for (var ax of axis) {
-      var axp = findaxis(dp, ax);
-      if (axp && findmask(dp, axp)) {
-        maskaxis.push(findmask(dp, axp)["axis"]);
-      } else {
-        maskaxis.push(false);
+    const findaxis = (ax) => dp.find((p) => p.axis === ax);
+    const findmask = (axp) =>
+      dp.find((d) => d.link === axp.id && d.parameters_id === 27);
+
+    // file quality mask axis for each plotted axis
+    var maskaxis = axis.map((ax) => {
+      var axp = findaxis(ax);
+      var m = axp && findmask(axp);
+      return m ? m.axis : false;
+    });
+
+    // axes that maintenance periods apply to: the parameters on the
+    // non-time axis for line graphs, z for heatmaps
+    var maintenanceaxis = [];
+    // only when the time axis is the one actually plotted
+    var otheraxis;
+    var timeOnX = String([timeaxis]) === String(xaxis);
+    var timeOnY = String([timeaxis]) === String(yaxis);
+    // profiles: time is per file (M axis), parameters are on x
+    var profile = timeaxis === "M";
+    if (timeOnX) otheraxis = yaxis;
+    else if (timeOnY || profile) otheraxis = xaxis;
+    if (otheraxis !== undefined) {
+      if (graph === "linegraph") maintenanceaxis = [].concat(otheraxis);
+      else if (graph === "heatmap") maintenanceaxis = [zaxis];
+    }
+    var active = (maintenance || []).filter(isActiveMaintenance);
+
+    // profile depth axis: y first, then x
+    var profiledepth;
+    if (profile) {
+      var ydp = findaxis([].concat(yaxis)[0]);
+      var xdp = findaxis([].concat(xaxis)[0]);
+      if (ydp && ydp.parameters_id === 2) {
+        profiledepth = { axis: ydp.axis, dim: 0 };
+      } else if (graph === "heatmap" && xdp && xdp.parameters_id === 2) {
+        profiledepth = { axis: xdp.axis, dim: 1 };
       }
     }
 
-    var iter, pd, j;
+    // heatmap z is [y][x]; reported depths only filter when the non-time
+    // axis is depth
+    var depthaxis;
+    var timeDim = timeOnY ? 0 : 1;
+    if (graph === "heatmap" && otheraxis !== undefined) {
+      var op = findaxis([].concat(otheraxis)[0]);
+      if (op && op.parameters_id === 2) depthaxis = op.axis;
+    }
+
+    var iter;
     if (files[file[0]].connect === "ind") {
       iter = file;
     } else {
       iter = [...Array(data.length).keys()];
     }
 
-    try {
-      var maintenance_ids = maintenance
-        .filter((m) => m.state !== "reported")
-        .map((m) => m.datasetparameters_id);
-      if (graph === "linegraph") {
-        if (String([timeaxis]) === String(xaxis)) {
-          for (let i = 0; i < yaxis.length; i++) {
-            let a = dp.find((d) => d.axis === yaxis[i]).id;
-            if (maintenance_ids.includes(a)) {
-              let idx = axis.findIndex((e) => e === yaxis[i]);
-              let m = maintenance
-                .filter((m) => m.state !== "reported")
-                .filter((m) => m.datasetparameters_id === a);
-              for (let i of iter) {
-                if (data[i] !== 0) {
-                  if (maskaxis[idx] === false) {
-                    maskaxis[idx] = axis[idx] + "_qual";
-                  }
-                  data[i][maskaxis[idx]] = this.addMaintenance(
-                    data[i][axis[idx]],
-                    data[i][maskaxis[idx]],
-                    data[i][timeaxis],
-                    m
-                  );
-                }
-              }
-            }
-          }
-        }
-      } else if (graph === "heatmap") {
-        if (String([timeaxis]) === String(xaxis)) {
-          let a = dp.find((d) => d.axis === zaxis).id;
-          if (maintenance_ids.includes(a)) {
-            let idx = axis.findIndex((e) => e === zaxis);
-            let m = maintenance
-              .filter((m) => m.state !== "reported")
-              .filter((m) => m.datasetparameters_id === a && m.depths === "");
-            for (let i of iter) {
-              if (data[i] !== 0) {
-                if (maskaxis[idx] === false) {
-                  maskaxis[idx] = axis[i] + "_qual";
-                }
-                data[i][maskaxis[idx]] = this.addMaintenance(
-                  data[i][axis[idx]],
-                  data[i][maskaxis[idx]],
-                  data[i][timeaxis],
-                  m
-                );
-              }
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.error("Failed to add maintenance periods.");
-      console.error(e);
-    }
-
     for (let i of iter) {
-      if (data[i] !== 0) {
-        pd = {};
-        for (j = 0; j < axis.length; j++) {
-          if (maskaxis) {
-            pd[axis[j]] = this.maskArray(
-              data[i][axis[j]],
-              data[i][maskaxis[j]],
-              mask
+      if (data[i] === 0) continue;
+      const pd = {};
+      for (let j = 0; j < axis.length; j++) {
+        const values = data[i][axis[j]];
+        let maskArr = maskaxis[j] ? data[i][maskaxis[j]] : undefined;
+        if (mask && maintenanceaxis.includes(axis[j])) {
+          try {
+            const axp = findaxis(axis[j]);
+            // time-series line graphs have no per-point depth, so
+            // depth-specific reports mask the whole parameter
+            const m = active.filter(
+              (r) => axp && r.datasetparameters_id === axp.id
             );
-          } else {
-            pd[axis[j]] = data[i][axis[j]];
+            if (m.length > 0 && profile) {
+              maskArr = this.combineMasks(
+                maskArr,
+                this.buildProfileMask(
+                  values,
+                  profiledepth ? data[i][profiledepth.axis] : undefined,
+                  profiledepth ? profiledepth.dim : 0,
+                  [files[i].mindt, files[i].maxdt],
+                  m
+                )
+              );
+            } else if (m.length > 0) {
+              maskArr = this.combineMasks(
+                maskArr,
+                this.buildMaintenanceMask(
+                  values,
+                  data[i][timeaxis],
+                  depthaxis ? data[i][depthaxis] : undefined,
+                  m,
+                  timeDim
+                )
+              );
+            }
+          } catch (e) {
+            console.error("Failed to add maintenance periods.");
+            console.error(e);
           }
         }
-        plotdata.push(pd);
+        pd[axis[j]] = this.maskArray(values, maskArr, mask);
       }
+      plotdata.push(pd);
     }
 
     return plotdata;
@@ -2649,7 +2689,11 @@ class Plot extends Component {
       minZ,
       maxZ,
     } = this.state;
-    if (refresh || this.props.fileChange !== prevProps.fileChange) {
+    if (
+      refresh ||
+      this.props.fileChange !== prevProps.fileChange ||
+      this.props.maintenance !== prevProps.maintenance
+    ) {
       var { minX, maxX, minY, maxY } = this.getBounds(
         this.props.data,
         xaxis,
@@ -2781,6 +2825,8 @@ class Plot extends Component {
                       dataset={this.state.title}
                       datasetparameters={this.props.datasetparameters}
                       person={person}
+                      onMaintenanceChange={this.props.onMaintenanceChange}
+                      getMaxTime={this.getPlotMaxTime}
                     />
                   )}
                 </div>
