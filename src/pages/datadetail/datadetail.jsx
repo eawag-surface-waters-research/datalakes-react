@@ -120,6 +120,19 @@ class DataDetail extends Component {
   };
   // Update state based on actions
 
+  parseMaintenance = (maintenance) => {
+    // add start and end in seconds to match the data time axis
+    return maintenance.map((m) => ({
+      ...m,
+      start: Math.floor(new Date(m.starttime).getTime() / 1000),
+      end: Math.floor(new Date(m.endtime).getTime() / 1000),
+    }));
+  };
+
+  onMaintenanceChange = (maintenance) => {
+    this.setState({ maintenance: this.parseMaintenance(maintenance) });
+  };
+
   updateSelectedState = (step) => {
     this.setState({ step });
   };
@@ -515,14 +528,7 @@ class DataDetail extends Component {
     ); // Remove duplicates
     var datasetparameters = server[2].data;
     var dropdown = server[3].data;
-    var maintenance = server[4].data;
-
-    for (let i = 0; i < maintenance.length; i++) {
-      let start = new Date(maintenance[i].starttime);
-      let end = new Date(maintenance[i].endtime);
-      maintenance[i].start = Math.floor(start.getTime() / 1000);
-      maintenance[i].end = Math.floor(end.getTime() / 1000);
-    }
+    var maintenance = this.parseMaintenance(server[4].data);
 
     // Check for file tree
     if (!dataset.datasourcelink.includes("https://")) {
@@ -852,6 +858,7 @@ class DataDetail extends Component {
                 iframe={iframe}
                 search={search}
                 maintenance={maintenance}
+                onMaintenanceChange={this.onMaintenanceChange}
                 events={events}
               />
             </div>

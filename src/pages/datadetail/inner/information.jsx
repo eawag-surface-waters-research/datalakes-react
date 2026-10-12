@@ -8,7 +8,7 @@ import depth from "../img/depth.svg";
 import download from "../img/download.svg";
 import citation from "../img/citation.svg";
 import licence from "../img/licence.svg";
-import { urlFromSsh } from '../../../functions';
+import { urlFromSsh, groupMaintenance, formatLocalTime } from '../../../functions';
 import "../css/datadetail.css";
 
 
@@ -34,11 +34,6 @@ class Information extends Component {
     return months[date.getMonth()] + date.getFullYear();
   };
 
-  formatTime = (time) => {
-    let parts = time.split("T");
-    return parts[0] + " " + parts[1].slice(0, 5);
-  };
-
   round = (num, dec) => {
     return Math.round(num * 10 ** dec) / 10 ** dec;
   };
@@ -46,47 +41,15 @@ class Information extends Component {
   render() {
     const { dataset, getLabel, scripts, maintenance, events } = this.props;
     var script = scripts.filter((s) => s.name.includes(".md"));
-    var dict = {};
-    for (let i = 0; i < maintenance.length; i++) {
-      // use issue if exists, otherwise use start and end time as key
-      let key = maintenance[i].issue
-        ? maintenance[i].issue
-        :
-        maintenance[i].starttime.toString() + maintenance[i].endtime.toString();
-      if (key in dict) {
-        dict[key]["parameters"].push(
-          maintenance[i].name +
-            (maintenance[i].detail !== "none"
-              ? ` (${maintenance[i].detail})`
-              : "")
-        );
-        dict[key]["id"].push(maintenance[i].id);
-      } else {
-        dict[key] = {
-          start: maintenance[i].starttime,
-          end: maintenance[i].endtime,
-          parameters: [
-            maintenance[i].name +
-              (maintenance[i].detail !== "none"
-                ? ` (${maintenance[i].detail})`
-                : ""),
-          ],
-          depths: maintenance[i].depths,
-          description: maintenance[i].description,
-          id: [maintenance[i].id],
-          state: maintenance[i].state,
-          reporter: maintenance[i].reporter,
-        };
-      }
-    }
+    var dict = groupMaintenance(maintenance);
 
     var rows = [];
     for (var key in dict) {
       const row = dict[key];
       rows.push(
         <tr key={key}>
-          <td>{this.formatTime(row.start)}</td>
-          <td>{this.formatTime(row.end)}</td>
+          <td>{formatLocalTime(row.start)}</td>
+          <td>{formatLocalTime(row.end)}</td>
           <td>{row.parameters.join(", ")}</td>
           <td>{row.depths}</td>
           <td>{row.description}</td>
@@ -101,9 +64,9 @@ class Information extends Component {
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         eventRows.push(
-          <tr>
-            <td>{this.formatTime(event.start)}</td>
-            <td>{this.formatTime(event.stop)}</td> 
+          <tr key={i}>
+            <td>{formatLocalTime(event.start)}</td>
+            <td>{formatLocalTime(event.stop)}</td> 
             <td>{event.parameter}</td>
             <td>{event.depth ? event.depth.split(",").join(", ") : ""}</td>
             <td>{event.comments}</td>
@@ -185,7 +148,7 @@ class Information extends Component {
           <React.Fragment>
             {maintenance.length > 0 ? (
               <div className="description">
-                <div className="desc-header">Reported maintenance periods:</div>
+                <div className="desc-header">Reported data issues:</div>
                 <table className="table table-striped">
                   <thead>
                     <tr>
@@ -202,7 +165,7 @@ class Information extends Component {
                     {rows}
                   </tbody>
                 </table>
-                <div className="desc-warning">WARNING: Confirmed reported maintenance periods are masked on Datalakes however may not be in the downloadable files.</div>
+                <div className="desc-warning">WARNING: Confirmed data issues are masked on Datalakes but may still be present in the downloadable files.</div>
               </div>
             ) : (
               ""
@@ -211,7 +174,7 @@ class Information extends Component {
           <React.Fragment>
             {events && events.length > 0 ? (
               <div className="description">
-                <div className="desc-header">Reported events:</div>
+                <div className="desc-header">Data masked in processing:</div>
                 <table className="table table-striped">
                   <thead>
                     <tr>
@@ -226,7 +189,7 @@ class Information extends Component {
                     {eventRows}
                   </tbody>
                 </table>
-                <div className="desc-warning">INFO: Data affected by reported events were removed from original data source and then do not appear in the downloadable files.</div>
+                <div className="desc-warning">INFO: Data in these periods is masked by the processing pipeline, so it is also masked in the downloadable files.</div>
               </div>
             ) : (
               ""
