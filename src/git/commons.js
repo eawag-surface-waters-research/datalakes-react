@@ -127,12 +127,21 @@ export class GitServiceInterface {
     }
     let content = await this.downloadRawFile(branch_name, file_path);
     const exists = content.trim() !== '';
-    if (!exists) {
+    return { exists, content: this.appendEvent(content, event) };
+  }
+
+  /**
+   * Appends an event line to the content of an events file.
+   * @param {string} content - The current file content (empty for a new file).
+   * @param {Object} event - The event to append.
+   * @returns {string} - The new file content.
+   */
+  appendEvent(content, event) {
+    if (content.trim() === '') {
       // new or empty file: add csv header
       content = "start;stop;parameter;depth;comments"
     }
-    content = `${content}${content.endsWith("\n") ? "" : "\r\n"}${this.eventToCSV(event)}`;
-    return { exists, content };
+    return `${content}${content.endsWith("\n") ? "" : "\r\n"}${this.eventToCSV(event)}`;
   }
 
   /**

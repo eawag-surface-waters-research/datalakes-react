@@ -470,6 +470,8 @@ export class GitlabService extends GitServiceInterface {
         `${this.host}/api/v4/projects/${projectId}/repository/files/${filePath}/raw?ref=${branch_name}`,
         {
           method: "GET",
+          // avoid a cached copy dropping recently added events
+          cache: "no-store",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

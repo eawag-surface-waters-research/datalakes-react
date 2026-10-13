@@ -307,59 +307,51 @@ export class GithubService extends GitServiceInterface {
    * @throws {Error} - Throws an error if the API request fails.
    */
   async makeEventsMergeRequest(branch_name, issue_id, event, file_path) {
-    const { content } = await this.mergeEvents(branch_name, event, file_path);
     const accessToken = this.getAccessToken();
     try {
-      const treeResponse = await fetch(
-        `${this.host}/repos/${this.projectPath}/git/trees/${branch_name}?recursive=1`,
-        {
+      // Read the file and its sha together, then write. If the file changed
+      // in between (409), re-read and retry once.
+      const maxAttempts = 2;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const { content: current, sha } = await this.getFile(branch_name, file_path);
+        const content = this.appendEvent(current, event);
+
+        // Create or update the file in the branch using the GitHub API
+        const updateBody = {
+          message: `feat:add event for issue #${issue_id}`,
+          // Base64 encode as UTF-8 (btoa alone fails on non-Latin1 characters)
+          content: window.btoa(
+            Array.from(new TextEncoder().encode(content), (b) =>
+              String.fromCharCode(b)
+            ).join("")
+          ),
+          branch: branch_name,
+        };
+
+        // Include SHA if file exists (required for updates)
+        if (sha) {
+          updateBody.sha = sha;
+        }
+
+        const response = await fetch(`${this.host}/repos/${this.projectPath}/contents/${file_path}`, {
+          method: "PUT",
           headers: {
             "Authorization": `Bearer ${accessToken}`,
             "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify(updateBody),
+        });
+        if (response.status === 409 && attempt < maxAttempts) {
+          continue;
         }
-      );
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`GitHub API error while updating file: ${response.status} - ${JSON.stringify(errorData)}`);
+        }
+        break;
+      }
 
-      let fileSha = null;
-      if (treeResponse.ok) {
-        const treeData = await treeResponse.json();
-        const fileEntry = treeData.tree.find(item => item.path === file_path);
-        if (fileEntry) {
-          fileSha = fileEntry.sha;
-        }
-      }
-      
-      // Create or update the file in the branch using the GitHub API
-      const updateBody = {
-        message: `feat:add event for issue #${issue_id}`,
-        // Base64 encode as UTF-8 (btoa alone fails on non-Latin1 characters)
-        content: window.btoa(
-          Array.from(new TextEncoder().encode(content), (b) =>
-            String.fromCharCode(b)
-          ).join("")
-        ),
-        branch: branch_name,
-      };
-      
-      // Include SHA if file exists (required for updates)
-      if (fileSha) {
-        updateBody.sha = fileSha;
-      }
-      
-      const response = await fetch(`${this.host}/repos/${this.projectPath}/contents/${file_path}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Accept": "application/vnd.github+json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateBody),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`GitHub API error while updating file: ${response.status} - ${JSON.stringify(errorData)}`);
-      }
-      
       const project = await this.getProject();
       const defaultBranch = project.default_branch;
 
@@ -417,33 +409,53 @@ export class GithubService extends GitServiceInterface {
    */
 
   async downloadRawFile(branch_name, file_path) {
-  const accessToken = this.getAccessToken();
-  try {
-    const response = await fetch(
-      `https://api.github.com/repos/${this.projectPath}/contents/${file_path}?ref=${branch_name}`,
-      {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Accept": "application/vnd.github.v3.raw",
-        },
-      }
-    );
-    
-    if (response.status === 404) {
-      return ''; // File not found, return empty string
-    }
-    
-    if (!response.ok) {
-      throw new Error(`GitHub API error while downloading file: ${response.status}`);
-    }
-    
-    return await response.text();
-  } catch (err) {
-    console.error("Error downloading raw file from GitHub:", err);
-    throw err;
+    const { content } = await this.getFile(branch_name, file_path);
+    return content;
   }
-}
+
+  /**
+   * Reads a file and its blob sha from a branch in a single, uncached request.
+   * @param {string} branch_name - The branch to read from.
+   * @param {string} file_path - The path to the file in the repository.
+   * @returns {Promise<{content: string, sha: string|null}>} - Empty content and null sha if the file does not exist.
+   * @throws {Error} - Throws an error if the API request fails.
+   */
+  async getFile(branch_name, file_path) {
+    const accessToken = this.getAccessToken();
+    try {
+      const response = await fetch(
+        `${this.host}/repos/${this.projectPath}/contents/${file_path}?ref=${encodeURIComponent(branch_name)}`,
+        {
+          method: "GET",
+          // the API is cached for 60s by the browser, which gives a stale sha
+          cache: "no-store",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/vnd.github+json",
+          },
+        }
+      );
+
+      if (response.status === 404) {
+        return { content: "", sha: null }; // File not found
+      }
+
+      if (!response.ok) {
+        throw new Error(`GitHub API error while downloading file: ${response.status}`);
+      }
+
+      const data = await response.json();
+      // content is base64 (with line breaks) of UTF-8 bytes
+      const bytes = Uint8Array.from(
+        window.atob((data.content || "").replace(/\n/g, "")),
+        (c) => c.charCodeAt(0)
+      );
+      return { content: new TextDecoder().decode(bytes), sha: data.sha };
+    } catch (err) {
+      console.error("Error downloading file from GitHub:", err);
+      throw err;
+    }
+  }
 
   /**
    * Get the project object from GitHub.
