@@ -353,7 +353,8 @@ class ReportIssue extends Component {
       const event = this.makeEvent(maintenances);
       const requestId = await git_service.makeEventsMergeRequest(
         issueId,
-        event
+        event,
+        (this.props.eventsfile || "").trim() || "notes/events.csv"
       );
       await git_service.applyGitIssueLabels(issueId, ["resolved"]);
       for (let i = 0; i < ids.length; i++) {

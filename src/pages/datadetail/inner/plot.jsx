@@ -2822,6 +2822,7 @@ class Plot extends Component {
                       id={this.props.dataset.id}
                       repositories_id={this.props.dataset.repositories_id}
                       ssh={this.props.dataset.ssh}
+                      eventsfile={this.props.dataset.eventsfile}
                       dataset={this.state.title}
                       datasetparameters={this.props.datasetparameters}
                       person={person}

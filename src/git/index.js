@@ -145,10 +145,11 @@ export class GitService {
    * Creates a new merge request for events from a Git issue.
    * @param {number} issue_id - The ID of the issue for which to create the branch.
    * @param {Object} event - The event object containing details for the merge request creation.
+   * @param {string} file_path - The dataset's events file, relative to the repository root.
    * @returns {Promise<number>} - A promise that resolves to the merge request number.
    * @throws {Error} - Throws an error if the ID provider is unsupported or if the API request fails.
    */
-  async makeEventsMergeRequest(issue_id, event) {
+  async makeEventsMergeRequest(issue_id, event, file_path = "notes/events.csv") {
     if (!issue_id) return;
     const branch_name = "feat/events-report-update";
     await this.service.createGitBranch(branch_name);
@@ -157,7 +158,7 @@ export class GitService {
       branch_name,
       issue_id,
       event,
-      "notes/events.csv"
+      file_path
     );
   }
 }

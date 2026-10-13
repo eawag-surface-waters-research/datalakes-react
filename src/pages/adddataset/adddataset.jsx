@@ -49,6 +49,7 @@ class AddDataset extends Component {
       renku: "",
       folder: "",
       accompanyingdata: [],
+      eventsfile: "",
       mindatetime: "",
       maxdatetime: "",
       latitude: "",
@@ -361,7 +362,9 @@ class AddDataset extends Component {
 
   validateMetadata = async () => {
     const { dataset, step } = this.state;
-    if (this.noEmptyString(dataset)) {
+    // eventsfile is optional, empty means notes/events.csv
+    const { eventsfile, ...required } = dataset;
+    if (this.noEmptyString(required)) {
       this.setState({ allowedStep: [1, 2, 3, 4, 5, 6], step: step + 1 });
     } else {
       throw new Error("Please complete all the fields.");

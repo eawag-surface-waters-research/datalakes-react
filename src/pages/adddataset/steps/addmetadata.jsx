@@ -186,6 +186,19 @@ class AddMetadata extends Component {
                 </td>
               </tr>
               <tr>
+                <th>Events File</th>
+                <td>
+                  <input
+                    type="text"
+                    name="eventsfile"
+                    placeholder="notes/events.csv"
+                    title="Path from the repository root. Change only when several instruments share the repository."
+                    onChange={handleChange("eventsfile")}
+                    value={dataset["eventsfile"] || ""}
+                  />
+                </td>
+              </tr>
+              <tr>
                 <th>Lake</th>
                 <td>
                   <DataSelect
