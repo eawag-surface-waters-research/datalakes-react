@@ -740,7 +740,10 @@ class ReportIssue extends Component {
                   )}
                   <p>
                     Please complete the form below to report a period of bad
-                    or missing data (e.g. sensor fault, maintenance, outliers).
+                    or missing data (e.g. sensor fault, maintenance, outliers). 
+                  </p>
+                  <p>
+                    <b>Time is in local time and will be converted to UTC for the events file.</b>
                   </p>
                   <table className="report">
                     <tbody>
