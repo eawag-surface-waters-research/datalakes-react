@@ -796,6 +796,16 @@ class ReportIssue extends Component {
                           </div>
                         </td>
                       </tr>
+                      <tr>
+                        <th></th>
+                        <td>
+                          <p className="alert alert-warning">
+                            &#9888; Events reported on derived parameters are ignored
+                            by the processing pipeline. Please report the issue
+                            against the raw parameters it is calculated from.
+                          </p>
+                        </td>
+                      </tr>
                       {sd && (
                         <tr>
                           <th>Sensor Depths</th>
