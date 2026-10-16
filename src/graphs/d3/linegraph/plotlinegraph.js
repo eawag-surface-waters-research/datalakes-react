@@ -287,6 +287,21 @@ const getDomain = (domain) => {
   return [min, max];
 };
 
+const drawable = (v) => v !== null && v !== undefined && v !== "" && isFinite(v);
+
+const drawablePoints = (d) => {
+  // only points with both coordinates can be drawn, so only they set the extent
+  var x = [];
+  var y = [];
+  for (var k = 0; k < d.x.length; k++) {
+    if (drawable(d.x[k]) && drawable(d.y[k])) {
+      x.push(d.x[k]);
+      y.push(d.y[k]);
+    }
+  }
+  return { x, y };
+};
+
 const dataExtents = (data, options) => {
   var xdomarr = [];
   var ydomarr = [];
@@ -294,21 +309,22 @@ const dataExtents = (data, options) => {
   var x2domarr = [];
   for (var i = 0; i < data.length; i++) {
     var xext, yext;
+    var points = drawablePoints(data[i]);
     if (
       "confidenceAxis" in data[i] &&
       "upper" in data[i] &&
       "lower" in data[i]
     ) {
       if (data[i]["confidenceAxis"] === "y") {
-        yext = extent([...data[i]["upper"], ...data[i]["lower"], ...data[i].y]);
-        xext = extent(data[i].x);
+        yext = extent([...data[i]["upper"], ...data[i]["lower"], ...points.y]);
+        xext = extent(points.x);
       } else {
-        xext = extent([...data[i]["upper"], ...data[i]["lower"], ...data[i].x]);
-        yext = extent(data[i].y);
+        xext = extent([...data[i]["upper"], ...data[i]["lower"], ...points.x]);
+        yext = extent(points.y);
       }
     } else {
-      xext = extent(data[i].x);
-      yext = extent(data[i].y);
+      xext = extent(points.x);
+      yext = extent(points.y);
     }
     if (data[i].yaxis === "y2") {
       y2domarr.push(yext);

@@ -1448,6 +1448,31 @@ class Plot extends Component {
     return arr.map((v, i) => (hide(maskArr[i]) ? null : v));
   };
 
+  maskPairs = (pd, xaxis, yaxis, timeaxis) => {
+    // a line point needs both coordinates, so hide the partner of a missing
+    // or masked value. lines pair the single axis with each axis on the
+    // other side. the time axis is never hidden.
+    var xs = [].concat(xaxis);
+    var ys = [].concat(yaxis);
+    var missing = (v) => v === null || v === undefined || Number.isNaN(v);
+    var source = { ...pd };
+    var hide = (target, from) => {
+      var t = pd[target];
+      var s = source[from];
+      if (target === timeaxis || !isArray(t) || !isArray(s)) return;
+      if (t.length !== s.length || isArray(t[0]) || isArray(s[0])) return;
+      pd[target] = t.map((v, k) => (missing(s[k]) ? null : v));
+    };
+    if (xs.length > 1) {
+      for (let x of xs) hide(x, ys[0]);
+    } else if (ys.length > 1) {
+      for (let y of ys) hide(y, xs[0]);
+    } else {
+      hide(xs[0], ys[0]);
+      hide(ys[0], xs[0]);
+    }
+  };
+
   buildMaintenanceMask = (values, time, depth, maintenance, timeDim = 1) => {
     // returns a new mask (1 = in maintenance) without modifying the inputs.
     // 2D values are [depth][time] (timeDim 1) or [time][depth] (timeDim 0),
@@ -1644,6 +1669,7 @@ class Plot extends Component {
         }
         pd[axis[j]] = this.maskArray(values, maskArr, mask);
       }
+      if (graph === "linegraph") this.maskPairs(pd, xaxis, yaxis, timeaxis);
       plotdata.push(pd);
     }
 
