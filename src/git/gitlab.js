@@ -1,7 +1,7 @@
 import { projectFromSsh, idProviderFromSsh } from "../functions";
 import { auth } from "../auth";
 import store from "../store/index";
-import { GitServiceInterface } from "./commons";
+import { GitServiceInterface, GitApiError } from "./commons";
 
 const TOKEN_EXPIRY_BUFFER = 60; // seconds before actual expiry to refresh
 
@@ -75,8 +75,8 @@ export class GitlabService extends GitServiceInterface {
       );
 
       if (!response.ok) {
-        throw new Error(
-          `GitLab API error while applying labels: ${response.status}`,
+        throw new GitApiError(
+          `GitLab API error while applying labels: ${response.status}`, response.status,
         );
       }
     } catch (err) {
@@ -116,7 +116,7 @@ export class GitlabService extends GitServiceInterface {
       );
 
       if (!response.ok) {
-        throw new Error(`GitLab API error: ${response.status}`);
+        throw new GitApiError(`GitLab API error: ${response.status}`, response.status);
       }
 
       const issue = await response.json();
@@ -149,7 +149,7 @@ export class GitlabService extends GitServiceInterface {
       );
 
       if (!response.ok) {
-        throw new Error(`GitLab API error: ${response.status}`);
+        throw new GitApiError(`GitLab API error: ${response.status}`, response.status);
       }
 
       const issue = await response.json();
@@ -232,8 +232,8 @@ export class GitlabService extends GitServiceInterface {
         },
       );
       if (!response.ok) {
-        throw new Error(
-          `GitLab API error while closing issue: ${response.status}`,
+        throw new GitApiError(
+          `GitLab API error while closing issue: ${response.status}`, response.status,
         );
       }
     } catch (err) {
@@ -268,8 +268,8 @@ export class GitlabService extends GitServiceInterface {
       );
 
       if (!response.ok) {
-        throw new Error(
-          `GitLab API error while commenting on issue: ${response.status}`,
+        throw new GitApiError(
+          `GitLab API error while commenting on issue: ${response.status}`, response.status,
         );
       }
     } catch (err) {
@@ -347,8 +347,8 @@ export class GitlabService extends GitServiceInterface {
 
       if (!response.ok) {
         const detail = await response.text();
-        throw new Error(
-          `GitLab API error while creating branch: ${response.status} ${detail}`,
+        throw new GitApiError(
+          `GitLab API error while creating branch: ${response.status} ${detail}`, response.status,
         );
       }
     } catch (err) {
@@ -398,8 +398,8 @@ export class GitlabService extends GitServiceInterface {
       },
     );
     if (!response.ok) {
-      throw new Error(
-        `GitLab API error while creating events file: ${response.status}`,
+      throw new GitApiError(
+        `GitLab API error while creating events file: ${response.status}`, response.status,
       );
     }
     const project = await this.getProject();
@@ -416,8 +416,8 @@ export class GitlabService extends GitServiceInterface {
       },
     );
     if (!mrResponse.ok) {
-      throw new Error(
-        `GitLab API error while checking merge requests: ${mrResponse.status}`,
+      throw new GitApiError(
+        `GitLab API error while checking merge requests: ${mrResponse.status}`, mrResponse.status,
       );
     }
     const mergeRequests = await mrResponse.json();
@@ -445,8 +445,8 @@ export class GitlabService extends GitServiceInterface {
       },
     );
     if (!mergeRequestResponse.ok) {
-      throw new Error(
-        `GitLab API error while creating merge request: ${mergeRequestResponse.status}`,
+      throw new GitApiError(
+        `GitLab API error while creating merge request: ${mergeRequestResponse.status}`, mergeRequestResponse.status,
       );
     }
     const mergeRequest = await mergeRequestResponse.json();
@@ -481,8 +481,8 @@ export class GitlabService extends GitServiceInterface {
         return ""; // File not found, return empty string
       }
       if (!response.ok) {
-        throw new Error(
-          `GitLab API error while downloading raw file: ${response.status}`,
+        throw new GitApiError(
+          `GitLab API error while downloading raw file: ${response.status}`, response.status,
         );
       }
       // Return the raw file content as text
@@ -512,8 +512,8 @@ export class GitlabService extends GitServiceInterface {
         },
       );
       if (!response.ok) {
-        throw new Error(
-          `GitLab API error while fetching project: ${response.status}`,
+        throw new GitApiError(
+          `GitLab API error while fetching project: ${response.status}`, response.status,
         );
       }
       const project = await response.json();
@@ -563,13 +563,13 @@ export class GitlabService extends GitServiceInterface {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to refresh token");
+      throw new GitApiError("Failed to refresh token", 401);
     }
 
     const data = await response.json();
 
     const updatedToken = {
-      user: auth[this.idProvider].user || null,
+      user: state.auth[this.idProvider]?.user || null,
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
       expiresIn: data.expires_in,
@@ -625,7 +625,7 @@ export class GitlabService extends GitServiceInterface {
       );
 
       if (!response.ok) {
-        throw new Error(`GitLab API error: ${response.status}`);
+        throw new GitApiError(`GitLab API error: ${response.status}`, response.status);
       }
 
       const members = await response.json();

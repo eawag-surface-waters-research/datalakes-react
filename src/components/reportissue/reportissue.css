@@ -122,6 +122,24 @@
   text-align: center;
 }
 
+.report-issue .report-modal .report-modal-box .report-error {
+  text-align: left;
+}
+
+.report-issue .report-modal .report-modal-box .info-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: -3px;
+}
+
+.report-issue .report-modal .report-modal-box .report-error-detail {
+  font-family: monospace;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 6px;
+}
+
 .report-issue .report-modal .report-modal-box .switch {
   position: relative;
   display: inline-block;

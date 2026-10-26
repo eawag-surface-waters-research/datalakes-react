@@ -1,6 +1,6 @@
 import { projectFromSsh } from "../functions";
 import store from "../store/index";
-import { GitServiceInterface } from "./commons";
+import { GitServiceInterface, GitApiError } from "./commons";
 
 export class GithubService extends GitServiceInterface {
 
@@ -59,7 +59,7 @@ export class GithubService extends GitServiceInterface {
       });
 
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new GitApiError(`GitHub API error: ${response.status}`, response.status);
       }
 
       const issue = await response.json();
@@ -88,7 +88,7 @@ export class GithubService extends GitServiceInterface {
       });
 
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new GitApiError(`GitHub API error: ${response.status}`, response.status);
       }
 
       return await response.json();
@@ -146,7 +146,7 @@ export class GithubService extends GitServiceInterface {
       }
 
       // Close the issue
-      await fetch(`${this.host}/repos/${this.projectPath}/issues/${issue_id}`, {
+      const response = await fetch(`${this.host}/repos/${this.projectPath}/issues/${issue_id}`, {
         method: "PATCH",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -155,6 +155,10 @@ export class GithubService extends GitServiceInterface {
         },
         body: JSON.stringify({ state: "closed" }),
       });
+
+      if (!response.ok) {
+        throw new GitApiError(`GitHub API error while closing issue: ${response.status}`, response.status);
+      }
     } catch (err) {
       console.error("Error closing GitHub issue:", err);
       throw err;
@@ -186,7 +190,7 @@ export class GithubService extends GitServiceInterface {
       });
 
       if (!response.ok) {
-        throw new Error(`GitHub API error while applying labels: ${response.status}`);
+        throw new GitApiError(`GitHub API error while applying labels: ${response.status}`, response.status);
       }
     } catch (err) {
       console.error("Error applying GitHub issue labels:", err);
@@ -215,7 +219,7 @@ export class GithubService extends GitServiceInterface {
       });
 
       if (!response.ok) {
-        throw new Error(`GitHub API error while commenting: ${response.status}`);
+        throw new GitApiError(`GitHub API error while commenting: ${response.status}`, response.status);
       }
     } catch (err) {
       console.error("Error commenting on GitHub issue:", err);
@@ -274,7 +278,7 @@ export class GithubService extends GitServiceInterface {
         },
       });
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new GitApiError(`GitHub API error: ${response.status}`, response.status);
       }
       const defaultBranchData = await response.json();
 
@@ -347,7 +351,7 @@ export class GithubService extends GitServiceInterface {
         }
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(`GitHub API error while updating file: ${response.status} - ${JSON.stringify(errorData)}`);
+          throw new GitApiError(`GitHub API error while updating file: ${response.status} - ${JSON.stringify(errorData)}`, response.status);
         }
         break;
       }
@@ -366,7 +370,7 @@ export class GithubService extends GitServiceInterface {
         }
       );
       if (!prCheckResponse.ok) {
-        throw new Error(`GitHub API error while checking existing pull requests: ${prCheckResponse.status}`);
+        throw new GitApiError(`GitHub API error while checking existing pull requests: ${prCheckResponse.status}`, prCheckResponse.status);
       }
       const existingPRs = await prCheckResponse.json();
       if (existingPRs.length > 0) {
@@ -390,7 +394,7 @@ export class GithubService extends GitServiceInterface {
       });
       if (!prResponse.ok) {
         const errorData = await prResponse.json();
-        throw new Error(`GitHub API error while creating pull request: ${prResponse.status} - ${JSON.stringify(errorData)}`);
+        throw new GitApiError(`GitHub API error while creating pull request: ${prResponse.status} - ${JSON.stringify(errorData)}`, prResponse.status);
       }
       const pullRequest = await prResponse.json();
       return pullRequest.number; // Return the pull request number
@@ -441,7 +445,7 @@ export class GithubService extends GitServiceInterface {
       }
 
       if (!response.ok) {
-        throw new Error(`GitHub API error while downloading file: ${response.status}`);
+        throw new GitApiError(`GitHub API error while downloading file: ${response.status}`, response.status);
       }
 
       const data = await response.json();
@@ -473,7 +477,7 @@ export class GithubService extends GitServiceInterface {
         },
       });
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new GitApiError(`GitHub API error: ${response.status}`, response.status);
       }
       return await response.json();
     } catch (err) {
@@ -490,7 +494,7 @@ export class GithubService extends GitServiceInterface {
   getAccessToken() {
     const accessToken = store.getState().auth.github?.accessToken;
     if (!accessToken) {
-      throw new Error("GitHub access token is not available");
+      throw new GitApiError("GitHub access token is not available", 401);
     }
     return accessToken;
   }
@@ -513,7 +517,7 @@ export class GithubService extends GitServiceInterface {
         },
       });
       if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new GitApiError(`GitHub API error: ${response.status}`, response.status);
       }
       const collaborators = await response.json();
       return collaborators;

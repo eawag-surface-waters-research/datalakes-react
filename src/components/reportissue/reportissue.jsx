@@ -13,6 +13,7 @@ import {
 } from "../../functions";
 import { GitService } from "../../git";
 import Loading from "../../components/loading/loading";
+import { describeError } from "./errors";
 
 const RESERVED_PARAMETER_IDS = [1, 2, 18, 27, 28, 29, 30];
 
@@ -30,7 +31,7 @@ class ReportIssue extends Component {
     maintainer: false,
     sensordepths: "",
     submitted: false,
-    error: false,
+    error: null,
     data: [],
     edited_ids: [],
     edited_issue: null,
@@ -166,7 +167,7 @@ class ReportIssue extends Component {
       email,
       maintainer,
       modal: true,
-      error: false,
+      error: null,
       edited_ids: [],
       edited_issue: null,
       missing_issues: [],
@@ -224,12 +225,35 @@ class ReportIssue extends Component {
     return { missing: missingIssues, valid: validIssues };
   };
 
+  errorMessage = (step, e, options = {}) => {
+    return describeError(step, e, {
+      provider: this.capitalizeFirstLetter(idProviderFromSsh(this.props.ssh)),
+      person: this.props.person,
+      ...options,
+    });
+  };
+
+  actionFailed = (action, e) => {
+    console.error(e);
+    var step = e?.isAxiosError ? "save" : "git";
+    this.setState({
+      error: { scope: "table", ...this.errorMessage(step, e, { action }) },
+    });
+  };
+
   deleteMaintenance = async (ids, issueId) => {
-    await this.state.git_service.closeGitIssue(issueId);
-    for (let i = 0; i < ids.length; i++) {
-      await axios.delete(apiUrl + "/maintenance/" + ids[i]);
+    this.setState({ loading: true, error: null });
+    try {
+      await this.state.git_service.closeGitIssue(issueId);
+      for (let i = 0; i < ids.length; i++) {
+        await axios.delete(apiUrl + "/maintenance/" + ids[i]);
+      }
+      this.updateMaintenances();
+    } catch (e) {
+      this.actionFailed("delete", e);
+    } finally {
+      this.setState({ loading: false });
     }
-    this.updateMaintenances();
   };
 
   editMaintenance = (ids, issueId) => {
@@ -244,7 +268,7 @@ class ReportIssue extends Component {
     this.setState({
       ...event,
       title: "",
-      error: false,
+      error: null,
       edited_ids: ids,
       edited_issue: issueId || null,
     });
@@ -262,7 +286,7 @@ class ReportIssue extends Component {
     this.setState({
       ...event,
       title: "",
-      error: false,
+      error: null,
       edited_ids: [],
       edited_issue: null,
     });
@@ -293,7 +317,7 @@ class ReportIssue extends Component {
   };
 
   confirmMaintenance = async (ids, issueId) => {
-    this.setState({ loading: true });
+    this.setState({ loading: true, error: null });
     try {
       if (!issueId) {
         // create issue if not exists
@@ -321,13 +345,15 @@ class ReportIssue extends Component {
         });
       }
       this.updateMaintenances();
+    } catch (e) {
+      this.actionFailed("confirm", e);
     } finally {
       this.setState({ loading: false });
     }
   };
 
   unconfirmMaintenance = async (ids, issueId) => {
-    this.setState({ loading: true });
+    this.setState({ loading: true, error: null });
     try {
       await this.state.git_service.applyGitIssueLabels(issueId, []);
       for (let i = 0; i < ids.length; i++) {
@@ -336,13 +362,15 @@ class ReportIssue extends Component {
         });
       }
       this.updateMaintenances();
+    } catch (e) {
+      this.actionFailed("un-confirm", e);
     } finally {
       this.setState({ loading: false });
     }
   };
 
   resolveMaintenance = async (ids, issueId) => {
-    this.setState({ loading: true });
+    this.setState({ loading: true, error: null });
     try {
       var { data, git_service } = this.state;
       var maintenances = data.filter((d) => ids.includes(d.id));
@@ -364,6 +392,8 @@ class ReportIssue extends Component {
         });
       }
       this.updateMaintenances();
+    } catch (e) {
+      this.actionFailed("resolve", e);
     } finally {
       this.setState({ loading: false });
     }
@@ -378,7 +408,7 @@ class ReportIssue extends Component {
   };
 
   submitMaintenance = async () => {
-    this.setState({ loading: true });
+    this.setState({ loading: true, error: null });
     try {
       var {
         start,
@@ -422,11 +452,15 @@ class ReportIssue extends Component {
         datasetparameters: dp,
       };
 
+      // track progress so the error message can say what failed
+      var step = "git";
+      var commenting = edited_issue && !missing_issues.includes(edited_issue);
+      var createdIssue = null;
       try {
         const message = `${description}\n\n---\n\nPlease check the maintenance request at: ${
           window.location.href
         }\n\n\`\`\`json\n${JSON.stringify(content, null, 2)}\n\`\`\``;
-        if (edited_issue && !missing_issues.includes(edited_issue)) {
+        if (commenting) {
           // comment issue
           await this.state.git_service.commentGitIssue(edited_issue, message);
           content.issue = `${edited_issue}`;
@@ -440,12 +474,15 @@ class ReportIssue extends Component {
             labels
           );
           content.issue = `${issueId}`;
+          createdIssue = issueId;
         }
 
         // create maintenance reports
+        step = "save";
         await axios.post(apiUrl + "/maintenance", content);
         if (edited_ids && edited_ids.length > 0) {
           // delete obsolete maintenance reports
+          step = "cleanup";
           for (let i = 0; i < edited_ids.length; i++) {
             await axios.delete(apiUrl + "/maintenance/" + edited_ids[i]);
           }
@@ -458,11 +495,19 @@ class ReportIssue extends Component {
           description: "",
           reporter: user?.name || "",
           sensordepths: "",
-          error: false,
+          error: null,
         });
       } catch (e) {
         console.error(e);
-        this.setState({ error: true });
+        var issue = step === "git" ? commenting && edited_issue : createdIssue;
+        this.setState({
+          error: {
+            scope: "form",
+            ...this.errorMessage(step, e, { issue: issue || null }),
+          },
+        });
+        // the new report was saved, so show it
+        if (step === "cleanup") this.updateMaintenances();
       }
     } finally {
       this.setState({ loading: false });
@@ -476,6 +521,20 @@ class ReportIssue extends Component {
   capitalizeFirstLetter = (str) => {
     if (!str) return "";
     return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  renderError = (scope) => {
+    var { error } = this.state;
+    if (error?.scope !== scope) return null;
+    return (
+      <div className="alert alert-danger report-error" role="alert">
+        <b>{error.title}</b>
+        <div>{error.hint}</div>
+        {error.detail && (
+          <div className="report-error-detail">{error.detail}</div>
+        )}
+      </div>
+    );
   };
 
   componentDidMount = async () => {
@@ -493,7 +552,6 @@ class ReportIssue extends Component {
       reporter,
       maintainer,
       sensordepths,
-      error,
       data,
       loading,
       missing_issues,
@@ -713,6 +771,7 @@ class ReportIssue extends Component {
                       access to advanced reporting features.
                     </p>
                   )}
+                  {this.renderError("table")}
                   {rows.length > 0 && (
                     <>
                       <p>Current data issues: {checking_issues && <span style={{color: "red"}}>[checking Git issues...]</span>}</p>
@@ -799,8 +858,17 @@ class ReportIssue extends Component {
                       <tr>
                         <th></th>
                         <td>
-                          <p className="alert alert-warning">
-                            &#9888; Events reported on derived parameters are ignored
+                          <p className="alert alert-info">
+                            <svg
+                              className="info-icon"
+                              viewBox="0 0 16 16"
+                              aria-hidden="true"
+                            >
+                              <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                              <circle cx="8" cy="4.75" r="1" fill="currentColor" />
+                              <rect x="7.25" y="6.75" width="1.5" height="5" rx="0.75" fill="currentColor" />
+                            </svg>
+                            Events reported on derived parameters are ignored
                             by the processing pipeline. Please report the issue
                             against the raw parameters it is calculated from.
                           </p>
@@ -859,8 +927,7 @@ class ReportIssue extends Component {
                     </tbody>
                   </table>
                   <div className="modal-submit">
-                    {error &&
-                      "Failed to submit please refresh the page and try again."}
+                    {this.renderError("form")}
                     <button
                       className="click"
                       onClick={loading ? null : this.submitMaintenance}

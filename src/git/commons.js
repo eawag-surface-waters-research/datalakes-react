@@ -1,3 +1,15 @@
+/**
+ * Error thrown by the Git services when an API request fails.
+ * @property {number} status - The HTTP status code of the failed request.
+ */
+export class GitApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = "GitApiError";
+    this.status = status;
+  }
+}
+
 export class GitServiceInterface {
 
   constructor(ssh = "") {
