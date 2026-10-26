@@ -145,18 +145,21 @@ class ReportIssue extends Component {
       }
 
       // prefill form with found parameter
-      if (parameter) {
-        parameters = [
-          {
-            value: parameter.id,
-            label:
-              parameter.name +
-              (parameter.detail !== "none" ? ` (${parameter.detail})` : ""),
-            id: parameter.parameters_id,
-          },
-        ];
-      }
+      if (parameter) parameters = [parameter];
     }
+
+    // otherwise default to the parameters currently being viewed
+    if (parameters.length === 0 && this.props.getPlotParameters) {
+      parameters = this.props
+        .getPlotParameters()
+        .filter((d) => !RESERVED_PARAMETER_IDS.includes(d.parameters_id));
+    }
+
+    parameters = parameters.map((p) => ({
+      value: p.id,
+      label: p.name + (p.detail !== "none" ? ` (${p.detail})` : ""),
+      id: p.parameters_id,
+    }));
 
     this.setState({
       start,

@@ -1533,6 +1533,19 @@ class Plot extends Component {
     return Number.isFinite(max) ? new Date(max) : undefined;
   };
 
+  getPlotParameters = () => {
+    // dataset parameters shown in the current plot, used to prefill issue
+    // reports: z for heatmaps, the plotted x and y axes for line graphs
+    var { xaxis, yaxis, zaxis, graph } = this.state;
+    var { datasetparameters } = this.props;
+    var axis = [];
+    if (graph === "heatmap") axis = [zaxis];
+    else if (graph === "linegraph") axis = [].concat(xaxis, yaxis);
+    return axis
+      .map((ax) => (datasetparameters || []).find((dp) => dp.axis === ax))
+      .filter((dp) => dp);
+  };
+
   buildProfileMask = (values, depthValues, depthDim, fileSpan, maintenance) => {
     // profiles have one time span per file: the whole file is in maintenance
     // when its span overlaps a report, filtered by depth when known.
@@ -2854,6 +2867,7 @@ class Plot extends Component {
                       person={person}
                       onMaintenanceChange={this.props.onMaintenanceChange}
                       getMaxTime={this.getPlotMaxTime}
+                      getPlotParameters={this.getPlotParameters}
                     />
                   )}
                 </div>
