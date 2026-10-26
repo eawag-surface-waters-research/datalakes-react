@@ -10,6 +10,7 @@ import {
   idProviderFromSsh,
   groupMaintenance,
   formatLocalTime,
+  parseDepths,
 } from "../../functions";
 import { GitService } from "../../git";
 import Loading from "../../components/loading/loading";
@@ -440,6 +441,12 @@ class ReportIssue extends Component {
 
       if (parameters === null) {
         window.alert("You must select at least one parameter.");
+        return;
+      }
+      if (!parseDepths(sensordepths)) {
+        window.alert(
+          "Sensor depths must be a list (1.6,4.5,18.0) or a range (1.6-18.0)."
+        );
         return;
       }
       var p = parameters.map((p) => p.id);

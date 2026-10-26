@@ -45,19 +45,40 @@ export const isActiveMaintenance = (m) => {
   return m.state !== "reported";
 };
 
+export const parseDepths = (depths) => {
+  // depths is empty/"All" (all depths), a range "1.6-18.0" or a list "1.6,4.5".
+  // returns { all: true }, { range: [lower, upper] }, { list: [...] } or null
+  // when it can't be read
+  if (!depths || depths.trim() === "" || depths.trim() === "All") {
+    return { all: true };
+  }
+  // either bound may be negative, e.g. "-3.3-7.26" or "-5--1"
+  var num = "\\s*(-?\\d*\\.?\\d+(?:e[-+]?\\d+)?)\\s*";
+  var range = depths.match(new RegExp(`^${num}-${num}$`, "i"));
+  if (range) {
+    return {
+      range: [parseFloat(range[1]), parseFloat(range[2])].sort((a, b) => a - b),
+    };
+  }
+  var item = new RegExp(`^${num}$`, "i");
+  var list = depths.split(",");
+  if (list.every((d) => item.test(d))) {
+    return { list: list.map((d) => parseFloat(d)) };
+  }
+  return null;
+};
+
 export const depthMatches = (depths, depth) => {
-  // depths is empty/"All" (all depths), a range "1.6-18.0" or a list "1.6,4.5"
-  if (!depths || depths.trim() === "" || depths.trim() === "All") return true;
-  if (depth === undefined || depth === null || isNaN(depth)) return false;
-  var range = depths.split("-").map((d) => parseFloat(d));
-  if (range.length > 1) {
-    return depth >= range[0] && depth <= range[1];
+  var parsed = parseDepths(depths);
+  if (parsed?.all) return true;
+  if (!parsed || depth === undefined || depth === null || isNaN(depth)) {
+    return false;
+  }
+  if (parsed.range) {
+    return depth >= parsed.range[0] && depth <= parsed.range[1];
   }
   var span = 0.5;
-  return depths
-    .split(",")
-    .map((d) => parseFloat(d))
-    .some((d) => depth >= d - span && depth <= d + span);
+  return parsed.list.some((d) => depth >= d - span && depth <= d + span);
 };
 
 export const groupMaintenance = (maintenance) => {

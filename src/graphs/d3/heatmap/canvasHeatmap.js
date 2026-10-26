@@ -38,6 +38,7 @@ import {
   prepareContours,
 } from "./functions";
 import { canvasGrid, canvasContour } from "./fillcanvas";
+import { depthMatches } from "../../../functions";
 
 class CanvasHeatmap {
   options = {
@@ -1115,45 +1116,7 @@ class CanvasHeatmap {
           if (depth !== undefined) {
             // filter by depth in list or range
             evt.events.forEach((e) => {
-              // all depths apply
-              if (
-                e.depths === undefined ||
-                e.depths.trim() === "" ||
-                e.depths.trim() === "All"
-              ) {
-                activeMaintenances.push(e);
-                return;
-              }
-
-              // depth range
-              var depthRange = e.depths.split("-").map((d) => d.trim());
-              if (depthRange.length > 1) {
-                try {
-                  var start = parseFloat(depthRange[0]);
-                  var end = parseFloat(depthRange[1]);
-                  if (depth >= start && depth <= end) {
-                    activeMaintenances.push(e);
-                  }
-                } catch (e) {
-                  console.error("Error parsing depth range:", e);
-                }
-                return;
-              }
-
-              // depth list
-              var depthList = e.depths.split(",").map((d) => d.trim());
-              for (var i = 0; i < depthList.length; i++) {
-                try {
-                  var reported = parseFloat(depthList[i]);
-                  var span = 0.5;
-                  if (depth >= reported - span && depth <= reported + span) {
-                    activeMaintenances.push(e);
-                    return;
-                  }
-                } catch (e) {
-                  console.error("Error parsing depth list:", e);
-                }
-              }
+              if (depthMatches(e.depths, depth)) activeMaintenances.push(e);
             });
           } else {
             // no depth filter
