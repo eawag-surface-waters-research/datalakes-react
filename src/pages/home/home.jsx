@@ -33,45 +33,45 @@ class PartnerBanner extends Component {
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.eawag.ch/en/department/siam/projects/datalakes/"
+            href="https://www.eawag.ch/"
             target="_blank"
-            title="Visit the Eawag project page for datalakes"
+            title="Visit the Eawag website"
           >
             <img alt="Eawag Logo" src={eawagc} className="color" />
           </a>
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://datascience.ch/project/data-platform-and-bayesian-forecasting-of-swiss-lakes-datalakes/"
+            href="https://datascience.ch/"
             target="_blank"
-            title="Visit the SDSC project page for datalakes"
+            title="Visit the SDSC website"
           >
             <img alt="SDSC Logo" src={sdscc} className="color" />
           </a>
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.epfl.ch/research/domains/limnc/projects/lexplore/"
+            href="https://www.epfl.ch/"
             target="_blank"
-            title="Visit the EPFL project page for the L'EXPLORE platform"
+            title="Visit the EPFL website"
           >
             <img alt="EPFL Logo" src={epflc} className="color" />
           </a>
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://wp.unil.ch/lexplore/"
+            href="https://www.unil.ch/"
             target="_blank"
-            title="Visit the UNIL project page for the L'EXPLORE platform"
+            title="Visit the UNIL website"
           >
             <img alt="UNIL Logo" src={unilc} className="color" />
           </a>
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.unige.ch/sciences/terre/en/highlights/lexplore-floating-laboratory-study-lake-geneva/"
+            href="https://www.unige.ch/"
             target="_blank"
-            title="Visit the UNIGE news page for the L'EXPLORE platform"
+            title="Visit the UNIGE website"
           >
             <img
               alt="Universite de Geneve Logo"
@@ -82,16 +82,16 @@ class PartnerBanner extends Component {
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www6.lyon-grenoble.inrae.fr/carrtel"
+            href="https://carrtel.lyon-grenoble.hub.inrae.fr/"
             target="_blank"
-            title="Visit the CARRTEL news page for the L'EXPLORE platform"
+            title="Visit the CARRTEL website"
           >
             <img alt="Carrtel Logo" src={carrtelc} className="color" />
           </a>
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.bafu.admin.ch/de"
+            href="https://www.bafu.admin.ch/"
             target="_blank"
             title="Visit the BAFU website"
           >
@@ -110,7 +110,7 @@ class PartnerBanner extends Component {
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.be.ch/de/start.html"
+            href="https://www.be.ch/"
             target="_blank"
             title="Visit the Canton Bern website"
           >
@@ -128,7 +128,7 @@ class PartnerBanner extends Component {
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.fr.ch/de"
+            href="https://www.fr.ch/"
             target="_blank"
             title="Visit the Canton Fribourg website"
           >
@@ -155,7 +155,7 @@ class PartnerBanner extends Component {
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://zg.ch/de"
+            href="https://zg.ch/"
             target="_blank"
             title="Visit the Canton Zug website"
           >
@@ -164,7 +164,7 @@ class PartnerBanner extends Component {
           <a
             className="partner-logo"
             rel="noopener noreferrer"
-            href="https://www.zh.ch/de.html"
+            href="https://www.zh.ch/"
             target="_blank"
             title="Visit the Canton Zurich website"
           >
