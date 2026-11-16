@@ -1644,6 +1644,14 @@ class Plot extends Component {
       for (let j = 0; j < axis.length; j++) {
         const values = data[i][axis[j]];
         let maskArr = maskaxis[j] ? data[i][maskaxis[j]] : undefined;
+        // a quality mask that doesn't match the values (e.g. an empty
+        // array) can't be applied, and would block the maintenance mask
+        if (
+          isArray(maskArr) &&
+          (!isArray(values) || maskArr.length !== values.length)
+        ) {
+          maskArr = undefined;
+        }
         if (mask && maintenanceaxis.includes(axis[j])) {
           try {
             const axp = findaxis(axis[j]);
